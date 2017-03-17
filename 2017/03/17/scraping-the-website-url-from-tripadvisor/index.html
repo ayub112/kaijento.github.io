@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/17/scraping-the-website-url-from-tripadvisor/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>scraping the website url from tripadvisor | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+<h1 class="post-title-main">scraping the website url from tripadvisor</h1>
+  <p class="text-muted">17 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/javascript/">javascript</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>It seems everybody wants to scrape tripadvisor and a common issue people 
+run into is how to get the <code class="highlighter-rouge">Website URL</code> of the Restaurant, Hotel, whatever.</p>
+
+<a name="inspecting-the-dom"></a>
+<h2 class="section-header">
+  <span id="inspecting-the-dom"></span>
+  <a class="anchor" href="#inspecting-the-dom">Inspecting the DOM</a>
+</h2>
+
+<p>If you inspect the HTML or DOM of a tripadvisor listing page and view the <code class="highlighter-rouge">Website</code>
+section you will see some sort of obfuscation going on with the URL.</p>
+
+<p><img src="/img/1489761575-tripadvisor-inspector.png" alt="" /></p>
+
+<p>It looks like a string of nonsense with several instances of <code class="highlighter-rouge">QQQQoqn</code> repeating. 
+The first clue here is the <code class="highlighter-rouge">isAsdf</code> parameter.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"fl"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"taLnk"</span> <span class="na">onclick=</span><span class="s">"
+    ta.trackEventOnPage('Eatery_Listing', 'Website', 9750183, 1); 
+    ta.util.cookie.setPIDCookie(15190); 
+    ta.call('ta.util.link.targetBlank', event, this, {'aHref':
+      'LqMWJQzZYUWJQpEcYGII26XombQQoqnQQQQoqnqgoqnQQQQoqnQQQQoqnQQQQoqnqgoqnQQQQoqn...', 
+      'isAsdf':true})"</span><span class="nt">&gt;</span>Site Web
+  <span class="nt">&lt;/span&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<a name="scraping-the-email-address-from-tripadvisor"></a>
+<h2 class="section-header">
+  <span id="scraping-the-email-address-from-tripadvisor"></span>
+  <a class="anchor" href="#scraping-the-email-address-from-tripadvisor">“Scraping” the email address from tripadvisor</a>
+</h2>
+
+<p>Incidentally, the email address is stored in plaintext inside the <code class="highlighter-rouge">onclick</code> attribute of
+another <code class="highlighter-rouge">&lt;div&gt;</code> tag.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"taLnk fl"</span> <span class="na">onclick=</span><span class="s">"
+  ta.trackEventOnPage('Eatery_Listing', 'Email', 9750183, 1);
+  return ta.call(
+    'ta.locationDetail.checkEmailAction',event,this,'foo@bar.com'
+</span></code></pre>
+</div>
+
+<p>The simplest way to <em>“scrape”</em> this is probably using the <code class="highlighter-rouge">re</code> module</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'ta</span><span class="err">\</span><span class="s">.locationDetail</span><span class="err">\</span><span class="s">.checkEmailAction.+</span><span class="se">\'</span><span class="s">(.+)</span><span class="se">\'</span><span class="s">'</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'foo@bar.com'</span><span class="p">]</span>  
+</code></pre>
+</div>
+
+<a name="asdf-in-javascript"></a>
+<h2 class="section-header">
+  <span id="asdf-in-javascript"></span>
+  <a class="anchor" href="#asdf-in-javascript">asdf() in javascript</a>
+</h2>
+
+<p>So back to the URL - because it’s inside an <code class="highlighter-rouge">onclick</code> attribute we know we need to inspect
+the javascript code so we view the <strong>Network</strong> tab of <strong>Dev Tools</strong> as 
+we refresh the page and set the filter to <strong>JS</strong> requests.</p>
+
+<p><img src="/img/1489761601-tripadvisor-networktab.png" alt="" /></p>
+
+<p>We see a request for <code class="highlighter-rouge">tripadvisor-c-v21056403377b.js</code> which seems like a good place to start.</p>
+
+<p>Another perhaps simpler approach would be to open the <strong>Debugger</strong> tab
+and perform a <em>Search all scripts</em>.</p>
+
+<p>So if we search for <code class="highlighter-rouge">asdf</code> inside <code class="highlighter-rouge">tripadvisor-c-v21056403377b.js</code> we will find the 
+following:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">a</span><span class="p">.</span><span class="nx">asdf</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s1">''</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s1">'&amp;'</span><span class="p">,</span> <span class="s1">'='</span><span class="p">,</span> <span class="s1">'p'</span><span class="p">,</span> <span class="s1">'6'</span><span class="p">,</span> <span class="s1">'?'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'%'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'.com'</span><span class="p">,</span> <span class="s1">'k'</span><span class="p">,</span> <span class="s1">'9'</span><span class="p">,</span> <span class="s1">'.html'</span><span class="p">,</span>
+        <span class="s1">'n'</span><span class="p">,</span> <span class="s1">'M'</span><span class="p">,</span> <span class="s1">'r'</span><span class="p">,</span> <span class="s1">'www.'</span><span class="p">,</span> <span class="s1">'h'</span><span class="p">,</span> <span class="s1">'b'</span><span class="p">,</span> <span class="s1">'t'</span><span class="p">,</span> <span class="s1">'a'</span><span class="p">,</span> <span class="s1">'0'</span><span class="p">,</span> <span class="s1">'/'</span><span class="p">,</span> <span class="s1">'d'</span><span class="p">,</span> <span class="s1">'O'</span><span class="p">,</span> <span class="s1">'j'</span><span class="p">,</span>
+        <span class="s1">'http://'</span><span class="p">,</span> <span class="s1">'_'</span><span class="p">,</span> <span class="s1">'L'</span><span class="p">,</span> <span class="s1">'i'</span><span class="p">,</span> <span class="s1">'f'</span><span class="p">,</span> <span class="s1">'1'</span><span class="p">,</span> <span class="s1">'e'</span><span class="p">,</span> <span class="s1">'-'</span><span class="p">,</span> <span class="s1">'2'</span><span class="p">,</span> <span class="s1">'.'</span><span class="p">,</span> <span class="s1">'N'</span><span class="p">,</span> <span class="s1">'m'</span><span class="p">,</span>
+        <span class="s1">'A'</span><span class="p">,</span> <span class="s1">'l'</span><span class="p">,</span> <span class="s1">'4'</span><span class="p">,</span> <span class="s1">'R'</span><span class="p">,</span> <span class="s1">'C'</span><span class="p">,</span> <span class="s1">'y'</span><span class="p">,</span> <span class="s1">'S'</span><span class="p">,</span> <span class="s1">'o'</span><span class="p">,</span> <span class="s1">'+'</span><span class="p">,</span> <span class="s1">'7'</span><span class="p">,</span> <span class="s1">'I'</span><span class="p">,</span> <span class="s1">'3'</span><span class="p">,</span> <span class="s1">'c'</span><span class="p">,</span>
+        <span class="s1">'5'</span><span class="p">,</span> <span class="s1">'u'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'T'</span><span class="p">,</span> <span class="s1">'v'</span><span class="p">,</span> <span class="s1">'s'</span><span class="p">,</span> <span class="s1">'w'</span><span class="p">,</span> <span class="s1">'8'</span><span class="p">,</span> <span class="s1">'P'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'g'</span><span class="p">,</span> <span class="mi">0</span>
+      <span class="p">],</span>
+      <span class="na">q</span><span class="p">:</span> <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="s1">'__3F__'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Photos'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'https://'</span><span class="p">,</span> <span class="s1">'.edu'</span><span class="p">,</span> <span class="s1">'*'</span><span class="p">,</span> <span class="s1">'Y'</span><span class="p">,</span> <span class="s1">'&gt;'</span><span class="p">,</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'`'</span><span class="p">,</span> <span class="s1">'__2D__'</span><span class="p">,</span> <span class="s1">'X'</span><span class="p">,</span> <span class="s1">'&lt;'</span><span class="p">,</span> <span class="s1">'slot'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'ShowUrl'</span><span class="p">,</span>
+        <span class="s1">'Owners'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'['</span><span class="p">,</span> <span class="s1">'q'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'MemberProfile'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'ShowUserReviews'</span><span class="p">,</span>
+        <span class="s1">'"'</span><span class="p">,</span> <span class="s1">'Hotel'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Expedia'</span><span class="p">,</span> <span class="s1">'Vacation'</span><span class="p">,</span> <span class="s1">'Discount'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+        <span class="s1">'UserReview'</span><span class="p">,</span> <span class="s1">'Thumbnail'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'__2F__'</span><span class="p">,</span> <span class="s1">'Inspiration'</span><span class="p">,</span> <span class="s1">'V'</span><span class="p">,</span> <span class="s1">'Map'</span><span class="p">,</span> 
+        <span class="s1">':'</span><span class="p">,</span> <span class="s1">'@'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'F'</span><span class="p">,</span> <span class="s1">'help'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Rental'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Picture'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+        <span class="s1">'hotels'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'ftp://'</span>
+      <span class="p">],</span>
+      <span class="na">x</span><span class="p">:</span> <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'J'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Z'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">';'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Text'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'('</span><span class="p">,</span> <span class="s1">'x'</span><span class="p">,</span>
+        <span class="s1">'GenericAds'</span><span class="p">,</span> <span class="s1">'U'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'careers'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'members'</span><span class="p">,</span> 
+        <span class="s1">'Search'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Post'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Q'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'$'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'K'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+        <span class="s1">'W'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Reviews'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">','</span><span class="p">,</span> <span class="s1">'__2E__'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+        <span class="s1">'{'</span><span class="p">,</span> <span class="s1">'}'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Cheap'</span><span class="p">,</span> <span class="s1">')'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'#'</span><span class="p">,</span> <span class="s1">'.org'</span>
+      <span class="p">],</span>
+      <span class="na">z</span><span class="p">:</span> <span class="p">[</span>
+        <span class="mi">0</span><span class="p">,</span> <span class="s1">'Hotels'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Icon'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'.net'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'z'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">'pages'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'geo'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'cnt'</span><span class="p">,</span> <span class="s1">'~'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">']'</span><span class="p">,</span> <span class="s1">'|'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">'tripadvisor'</span><span class="p">,</span> <span class="s1">'Images'</span><span class="p">,</span> <span class="s1">'BookingBuddy'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Commerce'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">'partnerKey'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'area'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'Deals'</span><span class="p">,</span> <span class="s1">'from'</span><span class="p">,</span> <span class="s1">'\\'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'urlKey'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s1">'\''</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'WeatherUnderground'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'MemberSign'</span><span class="p">,</span> <span class="s1">'Maps'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'matchID'</span><span class="p">,</span>
+        <span class="s1">'Packages'</span><span class="p">,</span> <span class="s1">'E'</span><span class="p">,</span> <span class="s1">'Amenities'</span><span class="p">,</span> <span class="s1">'Travel'</span><span class="p">,</span> <span class="s1">'.htm'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'!'</span><span class="p">,</span> <span class="s1">'^'</span><span class="p">,</span> <span class="s1">'G'</span>
+      <span class="p">]</span>
+    <span class="p">};</span>
+
+    <span class="kd">var</span> <span class="nx">e</span> <span class="o">=</span> <span class="s1">''</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">d</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">d</span> <span class="o">&lt;</span> <span class="nx">f</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">d</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kd">var</span> <span class="nx">k</span> <span class="o">=</span> <span class="nx">f</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">d</span><span class="p">);</span>
+        <span class="kd">var</span> <span class="nx">g</span> <span class="o">=</span> <span class="nx">k</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">j</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nx">f</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">d</span><span class="o">++</span><span class="p">;</span>
+            <span class="nx">g</span> <span class="o">+=</span> <span class="nx">f</span><span class="p">.</span><span class="nx">charAt</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">k</span> <span class="o">=</span> <span class="s1">''</span>
+        <span class="p">}</span>
+        <span class="kd">var</span> <span class="nx">h</span> <span class="o">=</span> <span class="nx">getOffset</span><span class="p">(</span><span class="nx">f</span><span class="p">.</span><span class="nx">charCodeAt</span><span class="p">(</span><span class="nx">d</span><span class="p">));</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">h</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="k">typeof</span> <span class="nx">j</span><span class="p">[</span><span class="nx">k</span><span class="p">][</span><span class="nx">h</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'String'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nx">e</span> <span class="o">+=</span> <span class="nx">g</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nx">e</span> <span class="o">+=</span> <span class="nx">j</span><span class="p">[</span><span class="nx">k</span><span class="p">][</span><span class="nx">h</span><span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">e</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<p>It refers to another function <code class="highlighter-rouge">getOffset</code> which we can also find in the file</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">a</span><span class="p">.</span><span class="nx">getOffset</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">d</span> <span class="o">&gt;=</span> <span class="mi">97</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">&lt;=</span> <span class="mi">122</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">d</span> <span class="o">-</span> <span class="mi">61</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">d</span> <span class="o">&gt;=</span> <span class="mi">65</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">d</span> <span class="o">-</span> <span class="mi">55</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">d</span> <span class="o">&gt;=</span> <span class="mi">48</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">&lt;=</span> <span class="mi">71</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">d</span> <span class="o">-</span> <span class="mi">48</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="p">};</span>
+</code></pre>
+</div>
+
+<a name="writing-asdf-in-python"></a>
+<h2 class="section-header">
+  <span id="writing-asdf-in-python"></span>
+  <a class="anchor" href="#writing-asdf-in-python">Writing asdf() in Python</a>
+</h2>
+
+<p>It’s not entirely clear what is going on in these functions or what kind of 
+<em>“obfuscation”</em> tecnhique they are using so we will just port them straight
+to Python.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">asdf</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_offset</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">if</span> <span class="mi">97</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">122</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">61</span> 
+        <span class="k">if</span> <span class="mi">65</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">55</span>
+        <span class="k">if</span> <span class="mi">48</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">71</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">48</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">h</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">''</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s">'&amp;'</span><span class="p">,</span> <span class="s">'='</span><span class="p">,</span> <span class="s">'p'</span><span class="p">,</span> <span class="s">'6'</span><span class="p">,</span> <span class="s">'?'</span><span class="p">,</span> <span class="s">'H'</span><span class="p">,</span> <span class="s">'</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'B'</span><span class="p">,</span> <span class="s">'.com'</span><span class="p">,</span> <span class="s">'k'</span><span class="p">,</span> <span class="s">'9'</span><span class="p">,</span> 
+            <span class="s">'.html'</span><span class="p">,</span> <span class="s">'n'</span><span class="p">,</span> <span class="s">'M'</span><span class="p">,</span> <span class="s">'r'</span><span class="p">,</span> <span class="s">'www.'</span><span class="p">,</span> <span class="s">'h'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">,</span> <span class="s">'t'</span><span class="p">,</span> <span class="s">'a'</span><span class="p">,</span> <span class="s">'0'</span><span class="p">,</span> <span class="s">'/'</span><span class="p">,</span> 
+            <span class="s">'d'</span><span class="p">,</span> <span class="s">'O'</span><span class="p">,</span> <span class="s">'j'</span><span class="p">,</span> <span class="s">'http://'</span><span class="p">,</span> <span class="s">'_'</span><span class="p">,</span> <span class="s">'L'</span><span class="p">,</span> <span class="s">'i'</span><span class="p">,</span> <span class="s">'f'</span><span class="p">,</span> <span class="s">'1'</span><span class="p">,</span> <span class="s">'e'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> 
+            <span class="s">'2'</span><span class="p">,</span> <span class="s">'.'</span><span class="p">,</span> <span class="s">'N'</span><span class="p">,</span> <span class="s">'m'</span><span class="p">,</span> <span class="s">'A'</span><span class="p">,</span> <span class="s">'l'</span><span class="p">,</span> <span class="s">'4'</span><span class="p">,</span> <span class="s">'R'</span><span class="p">,</span> <span class="s">'C'</span><span class="p">,</span> <span class="s">'y'</span><span class="p">,</span> <span class="s">'S'</span><span class="p">,</span> <span class="s">'o'</span><span class="p">,</span> 
+            <span class="s">'+'</span><span class="p">,</span> <span class="s">'7'</span><span class="p">,</span> <span class="s">'I'</span><span class="p">,</span> <span class="s">'3'</span><span class="p">,</span> <span class="s">'c'</span><span class="p">,</span> <span class="s">'5'</span><span class="p">,</span> <span class="s">'u'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'T'</span><span class="p">,</span> <span class="s">'v'</span><span class="p">,</span> <span class="s">'s'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">,</span> <span class="s">'8'</span><span class="p">,</span> 
+            <span class="s">'P'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'g'</span><span class="p">,</span> <span class="mi">0</span>
+        <span class="p">],</span>
+        <span class="s">'q'</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="s">'__3F__'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Photos'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'https://'</span><span class="p">,</span> <span class="s">'.edu'</span><span class="p">,</span> <span class="s">'*'</span><span class="p">,</span> <span class="s">'Y'</span><span class="p">,</span> <span class="s">'&gt;'</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'`'</span><span class="p">,</span> <span class="s">'__2D__'</span><span class="p">,</span> <span class="s">'X'</span><span class="p">,</span> <span class="s">'&lt;'</span><span class="p">,</span> <span class="s">'slot'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'ShowUrl'</span><span class="p">,</span> 
+            <span class="s">'Owners'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'['</span><span class="p">,</span> <span class="s">'q'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'MemberProfile'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'ShowUserReviews'</span><span class="p">,</span> 
+            <span class="s">'"'</span><span class="p">,</span> <span class="s">'Hotel'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Expedia'</span><span class="p">,</span> <span class="s">'Vacation'</span><span class="p">,</span> <span class="s">'Discount'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+            <span class="s">'UserReview'</span><span class="p">,</span> <span class="s">'Thumbnail'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'__2F__'</span><span class="p">,</span> <span class="s">'Inspiration'</span><span class="p">,</span> <span class="s">'V'</span><span class="p">,</span> 
+            <span class="s">'Map'</span><span class="p">,</span> <span class="s">':'</span><span class="p">,</span> <span class="s">'@'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'F'</span><span class="p">,</span> <span class="s">'help'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Rental'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Picture'</span><span class="p">,</span> 
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'hotels'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'ftp://'</span>
+        <span class="p">],</span>
+        <span class="s">'x'</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'J'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Z'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">';'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Text'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'('</span><span class="p">,</span> <span class="s">'x'</span><span class="p">,</span> 
+            <span class="s">'GenericAds'</span><span class="p">,</span> <span class="s">'U'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'careers'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'D'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'members'</span><span class="p">,</span> 
+            <span class="s">'Search'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Post'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Q'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'$'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'K'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'W'</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="s">'Reviews'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">','</span><span class="p">,</span> <span class="s">'__2E__'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'{'</span><span class="p">,</span> <span class="s">'}'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">'Cheap'</span><span class="p">,</span> <span class="s">')'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'#'</span><span class="p">,</span> <span class="s">'.org'</span>
+        <span class="p">],</span>
+        <span class="s">'z'</span><span class="p">:</span> <span class="p">[</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="s">'Hotels'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Icon'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'.net'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'z'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="s">'pages'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'geo'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'cnt'</span><span class="p">,</span> <span class="s">'~'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">']'</span><span class="p">,</span> <span class="s">'|'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+            <span class="s">'tripadvisor'</span><span class="p">,</span> <span class="s">'Images'</span><span class="p">,</span> <span class="s">'BookingBuddy'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Commerce'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+            <span class="s">'partnerKey'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'area'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'Deals'</span><span class="p">,</span> <span class="s">'from'</span><span class="p">,</span> <span class="s">'</span><span class="se">\\</span><span class="s">'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'urlKey'</span><span class="p">,</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="s">'</span><span class="se">\'</span><span class="s">'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'WeatherUnderground'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s">'MemberSign'</span><span class="p">,</span> <span class="s">'Maps'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+            <span class="s">'matchID'</span><span class="p">,</span> <span class="s">'Packages'</span><span class="p">,</span> <span class="s">'E'</span><span class="p">,</span> <span class="s">'Amenities'</span><span class="p">,</span> <span class="s">'Travel'</span><span class="p">,</span> <span class="s">'.htm'</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> 
+            <span class="s">'!'</span><span class="p">,</span> <span class="s">'^'</span><span class="p">,</span> <span class="s">'G'</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="n">b</span> <span class="o">=</span> <span class="s">''</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">j</span>
+        <span class="k">if</span> <span class="n">h</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">j</span><span class="p">)</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">f</span> <span class="o">+=</span> <span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="s">''</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">get_offset</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">if</span> <span class="n">g</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">h</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">g</span><span class="p">])</span> <span class="o">==</span> <span class="s">'str'</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="n">f</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="n">h</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">g</span><span class="p">]</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">b</span>
+</code></pre>
+</div>
+
+<a name="partner_key"></a>
+<h2 class="section-header">
+  <span id="partner_key"></span>
+  <a class="anchor" href="#partner_key">partner_key</a>
+</h2>
+
+<p>You may notice that we have a <code class="highlighter-rouge">while</code> loop instead of the original <code class="highlighter-rouge">for</code> loop. If you’d like
+to know why that is I’ve 
+<a href="/2017/03/15/modifying-index-in-a-python-for-loop/">written a post about it</a>.</p>
+
+<p>Passing our original string to the above function gives us back a cryptic string that we will 
+call <code class="highlighter-rouge">partner_key</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/ShowUrl-a_partnerKey.1-a_url.http%253A__5F____5F__2F__5F____5F____5F____5F__2F__5F____5F__www__5F____5F__2E__5F____5F__
+</code></pre>
+</div>
+
+<p>If we go back and actually click on the original link we can see it makes a request to 
+<code class="highlighter-rouge">http://tripadvisor.com/ShowUrl-a_partnerKey.-aurl....</code> which then redirects 
+to the final URL we want.</p>
+
+<p>We could replicate that by using <code class="highlighter-rouge">requests</code> and accessing the <code class="highlighter-rouge">.url</code> attribute of the 
+response.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">partner_key</span> <span class="o">=</span> <span class="n">asdf</span><span class="p">(</span><span class="n">obfuscated_url</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'http://tripadvisor.com'</span> <span class="o">+</span> <span class="n">partner_key</span><span class="p">)</span><span class="o">.</span><span class="n">url</span>
+<span class="s">'http://www.my-website.com/'</span>
+</code></pre>
+</div>
+
+<p>However looking at the <code class="highlighter-rouge">partner_key</code> we can see <code class="highlighter-rouge">3A</code>, <code class="highlighter-rouge">2E</code> and <code class="highlighter-rouge">2F</code> which are <code class="highlighter-rouge">:</code>, <code class="highlighter-rouge">/</code> and <code class="highlighter-rouge">.</code> in 
+hexadecimal.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s">'2E'</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="s">'.'</span>
+</code></pre>
+</div>
+
+<p>We can use <code class="highlighter-rouge">int(hexcode, 16)</code> to convert from hex to int and then use <code class="highlighter-rouge">chr(integer)</code> to convert
+from integer to ascii character.</p>
+
+<p>This may look familiar to you if you have seen 
+<a href="https://en.wikipedia.org/wiki/Percent-encoding">percent encoding</a> before.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">urllib</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">urllib</span><span class="o">.</span><span class="n">unquote</span><span class="p">(</span><span class="s">'</span><span class="si">%2</span><span class="s">F</span><span class="si">%2</span><span class="s">F</span><span class="si">%2</span><span class="s">E'</span><span class="p">)</span>
+<span class="s">'//.'</span>
+</code></pre>
+</div>
+
+<p>So it looks like if we strip the excess <code class="highlighter-rouge">__5F__5F</code> type strings we can <em>“decode”</em>
+the leftover hexcodes to get the URL.</p>
+
+<p>Once again we <strong>re</strong>ach for <strong>re</strong>gex with the <code class="highlighter-rouge">re</code> module.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="n">partner_key</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'__'</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'</span><span class="si">%253</span><span class="s">A'</span><span class="p">,</span> <span class="s">':'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'.*?(http.*?)-a_url.*'</span><span class="p">,</span> <span class="s">r'</span><span class="err">\</span><span class="s">1'</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'5F5F([A-Z</span><span class="err">\</span><span class="s">d]{2})5F5F'</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">match</span><span class="p">:</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="mi">16</span><span class="p">)),</span> <span class="n">url</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span>
+<span class="s">'http://www.my-website.com/'</span>
+</code></pre>
+</div>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>That pretty much sums up this post. 
+<a href="https://github.com/kaijento/code/blob/master/python/tripadvisor.py">Here</a> is a full 
+Python example that takes a tripadvisor URL and extracts the obfuscated URL, decodes 
+it and also extracts the email address for educational purposes only.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (3)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/15/modifying-index-in-a-python-for-loop/">modifying the index/counter in a python for loop</a></h2>
+          <p class="preview">When <a href="/2017/03/17/scraping-the-website-url-from-tripadvisor/">porting tripadvisor’s</a>
+<code class="highlighter-rouge">asdf()</code> javascript function to Python we came across 
+an interesting difference with regards to how <code class="highlighter-rouge">for</code> loops work in 
+javascript and Python.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
