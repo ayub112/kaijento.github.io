@@ -6381,7 +6381,10 @@ pre,
 samp {
   font-family: Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Consolas,Courier New,monospace,sans-serif; }
 
-p code {
+pre code {
+  font-weight: normal; }
+
+code {
   background-color: #fcf8e3;
   color: #000;
   padding: .2em;
