@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/18/a-function-to-call-functions/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>a function to call functions | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+<h1 class="post-title-main">a function to call functions</h1>
+  <p class="text-muted">18 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>How do I make a function that can repeat an arbitrary function 
+N times in Python?</em></p>
+
+<p><code class="highlighter-rouge">repeat.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'In foo'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'In bar'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">baz</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'In baz'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+        <span class="n">func</span><span class="p">()</span>
+
+<span class="n">repeat</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">repeat</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">repeat</span><span class="p">(</span><span class="n">baz</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Which gives the following output:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>In foo
+In foo
+In bar
+In baz
+</code></pre>
+</div>
+
+<a name="function-object"></a>
+<h2 class="section-header">
+  <span id="function-object"></span>
+  <a class="anchor" href="#function-object">Function object</a>
+</h2>
+
+<p>So referring to a function without the <code class="highlighter-rouge">()</code> gives you the
+<em>“function object”</em> whereas using <code class="highlighter-rouge">()</code> calls the function.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">foo</span>
+<span class="o">&lt;</span><span class="n">function</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x7f6b99174b90</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">f</span> <span class="o">=</span> <span class="n">foo</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">f</span>
+<span class="o">&lt;</span><span class="n">function</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x7f6b99174b90</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">f = foo</code> essentially created an <em>“alias”</em> as we can now refer to
+the <code class="highlighter-rouge">foo</code> function using both names.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">f</span><span class="p">()</span>
+<span class="n">In</span> <span class="n">foo</span>
+</code></pre>
+</div>
+
+<a name="globals"></a>
+<h2 class="section-header">
+  <span id="globals"></span>
+  <a class="anchor" href="#globals">globals()</a>
+</h2>
+
+<p>One may ask can we modify <code class="highlighter-rouge">repeat()</code> to take the name of the function we want to call
+as a string as opposed to passing the function itself?</p>
+
+<p>Well yes, there is:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+        <span class="nb">globals</span><span class="p">()[</span><span class="n">func</span><span class="p">]()</span>
+</code></pre>
+</div>
+
+<p>And here it is in action:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">repeat</span><span class="p">(</span><span class="s">'foo'</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">In</span> <span class="n">foo</span>
+<span class="n">In</span> <span class="n">foo</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">globals()</code> returns a dict of <em>“variables”</em> defined in the current scope.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">globals</span><span class="p">()</span>
+<span class="p">{</span><span class="s">'repeat'</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">repeat</span> <span class="n">at</span> <span class="mh">0x7fdb9b9628c0</span><span class="o">&gt;</span><span class="p">,</span> 
+ <span class="s">'foo'</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">function</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x7f6b99174b90</span><span class="o">&gt;</span><span class="p">,</span>
+ <span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">globals</span><span class="p">()[</span><span class="s">'foo'</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">function</span> <span class="n">foo</span> <span class="n">at</span> <span class="mh">0x7f6b99174b90</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">globals()['foo']</code> refers to the function object just as <code class="highlighter-rouge">foo</code>
+does. In order to call it we add <code class="highlighter-rouge">()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">globals</span><span class="p">()[</span><span class="s">'foo'</span><span class="p">]()</span>
+<span class="n">In</span> <span class="n">foo</span>
+</code></pre>
+</div>
+
+<p>So what happens if we try call a function that doesn’t exist?</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt;&gt;&gt; repeat('lol', 1)
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line  1, in &lt;module&gt;
+    repeat('lol', 2)
+  File "&lt;stdin&gt;", line 22, in repeat
+    globals()[func]()
+KeyError: 'lol'
+</code></pre>
+</div>
+
+<a name="dictget-and-callable"></a>
+<h2 class="section-header">
+  <span id="dictget-and-callable"></span>
+  <a class="anchor" href="#dictget-and-callable">dict.get() and callable()</a>
+</h2>
+
+<p>It could be made more robust by making sure <code class="highlighter-rouge">func</code> is actually a valid function name</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">callable</span><span class="p">(</span><span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">func</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+            <span class="nb">globals</span><span class="p">()[</span><span class="n">func</span><span class="p">]()</span>
+</code></pre>
+</div>
+
+<p>We use the <code class="highlighter-rouge">dict.get()</code> method to avoid any possible <code class="highlighter-rouge">KeyError</code> and we use <code class="highlighter-rouge">callable()</code>
+to check if what we got is actually a function.</p>
+
+<p>So is <code class="highlighter-rouge">repeat()</code> good to go?</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt;&gt;&gt; repeat('repeat', 1)
+Traceback (most recent call last):
+  File "&lt;stdin&gt;", line 1, in &lt;module&gt;
+  File "&lt;stdin&gt;", line 22, in repeat
+    globals()[func]()
+TypeError: repeat() takes exactly 2 arguments (0 given)
+</code></pre>
+</div>
+
+<p>Probably not, no. It allows access to <strong>ANY</strong> function visible in <code class="highlighter-rouge">globals()</code>.</p>
+
+<p>Instead, we could specify a <em>“whitelist”</em> of valid names for <code class="highlighter-rouge">func</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">times</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">in</span> <span class="p">(</span><span class="s">'foo'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">,</span> <span class="s">'baz'</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+            <span class="nb">globals</span><span class="p">()[</span><span class="n">func</span><span class="p">]()</span>
+</code></pre>
+</div>
+
+<a name="dispatch-table"></a>
+<h2 class="section-header">
+  <span id="dispatch-table"></span>
+  <a class="anchor" href="#dispatch-table">Dispatch Table</a>
+</h2>
+
+<p>Usually though, in the case of wanting to map strings to functions you would 
+create your own dict of function objects.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">foo</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'In foo'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">bar</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'In bar'</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">baz</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'In baz'</span><span class="p">)</span>
+
+<span class="n">commands</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'foo'</span><span class="p">:</span> <span class="n">foo</span><span class="p">,</span>
+    <span class="s">'bar'</span><span class="p">:</span> <span class="n">bar</span><span class="p">,</span>
+    <span class="s">'baz'</span><span class="p">:</span> <span class="n">baz</span>
+<span class="p">}</span>
+
+<span class="c"># command = input('What command would you like to run? ')</span>
+<span class="n">command</span> <span class="o">=</span> <span class="s">'callme'</span>
+
+<span class="k">if</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
+    <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">'ERROR: {} is not a valid command.'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>This type of structure is commonly referred to as a <em>“Dispatch Table”</em>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (5)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/17/scraping-the-website-url-from-tripadvisor/">scraping the website url from tripadvisor</a></h2>
+          <p class="preview">It seems everybody wants to scrape tripadvisor and a common issue people 
+run into is how to get the <code class="highlighter-rouge">Website URL</code> of the Restaurant, Hotel, whatever.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
