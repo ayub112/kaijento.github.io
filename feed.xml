@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 19 Mar 2017 12:07:03 +0000</pubDate>
-    <lastBuildDate>Sun, 19 Mar 2017 12:07:03 +0000</lastBuildDate>
+    <pubDate>Sun, 19 Mar 2017 12:41:52 +0000</pubDate>
+    <lastBuildDate>Sun, 19 Mar 2017 12:41:52 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -39,9 +39,21 @@ Norway
 &lt;p&gt;This question was taken from the &lt;a href=&quot;http://hackerrank.com&quot;&gt;http://hackerrank.com&lt;/a&gt; challenge posted 
 &lt;a href=&quot;https://www.hackerrank.com/challenges/bash-tutorials-display-the-third-element-of-an-array&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
 
+&lt;h2 id=&quot;simplest-solution&quot;&gt;Simplest solution?&lt;/h2&gt;
+
+&lt;p&gt;bash 4 introduced &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; (also known as &lt;code class=&quot;highlighter-rouge&quot;&gt;mapfile&lt;/code&gt;) which allows you to do:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;readarray -t countries
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I’m assuming this is not what the author of the challenge had in mind so the rest of this article
+discusses how it would have &lt;em&gt;“normally”&lt;/em&gt; been implemented e.g. using a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop.&lt;/p&gt;
+
 &lt;h2 id=&quot;what-is-an-array&quot;&gt;What is an array?&lt;/h2&gt;
 
-&lt;p&gt;So what is an array? Well you have a “normal” variable which has a single value.
+&lt;p&gt;So firstly, what is an array? Well you have a “normal” variable which has a single value.
 An array is like a list in that it can hold multiple values.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;variable

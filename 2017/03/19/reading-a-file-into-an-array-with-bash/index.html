@@ -90,13 +90,29 @@ Norway
 <p>This question was taken from the <a href="http://hackerrank.com">http://hackerrank.com</a> challenge posted 
 <a href="https://www.hackerrank.com/challenges/bash-tutorials-display-the-third-element-of-an-array">here</a>.</p>
 
+<a name="simplest-solution"></a>
+<h2 class="section-header">
+  <span id="simplest-solution"></span>
+  <a class="anchor" href="#simplest-solution">Simplest solution?</a>
+</h2>
+
+<p>bash 4 introduced <code class="highlighter-rouge">readarray</code> (also known as <code class="highlighter-rouge">mapfile</code>) which allows you to do:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>readarray -t countries
+<span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span><span class="s2">"</span>
+</code></pre>
+</div>
+
+<p>I’m assuming this is not what the author of the challenge had in mind so the rest of this article
+discusses how it would have <em>“normally”</em> been implemented e.g. using a <code class="highlighter-rouge">while read</code> loop.</p>
+
 <a name="what-is-an-array"></a>
 <h2 class="section-header">
   <span id="what-is-an-array"></span>
   <a class="anchor" href="#what-is-an-array">What is an array?</a>
 </h2>
 
-<p>So what is an array? Well you have a “normal” variable which has a single value.
+<p>So firstly, what is an array? Well you have a “normal” variable which has a single value.
 An array is like a list in that it can hold multiple values.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">normal</span><span class="o">=</span>variable
