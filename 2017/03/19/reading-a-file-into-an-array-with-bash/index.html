@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/19/reading-a-file-into-an-array-with-bash/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>reading a file into an array with bash | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+<h1 class="post-title-main">reading a file into an array with bash</h1>
+  <p class="text-muted">19 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/hackerrank/">hackerrank</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>Given a list of countries, each on a new line, 
+your task is to read them into an array and then display the element indexed at 3.
+Note that indexing starts from 0.</em></p>
+
+<p><code class="highlighter-rouge">Sample input</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Namibia
+Nauru
+Nepal
+Netherlands
+NewZealand
+Nicaragua
+Niger
+Nigeria
+NorthKorea
+Norway
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">Sample Output</code>:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Netherlands
+</code></pre>
+</div>
+
+<p>This question was taken from the <a href="http://hackerrank.com">http://hackerrank.com</a> challenge posted 
+<a href="https://www.hackerrank.com/challenges/bash-tutorials-display-the-third-element-of-an-array">here</a>.</p>
+
+<a name="what-is-an-array"></a>
+<h2 class="section-header">
+  <span id="what-is-an-array"></span>
+  <a class="anchor" href="#what-is-an-array">What is an array?</a>
+</h2>
+
+<p>So what is an array? Well you have a “normal” variable which has a single value.
+An array is like a list in that it can hold multiple values.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nv">normal</span><span class="o">=</span>variable
+<span class="nv">array</span><span class="o">=(</span>a b c<span class="o">)</span>
+</code></pre>
+</div>
+
+<a name="the-right-way-that-could-be-wrong"></a>
+<h2 class="section-header">
+  <span id="the-right-way-that-could-be-wrong"></span>
+  <a class="anchor" href="#the-right-way-that-could-be-wrong">The right way that could be wrong</a>
+</h2>
+
+<p>For the purposes of formatting we will only take a few countries from the sample input.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>cat sample-input
+Namibia
+Nauru
+Nepal
+Netherlands
+user@host <span class="nv">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="nv">$country</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="Nepal" [3]="Netherlands")'</span>
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span>
+Netherlands
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">read country</code> reads a line of input from stdin and stores it into the variable
+<code class="highlighter-rouge">country</code>. The <code class="highlighter-rouge">while</code> means that it will loop over all lines in stdin.</p>
+
+<p>Variables don’t need to be predeclared. You can append to a non-existing variable and
+it <em>“Just Works”</em>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>user@host $ s+=foo
+user@host $ s+=bar
+user@host $ declare -p s
+declare -- s="foobar"
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">s</code> did not exist initially and <code class="highlighter-rouge">s+=foo</code> did the same as <code class="highlighter-rouge">s=foo</code> in this instance as
+it appended <code class="highlighter-rouge">foo</code> to nothing. By default, variable are treated as “strings” so 
+<code class="highlighter-rouge">s+=bar</code> then appends the string <code class="highlighter-rouge">bar</code> to the existing value <code class="highlighter-rouge">foo</code> giving us <code class="highlighter-rouge">foobar</code>.</p>
+
+<p>In our code however, we have <code class="highlighter-rouge">countries+=()</code>. The <code class="highlighter-rouge">()</code> here forces the variable to be treated
+as an array and not a string. When you append to an array it adds a new item to the end 
+of the array.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>user@host $ s+=(baz)
+user@host $ declare -p s
+declare -a s='([0]="foobar" [1]="baz")'
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">&lt; sample-input</code> is file redirection. It sends the contents of the file <code class="highlighter-rouge">sample-input</code> to 
+stdin. Incidientally, to redirect stdout to a file you can use <code class="highlighter-rouge">&gt; output-file</code></p>
+
+<p>And finally we’re using <code class="highlighter-rouge">declare -p</code> to give like a <em>“debugging output”</em> representation 
+of a variable.</p>
+
+<a name="space-builds-a-new-place"></a>
+<h2 class="section-header">
+  <span id="space-builds-a-new-place"></span>
+  <a class="anchor" href="#space-builds-a-new-place">Space builds a new place</a>
+</h2>
+
+<p>So let’s replace <code class="highlighter-rouge">Nepal</code> with <code class="highlighter-rouge">New Zealand</code> in our sample input. <strong>Note</strong> that we
+are also adding in the space unlike in the given sample input.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>cat sample-input
+Namibia
+Nauru
+New Zealand
+Netherlands
+user@host <span class="nv">$ countries</span><span class="o">=()</span>
+user@host <span class="nv">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="nv">$country</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="New" [3]="Zealand" [4]="Netherlands")'</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">countries=()</code> sets <code class="highlighter-rouge">countries</code> back as an empty array removing the contents from
+our previous run.</p>
+
+<p>We now have 5 countries instead of 4. WTF is going on pls?</p>
+
+<a name="word-splitting"></a>
+<h2 class="section-header">
+  <span id="word-splitting"></span>
+  <a class="anchor" href="#word-splitting">Word-splitting</a>
+</h2>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ country</span><span class="o">=</span>New Zealand
+bash: Zealand: <span class="nb">command </span>not found
+</code></pre>
+</div>
+
+<p>When parsing bash splits things into <em>“words”</em> - so here we have 2 words <code class="highlighter-rouge">country=New</code> and <code class="highlighter-rouge">Zealand</code>.
+This is not the behaviour we want so we could use one of the following:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ country</span><span class="o">=</span><span class="s1">'New Zealand'</span>
+user@host <span class="nv">$ country</span><span class="o">=</span><span class="s2">"New Zealand"</span>
+user@host <span class="nv">$ country</span><span class="o">=</span>New<span class="se">\ </span>Zealand
+</code></pre>
+</div>
+
+<p>The difference between single and double quotes is that inside double quotes variables will be replaced
+by their values. (You may see this referred to as <em>“expansion”</em>.)</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ name</span><span class="o">=</span>Karl
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"My name is: </span><span class="nv">$name</span><span class="s2">"</span>
+My name is: Karl
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'My name is: $name'</span>
+My name is: <span class="nv">$name</span>
+</code></pre>
+</div>
+
+<p>But we’re using <code class="highlighter-rouge">read</code> to store our value in <code class="highlighter-rouge">country</code> so that’s not our problem? Well yes, the problem is
+with <code class="highlighter-rouge">countries+=($country)</code></p>
+
+<a name="set--x"></a>
+<h2 class="section-header">
+  <span id="set--x"></span>
+  <a class="anchor" href="#set--x">set -x</a>
+</h2>
+
+<p>We will use <code class="highlighter-rouge">set -x</code> which will enable debugging output of how bash is executing our commands. <code class="highlighter-rouge">set +x</code> 
+can be used to turn it back off.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">set</span> -x
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$country</span>
++ <span class="nb">echo </span>New Zealand
+New Zealand
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span>
++ <span class="nb">echo</span> <span class="s1">'New Zealand'</span>
+New Zealand
+</code></pre>
+</div>
+
+<p>So when we used double quotes around <code class="highlighter-rouge">$country</code> bash executed <code class="highlighter-rouge">echo 'New Zealand'</code> i.e. it 
+treated the value of <code class="highlighter-rouge">$country</code> as a single word. Without the double quotes the value of 
+<code class="highlighter-rouge">$country</code> was split up into multiple words.</p>
+
+<a name="args-"></a>
+<h2 class="section-header">
+  <span id="args-"></span>
+  <a class="anchor" href="#args-">args ()</a>
+</h2>
+
+<p>To give another example:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>args <span class="o">()</span> <span class="o">{</span> <span class="nb">echo</span> <span class="nv">$#;</span> <span class="o">}</span>
+user@host <span class="nv">$ </span>args <span class="nv">$country</span>
+2
+user@host <span class="nv">$ </span>args <span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span>
+1
+</code></pre>
+</div>
+
+<p>So here we define a shell function <code class="highlighter-rouge">args</code> which just echos out <code class="highlighter-rouge">$#</code> which is the number of arguments passed.
+As you can see because of the lack of double quotes word-splitting occurred and we passed 2 arguments
+instead of 1.</p>
+
+<p>This is one of the reasons you will see <code class="highlighter-rouge">"$var"</code> used instead of just <code class="highlighter-rouge">$var</code>.</p>
+
+<p>Okay so we want <code class="highlighter-rouge">$country</code> to be treated as a single word so we must double quote it:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ countries</span><span class="o">=()</span>
+user@host <span class="nv">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="New Zealand" [3]="Netherlands")'</span>
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span>
+Netherlands
+</code></pre>
+</div>
+
+<a name="globbing"></a>
+<h2 class="section-header">
+  <span id="globbing"></span>
+  <a class="anchor" href="#globbing">globbing</a>
+</h2>
+
+<p>There are no quotes around <code class="highlighter-rouge">${countries[3]}</code> but it did not make a difference in this instance.
+However, as well as the word-splitting issue another problem that can arise is if the value of your 
+variable contains <em>globbing</em> characters:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>ls
+sample-input
+user@host <span class="nv">$ var</span><span class="o">=</span><span class="k">*</span>
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$var</span><span class="s2">"</span>
+<span class="k">*</span>
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$var</span>
+sample-input
+</code></pre>
+</div>
+
+<p>So unless you can be sure of the contents of your variable it’s usually a good idea to double quote
+any expansions.</p>
+
+<a name="read--r"></a>
+<h2 class="section-header">
+  <span id="read--r"></span>
+  <a class="anchor" href="#read--r">read -r</a>
+</h2>
+
+<p>There are other possible issues with regards to <code class="highlighter-rouge">read</code> depending on the input being processed.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">read</span> -a words <span class="o">&lt;&lt;&lt;</span> <span class="s1">'foo\ bar baz'</span>
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p words
+<span class="nb">declare</span> -a <span class="nv">words</span><span class="o">=</span><span class="s1">'([0]="foo bar" [1]="baz")'</span>
+user@host <span class="nv">$ </span><span class="nb">read</span> -r -a words <span class="o">&lt;&lt;&lt;</span> <span class="s1">'foo\ bar baz'</span>
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p words
+<span class="nb">declare</span> -a <span class="nv">words</span><span class="o">=</span><span class="s1">'([0]="foo\\" [1]="bar" [2]="baz")'</span>
+</code></pre>
+</div>
+
+<p>Without <code class="highlighter-rouge">-r</code> bash interprets the backslash as a quoting character using it to group <code class="highlighter-rouge">'foo bar'</code> 
+as a single word. Normally this is not something you want which is why some people will just always use <code class="highlighter-rouge">-r</code>.</p>
+
+<p>The <code class="highlighter-rouge">-a</code> option of read makes the variable we store the result in an array instead of a <em>“regular”</em>
+variable. Like we had <code class="highlighter-rouge">&lt; sample-input</code> to redirect the contents of a file to stdin <code class="highlighter-rouge">&lt;&lt;&lt;</code> can be
+used to do with same with a <em>“string”<em> instead.</em></em></p>
+
+<a name="ifs"></a>
+<h2 class="section-header">
+  <span id="ifs"></span>
+  <a class="anchor" href="#ifs">IFS=</a>
+</h2>
+
+<p>Another possible issue is the removal of leading and trailing whitespace. By default both will
+be <em>“trimmed”</em> or <em>“stripped”</em>”.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">read</span> -r line <span class="o">&lt;&lt;&lt;</span> <span class="s1">'    I would like to keep my space.    '</span>
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p line
+<span class="nb">declare</span> -- <span class="nv">line</span><span class="o">=</span><span class="s2">"I would like to keep my space."</span>
+user@host <span class="nv">$ IFS</span><span class="o">=</span> <span class="nb">read</span> -r line <span class="o">&lt;&lt;&lt;</span> <span class="s1">'    I would like to keep my space.    '</span>
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p line
+<span class="nb">declare</span> -- <span class="nv">line</span><span class="o">=</span><span class="s2">"    I would like to keep my space.    "</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">IFS</code> variable is a string of characters that define how word-splitting behaves and how
+lines are split up into words when using <code class="highlighter-rouge">read</code>. Its default value is <code class="highlighter-rouge">&lt;space&gt;&lt;tab&gt;&lt;newline&gt;</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">printf</span> %q<span class="se">\\</span>n <span class="s2">"</span><span class="nv">$IFS</span><span class="s2">"</span>
+<span class="nv">$'</span> <span class="se">\t\n</span><span class="s1">'
+</span></code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">IFS=</code> temporarily sets it to nothing preventing the trimming which is why you will 
+see <code class="highlighter-rouge">while read</code> loops to read something line-by-line written as:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="k">while </span><span class="nv">IFS</span><span class="o">=</span> <span class="nb">read</span> -r line
+</code></pre>
+</div>
+
+<a name="varvalue-command"></a>
+<h2 class="section-header">
+  <span id="varvalue-command"></span>
+  <a class="anchor" href="#varvalue-command">var=value command</a>
+</h2>
+
+<p><code class="highlighter-rouge">IFS= read</code> doesn’t permanently overwrite <code class="highlighter-rouge">IFS</code> because bash supports the following syntax:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>var=value command
+</code></pre>
+</div>
+
+<p>This exports the variable into command’s environment (and only that command). We’ve just 
+given an empty value in <code class="highlighter-rouge">IFS=</code> case.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ a</span><span class="o">=</span>b bash -c <span class="s1">'declare -p a'</span>
+<span class="nb">declare</span> -x <span class="nv">a</span><span class="o">=</span><span class="s2">"b"</span>
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p a
+bash: <span class="nb">declare</span>: a: not found
+</code></pre>
+</div>
+
+<p>It’s essentially shorthand syntax for <code class="highlighter-rouge">( export var=value; command )</code>. The <code class="highlighter-rouge">()</code> here explicitly 
+create a subshell so the parent’s environment remains unchanged.</p>
+
+<a name="readarray--mapfile"></a>
+<h2 class="section-header">
+  <span id="readarray--mapfile"></span>
+  <a class="anchor" href="#readarray--mapfile">readarray / mapfile</a>
+</h2>
+
+<p>Bash introduced <code class="highlighter-rouge">readarray</code> in version 4 which can take the place of the <code class="highlighter-rouge">while read</code> loop. (For whatever
+reason they gave it 2 names <code class="highlighter-rouge">readarray</code> and <code class="highlighter-rouge">mapfile</code> are the same thing. I think <code class="highlighter-rouge">readarray</code> is a more
+suitable name but YMMV.)</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>readarray countries &lt; sample-input
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia
+" [1]="Nauru
+" [2]="New Zealand
+" [3]="Netherlands
+")'</span>
+</code></pre>
+</div>
+
+<p>By default though, it keeps the trailing newline. You can use <code class="highlighter-rouge">-t</code> to have it strip 
+the trailing newline instead.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>readarray -t countries &lt; sample-input
+user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="New Zealand" [3]="Netherlands")'</span>
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span><span class="s2">"</span>
+Netherlands
+</code></pre>
+</div>
+
+<p>The problem description doesn’t mention the use of a file at all so we can assume they will
+be providing the data on stdin already so we would remove <code class="highlighter-rouge">&lt; sample-input</code> from our
+actual solution.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (6)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/18/a-function-to-call-functions/">a function to call functions</a></h2>
+          <p class="preview"><em>How do I make a function that can repeat an arbitrary function 
+N times in Python?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

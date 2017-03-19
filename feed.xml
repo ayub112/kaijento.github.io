@@ -5,9 +5,330 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 18 Mar 2017 23:31:03 +0000</pubDate>
-    <lastBuildDate>Sat, 18 Mar 2017 23:31:03 +0000</lastBuildDate>
+    <pubDate>Sun, 19 Mar 2017 12:03:02 +0000</pubDate>
+    <lastBuildDate>Sun, 19 Mar 2017 12:03:02 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>reading a file into an array with bash</title>
+        <description>&lt;p&gt;&lt;em&gt;Given a list of countries, each on a new line, 
+your task is to read them into an array and then display the element indexed at 3.
+Note that indexing starts from 0.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Sample input&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Namibia
+Nauru
+Nepal
+Netherlands
+NewZealand
+Nicaragua
+Niger
+Nigeria
+NorthKorea
+Norway
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Sample Output&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Netherlands
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This question was taken from the &lt;a href=&quot;http://hackerrank.com&quot;&gt;http://hackerrank.com&lt;/a&gt; challenge posted 
+&lt;a href=&quot;https://www.hackerrank.com/challenges/bash-tutorials-display-the-third-element-of-an-array&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-an-array&quot;&gt;What is an array?&lt;/h2&gt;
+
+&lt;p&gt;So what is an array? Well you have a “normal” variable which has a single value.
+An array is like a list in that it can hold multiple values.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;variable
+&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;a b c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;the-right-way-that-could-be-wrong&quot;&gt;The right way that could be wrong&lt;/h2&gt;
+
+&lt;p&gt;For the purposes of formatting we will only take a few countries from the sample input.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;cat sample-input
+Namibia
+Nauru
+Nepal
+Netherlands
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;country; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;countries+&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; sample-input
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;Nepal&quot; [3]=&quot;Netherlands&quot;)'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+Netherlands
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;read country&lt;/code&gt; reads a line of input from stdin and stores it into the variable
+&lt;code class=&quot;highlighter-rouge&quot;&gt;country&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; means that it will loop over all lines in stdin.&lt;/p&gt;
+
+&lt;p&gt;Variables don’t need to be predeclared. You can append to a non-existing variable and
+it &lt;em&gt;“Just Works”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host $ s+=foo
+user@host $ s+=bar
+user@host $ declare -p s
+declare -- s=&quot;foobar&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; did not exist initially and &lt;code class=&quot;highlighter-rouge&quot;&gt;s+=foo&lt;/code&gt; did the same as &lt;code class=&quot;highlighter-rouge&quot;&gt;s=foo&lt;/code&gt; in this instance as
+it appended &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; to nothing. By default, variable are treated as “strings” so 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;s+=bar&lt;/code&gt; then appends the string &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; to the existing value &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; giving us &lt;code class=&quot;highlighter-rouge&quot;&gt;foobar&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;In our code however, we have &lt;code class=&quot;highlighter-rouge&quot;&gt;countries+=()&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; here forces the variable to be treated
+as an array and not a string. When you append to an array it adds a new item to the end 
+of the array.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host $ s+=(baz)
+user@host $ declare -p s
+declare -a s='([0]=&quot;foobar&quot; [1]=&quot;baz&quot;)'
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt; sample-input&lt;/code&gt; is file redirection. It sends the contents of the file &lt;code class=&quot;highlighter-rouge&quot;&gt;sample-input&lt;/code&gt; to 
+stdin. Incidientally, to redirect stdout to a file you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;gt; output-file&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;And finally we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;declare -p&lt;/code&gt; to give like a &lt;em&gt;“debugging output”&lt;/em&gt; representation 
+of a variable.&lt;/p&gt;
+
+&lt;h2 id=&quot;space-builds-a-new-place&quot;&gt;Space builds a new place&lt;/h2&gt;
+
+&lt;p&gt;So let’s replace &lt;code class=&quot;highlighter-rouge&quot;&gt;Nepal&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;New Zealand&lt;/code&gt; in our sample input. &lt;strong&gt;Note&lt;/strong&gt; that we
+are also adding in the space unlike in the given sample input.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;cat sample-input
+Namibia
+Nauru
+New Zealand
+Netherlands
+user@host &lt;span class=&quot;nv&quot;&gt;$ countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=()&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;country; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;countries+&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; sample-input
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;New&quot; [3]=&quot;Zealand&quot; [4]=&quot;Netherlands&quot;)'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;countries=()&lt;/code&gt; sets &lt;code class=&quot;highlighter-rouge&quot;&gt;countries&lt;/code&gt; back as an empty array removing the contents from
+our previous run.&lt;/p&gt;
+
+&lt;p&gt;We now have 5 countries instead of 4. WTF is going on pls?&lt;/p&gt;
+
+&lt;h2 id=&quot;word-splitting&quot;&gt;Word-splitting&lt;/h2&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;New Zealand
+bash: Zealand: &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;not found
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When parsing bash splits things into &lt;em&gt;“words”&lt;/em&gt; - so here we have 2 words &lt;code class=&quot;highlighter-rouge&quot;&gt;country=New&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Zealand&lt;/code&gt;.
+This is not the behaviour we want so we could use one of the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'New Zealand'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;New Zealand&quot;&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;New&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Zealand
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The difference between single and double quotes is that inside double quotes variables will be replaced
+by their values. (You may see this referred to as &lt;em&gt;“expansion”&lt;/em&gt;.)&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Karl
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;My name is: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+My name is: Karl
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'My name is: $name'&lt;/span&gt;
+My name is: &lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;But we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt; to store our value in &lt;code class=&quot;highlighter-rouge&quot;&gt;country&lt;/code&gt; so that’s not our problem? Well yes, the problem is
+with &lt;code class=&quot;highlighter-rouge&quot;&gt;countries+=($country)&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;set--x&quot;&gt;set -x&lt;/h2&gt;
+
+&lt;p&gt;We will use &lt;code class=&quot;highlighter-rouge&quot;&gt;set -x&lt;/code&gt; which will enable debugging output of how bash is executing our commands. &lt;code class=&quot;highlighter-rouge&quot;&gt;set +x&lt;/code&gt; 
+can be used to turn it back off.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; -x
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;
++ &lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;New Zealand
+New Zealand
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
++ &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'New Zealand'&lt;/span&gt;
+New Zealand
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So when we used double quotes around &lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; bash executed &lt;code class=&quot;highlighter-rouge&quot;&gt;echo 'New Zealand'&lt;/code&gt; i.e. it 
+treated the value of &lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; as a single word. Without the double quotes the value of 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; was split up into multiple words.&lt;/p&gt;
+
+&lt;h2 id=&quot;args-&quot;&gt;args ()&lt;/h2&gt;
+
+&lt;p&gt;To give another example:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;args &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$#;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;args &lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;
+2
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;args &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So here we define a shell function &lt;code class=&quot;highlighter-rouge&quot;&gt;args&lt;/code&gt; which just echos out &lt;code class=&quot;highlighter-rouge&quot;&gt;$#&lt;/code&gt; which is the number of arguments passed.
+As you can see because of the lack of double quotes word-splitting occurred and we passed 2 arguments
+instead of 1.&lt;/p&gt;
+
+&lt;p&gt;This is one of the reasons you will see &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;$var&quot;&lt;/code&gt; used instead of just &lt;code class=&quot;highlighter-rouge&quot;&gt;$var&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Okay so we want &lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; to be treated as a single word so we must double quote it:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=()&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;country; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;countries+&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; sample-input
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;New Zealand&quot; [3]=&quot;Netherlands&quot;)'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+Netherlands
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;globbing&quot;&gt;globbing&lt;/h2&gt;
+
+&lt;p&gt;There are no quotes around &lt;code class=&quot;highlighter-rouge&quot;&gt;${countries[3]}&lt;/code&gt; but it did not make a difference in this instance.
+However, as well as the word-splitting issue another problem that can arise is if the value of your 
+variable contains &lt;em&gt;globbing&lt;/em&gt; characters:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ls
+sample-input
+user@host &lt;span class=&quot;nv&quot;&gt;$ var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$var&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$var&lt;/span&gt;
+sample-input
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So unless you can be sure of the contents of your variable it’s usually a good idea to double quote
+any expansions.&lt;/p&gt;
+
+&lt;h2 id=&quot;read--r&quot;&gt;read -r&lt;/h2&gt;
+
+&lt;p&gt;There are other possible issues with regards to &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt; depending on the input being processed.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -a words &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'foo\ bar baz'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p words
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;words&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;foo bar&quot; [1]=&quot;baz&quot;)'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r -a words &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'foo\ bar baz'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p words
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;words&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;foo\\&quot; [1]=&quot;bar&quot; [2]=&quot;baz&quot;)'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Without &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt; bash interprets the backslash as a quoting character using it to group &lt;code class=&quot;highlighter-rouge&quot;&gt;'foo bar'&lt;/code&gt; 
+as a single word. Normally this is not something you want which is why some people will just always use &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-a&lt;/code&gt; option of read makes the variable we store the result in an array instead of a &lt;em&gt;“regular”&lt;/em&gt;
+variable. Like we had &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt; sample-input&lt;/code&gt; to redirect the contents of a file to stdin &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/code&gt; can be
+used to do with same with a &lt;em&gt;“string”&lt;em&gt; instead.&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;ifs&quot;&gt;IFS=&lt;/h2&gt;
+
+&lt;p&gt;Another possible issue is the removal of leading and trailing whitespace. By default both will
+be &lt;em&gt;“trimmed”&lt;/em&gt; or &lt;em&gt;“stripped”&lt;/em&gt;”.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r line &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'    I would like to keep my space.    '&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p line
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;I would like to keep my space.&quot;&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r line &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'    I would like to keep my space.    '&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p line
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;    I would like to keep my space.    &quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS&lt;/code&gt; variable is a string of characters that define how word-splitting behaves and how
+lines are split up into words when using &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt;. Its default value is &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;space&amp;gt;&amp;lt;tab&amp;gt;&amp;lt;newline&amp;gt;&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; %q&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;n &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$IFS&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\t\n&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS=&lt;/code&gt; temporarily sets it to nothing preventing the trimming which is why you will 
+see &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loops to read something line-by-line written as:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r line
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;varvalue-command&quot;&gt;var=value command&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;IFS= read&lt;/code&gt; doesn’t permanently overwrite &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS&lt;/code&gt; because bash supports the following syntax:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var=value command
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This exports the variable into command’s environment (and only that command). We’ve just 
+given an empty value in &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS=&lt;/code&gt; case.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;b bash -c &lt;span class=&quot;s1&quot;&gt;'declare -p a'&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -x &lt;span class=&quot;nv&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p a
+bash: &lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt;: a: not found
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It’s essentially shorthand syntax for &lt;code class=&quot;highlighter-rouge&quot;&gt;( export var=value; command )&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; here explicitly 
+create a subshell so the parent’s environment remains unchanged.&lt;/p&gt;
+
+&lt;h2 id=&quot;readarray--mapfile&quot;&gt;readarray / mapfile&lt;/h2&gt;
+
+&lt;p&gt;Bash introduced &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; in version 4 which can take the place of the &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop. (For whatever
+reason they gave it 2 names &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;mapfile&lt;/code&gt; are the same thing. I think &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; is a more
+suitable name but YMMV.)&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;readarray countries &amp;lt; sample-input
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia
+&quot; [1]=&quot;Nauru
+&quot; [2]=&quot;New Zealand
+&quot; [3]=&quot;Netherlands
+&quot;)'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;By default though, it keeps the trailing newline. You can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-t&lt;/code&gt; to have it strip 
+the trailing newline instead.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;readarray -t countries &amp;lt; sample-input
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
+&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;New Zealand&quot; [3]=&quot;Netherlands&quot;)'&lt;/span&gt;
+user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+Netherlands
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The problem description doesn’t mention the use of a file at all so we can assume they will
+be providing the data on stdin already so we would remove &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt; sample-input&lt;/code&gt; from our
+actual solution.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 19 Mar 2017 00:00:00 +0000</pubDate>
+        <link>http://kaijento.github.io/2017/03/19/reading-a-file-into-an-array-with-bash/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/19/reading-a-file-into-an-array-with-bash/</guid>
+        
+        <category>bash</category>
+        
+        <category>hackerrank</category>
+        
+        
+      </item>
     
       <item>
         <title>a function to call functions</title>
