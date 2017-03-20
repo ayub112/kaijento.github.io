@@ -103,7 +103,7 @@ to be using the awesome <a href="https://stedolan.github.io/jq/">jq</a> tool.</p
   <a class="anchor" href="#sort_by">sort_by()</a>
 </h2>
 
-<p>We can use <code class="highlighter-rouge">sort_by(.field)</code> to sort by a particular field.</p>
+<p><code class="highlighter-rouge">sort_by(.field)</code> can be used to sort by a particular field.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | sort_by(.score)'</span> scores.json
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:2<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
@@ -111,10 +111,10 @@ to be using the awesome <a href="https://stedolan.github.io/jq/">jq</a> tool.</p
 </code></pre>
 </div>
 
-<p>We’re using the <code class="highlighter-rouge">-c</code> option to have <code class="highlighter-rouge">jq</code> print the output one object per line.</p>
+<p>The <code class="highlighter-rouge">-c</code> option forces <code class="highlighter-rouge">jq</code> to print each object on a single line.</p>
 
-<p>With <code class="highlighter-rouge">sort_by()</code> though there is no telling where the first <em>“max”</em> score is so 
-let’s see what <code class="highlighter-rouge">max_by()</code> does</p>
+<p>When using <code class="highlighter-rouge">sort_by()</code> though, there is no way of knowing where the first <em>“max”</em> 
+score is so let’s try <code class="highlighter-rouge">max_by()</code>:</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | max_by(.score)'</span> scores.json
 <span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>
@@ -122,7 +122,7 @@ let’s see what <code class="highlighter-rouge">max_by()</code> does</p>
 </code></pre>
 </div>
 
-<p>So <code class="highlighter-rouge">max_by()</code> only gives a single result even if there is a <em>“tie”</em>.</p>
+<p><code class="highlighter-rouge">max_by()</code> only gives a single result even if there is a <em>“tie”</em>.</p>
 
 <a name="group_by"></a>
 <h2 class="section-header">
@@ -156,10 +156,10 @@ will be sorted by the value of the given field in ascending order.</p>
 </code></pre>
 </div>
 
-<p>We have 2 arrays inside the result: one for the group of scores with <code class="highlighter-rouge">2</code> and 
-another for the scores with value <code class="highlighter-rouge">3</code>. As they are sorted in ascending order 
-the last item will be the <em>“max”</em> group which we can access using
-negative indexing <code class="highlighter-rouge">[-1]</code>.</p>
+<p>There are <strong>2</strong> arrays inside the result: one for the group of scores with <code class="highlighter-rouge">2</code> and 
+another for the scores with value <code class="highlighter-rouge">3</code>. They are sorted in ascending order meaning that
+the last item will be the <em>“max”</em> group. It can be accessed using negative indexing 
+i.e. <code class="highlighter-rouge">[-1]</code>.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores.json
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
@@ -173,9 +173,9 @@ negative indexing <code class="highlighter-rouge">[-1]</code>.</p>
   <a class="anchor" href="#strings-sort-separately">strings sort separately</a>
 </h2>
 
-<p>It turned out that the score values in the real data were strings and not numbers. 
-Strings sort differently to numbers meaning the current approach will break 
-depending on the input.</p>
+<p>It turns out that in the <strong>actual data</strong> the score values were strings 
+and <strong>not</strong> numbers like in the sample data. Strings sort differently 
+to numbers and because of this the current approach is <em>“broken”</em>.</p>
 
 <p>We’ll need to change the score values in order to generate a failing test case.</p>
 

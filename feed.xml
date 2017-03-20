@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 20 Mar 2017 23:42:53 +0000</pubDate>
-    <lastBuildDate>Mon, 20 Mar 2017 23:42:53 +0000</lastBuildDate>
+    <pubDate>Mon, 20 Mar 2017 23:50:32 +0000</pubDate>
+    <lastBuildDate>Mon, 20 Mar 2017 23:50:32 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -41,7 +41,7 @@ to be using the awesome &lt;a href=&quot;https://stedolan.github.io/jq/&quot;&gt
 
 &lt;h2 id=&quot;sort_by&quot;&gt;sort_by()&lt;/h2&gt;
 
-&lt;p&gt;We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;sort_by(.field)&lt;/code&gt; to sort by a particular field.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sort_by(.field)&lt;/code&gt; can be used to sort by a particular field.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;jq -c &lt;span class=&quot;s1&quot;&gt;'.rounds[] | sort_by(.score)'&lt;/span&gt; scores.json
 &lt;span class=&quot;o&quot;&gt;[{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;bob&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;score&quot;&lt;/span&gt;:2&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;score&quot;&lt;/span&gt;:3&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;ted&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;score&quot;&lt;/span&gt;:3&lt;span class=&quot;o&quot;&gt;}]&lt;/span&gt;
@@ -49,10 +49,10 @@ to be using the awesome &lt;a href=&quot;https://stedolan.github.io/jq/&quot;&gt
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;We’re using the &lt;code class=&quot;highlighter-rouge&quot;&gt;-c&lt;/code&gt; option to have &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; print the output one object per line.&lt;/p&gt;
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-c&lt;/code&gt; option forces &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; to print each object on a single line.&lt;/p&gt;
 
-&lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;sort_by()&lt;/code&gt; though there is no telling where the first &lt;em&gt;“max”&lt;/em&gt; score is so 
-let’s see what &lt;code class=&quot;highlighter-rouge&quot;&gt;max_by()&lt;/code&gt; does&lt;/p&gt;
+&lt;p&gt;When using &lt;code class=&quot;highlighter-rouge&quot;&gt;sort_by()&lt;/code&gt; though, there is no way of knowing where the first &lt;em&gt;“max”&lt;/em&gt; 
+score is so let’s try &lt;code class=&quot;highlighter-rouge&quot;&gt;max_by()&lt;/code&gt;:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;jq -c &lt;span class=&quot;s1&quot;&gt;'.rounds[] | max_by(.score)'&lt;/span&gt; scores.json
 &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;ted&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;score&quot;&lt;/span&gt;:3&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
@@ -60,7 +60,7 @@ let’s see what &lt;code class=&quot;highlighter-rouge&quot;&gt;max_by()&lt;/co
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;max_by()&lt;/code&gt; only gives a single result even if there is a &lt;em&gt;“tie”&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;max_by()&lt;/code&gt; only gives a single result even if there is a &lt;em&gt;“tie”&lt;/em&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;group_by&quot;&gt;group_by()&lt;/h2&gt;
 
@@ -90,10 +90,10 @@ will be sorted by the value of the given field in ascending order.&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;We have 2 arrays inside the result: one for the group of scores with &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; and 
-another for the scores with value &lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;. As they are sorted in ascending order 
-the last item will be the &lt;em&gt;“max”&lt;/em&gt; group which we can access using
-negative indexing &lt;code class=&quot;highlighter-rouge&quot;&gt;[-1]&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;There are &lt;strong&gt;2&lt;/strong&gt; arrays inside the result: one for the group of scores with &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; and 
+another for the scores with value &lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt;. They are sorted in ascending order meaning that
+the last item will be the &lt;em&gt;“max”&lt;/em&gt; group. It can be accessed using negative indexing 
+i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;[-1]&lt;/code&gt;.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user@host &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;jq -c &lt;span class=&quot;s1&quot;&gt;'.rounds[] | group_by(.score)[-1]'&lt;/span&gt; scores.json
 &lt;span class=&quot;o&quot;&gt;[{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;score&quot;&lt;/span&gt;:3&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;ted&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;score&quot;&lt;/span&gt;:3&lt;span class=&quot;o&quot;&gt;}]&lt;/span&gt;
@@ -103,9 +103,9 @@ negative indexing &lt;code class=&quot;highlighter-rouge&quot;&gt;[-1]&lt;/code&
 
 &lt;h2 id=&quot;strings-sort-separately&quot;&gt;strings sort separately&lt;/h2&gt;
 
-&lt;p&gt;It turned out that the score values in the real data were strings and not numbers. 
-Strings sort differently to numbers meaning the current approach will break 
-depending on the input.&lt;/p&gt;
+&lt;p&gt;It turns out that in the &lt;strong&gt;actual data&lt;/strong&gt; the score values were strings 
+and &lt;strong&gt;not&lt;/strong&gt; numbers like in the sample data. Strings sort differently 
+to numbers and because of this the current approach is &lt;em&gt;“broken”&lt;/em&gt;.&lt;/p&gt;
 
 &lt;p&gt;We’ll need to change the score values in order to generate a failing test case.&lt;/p&gt;
 
