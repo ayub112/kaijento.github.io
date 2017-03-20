@@ -5,12 +5,12 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 20 Mar 2017 23:50:32 +0000</pubDate>
-    <lastBuildDate>Mon, 20 Mar 2017 23:50:32 +0000</lastBuildDate>
+    <pubDate>Mon, 20 Mar 2017 23:57:18 +0000</pubDate>
+    <lastBuildDate>Mon, 20 Mar 2017 23:57:18 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
-        <title>jq by example: group_by() max_by() and sort_by()</title>
+        <title>jq by example: group_by, max_by and sort_by</title>
         <description>&lt;p&gt;&lt;em&gt;I have some JSON entries and I would like to filter out those
 with the greatest score. If there are multiple entries with the same
 score I want to print them all.&lt;/em&gt;&lt;/p&gt;
@@ -185,8 +185,8 @@ to alphabetical sorting:&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 20 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/20/jq-by-example-group_by()-max_by()-and-sort_by()/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/20/jq-by-example-group_by()-max_by()-and-sort_by()/</guid>
+        <link>http://kaijento.github.io/2017/03/20/jq-by-example-group_by,-max_by-and-sort_by/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/20/jq-by-example-group_by,-max_by-and-sort_by/</guid>
         
         <category>jq</category>
         
