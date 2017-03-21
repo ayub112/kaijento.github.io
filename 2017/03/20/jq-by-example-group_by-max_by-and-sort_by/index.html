@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/20/jq-by-example-group_by-max_by-and-sort_by/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>jq by example: group_by max_by and sort_by | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+<h1 class="post-title-main">jq by example: group_by max_by and sort_by</h1>
+  <p class="text-muted">20 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/jq/">jq</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>I have some JSON entries and I would like to filter out those
+with the greatest score. If there are multiple entries with the same
+score I want to print them all.</em></p>
+
+<a name="jq"></a>
+<h2 class="section-header">
+  <span id="jq"></span>
+  <a class="anchor" href="#jq">jq</a>
+</h2>
+
+<p>To parse JSON data from within bash chances are you’ll want
+to be using the awesome <a href="https://stedolan.github.io/jq/">jq</a> tool.</p>
+
+<p><code class="highlighter-rouge">scores.json</code></p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span> 
+    <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<a name="sort_by"></a>
+<h2 class="section-header">
+  <span id="sort_by"></span>
+  <a class="anchor" href="#sort_by">sort_by()</a>
+</h2>
+
+<p><code class="highlighter-rouge">sort_by(.field)</code> can be used to sort by a particular field.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | sort_by(.score)'</span> scores.json
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:2<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:1<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:2<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">-c</code> option forces <code class="highlighter-rouge">jq</code> to print each object on a single line.</p>
+
+<p>When using <code class="highlighter-rouge">sort_by()</code> though, there is no way of knowing where the first <em>“max”</em> 
+score is so let’s try <code class="highlighter-rouge">max_by()</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | max_by(.score)'</span> scores.json
+<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>
+<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">max_by()</code> only gives a single result even if there is a <em>“tie”</em>.</p>
+
+<a name="group_by"></a>
+<h2 class="section-header">
+  <span id="group_by"></span>
+  <a class="anchor" href="#group_by">group_by()</a>
+</h2>
+
+<p>Another of the <code class="highlighter-rouge">by()</code> functions is <code class="highlighter-rouge">group_by()</code>. It can be given a field to group on and
+will put same value matches into individual arrays (<em>“groups”</em>). The groups
+will be sorted by the value of the given field in ascending order.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq <span class="s1">'.rounds[0] | group_by(.score)'</span> scores.json
+<span class="o">[</span>
+  <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"bob"</span>,
+      <span class="s2">"score"</span>: 2
+    <span class="o">}</span>
+  <span class="o">]</span>,
+  <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"alice"</span>,
+      <span class="s2">"score"</span>: 3
+    <span class="o">}</span>,
+    <span class="o">{</span>
+      <span class="s2">"name"</span>: <span class="s2">"ted"</span>,
+      <span class="s2">"score"</span>: 3
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p>There are <strong>2</strong> arrays inside the result: one for the group of scores with <code class="highlighter-rouge">2</code> and 
+another for the scores with value <code class="highlighter-rouge">3</code>. They are sorted in ascending order meaning that
+the last item will be the <em>“max”</em> group. It can be accessed using negative indexing 
+i.e. <code class="highlighter-rouge">[-1]</code>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores.json
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
+</code></pre>
+</div>
+
+<a name="strings-sort-separately"></a>
+<h2 class="section-header">
+  <span id="strings-sort-separately"></span>
+  <a class="anchor" href="#strings-sort-separately">strings sort separately</a>
+</h2>
+
+<p>It turns out that in the <strong>actual data</strong> the score values were strings 
+and <strong>not</strong> numbers like in the sample data. Strings sort differently 
+to numbers and because of this the current approach is <em>“broken”</em>.</p>
+
+<p>We’ll need to change the score values in order to generate a failing test case.</p>
+
+<p><code class="highlighter-rouge">scores-strings.json</code></p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">user</span><span class="err">@</span><span class="nx">host</span> <span class="nx">$</span> <span class="nx">cat</span> <span class="nx">scores</span><span class="o">-</span><span class="nx">strings</span><span class="p">.</span><span class="nx">json</span> 
+<span class="p">{</span> 
+    <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
+        <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"2"</span><span class="p">}</span>
+        <span class="p">],</span>
+        <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"3"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Do we have a failing test case?</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores-strings.json 
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:<span class="s2">"2"</span><span class="o">}]</span>
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:<span class="s2">"3"</span><span class="o">}]</span>
+</code></pre>
+</div>
+
+<p>We do. The problem is that the string <code class="highlighter-rouge">"10"</code> sorts before the string <code class="highlighter-rouge">"2"</code> 
+(and <code class="highlighter-rouge">"3"</code>).</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'["1", "2", "10"]'</span> | jq -c sort
+<span class="o">[</span><span class="s2">"1"</span>,<span class="s2">"10"</span>,<span class="s2">"2"</span><span class="o">]</span>
+user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'[1, 2, 10]'</span> | jq -c sort
+<span class="o">[</span>1,2,10]
+</code></pre>
+</div>
+
+<a name="tonumber"></a>
+<h2 class="section-header">
+  <span id="tonumber"></span>
+  <a class="anchor" href="#tonumber">tonumber</a>
+</h2>
+
+<p>We’ll need to turn our strings into numbers. This can be done in
+<code class="highlighter-rouge">jq</code> with <code class="highlighter-rouge">tonumber</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'["1", "2", "10"]'</span> | jq -c <span class="s1">'[ .[] | tonumber ] | sort'</span>
+<span class="o">[</span>1,2,10]
+</code></pre>
+</div>
+
+<a name="return-of-the-sort_by"></a>
+<h2 class="section-header">
+  <span id="return-of-the-sort_by"></span>
+  <a class="anchor" href="#return-of-the-sort_by">Return of the sort_by()</a>
+</h2>
+
+<p>Instead of just passing a field to <code class="highlighter-rouge">sort_by()</code> we can pass an <em>“expression”</em>
+that including our newly found <code class="highlighter-rouge">tonumber</code> to gives us numerical sorting as opposed
+to alphabetical sorting:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c '.rounds[] | group_by(.score) | sort_by(.[].score | tonumber)[-1]' scores-strings.json 
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
+</code></pre>
+</div>
+
+<p>You may have noticed that we can replace <code class="highlighter-rouge">sort_by()[-1]</code> with <code class="highlighter-rouge">max_by()</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c '.rounds[] | group_by(.score) | max_by(.[].score | tonumber)' scores-strings.json 
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
+<span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
+</code></pre>
+</div>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>For more information on <a href="https://stedolan.github.io/jq/">jq</a> check out the 
+<a href="https://stedolan.github.io/jq/manual/">manual</a> and
+<a href="https://github.com/stedolan/jq/wiki/Cookbook">Cookbook</a>.</p>
+
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (7)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/19/reading-a-file-into-an-array-with-bash/">reading a file into an array with bash</a></h2>
+          <p class="preview"><em>Given a list of countries, each on a new line, 
+your task is to read them into an array and then display the element indexed at 3.
+Note that indexing starts from 0.</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
