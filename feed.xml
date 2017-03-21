@@ -5,12 +5,12 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 21 Mar 2017 10:08:11 +0000</pubDate>
-    <lastBuildDate>Tue, 21 Mar 2017 10:08:11 +0000</lastBuildDate>
+    <pubDate>Tue, 21 Mar 2017 14:07:21 +0000</pubDate>
+    <lastBuildDate>Tue, 21 Mar 2017 14:07:21 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
-        <title>jq by example: parsing elasticsearch output</title>
+        <title>jq: parsing elasticsearch output</title>
         <description>&lt;p&gt;&lt;em&gt;I’m trying to use jq on elasticsearch output to produce something like this: …&lt;/em&gt;&lt;/p&gt;
 
 &lt;h2 id=&quot;input&quot;&gt;Input&lt;/h2&gt;
@@ -133,8 +133,8 @@ variable &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; whose
 &lt;/div&gt;
 </description>
         <pubDate>Tue, 21 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/21/jq-by-example-parsing-elasticsearch-output/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/21/jq-by-example-parsing-elasticsearch-output/</guid>
+        <link>http://kaijento.github.io/2017/03/21/jq-parsing-elasticsearch-output/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/21/jq-parsing-elasticsearch-output/</guid>
         
         <category>jq</category>
         
@@ -148,7 +148,7 @@ variable &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; whose
       </item>
     
       <item>
-        <title>jq by example: group_by max_by and sort_by</title>
+        <title>jq: group_by max_by and sort_by</title>
         <description>&lt;p&gt;&lt;em&gt;I have some JSON entries and I would like to filter out those
 with the greatest score. If there are multiple entries with the same
 score I want to print them all.&lt;/em&gt;&lt;/p&gt;
@@ -322,8 +322,8 @@ to alphabetical sorting:&lt;/p&gt;
 
 </description>
         <pubDate>Mon, 20 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/20/jq-by-example-group_by-max_by-and-sort_by/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/20/jq-by-example-group_by-max_by-and-sort_by/</guid>
+        <link>http://kaijento.github.io/2017/03/20/jq-group_by-max_by-and-sort_by/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/20/jq-group_by-max_by-and-sort_by/</guid>
         
         <category>jq</category>
         
