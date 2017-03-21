@@ -128,15 +128,15 @@ An array is like a list in that it can hold multiple values.</p>
 
 <p>For the purposes of formatting we will only take a few countries from the sample input.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>cat sample-input
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat sample-input
 Namibia
 Nauru
 Nepal
 Netherlands
-user@host <span class="nv">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="nv">$country</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="gp">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="nv">$country</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
+<span class="gp">$ </span><span class="nb">declare</span> -p countries
 <span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="Nepal" [3]="Netherlands")'</span>
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span>
 Netherlands
 </code></pre>
 </div>
@@ -147,9 +147,9 @@ Netherlands
 <p>Variables don’t need to be predeclared. You can append to a non-existing variable and
 it <em>“Just Works”</em>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>user@host $ s+=foo
-user@host $ s+=bar
-user@host $ declare -p s
+<div class="highlighter-rouge"><pre class="highlight"><code>$ s+=foo
+$ s+=bar
+$ declare -p s
 declare -- s="foobar"
 </code></pre>
 </div>
@@ -162,8 +162,8 @@ it appended <code class="highlighter-rouge">foo</code> to nothing. By default, v
 as an array and not a string. When you append to an array it adds a new item to the end 
 of the array.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>user@host $ s+=(baz)
-user@host $ declare -p s
+<div class="highlighter-rouge"><pre class="highlight"><code>$ s+=(baz)
+$ declare -p s
 declare -a s='([0]="foobar" [1]="baz")'
 </code></pre>
 </div>
@@ -183,14 +183,14 @@ of a variable.</p>
 <p>So let’s replace <code class="highlighter-rouge">Nepal</code> with <code class="highlighter-rouge">New Zealand</code> in our sample input. <strong>Note</strong> that we
 are also adding in the space unlike in the given sample input.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>cat sample-input
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat sample-input
 Namibia
 Nauru
 New Zealand
 Netherlands
-user@host <span class="nv">$ countries</span><span class="o">=()</span>
-user@host <span class="nv">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="nv">$country</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<span class="gp">$ </span><span class="nv">countries</span><span class="o">=()</span>
+<span class="gp">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="nv">$country</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
+<span class="gp">$ </span><span class="nb">declare</span> -p countries
 <span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="New" [3]="Zealand" [4]="Netherlands")'</span>
 </code></pre>
 </div>
@@ -206,7 +206,7 @@ our previous run.</p>
   <a class="anchor" href="#word-splitting">Word-splitting</a>
 </h2>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ country</span><span class="o">=</span>New Zealand
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">country</span><span class="o">=</span>New Zealand
 bash: Zealand: <span class="nb">command </span>not found
 </code></pre>
 </div>
@@ -214,19 +214,19 @@ bash: Zealand: <span class="nb">command </span>not found
 <p>When parsing bash splits things into <em>“words”</em> - so here we have 2 words <code class="highlighter-rouge">country=New</code> and <code class="highlighter-rouge">Zealand</code>.
 This is not the behaviour we want so we could use one of the following:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ country</span><span class="o">=</span><span class="s1">'New Zealand'</span>
-user@host <span class="nv">$ country</span><span class="o">=</span><span class="s2">"New Zealand"</span>
-user@host <span class="nv">$ country</span><span class="o">=</span>New<span class="se">\ </span>Zealand
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">country</span><span class="o">=</span><span class="s1">'New Zealand'</span>
+<span class="gp">$ </span><span class="nv">country</span><span class="o">=</span><span class="s2">"New Zealand"</span>
+<span class="gp">$ </span><span class="nv">country</span><span class="o">=</span>New<span class="se">\ </span>Zealand
 </code></pre>
 </div>
 
 <p>The difference between single and double quotes is that inside double quotes variables will be replaced
 by their values. (You may see this referred to as <em>“expansion”</em>.)</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ name</span><span class="o">=</span>Karl
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"My name is: </span><span class="nv">$name</span><span class="s2">"</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">name</span><span class="o">=</span>Karl
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"My name is: </span><span class="nv">$name</span><span class="s2">"</span>
 My name is: Karl
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'My name is: $name'</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'My name is: $name'</span>
 My name is: <span class="nv">$name</span>
 </code></pre>
 </div>
@@ -243,11 +243,11 @@ with <code class="highlighter-rouge">countries+=($country)</code></p>
 <p>We will use <code class="highlighter-rouge">set -x</code> which will enable debugging output of how bash is executing our commands. <code class="highlighter-rouge">set +x</code> 
 can be used to turn it back off.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">set</span> -x
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$country</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">set</span> -x
+<span class="gp">$ </span><span class="nb">echo</span> <span class="nv">$country</span>
 + <span class="nb">echo </span>New Zealand
 New Zealand
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span>
 + <span class="nb">echo</span> <span class="s1">'New Zealand'</span>
 New Zealand
 </code></pre>
@@ -265,10 +265,10 @@ treated the value of <code class="highlighter-rouge">$country</code> as a single
 
 <p>To give another example:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>args <span class="o">()</span> <span class="o">{</span> <span class="nb">echo</span> <span class="nv">$#;</span> <span class="o">}</span>
-user@host <span class="nv">$ </span>args <span class="nv">$country</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>args <span class="o">()</span> <span class="o">{</span> <span class="nb">echo</span> <span class="nv">$#;</span> <span class="o">}</span>
+<span class="gp">$ </span>args <span class="nv">$country</span>
 2
-user@host <span class="nv">$ </span>args <span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span>
+<span class="gp">$ </span>args <span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span>
 1
 </code></pre>
 </div>
@@ -281,11 +281,11 @@ instead of 1.</p>
 
 <p>Okay so we want <code class="highlighter-rouge">$country</code> to be treated as a single word so we must double quote it:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ countries</span><span class="o">=()</span>
-user@host <span class="nv">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">countries</span><span class="o">=()</span>
+<span class="gp">$ </span><span class="k">while </span><span class="nb">read </span>country; <span class="k">do </span>countries+<span class="o">=(</span><span class="s2">"</span><span class="nv">$country</span><span class="s2">"</span><span class="o">)</span>; <span class="k">done</span> &lt; sample-input
+<span class="gp">$ </span><span class="nb">declare</span> -p countries
 <span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="New Zealand" [3]="Netherlands")'</span>
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span>
 Netherlands
 </code></pre>
 </div>
@@ -300,12 +300,12 @@ Netherlands
 However, as well as the word-splitting issue another problem that can arise is if the value of your 
 variable contains <em>globbing</em> characters:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>ls
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls
 sample-input
-user@host <span class="nv">$ var</span><span class="o">=</span><span class="k">*</span>
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$var</span><span class="s2">"</span>
+<span class="gp">$ </span><span class="nv">var</span><span class="o">=</span><span class="k">*</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$var</span><span class="s2">"</span>
 <span class="k">*</span>
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="nv">$var</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="nv">$var</span>
 sample-input
 </code></pre>
 </div>
@@ -321,11 +321,11 @@ any expansions.</p>
 
 <p>There are other possible issues with regards to <code class="highlighter-rouge">read</code> depending on the input being processed.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">read</span> -a words <span class="o">&lt;&lt;&lt;</span> <span class="s1">'foo\ bar baz'</span>
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p words
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">read</span> -a words <span class="o">&lt;&lt;&lt;</span> <span class="s1">'foo\ bar baz'</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p words
 <span class="nb">declare</span> -a <span class="nv">words</span><span class="o">=</span><span class="s1">'([0]="foo bar" [1]="baz")'</span>
-user@host <span class="nv">$ </span><span class="nb">read</span> -r -a words <span class="o">&lt;&lt;&lt;</span> <span class="s1">'foo\ bar baz'</span>
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p words
+<span class="gp">$ </span><span class="nb">read</span> -r -a words <span class="o">&lt;&lt;&lt;</span> <span class="s1">'foo\ bar baz'</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p words
 <span class="nb">declare</span> -a <span class="nv">words</span><span class="o">=</span><span class="s1">'([0]="foo\\" [1]="bar" [2]="baz")'</span>
 </code></pre>
 </div>
@@ -346,11 +346,11 @@ used to do with same with a <em>“string”<em> instead.</em></em></p>
 <p>Another possible issue is the removal of leading and trailing whitespace. By default both will
 be <em>“trimmed”</em> or <em>“stripped”</em>”.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">read</span> -r line <span class="o">&lt;&lt;&lt;</span> <span class="s1">'    I would like to keep my space.    '</span>
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p line
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">read</span> -r line <span class="o">&lt;&lt;&lt;</span> <span class="s1">'    I would like to keep my space.    '</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p line
 <span class="nb">declare</span> -- <span class="nv">line</span><span class="o">=</span><span class="s2">"I would like to keep my space."</span>
-user@host <span class="nv">$ IFS</span><span class="o">=</span> <span class="nb">read</span> -r line <span class="o">&lt;&lt;&lt;</span> <span class="s1">'    I would like to keep my space.    '</span>
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p line
+<span class="gp">$ </span><span class="nv">IFS</span><span class="o">=</span> <span class="nb">read</span> -r line <span class="o">&lt;&lt;&lt;</span> <span class="s1">'    I would like to keep my space.    '</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p line
 <span class="nb">declare</span> -- <span class="nv">line</span><span class="o">=</span><span class="s2">"    I would like to keep my space.    "</span>
 </code></pre>
 </div>
@@ -358,7 +358,7 @@ user@host <span class="nv">$ </span><span class="nb">declare</span> -p line
 <p>The <code class="highlighter-rouge">IFS</code> variable is a string of characters that define how word-splitting behaves and how
 lines are split up into words when using <code class="highlighter-rouge">read</code>. Its default value is <code class="highlighter-rouge">&lt;space&gt;&lt;tab&gt;&lt;newline&gt;</code></p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">printf</span> %q<span class="se">\\</span>n <span class="s2">"</span><span class="nv">$IFS</span><span class="s2">"</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">printf</span> %q<span class="se">\\</span>n <span class="s2">"</span><span class="nv">$IFS</span><span class="s2">"</span>
 <span class="nv">$'</span> <span class="se">\t\n</span><span class="s1">'
 </span></code></pre>
 </div>
@@ -385,9 +385,9 @@ see <code class="highlighter-rouge">while read</code> loops to read something li
 <p>This exports the variable into command’s environment (and only that command). We’ve just 
 given an empty value in <code class="highlighter-rouge">IFS=</code> case.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ a</span><span class="o">=</span>b bash -c <span class="s1">'declare -p a'</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">a</span><span class="o">=</span>b bash -c <span class="s1">'declare -p a'</span>
 <span class="nb">declare</span> -x <span class="nv">a</span><span class="o">=</span><span class="s2">"b"</span>
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p a
+<span class="gp">$ </span><span class="nb">declare</span> -p a
 bash: <span class="nb">declare</span>: a: not found
 </code></pre>
 </div>
@@ -405,8 +405,8 @@ create a subshell so the parent’s environment remains unchanged.</p>
 reason they gave it 2 names <code class="highlighter-rouge">readarray</code> and <code class="highlighter-rouge">mapfile</code> are the same thing. I think <code class="highlighter-rouge">readarray</code> is a more
 suitable name but YMMV.)</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>readarray countries &lt; sample-input
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>readarray countries &lt; sample-input
+<span class="gp">$ </span><span class="nb">declare</span> -p countries
 <span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia
 " [1]="Nauru
 " [2]="New Zealand
@@ -418,10 +418,10 @@ user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
 <p>By default though, it keeps the trailing newline. You can use <code class="highlighter-rouge">-t</code> to have it strip 
 the trailing newline instead.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>readarray -t countries &lt; sample-input
-user@host <span class="nv">$ </span><span class="nb">declare</span> -p countries
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>readarray -t countries &lt; sample-input
+<span class="gp">$ </span><span class="nb">declare</span> -p countries
 <span class="nb">declare</span> -a <span class="nv">countries</span><span class="o">=</span><span class="s1">'([0]="Namibia" [1]="Nauru" [2]="New Zealand" [3]="Netherlands")'</span>
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span><span class="s2">"</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">countries</span><span class="p">[3]</span><span class="k">}</span><span class="s2">"</span>
 Netherlands
 </code></pre>
 </div>
@@ -439,7 +439,7 @@ actual solution.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (7)</a>
+            <a href="/archive">View Archive (8)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/03/18/a-function-to-call-functions/">a function to call functions</a></h2>
           <p class="preview"><em>How do I make a function that can repeat an arbitrary function 

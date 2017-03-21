@@ -6141,7 +6141,8 @@ h3 {
 
 /* Generic.Output */
 .highlight .gp {
-  color: #000000; }
+  color: #000000;
+  font-weight: bold; }
 
 /* Generic.Prompt */
 .highlight .gs {
@@ -6480,3 +6481,13 @@ h3 a:hover {
 
 h2 .anchor:hover:after {
   content: ' ♥'; }
+
+.language-bash .s2 {
+  color: #7d8ea5; }
+
+.col-sm-12 {
+  padding-left: 13px;
+  padding-right: 13px; }
+
+.language-json .nt {
+  font-weight: normal; }

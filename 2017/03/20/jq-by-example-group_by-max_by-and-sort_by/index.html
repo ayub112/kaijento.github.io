@@ -76,7 +76,7 @@ score I want to print them all.</em></p>
 </h2>
 
 <p>To parse JSON data from within bash chances are you’ll want
-to be using the awesome <a href="https://stedolan.github.io/jq/">jq</a> tool.</p>
+to be using <a href="https://stedolan.github.io/jq/">jq</a>.</p>
 
 <p><code class="highlighter-rouge">scores.json</code></p>
 
@@ -105,18 +105,18 @@ to be using the awesome <a href="https://stedolan.github.io/jq/">jq</a> tool.</p
 
 <p><code class="highlighter-rouge">sort_by(.field)</code> can be used to sort by a particular field.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | sort_by(.score)'</span> scores.json
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rounds[] | sort_by(.score)'</span> scores.json
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:2<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:1<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:2<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
 </code></pre>
 </div>
 
-<p>The <code class="highlighter-rouge">-c</code> option forces <code class="highlighter-rouge">jq</code> to print each object on a single line.</p>
+<p>The <code class="highlighter-rouge">-c</code> option forces jq to print each object on a single line.</p>
 
 <p>When using <code class="highlighter-rouge">sort_by()</code> though, there is no way of knowing where the first <em>“max”</em> 
 score is so let’s try <code class="highlighter-rouge">max_by()</code>:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | max_by(.score)'</span> scores.json
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rounds[] | max_by(.score)'</span> scores.json
 <span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>
 <span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>
 </code></pre>
@@ -134,7 +134,7 @@ score is so let’s try <code class="highlighter-rouge">max_by()</code>:</p>
 will put same value matches into individual arrays (<em>“groups”</em>). The groups
 will be sorted by the value of the given field in ascending order.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq <span class="s1">'.rounds[0] | group_by(.score)'</span> scores.json
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'.rounds[0] | group_by(.score)'</span> scores.json
 <span class="o">[</span>
   <span class="o">[</span>
     <span class="o">{</span>
@@ -161,7 +161,7 @@ another for the scores with value <code class="highlighter-rouge">3</code>. They
 the last item will be the <em>“max”</em> group. It can be accessed using negative indexing 
 i.e. <code class="highlighter-rouge">[-1]</code>.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores.json
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores.json
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:3<span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:3<span class="o">}]</span>
 </code></pre>
@@ -181,8 +181,7 @@ to numbers and because of this the current approach is <em>“broken”</em>.</p
 
 <p><code class="highlighter-rouge">scores-strings.json</code></p>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">user</span><span class="err">@</span><span class="nx">host</span> <span class="nx">$</span> <span class="nx">cat</span> <span class="nx">scores</span><span class="o">-</span><span class="nx">strings</span><span class="p">.</span><span class="nx">json</span> 
-<span class="p">{</span> 
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span> 
     <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
         <span class="p">[</span>
             <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
@@ -201,7 +200,7 @@ to numbers and because of this the current approach is <em>“broken”</em>.</p
 
 <p>Do we have a failing test case?</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores-strings.json 
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score)[-1]'</span> scores-strings.json 
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:<span class="s2">"2"</span><span class="o">}]</span>
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:<span class="s2">"3"</span><span class="o">}]</span>
 </code></pre>
@@ -210,9 +209,9 @@ to numbers and because of this the current approach is <em>“broken”</em>.</p
 <p>We do. The problem is that the string <code class="highlighter-rouge">"10"</code> sorts before the string <code class="highlighter-rouge">"2"</code> 
 (and <code class="highlighter-rouge">"3"</code>).</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'["1", "2", "10"]'</span> | jq -c sort
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'["1", "2", "10"]'</span> | jq -c sort
 <span class="o">[</span><span class="s2">"1"</span>,<span class="s2">"10"</span>,<span class="s2">"2"</span><span class="o">]</span>
-user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'[1, 2, 10]'</span> | jq -c sort
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[1, 2, 10]'</span> | jq -c sort
 <span class="o">[</span>1,2,10]
 </code></pre>
 </div>
@@ -224,9 +223,9 @@ user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1
 </h2>
 
 <p>We’ll need to turn our strings into numbers. This can be done in
-<code class="highlighter-rouge">jq</code> with <code class="highlighter-rouge">tonumber</code>:</p>
+jq with <code class="highlighter-rouge">tonumber</code>:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1">'["1", "2", "10"]'</span> | jq -c <span class="s1">'[ .[] | tonumber ] | sort'</span>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'["1", "2", "10"]'</span> | jq -c <span class="s1">'[ .[] | tonumber ] | sort'</span>
 <span class="o">[</span>1,2,10]
 </code></pre>
 </div>
@@ -241,7 +240,7 @@ user@host <span class="nv">$ </span><span class="nb">echo</span> <span class="s1
 that including our newly found <code class="highlighter-rouge">tonumber</code> to gives us numerical sorting as opposed
 to alphabetical sorting:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c '.rounds[] | group_by(.score) | sort_by(.[].score | tonumber)[-1]' scores-strings.json 
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score) | sort_by(.[].score | tonumber)[-1]'</span> scores-strings.json 
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
 </code></pre>
@@ -249,7 +248,7 @@ to alphabetical sorting:</p>
 
 <p>You may have noticed that we can replace <code class="highlighter-rouge">sort_by()[-1]</code> with <code class="highlighter-rouge">max_by()</code>:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>user@host <span class="nv">$ </span>jq -c '.rounds[] | group_by(.score) | max_by(.[].score | tonumber)' scores-strings.json 
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rounds[] | group_by(.score) | max_by(.[].score | tonumber)'</span> scores-strings.json 
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"alice"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}</span>,<span class="o">{</span><span class="s2">"name"</span>:<span class="s2">"bob"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
 <span class="o">[{</span><span class="s2">"name"</span>:<span class="s2">"ted"</span>,<span class="s2">"score"</span>:<span class="s2">"10"</span><span class="o">}]</span>
 </code></pre>
@@ -275,7 +274,7 @@ to alphabetical sorting:</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (7)</a>
+            <a href="/archive">View Archive (8)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/03/19/reading-a-file-into-an-array-with-bash/">reading a file into an array with bash</a></h2>
           <p class="preview"><em>Given a list of countries, each on a new line, 
@@ -285,6 +284,17 @@ Note that indexing starts from 0.</em></p>
 
         </div>
       
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/21/jq-by-example-parsing-elasticsearch-output/">jq by example: parsing elasticsearch output</a></h2>
+          <p class="preview"><em>I’m trying to use jq on elasticsearch output to produce something like this: …</em></p>
+
+
+        </div>
       
     </div>
   
