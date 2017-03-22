@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 22 Mar 2017 09:53:07 +0000</pubDate>
-    <lastBuildDate>Wed, 22 Mar 2017 09:53:07 +0000</lastBuildDate>
+    <pubDate>Wed, 22 Mar 2017 10:05:56 +0000</pubDate>
+    <lastBuildDate>Wed, 22 Mar 2017 10:05:56 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -31,7 +31,9 @@ HTTP client library is &lt;a href=&quot;http://docs.python-requests.org/&quot;&g
 GitHub API v3 example in the 
 &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests&quot;&gt;requests docs&lt;/a&gt;.&lt;/p&gt;
 
-&lt;p&gt;Let’s give it a try:&lt;/p&gt;
+&lt;p&gt;One could say that this is an example of &lt;em&gt;“sending an API request in Python”&lt;em&gt;.&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;So let’s give it a try:&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
