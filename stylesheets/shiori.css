@@ -6469,6 +6469,7 @@ h3 span {
   position: absolute;
   top: -100px; }
 
+h1 a:hover,
 h2 a:hover,
 h3 a:hover {
   text-decoration: none; }
@@ -6479,6 +6480,10 @@ h3 a:hover {
   padding-top: 2%;
   border-top: 1px solid #eee; }
 
+.post-title-main a {
+  color: #000; }
+
+.post-title-main a:hover:after,
 h2 .anchor:hover:after {
   content: ' ♥'; }
 

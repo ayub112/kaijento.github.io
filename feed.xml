@@ -5,9 +5,261 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 21 Mar 2017 14:07:21 +0000</pubDate>
-    <lastBuildDate>Tue, 21 Mar 2017 14:07:21 +0000</lastBuildDate>
+    <pubDate>Wed, 22 Mar 2017 09:53:07 +0000</pubDate>
+    <lastBuildDate>Wed, 22 Mar 2017 09:53:07 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>creating a gist from the command-line</title>
+        <description>&lt;p&gt;&lt;strong&gt;GIST 4 CLIFE!&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;You can read public gists and create anonymous gists without any authentication
+using the Github API.&lt;/p&gt;
+
+&lt;p&gt;Let’s look at the &lt;a href=&quot;https://developer.github.com/v3/gists/#create-a-gist&quot;&gt;docs&lt;/a&gt;:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1490134235-gist-api.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So the API call expects JSON encoded data. The filename extension in &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;file1.txt&quot;&lt;/code&gt; is
+used to detect the type of syntax highlighting. &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;.txt&quot;&lt;/code&gt; will not use syntax 
+highlighting but we could use &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;.py&quot;&lt;/code&gt; instead to set it to Python.&lt;/p&gt;
+
+&lt;h2 id=&quot;requests&quot;&gt;requests&lt;/h2&gt;
+
+&lt;p&gt;Python comes with &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib2&lt;/code&gt; (Python 2) and &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt; (Python 3) but the recommended
+HTTP client library is &lt;a href=&quot;http://docs.python-requests.org/&quot;&gt;requests&lt;/a&gt;. There is even a
+GitHub API v3 example in the 
+&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests&quot;&gt;requests docs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Let’s give it a try:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://api.github.com/gists'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'files'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'file1.txt'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'content'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'hi'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}}})&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'html_url'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;u'https://gist.github.com/bb3b66a670955d401273a2f4ff8007c2'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As there is the &lt;code class=&quot;highlighter-rouge&quot;&gt;json=&lt;/code&gt; &lt;em&gt;“helper”&lt;/em&gt; for sending requests which performs a
+&lt;code class=&quot;highlighter-rouge&quot;&gt;json.dumps()&lt;/code&gt; behind the scenes, response objects have the &lt;code class=&quot;highlighter-rouge&quot;&gt;.json()&lt;/code&gt; method 
+which performs a &lt;code class=&quot;highlighter-rouge&quot;&gt;json.loads()&lt;/code&gt; to turn the JSON string into a Python structure.&lt;/p&gt;
+
+&lt;h2 id=&quot;jsondumps-indent4&quot;&gt;json.dumps(…, indent=4)&lt;/h2&gt;
+
+&lt;p&gt;If you’d like to view the full response you use &lt;code class=&quot;highlighter-rouge&quot;&gt;json.dumps()&lt;/code&gt; to
+pretty-print it:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;null&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;truncated&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;https://api.github.com/gists/bb3b66a670955d401273a2f4ff8007c2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;created_at&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;2017-03-21T21:20:20Z&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;html_url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;https://gist.github.com/bb3b66a670955d401273a2f4ff8007c2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ve truncated the output but you can try it out for yourself.&lt;/p&gt;
+
+&lt;h2 id=&quot;osisatty&quot;&gt;os.isatty()&lt;/h2&gt;
+
+&lt;p&gt;So let’s try to build something we can call from the command-line.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;os.isatty(0)&lt;/code&gt; is a way to check if your code has been called in a pipeline
+or if it has had input redirected into it. It will return &lt;code class=&quot;highlighter-rouge&quot;&gt;False&lt;/code&gt; in both of
+these cases. This can be useful when building command-line tools.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -c &lt;span class=&quot;s1&quot;&gt;'import os; print(&quot;Yes&quot; if os.isatty(0) else &quot;No&quot;)'&lt;/span&gt;
+Yes
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -c &lt;span class=&quot;s1&quot;&gt;'import os; print(&quot;Yes&quot; if os.isatty(0) else &quot;No&quot;)'&lt;/span&gt; &amp;lt; filename
+No
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;moo | python -c &lt;span class=&quot;s1&quot;&gt;'import os; print(&quot;Yes&quot; if os.isatty(0) else &quot;No&quot;)'&lt;/span&gt; 
+No
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If &lt;code class=&quot;highlighter-rouge&quot;&gt;os.isatty(0)&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;True&lt;/code&gt; we will process &lt;code class=&quot;highlighter-rouge&quot;&gt;sys.argv&lt;/code&gt; for a filename to read.
+If it is &lt;code class=&quot;highlighter-rouge&quot;&gt;False&lt;/code&gt; we will read from &lt;code class=&quot;highlighter-rouge&quot;&gt;sys.stdin&lt;/code&gt; to get the data from the 
+pipeline or redirection.&lt;/p&gt;
+
+&lt;h2 id=&quot;gistpy&quot;&gt;gist.py&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;gist.py&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sys&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://api.github.com/gists'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;ext&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'txt'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isatty&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'.'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;ext&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stdin&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;'files'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;'file1.'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ext&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;'content'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'html_url'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ve set the default extension to &lt;code class=&quot;highlighter-rouge&quot;&gt;txt&lt;/code&gt;. If we look in &lt;code class=&quot;highlighter-rouge&quot;&gt;sys.argv[1]&lt;/code&gt; for a filename
+and it contains &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; we assume it has an extension and we &lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt; it out.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python gist.py gist.py
+https://gist.github.com/9be8e23c234ee3a55abbd1333435524c
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Did it work?&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1490134411-gist.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;It did. It also extracted the filename extension successfully to give us syntax
+highlighting.&lt;/p&gt;
+
+&lt;h2 id=&quot;improvements&quot;&gt;Improvements?&lt;/h2&gt;
+
+&lt;p&gt;Well we don’t check that we were given a filename and if we were we don’t check if
+it is valid. &lt;code class=&quot;highlighter-rouge&quot;&gt;len(sys.argv) == 2&lt;/code&gt; would check that we were passed a single filename.&lt;/p&gt;
+
+&lt;p&gt;Checking if a file is there before calling &lt;code class=&quot;highlighter-rouge&quot;&gt;open()&lt;/code&gt; is a race-condition so it’s 
+usually better to &lt;code class=&quot;highlighter-rouge&quot;&gt;try&lt;/code&gt; the open and &lt;code class=&quot;highlighter-rouge&quot;&gt;catch&lt;/code&gt; the exception if it is raised.&lt;/p&gt;
+
+&lt;p&gt;One may want to use 
+&lt;a href=&quot;http://pygments.org/docs/api/#pygments.lexers.guess_lexer&quot;&gt;pygments.lexers.guess_text()&lt;/a&gt; 
+to try to guess the type of the data if there is no filename (or extension) given. This
+could allow you to syntax highlight in such cases.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pygments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lexers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;guess_lexer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'import sys&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;print(&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;o hai&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\'&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pygments&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;lexers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;PythonLexer&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You could use &lt;a href=&quot;https://docs.python.org/3/howto/argparse.html&quot;&gt;argparse&lt;/a&gt; or
+&lt;a href=&quot;http://click.pocoo.org/&quot;&gt;click&lt;/a&gt; to build the command-line interface.&lt;/p&gt;
+
+&lt;p&gt;Finally, if you did not want to put this code into its own file you could create
+a shell function instead.&lt;/p&gt;
+
+&lt;h2 id=&quot;gist-as-a-bash-function&quot;&gt;gist as a bash function&lt;/h2&gt;
+
+&lt;p&gt;You have probably encountered aliases before e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;alias ll='ls -l'&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;When it comes to complex commands that contain their own quoting though it can become painful:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;alias &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;gist&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'python -c '&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'print(&quot;\&quot;Hello.\&quot;&quot;)'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\'&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;gist
+&lt;span class=&quot;s2&quot;&gt;&quot;Hello.&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Using a function removes the need for the first layer of quoting:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;unalias &lt;/span&gt;gist
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;gist &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; python -c &lt;span class=&quot;s1&quot;&gt;'print(&quot;\&quot;Hello.\&quot;&quot;)'&lt;/span&gt;; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;gist
+&lt;span class=&quot;s2&quot;&gt;&quot;Hello.&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Functions are much more powerful though, they are essentially &lt;em&gt;“inlined”&lt;/em&gt; scripts:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;wrapper &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;arg&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$1&lt;/span&gt;; &lt;span class=&quot;nb&quot;&gt;shift&lt;/span&gt;; &lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;cmd --arg1 &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$arg&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; --arg2 --arg3 &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$@&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;wrapper a b c d
+cmd --arg1 a --arg2 --arg3 b c d
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;-c&lt;/code&gt; option allows to pass code in a string and because we’ve used single quotes 
+to surround our code the simplest thing to do is convert all single quotes within our code
+to double quotes.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;gist &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+python -c &lt;span class=&quot;s1&quot;&gt;'
+import os, requests, sys
+
+url = &quot;https://api.github.com/gists&quot;
+ext = &quot;txt&quot;
+
+if os.isatty(0):
+    filename = sys.argv[1]
+    with open(filename) as fh:
+        content = fh.read()
+        if &quot;.&quot; in filename:
+            ext = filename.split(&quot;.&quot;)[-1]
+else:
+    content = sys.stdin.read()
+
+r = requests.post(url, json={
+    &quot;files&quot;: {
+        &quot;file1.&quot; + ext: {
+            &quot;content&quot;: content
+        }
+    }
+})
+
+print(r.json()[&quot;html_url&quot;])
+'&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$@&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;$@&quot;&lt;/code&gt; here are all the arguments passed to the function which we send on to Python so they are
+available in &lt;code class=&quot;highlighter-rouge&quot;&gt;sys.argv&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You can use &lt;code class=&quot;highlighter-rouge&quot;&gt;'\''&lt;/code&gt; to &lt;em&gt;“escape”&lt;/em&gt; a single quote within surrounding single quotes but I suppose
+technically you could say that’s not what you’re doing:&lt;/p&gt;
+
+&lt;div class=&quot;language-terminal highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;w&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;echo&lt;/span&gt;&lt;span class=&quot;kv&quot;&gt; '$single'\''$(quote)'
+&lt;/span&gt;$single'$(quote)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So what you have here are 3 separate &lt;em&gt;“words”&lt;/em&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;'$single'&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\'&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;'$(quote)'&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;'\''&lt;/code&gt; means you’re actually closing the first &lt;code class=&quot;highlighter-rouge&quot;&gt;'&lt;/code&gt; then using &lt;code class=&quot;highlighter-rouge&quot;&gt;\'&lt;/code&gt; then opening a new &lt;code class=&quot;highlighter-rouge&quot;&gt;'&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;It is possible to avoid the quoting issues by replacing &lt;code class=&quot;highlighter-rouge&quot;&gt;-c&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;python -&lt;/code&gt; and a heredoc however
+that introduces another issue with regards to the reading of stdin. It can be remedied by using
+process substituion a lá &lt;code class=&quot;highlighter-rouge&quot;&gt;python &amp;lt;(cat &amp;lt;&amp;lt;\.&lt;/code&gt; but that topic probably warrants its own discussion.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 22 Mar 2017 00:00:00 +0000</pubDate>
+        <link>http://kaijento.github.io/2017/03/22/creating-a-gist-from-the-command-line/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/22/creating-a-gist-from-the-command-line/</guid>
+        
+        <category>python</category>
+        
+        <category>requests</category>
+        
+        <category>json</category>
+        
+        <category>bash</category>
+        
+        <category>github</category>
+        
+        
+      </item>
     
       <item>
         <title>jq: parsing elasticsearch output</title>

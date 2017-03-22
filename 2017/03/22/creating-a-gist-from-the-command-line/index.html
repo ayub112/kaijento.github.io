@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/22/creating-a-gist-from-the-command-line/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>creating a gist from the command-line | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/22/creating-a-gist-from-the-command-line/">creating a gist from the command-line</a></h1>
+  <p class="text-muted">22 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/github/">github</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><strong>GIST 4 CLIFE!</strong></p>
+
+<p>You can read public gists and create anonymous gists without any authentication
+using the Github API.</p>
+
+<p>Let’s look at the <a href="https://developer.github.com/v3/gists/#create-a-gist">docs</a>:</p>
+
+<p><img src="/img/1490134235-gist-api.png" alt="" /></p>
+
+<p>So the API call expects JSON encoded data. The filename extension in <code class="highlighter-rouge">"file1.txt"</code> is
+used to detect the type of syntax highlighting. <code class="highlighter-rouge">".txt"</code> will not use syntax 
+highlighting but we could use <code class="highlighter-rouge">".py"</code> instead to set it to Python.</p>
+
+<a name="requests"></a>
+<h2 class="section-header">
+  <span id="requests"></span>
+  <a class="anchor" href="#requests">requests</a>
+</h2>
+
+<p>Python comes with <code class="highlighter-rouge">urllib2</code> (Python 2) and <code class="highlighter-rouge">urllib.request</code> (Python 3) but the recommended
+HTTP client library is <a href="http://docs.python-requests.org/">requests</a>. There is even a
+GitHub API v3 example in the 
+<a href="http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests">requests docs</a>.</p>
+
+<p>Let’s give it a try:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'https://api.github.com/gists'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s">'files'</span><span class="p">:{</span><span class="s">'file1.txt'</span><span class="p">:{</span><span class="s">'content'</span><span class="p">:</span><span class="s">'hi'</span><span class="p">}}})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'html_url'</span><span class="p">]</span>
+<span class="s">u'https://gist.github.com/bb3b66a670955d401273a2f4ff8007c2'</span>
+</code></pre>
+</div>
+
+<p>As there is the <code class="highlighter-rouge">json=</code> <em>“helper”</em> for sending requests which performs a
+<code class="highlighter-rouge">json.dumps()</code> behind the scenes, response objects have the <code class="highlighter-rouge">.json()</code> method 
+which performs a <code class="highlighter-rouge">json.loads()</code> to turn the JSON string into a Python structure.</p>
+
+<a name="jsondumps-indent4"></a>
+<h2 class="section-header">
+  <span id="jsondumps-indent4"></span>
+  <a class="anchor" href="#jsondumps-indent4">json.dumps(…, indent=4)</a>
+</h2>
+
+<p>If you’d like to view the full response you use <code class="highlighter-rouge">json.dumps()</code> to
+pretty-print it:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+<span class="o">...</span>
+    <span class="s">"description"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"truncated"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+    <span class="s">"url"</span><span class="p">:</span> <span class="s">"https://api.github.com/gists/bb3b66a670955d401273a2f4ff8007c2"</span><span class="p">,</span> 
+    <span class="s">"created_at"</span><span class="p">:</span> <span class="s">"2017-03-21T21:20:20Z"</span><span class="p">,</span> 
+    <span class="s">"html_url"</span><span class="p">:</span> <span class="s">"https://gist.github.com/bb3b66a670955d401273a2f4ff8007c2"</span><span class="p">,</span> 
+<span class="o">...</span>
+</code></pre>
+</div>
+
+<p>We’ve truncated the output but you can try it out for yourself.</p>
+
+<a name="osisatty"></a>
+<h2 class="section-header">
+  <span id="osisatty"></span>
+  <a class="anchor" href="#osisatty">os.isatty()</a>
+</h2>
+
+<p>So let’s try to build something we can call from the command-line.</p>
+
+<p><code class="highlighter-rouge">os.isatty(0)</code> is a way to check if your code has been called in a pipeline
+or if it has had input redirected into it. It will return <code class="highlighter-rouge">False</code> in both of
+these cases. This can be useful when building command-line tools.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -c <span class="s1">'import os; print("Yes" if os.isatty(0) else "No")'</span>
+Yes
+<span class="gp">$ </span>python -c <span class="s1">'import os; print("Yes" if os.isatty(0) else "No")'</span> &lt; filename
+No
+<span class="gp">$ </span><span class="nb">echo </span>moo | python -c <span class="s1">'import os; print("Yes" if os.isatty(0) else "No")'</span> 
+No
+</code></pre>
+</div>
+
+<p>If <code class="highlighter-rouge">os.isatty(0)</code> is <code class="highlighter-rouge">True</code> we will process <code class="highlighter-rouge">sys.argv</code> for a filename to read.
+If it is <code class="highlighter-rouge">False</code> we will read from <code class="highlighter-rouge">sys.stdin</code> to get the data from the 
+pipeline or redirection.</p>
+
+<a name="gistpy"></a>
+<h2 class="section-header">
+  <span id="gistpy"></span>
+  <a class="anchor" href="#gistpy">gist.py</a>
+</h2>
+
+<p><code class="highlighter-rouge">gist.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'https://api.github.com/gists'</span>
+<span class="n">ext</span> <span class="o">=</span> <span class="s">'txt'</span>
+
+<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">isatty</span><span class="p">(</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s">'.'</span> <span class="ow">in</span> <span class="n">filename</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+    <span class="s">'files'</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">'file1.'</span> <span class="o">+</span> <span class="n">ext</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">'content'</span><span class="p">:</span> <span class="n">content</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'html_url'</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p>We’ve set the default extension to <code class="highlighter-rouge">txt</code>. If we look in <code class="highlighter-rouge">sys.argv[1]</code> for a filename
+and it contains <code class="highlighter-rouge">.</code> we assume it has an extension and we <code class="highlighter-rouge">split()</code> it out.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python gist.py gist.py
+https://gist.github.com/9be8e23c234ee3a55abbd1333435524c
+</code></pre>
+</div>
+
+<p>Did it work?</p>
+
+<p><img src="/img/1490134411-gist.png" alt="" /></p>
+
+<p>It did. It also extracted the filename extension successfully to give us syntax
+highlighting.</p>
+
+<a name="improvements"></a>
+<h2 class="section-header">
+  <span id="improvements"></span>
+  <a class="anchor" href="#improvements">Improvements?</a>
+</h2>
+
+<p>Well we don’t check that we were given a filename and if we were we don’t check if
+it is valid. <code class="highlighter-rouge">len(sys.argv) == 2</code> would check that we were passed a single filename.</p>
+
+<p>Checking if a file is there before calling <code class="highlighter-rouge">open()</code> is a race-condition so it’s 
+usually better to <code class="highlighter-rouge">try</code> the open and <code class="highlighter-rouge">catch</code> the exception if it is raised.</p>
+
+<p>One may want to use 
+<a href="http://pygments.org/docs/api/#pygments.lexers.guess_lexer">pygments.lexers.guess_text()</a> 
+to try to guess the type of the data if there is no filename (or extension) given. This
+could allow you to syntax highlight in such cases.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pygments</span><span class="o">.</span><span class="n">lexers</span><span class="o">.</span><span class="n">guess_lexer</span><span class="p">(</span><span class="s">'import sys</span><span class="se">\n</span><span class="s">print(</span><span class="se">\'</span><span class="s">o hai</span><span class="se">\'</span><span class="s">)'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">pygments</span><span class="o">.</span><span class="n">lexers</span><span class="o">.</span><span class="n">PythonLexer</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>You could use <a href="https://docs.python.org/3/howto/argparse.html">argparse</a> or
+<a href="http://click.pocoo.org/">click</a> to build the command-line interface.</p>
+
+<p>Finally, if you did not want to put this code into its own file you could create
+a shell function instead.</p>
+
+<a name="gist-as-a-bash-function"></a>
+<h2 class="section-header">
+  <span id="gist-as-a-bash-function"></span>
+  <a class="anchor" href="#gist-as-a-bash-function">gist as a bash function</a>
+</h2>
+
+<p>You have probably encountered aliases before e.g. <code class="highlighter-rouge">alias ll='ls -l'</code></p>
+
+<p>When it comes to complex commands that contain their own quoting though it can become painful:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">alias </span><span class="nv">gist</span><span class="o">=</span><span class="s1">'python -c '</span><span class="se">\'</span><span class="s1">'print("\"Hello.\"")'</span><span class="se">\'</span><span class="s1">''</span>
+<span class="gp">$ </span>gist
+<span class="s2">"Hello."</span>
+</code></pre>
+</div>
+
+<p>Using a function removes the need for the first layer of quoting:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">unalias </span>gist
+<span class="gp">$ </span>gist <span class="o">()</span> <span class="o">{</span> python -c <span class="s1">'print("\"Hello.\"")'</span>; <span class="o">}</span>
+<span class="gp">$ </span>gist
+<span class="s2">"Hello."</span>
+</code></pre>
+</div>
+
+<p>Functions are much more powerful though, they are essentially <em>“inlined”</em> scripts:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>wrapper <span class="o">()</span> <span class="o">{</span> <span class="nv">arg</span><span class="o">=</span><span class="nv">$1</span>; <span class="nb">shift</span>; <span class="nb">echo </span>cmd --arg1 <span class="s2">"</span><span class="nv">$arg</span><span class="s2">"</span> --arg2 --arg3 <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>; <span class="o">}</span>
+<span class="gp">$ </span>wrapper a b c d
+cmd --arg1 a --arg2 --arg3 b c d
+</code></pre>
+</div>
+
+<p>So Python’s <code class="highlighter-rouge">-c</code> option allows to pass code in a string and because we’ve used single quotes 
+to surround our code the simplest thing to do is convert all single quotes within our code
+to double quotes.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>gist <span class="o">()</span> <span class="o">{</span>
+
+python -c <span class="s1">'
+import os, requests, sys
+
+url = "https://api.github.com/gists"
+ext = "txt"
+
+if os.isatty(0):
+    filename = sys.argv[1]
+    with open(filename) as fh:
+        content = fh.read()
+        if "." in filename:
+            ext = filename.split(".")[-1]
+else:
+    content = sys.stdin.read()
+
+r = requests.post(url, json={
+    "files": {
+        "file1." + ext: {
+            "content": content
+        }
+    }
+})
+
+print(r.json()["html_url"])
+'</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">"$@"</code> here are all the arguments passed to the function which we send on to Python so they are
+available in <code class="highlighter-rouge">sys.argv</code></p>
+
+<p>You can use <code class="highlighter-rouge">'\''</code> to <em>“escape”</em> a single quote within surrounding single quotes but I suppose
+technically you could say that’s not what you’re doing:</p>
+
+<div class="language-terminal highlighter-rouge"><pre class="highlight"><code><span class="w">$ </span><span class="nc">echo</span><span class="kv"> '$single'\''$(quote)'
+</span>$single'$(quote)
+</code></pre>
+</div>
+
+<p>So what you have here are 3 separate <em>“words”</em>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">'$single'</code></li>
+  <li><code class="highlighter-rouge">\'</code></li>
+  <li><code class="highlighter-rouge">'$(quote)'</code></li>
+</ul>
+
+<p>So <code class="highlighter-rouge">'\''</code> means you’re actually closing the first <code class="highlighter-rouge">'</code> then using <code class="highlighter-rouge">\'</code> then opening a new <code class="highlighter-rouge">'</code></p>
+
+<p>It is possible to avoid the quoting issues by replacing <code class="highlighter-rouge">-c</code> with <code class="highlighter-rouge">python -</code> and a heredoc however
+that introduces another issue with regards to the reading of stdin. It can be remedied by using
+process substituion a lá <code class="highlighter-rouge">python &lt;(cat &lt;&lt;\.</code> but that topic probably warrants its own discussion.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (9)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/21/jq-parsing-elasticsearch-output/">jq: parsing elasticsearch output</a></h2>
+          <p class="preview"><em>I’m trying to use jq on elasticsearch output to produce something like this: …</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
