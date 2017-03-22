@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/22/Python-add-a-line-to-a-file-if-it's-not-already-there/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Python: add a line to a file if it's not already there | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/22/Python-add-a-line-to-a-file-if-it's-not-already-there/">Python: add a line to a file if it's not already there</a></h1>
+  <p class="text-muted">22 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>So the goal is to search through a file looking for a line that matches a
+particular pattern. If there is no match add a new line to the end 
+of the file i.e. <em>“append a line to a file”<em>.</em></em></p>
+
+<a name="with-open-r"></a>
+<h2 class="section-header">
+  <span id="with-open-r"></span>
+  <a class="anchor" href="#with-open-r">with open r+</a>
+</h2>
+
+<p>To open a file for reading and writing in Python you can use <code class="highlighter-rouge">r+</code> e.g.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="o">...</span>
+</code></pre>
+</div>
+
+<p>If you have not seen the <code class="highlighter-rouge">with</code> statement before it will automatically call <code class="highlighter-rouge">close()</code> 
+on the file when the block is exited so we don’t have to do:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+   <span class="o">...</span>
+<span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">fh</code> here is short for “filehandle”. Feel free to choose whatever name you prefer.</p>
+
+<a name="sample-input"></a>
+<h2 class="section-header">
+  <span id="sample-input"></span>
+  <a class="anchor" href="#sample-input">Sample input</a>
+</h2>
+
+<p>Let’s get some sample input:</p>
+
+<p><code class="highlighter-rouge">lines.txt</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>line 1
+line 2
+line 3
+line 4
+line 5
+</code></pre>
+</div>
+
+<p>There are many ways to go about doing this we will start with simply processing the file
+line-by-line.</p>
+
+<p>For this particular task the goal was to search for a line starting with <code class="highlighter-rouge">Message-ID:</code> which
+can be done simply by using the <code class="highlighter-rouge">startswith()</code> method.</p>
+
+<p><code class="highlighter-rouge">add-line.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'Message-ID:'</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'Found.'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Message-ID: omg lol'</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">fh</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<a name="fur-elise-wtf"></a>
+<h2 class="section-header">
+  <span id="fur-elise-wtf"></span>
+  <a class="anchor" href="#fur-elise-wtf">Fur Elise? WTF?</a>
+</h2>
+
+<p>Your eyes have not deceived you. <code class="highlighter-rouge">for</code> loops can have an <code class="highlighter-rouge">else</code> in 
+Python. If no <code class="highlighter-rouge">break</code> statement is executed within the loop the <code class="highlighter-rouge">else</code> 
+clause will be entered.</p>
+
+<p>A <code class="highlighter-rouge">break</code> statement will exit immediately from a for loop.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="s">'Alice'</span><span class="p">,</span> <span class="s">'Bob'</span><span class="p">,</span> <span class="s">'Frank'</span><span class="p">,</span> <span class="s">'Ted'</span><span class="p">:</span>
+<span class="o">...</span>     <span class="n">name</span>
+<span class="o">...</span>     <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">'Bob'</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">break</span> 
+<span class="o">...</span> 
+<span class="s">'Alice'</span>
+<span class="s">'Bob'</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">__future__</code> line gives Python 3’s <code class="highlighter-rouge">print()</code> functionality if we’re running on Python 2.
+We’re using it here for <code class="highlighter-rouge">end=''</code> which prevents print from adding a line return. Without it
+we would have to <code class="highlighter-rouge">line.rstrip('\n')</code>. It also allows us to use <code class="highlighter-rouge">print(..., file=fh)</code> which
+will add the line ending for us to save us from using <code class="highlighter-rouge">fh.write(line + '\n')</code>.</p>
+
+<p>So let’s see it in action:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python add-line.py lines.txt
+Not found.
+<span class="gp">$ </span>cat lines.txt
+line 1
+line 2
+line 3
+line 4
+line 5
+Message-ID: omg lol
+<span class="gp">$ </span>python add-line.py lines.txt
+Found.
+Message-ID: omg lol
+</code></pre>
+</div>
+<p>As previously mentioned there are many different ways one could approach this task…</p>
+
+<a name="stand-back-i-know-regex"></a>
+<h2 class="section-header">
+  <span id="stand-back-i-know-regex"></span>
+  <a class="anchor" href="#stand-back-i-know-regex">stand back… I know regex</a>
+</h2>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python add-line-re.py lines.txt
+<span class="gp">$ </span>cat lines.txt
+line 1
+line 2
+line 3
+line 4
+line 5
+Message-ID: omg lol
+<span class="gp">$ </span>python add-line-re.py lines.txt
+Found.
+</code></pre>
+</div>
+
+<p>And the code:</p>
+
+<p><code class="highlighter-rouge">add-line-re.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'(?m)^Message-ID:'</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Found.'</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'Message-ID: omg lol</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">fh.read()</code> reads all of the contents into a single string (you may see this 
+referred to as <em>“slurping”</em>a file). If the file is too large to fit 
+into memory this will raise an exception whereas with processing line-by-line 
+there are no such constraints. (Unless of course the lines themselves are too
+big… in which case… <code class="highlighter-rouge">¯\_(ツ)_/¯</code>)</p>
+
+<a name="insert-a-new-line-at-a-certain-line-number"></a>
+<h2 class="section-header">
+  <span id="insert-a-new-line-at-a-certain-line-number"></span>
+  <a class="anchor" href="#insert-a-new-line-at-a-certain-line-number">insert a new line at a certain line number</a>
+</h2>
+
+<p>The requirements of this task then changed to stipulate that they now wanted to
+<em>“add a new line at a particular line number”</em> i.e. insert a new line.
+Specifically they wanted to insert a new line 3 e.g.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>line 1
+line 2
+line 3
+line 4
+line 5
+</code></pre>
+</div>
+
+<p>turns into:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>line 1
+line 2
+Message-ID: lol omg
+line 3
+line 4
+line 5
+</code></pre>
+</div>
+
+<p>So line 3 becomes line 4, line 4 becomes line 5, etc.</p>
+
+<a name="seek"></a>
+<h2 class="section-header">
+  <span id="seek"></span>
+  <a class="anchor" href="#seek">seek()</a>
+</h2>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python add-line-n.py lines.txt
+Not found.
+<span class="gp">$ </span>cat lines.txt
+line 1
+line 2
+Message-ID: omg lol
+line 3
+line 4
+line 5
+<span class="gp">$ </span>python add-line-n.py lines.txt
+Found.
+Message-ID: omg lol
+</code></pre>
+</div>
+
+<p>Here’s the code:</p>
+
+<p><code class="highlighter-rouge">add-line-n.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'Message-ID:'</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'Found.'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Not found.'</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'Message-ID: omg lol</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>So we’ve had to use <code class="highlighter-rouge">readlines()</code> to store all the lines into a list. We loop through
+looking for a match like the first solution. If there is no match found we use
+<code class="highlighter-rouge">fh.seek(0)</code> to move the file pointer back to the beginning of the file because when we used
+<code class="highlighter-rouge">readlines()</code> all of the data was read and the file pointer was at the end of the file so we must
+point it back to the start before overwriting the content.</p>
+
+<p>We use the <code class="highlighter-rouge">list.insert()</code> method to insert a new item at a specific index. Because lists are 0-indexed
+we must <code class="highlighter-rouge">- 1</code> from the line number where we want to add the new line.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">,</span> <span class="s">'c'</span><span class="p">,</span> <span class="s">'d'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'omg new'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">lines</span>
+<span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">,</span> <span class="s">'omg new'</span><span class="p">,</span> <span class="s">'c'</span><span class="p">,</span> <span class="s">'d'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>We have also resorted back to using <code class="highlighter-rouge">writelines()</code> as all our lines have line endings. We could have instead used</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">...</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">fh</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">splitlines()</code> will take a string and split it up into a list of lines whilst removing the line endings.</p>
+
+<a name="seek-and-destroy"></a>
+<h2 class="section-header">
+  <span id="seek-and-destroy"></span>
+  <a class="anchor" href="#seek-and-destroy">seek() and destroy()</a>
+</h2>
+
+<p>You may ask seeing as we can <code class="highlighter-rouge">seek(0)</code> back to the start could be not then skip to where we want to
+insert our new line instead of having to store all the lines with <code class="highlighter-rouge">readlines()</code>?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">fh</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+<span class="n">fh</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+<span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'looooooooooooooooooooool</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat lines.txt
+line 1
+line 2
+looooooooooooooooooooool
+</code></pre>
+</div>
+
+<p>The answer is yes we can do that however we will destroy any existing data when we <code class="highlighter-rouge">write()</code>.</p>
+
+<a name="stand-back-again-i-still-know-regex"></a>
+<h2 class="section-header">
+  <span id="stand-back-again-i-still-know-regex"></span>
+  <a class="anchor" href="#stand-back-again-i-still-know-regex">stand back again… I still know regex…</a>
+</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'(?m)^Message-ID:'</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Found.'</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'Not found.'</span><span class="p">)</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="s">r'^((?:[^</span><span class="err">\</span><span class="s">n]+</span><span class="err">\</span><span class="s">n){</span><span class="si">%</span><span class="s">d})'</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s">r'</span><span class="err">\</span><span class="s">1Message-ID: omg lol</span><span class="err">\</span><span class="s">n'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="p">)</span>
+</code></pre>
+</div>
+
+<p>So we’ve essentially just reimplemented the following:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>grep -q '^MessageID:' file || sed -i '3iMessageID: omg lol' file
+</code></pre>
+</div>
+
+<p>Also if you’d like to stand back a little further you can actually do it in a single regex
+without the need for the <code class="highlighter-rouge">search()</code> check:</p>
+
+<p><code class="highlighter-rouge">add-line-n-single-re.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">pattern</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s">r'(?m)</span><span class="err">\</span><span class="s">A((?:(?!^Message-ID:).+</span><span class="err">\</span><span class="s">n){</span><span class="si">%</span><span class="s">d})'</span> 
+        <span class="s">r'((?:(?!^Message-ID:).+</span><span class="err">\</span><span class="s">n)*)</span><span class="err">\</span><span class="s">Z'</span> <span class="o">%</span> <span class="p">(</span><span class="n">line_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s">r'</span><span class="err">\</span><span class="s">1Message-ID: omg lol</span><span class="err">\</span><span class="s">n</span><span class="err">\</span><span class="s">2'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre>
+</div>
+
+<p>All of these approaches slurp the file. Is there a way to insert by reading the file line-by-line?</p>
+
+<p>Generally the way to do this involves processing the file in 2 passes. First to check if there is
+a match then a second time to make our edits. However to make an edit we need to store the whole
+file in memory. Pls halp?</p>
+
+<a name="fileinput"></a>
+<h2 class="section-header">
+  <span id="fileinput"></span>
+  <a class="anchor" href="#fileinput">fileinput</a>
+</h2>
+
+<p>The answer is to read it line-by-line whilst writing output line-by-line to a temporary file. 
+Afterwards you then overwrite the original file with the temporary file. You can do this manually, 
+but Python’s <code class="highlighter-rouge">fileinput</code> module does most of the work for you.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python add-line-n-fileinput.py 
+<span class="gp">$ </span>cat lines.txt
+line 1
+line 2
+Message-ID: lol
+line 3
+line 4
+line 5
+</code></pre>
+</div>
+
+<p>The code:</p>
+
+<p><code class="highlighter-rouge">add-line-n-fileinput.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="n">filename</span>    <span class="o">=</span> <span class="s">'lines.txt'</span>
+<span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="n">add_line</span> <span class="o">=</span> <span class="bp">True</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'Message-ID:'</span><span class="p">):</span>
+            <span class="n">add_line</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">break</span>
+
+<span class="k">if</span> <span class="n">add_line</span><span class="p">:</span>
+    <span class="n">fh</span> <span class="o">=</span> <span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">line_number</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'Message-ID: lol'</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+</code></pre>
+</div>
+<p>So without <code class="highlighter-rouge">inplace=True</code> it would just print the output. When using <code class="highlighter-rouge">inplace=True</code> 
+the content of the original file will be replaced by any output generated from <code class="highlighter-rouge">print()</code>.</p>
+
+<p>There is no <code class="highlighter-rouge">else</code> this time because we need to re-open the file using <code class="highlighter-rouge">fileinput</code> so 
+we use <code class="highlighter-rouge">add_line</code> as a boolean we can check against after the first pass.</p>
+
+<p>We’re also using <code class="highlighter-rouge">enumerate()</code> with <code class="highlighter-rouge">start=1</code> to give us a line count that we can
+compare against <code class="highlighter-rouge">line_number</code>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (10)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/22/creating-a-gist-from-the-command-line/">creating a gist from the command-line</a></h2>
+          <p class="preview"><strong>GIST 4 CLIFE!</strong></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
