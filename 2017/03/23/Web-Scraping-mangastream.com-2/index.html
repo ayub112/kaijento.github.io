@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com-2/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: mangastream.com #2 | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/23/Web-scraping-mangastream.com-2/">Web scraping: mangastream.com #2</a></h1>
+  <p class="text-muted">23 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/curl/">curl</a>
+  
+    
+  <a href="/categories/grep/">grep</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>In <a href="/2017/03/23/Web-scraping-mangastream.com/">Part 1</a> 
+we saw how to scrape all of the comic images from a particular “chapter” 
+on a mangastream.com comic such as:</p>
+
+<p><a href="http://mangastream.com/r/demons_plan/010/3997/">http://mangastream.com/r/demons_plan/010/3997/</a></p>
+
+<p>The final version of the code can be seen <a href="https://github.com/kaijento/code/blob/master/python/mangastream.com.py">here</a>.</p>
+
+<p>Now we will convert it to a bash function that uses <code class="highlighter-rouge">curl</code> as the HTTP client
+and GNU <code class="highlighter-rouge">grep</code> as the “parser”.</p>
+
+<p>We will start with the output:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>mangastream http://mangastream.com/r/demons_plan/010/3997/
+mkdir: created directory ‘demons_plan’
+mkdir: created directory ‘demons_plan/010’
+GET:    http://mangastream.com/r/demons_plan/010/3997
+<span class="c">######################################################################## 100.0%</span>
+CREATE: demons_plan/010/01.png
+<span class="c">######################################################################## 100.0%</span>
+GET:    http://mangastream.com/r/demons_plan/010/3997/2
+<span class="c">######################################################################## 100.0%</span>
+CREATE: demons_plan/010/01a.jpg
+<span class="c">######################################################################## 100.0%</span>
+<span class="o">[</span>...]
+GET:    http://mangastream.com/r/demons_plan/010/3997/20
+<span class="c">######################################################################## 100.0%</span>
+CREATE: demons_plan/010/19.png
+<span class="c">######################################################################## 100.0%</span>
+</code></pre>
+</div>
+
+<p>Here is how we did it:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mangastream <span class="o">()</span> <span class="o">{</span>
+    <span class="nv">url</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
+
+    <span class="nv">IFS</span><span class="o">=</span>/ <span class="nb">read</span> -a parts <span class="o">&lt;&lt;&lt;</span> <span class="nv">$url</span>
+
+    <span class="nv">dirpath</span><span class="o">=</span><span class="k">${</span><span class="nv">parts</span><span class="p">[-3]</span><span class="k">}</span>/<span class="k">${</span><span class="nv">parts</span><span class="p">[-2]</span><span class="k">}</span>
+    mkdir -p -v <span class="s2">"</span><span class="nv">$dirpath</span><span class="s2">"</span>
+
+    <span class="nb">echo</span> <span class="s2">"GET:    </span><span class="nv">$url</span><span class="s2">"</span>
+    <span class="nv">html</span><span class="o">=</span><span class="k">$(</span>curl -# -A Mozilla/5.0 <span class="s2">"</span><span class="nv">$url</span><span class="s2">"</span><span class="k">)</span>
+    <span class="nv">last</span><span class="o">=</span><span class="k">$(</span>grep -P -o <span class="s1">'Last Page \(\K\d+'</span> <span class="o">&lt;&lt;&lt;</span> <span class="nv">$html</span><span class="k">)</span>
+
+    <span class="k">for</span> <span class="o">((</span><span class="nv">n</span><span class="o">=</span>1; n&lt;<span class="o">=</span>last; n++<span class="o">))</span>
+    <span class="k">do
+        </span><span class="nb">echo</span> <span class="s2">"GET:    </span><span class="nv">$url</span><span class="s2">/</span><span class="nv">$n</span><span class="s2">"</span>
+        <span class="nv">html</span><span class="o">=</span><span class="k">$(</span>curl -# -A Mozilla/5.0 <span class="s2">"</span><span class="nv">$url</span><span class="s2">/</span><span class="nv">$n</span><span class="s2">"</span><span class="k">)</span>
+         <span class="nv">img</span><span class="o">=</span><span class="k">$(</span>grep -P -o <span class="s1">'&lt;img id="manga-page" src="\K[^"]+'</span> <span class="o">&lt;&lt;&lt;</span> <span class="nv">$html</span><span class="k">)</span>
+
+        <span class="nv">filename</span><span class="o">=</span><span class="k">${</span><span class="nv">img</span><span class="p">##*/</span><span class="k">}</span>
+
+        <span class="nb">echo</span> <span class="s2">"CREATE: </span><span class="nv">$dirpath</span><span class="s2">/</span><span class="nv">$filename</span><span class="s2">"</span>
+        curl -# <span class="s2">"</span><span class="nv">$img</span><span class="s2">"</span> -o <span class="s2">"</span><span class="nv">$dirpath</span><span class="s2">/</span><span class="nv">$filename</span><span class="s2">"</span>
+    <span class="k">done</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Again we’re fetching the first page twice as it allows us to avoid duplicating code and
+an extra request isn’t going to hurt.</p>
+
+<p>The <code class="highlighter-rouge">-#</code> option of curl makes it print out the nice progress bar you see and <code class="highlighter-rouge">-A</code> sets
+the <code class="highlighter-rouge">user-agent</code> header.</p>
+
+<a name="i-got-problems99-but-regex"></a>
+<h2 class="section-header">
+  <span id="i-got-problems99-but-regex"></span>
+  <a class="anchor" href="#i-got-problems99-but-regex">I got (?:problems){99} but (?!regex)</a>
+</h2>
+
+<p>If you’re read the internet at all you’ve probably read <em>“never use regular expressions lol
+now you have problems!!11”</em>. It seems to be some sort of meme. You will probably have also
+read never use regular expressions on HTML.</p>
+
+<p>It depends on what you’re doing really. If you’re trying to find the third <code class="highlighter-rouge">&lt;a&gt;</code> tag in the 
+last <code class="highlighter-rouge">&lt;div&gt;</code> of a <code class="highlighter-rouge">&lt;span&gt;</code> that has <code class="highlighter-rouge">id="content"</code> then yes, using a parser that supports
+CSS Selectors and/or XPath would be the way to go.</p>
+
+<p>If you’re just doing straight text extraction then the fact the data is HTML is pretty much
+irrelevant in most cases.</p>
+
+<a name="grep--p--o"></a>
+<h2 class="section-header">
+  <span id="grep--p--o"></span>
+  <a class="anchor" href="#grep--p--o">grep -P -o</a>
+</h2>
+
+<p>The standard <code class="highlighter-rouge">grep</code> tool was built to find lines that match patterns and to print the full line.
+GNU <code class="highlighter-rouge">grep</code> got <code class="highlighter-rouge">-o</code> which will print “what was matched” instead of just printing the whole line.
+Using capture groups with <code class="highlighter-rouge">-o</code> make no difference it will always print what was matched:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo </span>foobarbaz | grep -E -o <span class="s1">'foo(...)'</span>
+foobar
+</code></pre>
+</div>
+
+<p>It wouldn’t be unreasonable to expect that to only return <code class="highlighter-rouge">bar</code> i.e. what was captured by the group
+but alas that is not the case.</p>
+
+<p>GNU <code class="highlighter-rouge">grep</code> was then given a <code class="highlighter-rouge">-P</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>grep --help | grep -- -P
+  -P, --perl-regexp         PATTERN is a Perl regular expression
+</code></pre>
+</div>
+
+<p>That allows you to use lookarounds:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo </span>foobarbaz | grep -P -o <span class="s1">'foo\K...'</span>
+bar
+<span class="gp">$ </span><span class="nb">echo </span>foobarbaz | grep -P -o <span class="s1">'(?&lt;=foo)...'</span>
+bar
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">\K</code> is like a like a lookbehind it will exclude everything that comes before it from “what
+was matched”.</p>
+
+<p>To exclude what comes after you can use a positive lookahead assertion <code class="highlighter-rouge">(?=)</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ echo foobarbaz1barbaz2 | grep -P -o '^.+?bar'
+foobar
+$ echo foobarbaz1barbaz2 | grep -P -o '^.+?(?=bar)'
+foo
+</code></pre>
+</div>
+
+<p>Essentially <code class="highlighter-rouge">grep -P -o</code> is like using <code class="highlighter-rouge">perl -nle 'print for /pattern/g'</code></p>
+
+<p>So <code class="highlighter-rouge">\K</code> is what allows us to extract the last page number and the <code class="highlighter-rouge">src</code> attribute value:</p>
+
+<p><code class="highlighter-rouge">'Last Page \(\K\d+'</code> shouldn’t need much explanation.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">Last Page\(</code> matches <code class="highlighter-rouge">Last Page(</code></li>
+  <li><code class="highlighter-rouge">\K</code> means exclude everything previous from “what was matched”</li>
+  <li><code class="highlighter-rouge">\d+</code> matches one or more digits i.e. the <code class="highlighter-rouge">20</code> in <code class="highlighter-rouge">Last Page(20)</code></li>
+</ul>
+
+<p>Our second pattern <code class="highlighter-rouge">'&lt;img id="manga-page" src="\K[^"]+'</code>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">&lt;img id="manga-page" src="</code> matches literally</li>
+  <li><code class="highlighter-rouge">\K</code> means exclude everything previous from “what was matched”</li>
+</ul>
+
+<p><code class="highlighter-rouge">[^"]+</code> means not a <code class="highlighter-rouge">"</code> character 1 or more times. It matches up to but not including the next
+<code class="highlighter-rouge">"</code> character (if it exists)</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'&lt;img id="manga-page" src="omglol"&gt;'</span> | grep -P -o <span class="s1">'&lt;img id="manga-page" src="\K[^"]+'</span>
+omglol
+</code></pre>
+</div>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>Well that’s all for now, perhaps next time we can look at extracting each chapter URL from the
+<a href="http://mangastream.com/manga/demons_plan">Full List</a> page.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (12)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/23/Web-scraping-mangastream.com/">Web scraping: mangastream.com</a></h2>
+          <p class="preview">Somebody was asking for assistance in scraping all of the comic images
+from a particular “chapter” on a mangastream.com comic using Python so they
+could read it offline.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

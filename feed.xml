@@ -5,17 +5,193 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 23 Mar 2017 14:26:03 +0000</pubDate>
-    <lastBuildDate>Thu, 23 Mar 2017 14:26:03 +0000</lastBuildDate>
+    <pubDate>Thu, 23 Mar 2017 22:39:48 +0000</pubDate>
+    <lastBuildDate>Thu, 23 Mar 2017 22:39:48 +0000</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
-        <title>Web Scraping: mangastream.com</title>
+        <title>Web scraping: mangastream.com #2</title>
+        <description>&lt;p&gt;In &lt;a href=&quot;/2017/03/23/Web-scraping-mangastream.com/&quot;&gt;Part 1&lt;/a&gt; 
+we saw how to scrape all of the comic images from a particular “chapter” 
+on a mangastream.com comic such as:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://mangastream.com/r/demons_plan/010/3997/&quot;&gt;http://mangastream.com/r/demons_plan/010/3997/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;The final version of the code can be seen &lt;a href=&quot;https://github.com/kaijento/code/blob/master/python/mangastream.com.py&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;Now we will convert it to a bash function that uses &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; as the HTTP client
+and GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; as the “parser”.&lt;/p&gt;
+
+&lt;p&gt;We will start with the output:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mangastream http://mangastream.com/r/demons_plan/010/3997/
+mkdir: created directory ‘demons_plan’
+mkdir: created directory ‘demons_plan/010’
+GET:    http://mangastream.com/r/demons_plan/010/3997
+&lt;span class=&quot;c&quot;&gt;######################################################################## 100.0%&lt;/span&gt;
+CREATE: demons_plan/010/01.png
+&lt;span class=&quot;c&quot;&gt;######################################################################## 100.0%&lt;/span&gt;
+GET:    http://mangastream.com/r/demons_plan/010/3997/2
+&lt;span class=&quot;c&quot;&gt;######################################################################## 100.0%&lt;/span&gt;
+CREATE: demons_plan/010/01a.jpg
+&lt;span class=&quot;c&quot;&gt;######################################################################## 100.0%&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;...]
+GET:    http://mangastream.com/r/demons_plan/010/3997/20
+&lt;span class=&quot;c&quot;&gt;######################################################################## 100.0%&lt;/span&gt;
+CREATE: demons_plan/010/19.png
+&lt;span class=&quot;c&quot;&gt;######################################################################## 100.0%&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here is how we did it:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;mangastream &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/ &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -a parts &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$url&lt;/span&gt;
+
+    &lt;span class=&quot;nv&quot;&gt;dirpath&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;parts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[-3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;parts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[-2]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+    mkdir -p -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$dirpath&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+
+    &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;GET:    &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$url&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;curl -# -A Mozilla/5.0 &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$url&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;nv&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'Last Page \(\K\d+'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$html&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1; n&amp;lt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;last; n++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;do
+        &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;GET:    &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$url&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+        &lt;span class=&quot;nv&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;curl -# -A Mozilla/5.0 &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$url&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+         &lt;span class=&quot;nv&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'&amp;lt;img id=&quot;manga-page&quot; src=&quot;\K[^&quot;]+'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$html&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;nv&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;##*/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+
+        &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;CREATE: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$dirpath&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$filename&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+        curl -# &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$img&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; -o &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$dirpath&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$filename&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Again we’re fetching the first page twice as it allows us to avoid duplicating code and
+an extra request isn’t going to hurt.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-#&lt;/code&gt; option of curl makes it print out the nice progress bar you see and &lt;code class=&quot;highlighter-rouge&quot;&gt;-A&lt;/code&gt; sets
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;user-agent&lt;/code&gt; header.&lt;/p&gt;
+
+&lt;h2 id=&quot;i-got-problems99-but-regex&quot;&gt;I got (?:problems){99} but (?!regex)&lt;/h2&gt;
+
+&lt;p&gt;If you’re read the internet at all you’ve probably read &lt;em&gt;“never use regular expressions lol
+now you have problems!!11”&lt;/em&gt;. It seems to be some sort of meme. You will probably have also
+read never use regular expressions on HTML.&lt;/p&gt;
+
+&lt;p&gt;It depends on what you’re doing really. If you’re trying to find the third &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag in the 
+last &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;div&amp;gt;&lt;/code&gt; of a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;id=&quot;content&quot;&lt;/code&gt; then yes, using a parser that supports
+CSS Selectors and/or XPath would be the way to go.&lt;/p&gt;
+
+&lt;p&gt;If you’re just doing straight text extraction then the fact the data is HTML is pretty much
+irrelevant in most cases.&lt;/p&gt;
+
+&lt;h2 id=&quot;grep--p--o&quot;&gt;grep -P -o&lt;/h2&gt;
+
+&lt;p&gt;The standard &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; tool was built to find lines that match patterns and to print the full line.
+GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; got &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt; which will print “what was matched” instead of just printing the whole line.
+Using capture groups with &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt; make no difference it will always print what was matched:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;foobarbaz | grep -E -o &lt;span class=&quot;s1&quot;&gt;'foo(...)'&lt;/span&gt;
+foobar
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It wouldn’t be unreasonable to expect that to only return &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; i.e. what was captured by the group
+but alas that is not the case.&lt;/p&gt;
+
+&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; was then given a &lt;code class=&quot;highlighter-rouge&quot;&gt;-P&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep --help | grep -- -P
+  -P, --perl-regexp         PATTERN is a Perl regular expression
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;That allows you to use lookarounds:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;foobarbaz | grep -P -o &lt;span class=&quot;s1&quot;&gt;'foo\K...'&lt;/span&gt;
+bar
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;foobarbaz | grep -P -o &lt;span class=&quot;s1&quot;&gt;'(?&amp;lt;=foo)...'&lt;/span&gt;
+bar
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\K&lt;/code&gt; is like a like a lookbehind it will exclude everything that comes before it from “what
+was matched”.&lt;/p&gt;
+
+&lt;p&gt;To exclude what comes after you can use a positive lookahead assertion &lt;code class=&quot;highlighter-rouge&quot;&gt;(?=)&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ echo foobarbaz1barbaz2 | grep -P -o '^.+?bar'
+foobar
+$ echo foobarbaz1barbaz2 | grep -P -o '^.+?(?=bar)'
+foo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Essentially &lt;code class=&quot;highlighter-rouge&quot;&gt;grep -P -o&lt;/code&gt; is like using &lt;code class=&quot;highlighter-rouge&quot;&gt;perl -nle 'print for /pattern/g'&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;\K&lt;/code&gt; is what allows us to extract the last page number and the &lt;code class=&quot;highlighter-rouge&quot;&gt;src&lt;/code&gt; attribute value:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;'Last Page \(\K\d+'&lt;/code&gt; shouldn’t need much explanation.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Last Page\(&lt;/code&gt; matches &lt;code class=&quot;highlighter-rouge&quot;&gt;Last Page(&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\K&lt;/code&gt; means exclude everything previous from “what was matched”&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d+&lt;/code&gt; matches one or more digits i.e. the &lt;code class=&quot;highlighter-rouge&quot;&gt;20&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;Last Page(20)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Our second pattern &lt;code class=&quot;highlighter-rouge&quot;&gt;'&amp;lt;img id=&quot;manga-page&quot; src=&quot;\K[^&quot;]+'&lt;/code&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;img id=&quot;manga-page&quot; src=&quot;&lt;/code&gt; matches literally&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\K&lt;/code&gt; means exclude everything previous from “what was matched”&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[^&quot;]+&lt;/code&gt; means not a &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt; character 1 or more times. It matches up to but not including the next
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt; character (if it exists)&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'&amp;lt;img id=&quot;manga-page&quot; src=&quot;omglol&quot;&amp;gt;'&lt;/span&gt; | grep -P -o &lt;span class=&quot;s1&quot;&gt;'&amp;lt;img id=&quot;manga-page&quot; src=&quot;\K[^&quot;]+'&lt;/span&gt;
+omglol
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
+
+&lt;p&gt;Well that’s all for now, perhaps next time we can look at extracting each chapter URL from the
+&lt;a href=&quot;http://mangastream.com/manga/demons_plan&quot;&gt;Full List&lt;/a&gt; page.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 23 Mar 2017 16:57:42 +0000</pubDate>
+        <link>http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com-2/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com-2/</guid>
+        
+        <category>webscraping</category>
+        
+        <category>python</category>
+        
+        <category>bash</category>
+        
+        <category>curl</category>
+        
+        <category>grep</category>
+        
+        <category>regex</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Web scraping: mangastream.com</title>
         <description>&lt;p&gt;Somebody was asking for assistance in scraping all of the comic images
-from a particular “chapter” on a mangastream.com comic using Python.&lt;/p&gt;
+from a particular “chapter” on a mangastream.com comic using Python so they
+could read it offline.&lt;/p&gt;
 
 &lt;p&gt;The example URL given was 
-&lt;a href=&quot;http://mangastream.com/r/demons_plan/010/3997/&quot;&gt;http://mangastream.com/r/demons_plan/010/3997/&lt;/a&gt;.&lt;/p&gt;
+&lt;a href=&quot;http://mangastream.com/r/demons_plan/010/3997/&quot;&gt;http://mangastream.com/r/demons_plan/010/3997/&lt;/a&gt;&lt;/p&gt;
 
 &lt;p&gt;Let’s open up in our browser and check out the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. We can use the selector tool 
 which allows us to select a particular item on the page and it will jump to where in the DOM 
@@ -392,7 +568,7 @@ is usually a sign to put it inside a function, so let’s give it a try:&lt;/p&g
 
 &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;makedirs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'MKDIR:'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'MKDIR: '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;makedirs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;OSError&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;e&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;errno&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;errno&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;EEXIST&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;isdir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
@@ -400,45 +576,37 @@ is usually a sign to put it inside a function, so let’s give it a try:&lt;/p&g
         &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
             &lt;span class=&quot;k&quot;&gt;raise&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;save_image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'GET:   '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;save_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'manga-page'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'src'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'wb'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'GET:   '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;image&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'CREATE:'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;write&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;parse_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'GET:   '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-    &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'manga-page'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;save_image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'src'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-
 &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'__main__'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
 
-    &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
 
     &lt;span class=&quot;n&quot;&gt;makedirs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 
     &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
-
-        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'GET:   '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-        &lt;span class=&quot;n&quot;&gt;img&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'manga-page'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;save_image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'src'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-
+        &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
         &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.btn-reader-page a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'href'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
 
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;next_page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'/{}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;parse_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;next_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;n&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'/{}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;save_page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -454,6 +622,9 @@ so it’s a good idea to keep them organized.&lt;/p&gt;
 &lt;code class=&quot;highlighter-rouge&quot;&gt;os.makedirs()&lt;/code&gt; will raise an exception if any item in the path already exists. Starting
 with Python 3.2 you can pass &lt;code class=&quot;highlighter-rouge&quot;&gt;exist_ok=True&lt;/code&gt; to prevent this which would mean you can 
 remove the &lt;code class=&quot;highlighter-rouge&quot;&gt;def makedirs()&lt;/code&gt; completely and just use &lt;code class=&quot;highlighter-rouge&quot;&gt;os.makedirs(dirname, exist_ok=True)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You may notice here that we’re requesting the first page twice. This was just to avoid
+code duplication.&lt;/p&gt;
 
 &lt;h2 id=&quot;splat&quot;&gt;splat&lt;/h2&gt;
 
@@ -510,18 +681,29 @@ instead as if we called:&lt;/p&gt;
 &lt;a href=&quot;https://docs.python.org/3/howto/argparse.html&quot;&gt;argparse&lt;/a&gt; or
 &lt;a href=&quot;http://click.pocoo.org/&quot;&gt;click&lt;/a&gt; to build a command-line interface.&lt;/p&gt;
 
-&lt;p&gt;There is also a dropdown in HTML for each of the chapters so you could
-extend the code to process all the chapters. You’re moving into “crawling”
-territory with that though and in such cases using something like &lt;a href=&quot;http://doc.scrapy.org/&quot;&gt;Scrapy&lt;/a&gt;
-might be a good idea.&lt;/p&gt;
+&lt;p&gt;There is a dropdown for the chapter list however it doesn’t contain them all.&lt;/p&gt;
 
-&lt;p&gt;Perhaps we’ll discuss such an approach in a part 2 of this article.&lt;/p&gt;
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;btn-group btn-reader-chapter&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+...
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;li&amp;gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://mangastream.com/manga/demons_plan&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Full List&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;&amp;lt;&lt;/span&gt;/li
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The full list is available from an &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag in containing &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;div&amp;gt;&lt;/code&gt;. You could build
+a URL list of each chapter. That is moving into “crawling” territory though and in 
+such cases using something like &lt;a href=&quot;http://doc.scrapy.org/&quot;&gt;Scrapy&lt;/a&gt; might be a good idea.&lt;/p&gt;
+
+&lt;p&gt;Perhaps we’ll discuss such an approach in a future part of this article.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href=&quot;https://github.com/kaijento/code/blob/master/python/mangastream.com.py&quot;&gt;mangastream.com.py&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In &lt;a href=&quot;/2017/03/23/Web-scraping-mangastream.com-2/&quot;&gt;Part 2&lt;/a&gt; we’ll convert 
+the Python code to a bash script/function that uses &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; aka 
+doing it &lt;em&gt;“The Wrong Way”&lt;/em&gt;.&lt;/p&gt;
 </description>
         <pubDate>Thu, 23 Mar 2017 08:09:54 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/23/Web-Scraping-mangastream.com/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/Web-Scraping-mangastream.com/</guid>
+        <link>http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com/</guid>
         
         <category>python</category>
         
@@ -2007,7 +2189,108 @@ create your own dict of function objects.&lt;/p&gt;
       </item>
     
       <item>
-        <title>scraping the website url from tripadvisor</title>
+        <title>cleaning up email addresses in pandas</title>
+        <description>&lt;p&gt;&lt;em&gt;Hi all,  I have a pandas dataframe with a column for email addresses.&lt;br /&gt;
+Most of the addresses are fine, but some have some extraneous text after them.&lt;br /&gt;
+I’ve been looking around for a way to remove the text without impacting other 
+correct email addresses. Here is an example:&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;joe.sample@gmail.com08/03/0601:20:03
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So the problem is that some email addresses contain a date/timestamp that needs
+to be removed from the end. The format is always the same.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;
+                                  &lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;                           &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@bar.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;joe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@gmail.com08&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;03&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;0601&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;03&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;omg&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@lol.bbq01&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;01&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1701&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;01&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;01&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;                           &lt;span class=&quot;n&quot;&gt;keep&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@me.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;pls&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@no.com12&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;12&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1217&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;00&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rows&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;replace()&lt;/code&gt; DataFrame method with the &lt;code class=&quot;highlighter-rouge&quot;&gt;regex=True&lt;/code&gt; parameter.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{4}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}$'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;regex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;             &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@bar.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;joe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@gmail.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;             &lt;span class=&quot;n&quot;&gt;omg&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@lol.bbq&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;             &lt;span class=&quot;n&quot;&gt;keep&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@me.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;              &lt;span class=&quot;n&quot;&gt;pls&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@no.com&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dtype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You can either pass &lt;code class=&quot;highlighter-rouge&quot;&gt;inplace=True&lt;/code&gt; or you can assign the result back yourself
+depending on what style you prefer.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{4}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}$'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;regex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;
+                  &lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@bar.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;joe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@gmail.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;omg&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@lol.bbq&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;keep&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@me.com&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;pls&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@no.com&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rows&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So what does &lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}/\d{2}/\d{4}:\d{2}:\d{2}$&lt;/code&gt; mean exactly?&lt;/p&gt;
+
+&lt;p&gt;It may look complex but it’s actually quite simple. All you need to know is:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d&lt;/code&gt;  matches a &lt;em&gt;“digit”&lt;/em&gt; i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;[0-9]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;&lt;/code&gt;  is for repetition, &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; means exactly 2 times.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt;   matches the end of the string&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So we have:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}/&lt;/code&gt; matches &lt;em&gt;“2 digits followed by /”&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}/&lt;/code&gt; matches &lt;em&gt;“2 digits followed by /”&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{4}:&lt;/code&gt; matches &lt;em&gt;“4 digits followed by :”&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}:&lt;/code&gt; matches &lt;em&gt;“2 digits followed by :”&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}$&lt;/code&gt; matches &lt;em&gt;“2 digits at the end of the string”&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt; &lt;em&gt;“anchors”&lt;/em&gt; the whole match to the end of the string.&lt;/p&gt;
+
+&lt;p&gt;The opposite of &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt; which matches the start of the string.&lt;/p&gt;
+
+&lt;p&gt;Also, as well as &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; to match &lt;em&gt;“exactly &lt;strong&gt;x&lt;/strong&gt; times”&lt;/em&gt; we have&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;x,y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; to match &lt;em&gt;“between &lt;strong&gt;x&lt;/strong&gt; and &lt;strong&gt;y&lt;/strong&gt; times inclusive”&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;x,&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;  to match &lt;em&gt;“greater than or equal to &lt;strong&gt;x&lt;/strong&gt; times.”&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Some people prefer to use &lt;code class=&quot;highlighter-rouge&quot;&gt;\d\d&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}&lt;/code&gt; which both do the same thing. 
+So you could also see the regex written as &lt;code class=&quot;highlighter-rouge&quot;&gt;\d\d/\d\d/\d{4}:\d\d:\d\d$&lt;/code&gt;&lt;/p&gt;
+</description>
+        <pubDate>Fri, 17 Mar 2017 00:00:00 +0000</pubDate>
+        <link>http://kaijento.github.io/2017/03/17/cleaning-up-email-addresses-in-pandas/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/17/cleaning-up-email-addresses-in-pandas/</guid>
+        
+        <category>python</category>
+        
+        <category>pandas</category>
+        
+        <category>regex</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Web scraping: tripadvisor.com</title>
         <description>&lt;p&gt;It seems everybody wants to scrape tripadvisor and a common issue people 
 run into is how to get the &lt;code class=&quot;highlighter-rouge&quot;&gt;Website URL&lt;/code&gt; of the Restaurant, Hotel, whatever.&lt;/p&gt;
 
@@ -2284,8 +2567,8 @@ Python example that takes a tripadvisor URL and extracts the obfuscated URL, dec
 it and also extracts the email address for educational purposes only.&lt;/p&gt;
 </description>
         <pubDate>Fri, 17 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/17/scraping-the-website-url-from-tripadvisor/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/17/scraping-the-website-url-from-tripadvisor/</guid>
+        <link>http://kaijento.github.io/2017/03/17/Web-scraping-tripadvisor.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/17/Web-scraping-tripadvisor.com/</guid>
         
         <category>python</category>
         
@@ -2296,201 +2579,6 @@ it and also extracts the email address for educational purposes only.&lt;/p&gt;
         <category>javascript</category>
         
         <category>webscraping</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>cleaning up email addresses in pandas</title>
-        <description>&lt;p&gt;&lt;em&gt;Hi all,  I have a pandas dataframe with a column for email addresses.&lt;br /&gt;
-Most of the addresses are fine, but some have some extraneous text after them.&lt;br /&gt;
-I’ve been looking around for a way to remove the text without impacting other 
-correct email addresses. Here is an example:&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;joe.sample@gmail.com08/03/0601:20:03
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So the problem is that some email addresses contain a date/timestamp that needs
-to be removed from the end. The format is always the same.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;
-                                  &lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;                           &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@bar.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;joe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@gmail.com08&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;03&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;0601&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;03&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;omg&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@lol.bbq01&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;01&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1701&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;01&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;01&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;                           &lt;span class=&quot;n&quot;&gt;keep&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@me.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;pls&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@no.com12&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;12&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1217&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;mo&quot;&gt;00&lt;/span&gt;
-
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rows&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;replace()&lt;/code&gt; DataFrame method with the &lt;code class=&quot;highlighter-rouge&quot;&gt;regex=True&lt;/code&gt; parameter.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{4}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}$'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;regex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;             &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@bar.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;joe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@gmail.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;             &lt;span class=&quot;n&quot;&gt;omg&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@lol.bbq&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;             &lt;span class=&quot;n&quot;&gt;keep&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@me.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;              &lt;span class=&quot;n&quot;&gt;pls&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@no.com&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;Name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;dtype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You can either pass &lt;code class=&quot;highlighter-rouge&quot;&gt;inplace=True&lt;/code&gt; or you can assign the result back yourself
-depending on what style you prefer.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}/&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{4}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d{2}$'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;regex&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;df&lt;/span&gt;
-                  &lt;span class=&quot;n&quot;&gt;email&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@bar.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;joe&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sample&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@gmail.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;omg&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@lol.bbq&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;           &lt;span class=&quot;n&quot;&gt;keep&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@me.com&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;pls&lt;/span&gt;&lt;span class=&quot;nd&quot;&gt;@no.com&lt;/span&gt;
-
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;rows&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columns&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So what does &lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}/\d{2}/\d{4}:\d{2}:\d{2}$&lt;/code&gt; mean exactly?&lt;/p&gt;
-
-&lt;p&gt;It may look complex but it’s actually quite simple. All you need to know is:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d&lt;/code&gt;  matches a &lt;em&gt;“digit”&lt;/em&gt; i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;[0-9]&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;&lt;/code&gt;  is for repetition, &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; means exactly 2 times.&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt;   matches the end of the string&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;So we have:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}/&lt;/code&gt; matches &lt;em&gt;“2 digits followed by /”&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}/&lt;/code&gt; matches &lt;em&gt;“2 digits followed by /”&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{4}:&lt;/code&gt; matches &lt;em&gt;“4 digits followed by :”&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}:&lt;/code&gt; matches &lt;em&gt;“2 digits followed by :”&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}$&lt;/code&gt; matches &lt;em&gt;“2 digits at the end of the string”&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt; &lt;em&gt;“anchors”&lt;/em&gt; the whole match to the end of the string.&lt;/p&gt;
-
-&lt;p&gt;The opposite of &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt; which matches the start of the string.&lt;/p&gt;
-
-&lt;p&gt;Also, as well as &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; to match &lt;em&gt;“exactly &lt;strong&gt;x&lt;/strong&gt; times”&lt;/em&gt; we have&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;x,y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; to match &lt;em&gt;“between &lt;strong&gt;x&lt;/strong&gt; and &lt;strong&gt;y&lt;/strong&gt; times inclusive”&lt;/em&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;x,&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;  to match &lt;em&gt;“greater than or equal to &lt;strong&gt;x&lt;/strong&gt; times.”&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Some people prefer to use &lt;code class=&quot;highlighter-rouge&quot;&gt;\d\d&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;\d{2}&lt;/code&gt; which both do the same thing. 
-So you could also see the regex written as &lt;code class=&quot;highlighter-rouge&quot;&gt;\d\d/\d\d/\d{4}:\d\d:\d\d$&lt;/code&gt;&lt;/p&gt;
-</description>
-        <pubDate>Fri, 17 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/17/cleaning-up-email-addresses-in-pandas/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/17/cleaning-up-email-addresses-in-pandas/</guid>
-        
-        <category>python</category>
-        
-        <category>pandas</category>
-        
-        <category>regex</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>modifying the index/counter in a python for loop</title>
-        <description>&lt;p&gt;When &lt;a href=&quot;/2017/03/17/scraping-the-website-url-from-tripadvisor/&quot;&gt;porting tripadvisor’s&lt;/a&gt;
-&lt;code class=&quot;highlighter-rouge&quot;&gt;asdf()&lt;/code&gt; javascript function to Python we came across 
-an interesting difference with regards to how &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loops work in 
-javascript and Python.&lt;/p&gt;
-
-&lt;p&gt;Inside the function they modify the index they are using in a for loop e.g.&lt;/p&gt;
-
-&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nx&quot;&gt;js&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-            &lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-        &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-        &lt;span class=&quot;nx&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So in this example we get 3 iterations. Let’s try write a similar loop in Python:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We get 5 iterations.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; was modified as you can see however it was given a new value at the
-start of the next iteration of the loop.&lt;/p&gt;
-
-&lt;p&gt;It may help to think of Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop as a &lt;code class=&quot;highlighter-rouge&quot;&gt;foreach&lt;/code&gt; e.g.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;something&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt; 
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So it does not matter if you modify &lt;code class=&quot;highlighter-rouge&quot;&gt;item&lt;/code&gt; inside the loop as it will be given its
-new value at the start of the next iteration.&lt;/p&gt;
-
-&lt;p&gt;Now it is possible to &lt;em&gt;“break”&lt;/em&gt; out and jump to the next iteration of a for loop 
-using &lt;code class=&quot;highlighter-rouge&quot;&gt;continue&lt;/code&gt;:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;k&quot;&gt;continue&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;However, using &lt;code class=&quot;highlighter-rouge&quot;&gt;continue&lt;/code&gt; wasn’t applicable here so a &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; loop was chosen:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Not the prettiest of solutions or very &lt;em&gt;“pythonic”&lt;/em&gt; but it was simpler than trying 
-to decipher the original &lt;em&gt;“obfuscated”&lt;/em&gt; javascript code.&lt;/p&gt;
-</description>
-        <pubDate>Wed, 15 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/15/modifying-index-in-a-python-for-loop/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/15/modifying-index-in-a-python-for-loop/</guid>
-        
-        <category>python</category>
-        
-        <category>javascript</category>
         
         
       </item>
