@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/23/jq-by-example-parsing-google-analytics-api/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>jq by example: parsing google analytics api | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/23/jq-by-example-parsing-google-analytics-api/">jq by example: parsing google analytics api</a></h1>
+  <p class="text-muted">23 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/jq/">jq</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given a JSON response from the google analytics API we want to
+extract the <code class="highlighter-rouge">rows</code> key and filter out any URLs that contain
+the string <code class="highlighter-rouge">eyeblaster</code>.</p>
+
+<p><code class="highlighter-rouge">google.json</code></p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"columnHeaders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"columnType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DIMENSION"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"dataType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRING"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"columnType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"METRIC"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"dataType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INTEGER"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pageviews"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.googleapis.com/analytics/v3/data/realtime?ids=ga:XXXXX"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"analytics#realtimeData"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"profileInfo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"accountId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XXXX"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"internalWebPropertyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"61947021XXXX"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"profileId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XXXX"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"profileName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"home: Sites only"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"tableId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"realtime:XXXX"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"webPropertyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UA-XXXXX-X"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath=@404.html"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ga:XXXXX"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"max-results"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"metrics"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"rt:pageviews"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="nt">"sort"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"-rt:pageviews"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"/404.html?page=/eyeblaster/addineyeV2-secure.html&amp;from=http://www.google.com/"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"2"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"1"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"1"</span><span class="w">
+        </span><span class="p">],</span><span class="w">
+        </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?a3dWebglBanner=https"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"1"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"selfLink"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.googleapis.com/analytics/v3/data/realtime?ids="</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"totalResults"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"totalsForAllResults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"rt:pageviews"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>So we can use <code class="highlighter-rouge">.rows[]</code> to get at each item inside the rows array:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rows[]'</span> google.json
+<span class="o">[</span><span class="s2">"/404.html?page=/eyeblaster/addineyeV2-secure.html&amp;from=http://www.google.com/"</span>,<span class="s2">"2"</span><span class="o">]</span>
+<span class="o">[</span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?"</span>,<span class="s2">"1"</span><span class="o">]</span>
+<span class="o">[</span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html"</span>,<span class="s2">"1"</span><span class="o">]</span>
+<span class="o">[</span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?a3dWebglBanner=https"</span>,<span class="s2">"1"</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>We want to select out certain items so we can use the aptly named <code class="highlighter-rouge">select()</code>. Let’s start
+by finding elements that contain the string <code class="highlighter-rouge">eyeblaster</code>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rows[] | select(.[0] | index("eyeblaster"))'</span> google.json
+<span class="o">[</span><span class="s2">"/404.html?page=/eyeblaster/addineyeV2-secure.html&amp;from=http://www.google.com/"</span>,<span class="s2">"2"</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">index()</code> will return null if there is no match found. So we’re almost there, but 
+we need the elements that do <code class="highlighter-rouge">not</code> match:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.rows[] | select(.[0] | index("eyeblaster") | not)'</span> google.json
+<span class="o">[</span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?"</span>,<span class="s2">"1"</span><span class="o">]</span>
+<span class="o">[</span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html"</span>,<span class="s2">"1"</span><span class="o">]</span>
+<span class="o">[</span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?a3dWebglBanner=https"</span>,<span class="s2">"1"</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">not</code> inverts the logic giving us what we need.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo true</span> | jq not
+<span class="nb">false</span>
+<span class="gp">$ </span><span class="nb">echo</span> ♥ jq
+♥ jq
+</code></pre>
+</div>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (14)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/23/Web-scraping-mangastream.com-2/">Web scraping: mangastream.com #2</a></h2>
+          <p class="preview">In <a href="/2017/03/23/Web-scraping-mangastream.com/">Part 1</a> 
+we saw how to scrape all of the comic images from a particular “chapter” 
+on a mangastream.com comic such as:</p>
+
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/23/jq-by-example-modifying-arrays/">jq by example: modifying arrays</a></h2>
+          <p class="preview">We’ve been given a JSON configuration file of some sort. It contains
+environment definitions for servers. Each server has an array of
+shell variables. The task is to search through the array for a particular
+variable definition and modify it.</p>
+
+
+        </div>
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
