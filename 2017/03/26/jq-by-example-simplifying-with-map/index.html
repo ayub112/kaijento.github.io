@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/26/jq-by-example-simplifying-with-map/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>jq by example: simplifying with map() | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/26/jq-by-example-simplifying-with-map/">jq by example: simplifying with map()</a></h1>
+  <p class="text-muted">26 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/jq/">jq</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is update a list of objects by adding a new array to each 
+object that contains values from specific keys already defined in
+each object.</p>
+
+<a name="input"></a>
+<h2 class="section-header">
+  <span id="input"></span>
+  <a class="anchor" href="#input">Input</a>
+</h2>
+
+<p><code class="highlighter-rouge">input.json</code></p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"key1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"omg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lol"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"key1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+</div>
+
+<a name="output"></a>
+<h2 class="section-header">
+  <span id="output"></span>
+  <a class="anchor" href="#output">Output</a>
+</h2>
+
+<p>So by specifying <code class="highlighter-rouge">key1</code> and <code class="highlighter-rouge">key2</code> the desired output would be:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"key1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key3"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+       </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+       </span><span class="s2">"b"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"omg"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lol"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"key1"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"key2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d"</span><span class="w">
+    </span><span class="s2">"key3"</span><span class="err">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+       </span><span class="s2">"c"</span><span class="p">,</span><span class="w">
+       </span><span class="s2">"d"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+
+  </span><span class="err">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span></code></pre>
+</div>
+
+<a name="adding-a-new-keyvalue-pair-with-"></a>
+<h2 class="section-header">
+  <span id="adding-a-new-keyvalue-pair-with-"></span>
+  <a class="anchor" href="#adding-a-new-keyvalue-pair-with-">adding a new key/value pair with +</a>
+</h2>
+
+<p>In other words: <em>“How do I add a new value to an object based on existing values
+in the object?”<em></em></em></p>
+
+<p>To add a new key/value pair to an object we can just use <code class="highlighter-rouge">. + {key: value}</code> e.g.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq -c <span class="s1">'.[] | . + {"key3": [.key1, .key2]}'</span> input.json
+<span class="o">{</span><span class="s2">"key1"</span>:<span class="s2">"a"</span>,<span class="s2">"key2"</span>:<span class="s2">"b"</span>,<span class="s2">"omg"</span>:<span class="s2">"lol"</span>,<span class="s2">"key3"</span>:[<span class="s2">"a"</span>,<span class="s2">"b"</span><span class="o">]}</span>
+<span class="o">{</span><span class="s2">"key1"</span>:<span class="s2">"c"</span>,<span class="s2">"key2"</span>:<span class="s2">"d"</span>,<span class="s2">"key3"</span>:[<span class="s2">"c"</span>,<span class="s2">"d"</span><span class="o">]}</span>
+</code></pre>
+</div>
+
+<p>This however gets rid of our original array. We can just wrap the whole expression
+inside <code class="highlighter-rouge">[]</code> to get back an array:</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'[.[] | . + {"key3": [.key1, .key2]}]'</span> input.json
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"key1"</span>: <span class="s2">"a"</span>,
+    <span class="s2">"key2"</span>: <span class="s2">"b"</span>,
+    <span class="s2">"omg"</span>: <span class="s2">"lol"</span>,
+    <span class="s2">"key3"</span>: <span class="o">[</span>
+      <span class="s2">"a"</span>,
+      <span class="s2">"b"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key1"</span>: <span class="s2">"c"</span>,
+    <span class="s2">"key2"</span>: <span class="s2">"d"</span>,
+    <span class="s2">"key3"</span>: <span class="o">[</span>
+      <span class="s2">"c"</span>,
+      <span class="s2">"d"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<a name="update"></a>
+<h2 class="section-header">
+  <span id="update"></span>
+  <a class="anchor" href="#update">update</a>
+</h2>
+
+<p>Another way to write it would be to use <code class="highlighter-rouge">|=</code> which “updates” the left hand side
+so we don’t lose the original structure:</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'.[] |= . + {"key3": [.key1, .key2]}'</span> input.json
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"key1"</span>: <span class="s2">"a"</span>,
+    <span class="s2">"key2"</span>: <span class="s2">"b"</span>,
+    <span class="s2">"omg"</span>: <span class="s2">"lol"</span>,
+    <span class="s2">"key3"</span>: <span class="o">[</span>
+      <span class="s2">"a"</span>,
+      <span class="s2">"b"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key1"</span>: <span class="s2">"c"</span>,
+    <span class="s2">"key2"</span>: <span class="s2">"d"</span>,
+    <span class="s2">"key3"</span>: <span class="o">[</span>
+      <span class="s2">"c"</span>,
+      <span class="s2">"d"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<a name="map"></a>
+<h2 class="section-header">
+  <span id="map"></span>
+  <a class="anchor" href="#map">map()</a>
+</h2>
+
+<p>Finally there is <code class="highlighter-rouge">map()</code> which processes an array and produces an array. This allows us
+to simplify the expression down to:</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(. + {"key3": [.key1, .key2]})'</span> input.json
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"key1"</span>: <span class="s2">"a"</span>,
+    <span class="s2">"key2"</span>: <span class="s2">"b"</span>,
+    <span class="s2">"omg"</span>: <span class="s2">"lol"</span>,
+    <span class="s2">"key3"</span>: <span class="o">[</span>
+      <span class="s2">"a"</span>,
+      <span class="s2">"b"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key1"</span>: <span class="s2">"c"</span>,
+    <span class="s2">"key2"</span>: <span class="s2">"d"</span>,
+    <span class="s2">"key3"</span>: <span class="o">[</span>
+      <span class="s2">"c"</span>,
+      <span class="s2">"d"</span>
+    <span class="o">]</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">map(expression)</code> is just another way of writing <code class="highlighter-rouge">[ .[] | expression ]</code></p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (16)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/23/jq-by-example-modifying-arrays/">jq by example: modifying arrays</a></h2>
+          <p class="preview">We’ve been given a JSON configuration file of some sort. It contains
+environment definitions for servers. Each server has an array of
+shell variables. The task is to search through the array for a particular
+variable definition and modify it.</p>
+
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/26/injecting-shell-variables-into-a-file/">injecting shell variables into a file</a></h2>
+          <p class="preview">Given an alpine linux docker container image we need to replace “tokens” 
+or “placeholders” in a javascript file with values from shell variables 
+e.g.  <code class="highlighter-rouge">%TESTAPP_FOO%</code> gets replaced with the value of the shell variable 
+<code class="highlighter-rouge">TESTAPP_FOO</code></p>
+
+
+        </div>
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/26/injecting-shell-variables-into-a-file/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>injecting shell variables into a file | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/26/injecting-shell-variables-into-a-file/">injecting shell variables into a file</a></h1>
+  <p class="text-muted">26 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/sed/">sed</a>
+  
+    
+  <a href="/categories/awk/">awk</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given an alpine linux docker container image we need to replace “tokens” 
+or “placeholders” in a javascript file with values from shell variables 
+e.g.  <code class="highlighter-rouge">%TESTAPP_FOO%</code> gets replaced with the value of the shell variable 
+<code class="highlighter-rouge">TESTAPP_FOO</code></p>
+
+<p>I suppose you could consider them as a “template file”:</p>
+
+<p><code class="highlighter-rouge">template</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
+</code></pre>
+</div>
+
+<p>So given <code class="highlighter-rouge">TESTAPP_FOO=foo TESTAPP_BAR=bar TESTAPP_BAZ=baz</code> the desired output is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Bobfoobarbazqux
+</code></pre>
+</div>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">perl</a>
+</h2>
+
+<p>So according to the internet <code class="highlighter-rouge">perl</code> is “dead” and “unreadable” which I guess means the rest
+of this article doesn’t exist:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo <span class="nv">TESTAPP_BAR</span><span class="o">=</span>bar <span class="nv">TESTAPP_BAZ</span><span class="o">=</span>baz perl -pe <span class="s1">'s/%(TESTAPP_[^%]+)%/$ENV{$1}/g'</span> template
+Bobfoobarbazqux
+</code></pre>
+</div>
+
+<p>With perl’s <code class="highlighter-rouge">-i</code> option it will overwrite the original file.</p>
+
+<p><code class="highlighter-rouge">-i</code> takes an optional argument so we must use <code class="highlighter-rouge">-pi -e</code> and not <code class="highlighter-rouge">-pie</code></p>
+
+<p>What happens if we put the variable definitions onto their own line:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo <span class="nv">TESTAPP_BAR</span><span class="o">=</span>bar <span class="nv">TESTAPP_BAZ</span><span class="o">=</span>baz 
+<span class="gp">$ </span>perl -pe <span class="s1">'s/%(TESTAPP_[^%]+)%/$ENV{$1}/g'</span> template
+Bobqux
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">var=value command</code> is like using <code class="highlighter-rouge">( export var=value; command )</code> in that it exports those
+variable definitions only for that command. They are not defined in the current shell. Without
+the <code class="highlighter-rouge">export</code> they are not visible from the <code class="highlighter-rouge">perl</code> command.</p>
+
+<p><code class="highlighter-rouge">%(TESTAPP_</code> matches <code class="highlighter-rouge">%TESTAPP_</code> with the <code class="highlighter-rouge">(</code> starting a capture group. Capture groups allow
+you to refer to what was captured. <code class="highlighter-rouge">$1</code> to refers to the first capture group, <code class="highlighter-rouge">$2</code> the second, etc.</p>
+
+<p>If you want to match up to a character but you want to “wildcard” what can come before it
+you can use <code class="highlighter-rouge">[^x]+x</code> with <code class="highlighter-rouge">x</code> being the character. The <code class="highlighter-rouge">+</code> (meaning <em>“1 or more times”</em>) 
+states there must be at least 1 character before <code class="highlighter-rouge">x</code>. If we wanted to remove this 
+stipulation we can replace <code class="highlighter-rouge">+</code> with <code class="highlighter-rouge">*</code> as <code class="highlighter-rouge">*</code> means <em>“0 or more”</em>.</p>
+
+<p>So as we have already matched <code class="highlighter-rouge">%TESTAPP_</code> the <code class="highlighter-rouge">[^%]+%</code> part of the regex (ignoring the <code class="highlighter-rouge">)</code>) 
+matches up to the following <code class="highlighter-rouge">%</code> character.  Our use of <code class="highlighter-rouge">()</code> means the leading and 
+trailing <code class="highlighter-rouge">%</code> will not be included in <code class="highlighter-rouge">$1</code>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -nle <span class="s1">'print for /%(TESTAPP_[^%]+)%/g'</span> testfile
+TESTAPP_FOO
+TESTAPP_BAR
+TESTAPP_BAZ
+</code></pre>
+</div>
+
+<p>Finally <code class="highlighter-rouge">%ENV</code> is a perl hash that contains all of the environment’s variable definitions.
+We can use <code class="highlighter-rouge">$ENV{key}</code> to get a specific value from it:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo perl -le <span class="s1">'print $ENV{TESTAPP_FOO}'</span>
+foo
+</code></pre>
+</div>
+
+<p>So with <code class="highlighter-rouge">$ENV{$1}</code> we are using the value of the capture group as the key to get the desired result.</p>
+
+<p>Sadly, however, <code class="highlighter-rouge">perl</code> was not available by default on this installation setup.</p>
+
+<a name="grep--sed"></a>
+<h2 class="section-header">
+  <span id="grep--sed"></span>
+  <a class="anchor" href="#grep--sed">grep + sed</a>
+</h2>
+
+<p>GNU <code class="highlighter-rouge">grep</code> has <code class="highlighter-rouge">-o</code> which allows us to replicate the <code class="highlighter-rouge">perl</code> code above to an extent:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>grep -E -o <span class="s1">'%TESTAPP_[^%]+%'</span> testfile 
+%TESTAPP_FOO%
+<span class="gp">%TESTAPP_BAR% </span>
+%TESTAPP_BAZ%
+</code></pre>
+</div>
+
+<p>We can then use <code class="highlighter-rouge">bash</code> to help with the rest:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo <span class="nv">TESTAPP_BAR</span><span class="o">=</span>bar <span class="nv">TESTAPP_BAZ</span><span class="o">=</span>baz
+<span class="gp">$ </span>grep -E -o <span class="s1">'%TESTAPP_[^%]+%'</span> testfile | <span class="k">while </span><span class="nb">read</span> -r search; <span class="k">do </span><span class="nv">replace</span><span class="o">=</span><span class="k">${</span><span class="nv">search</span><span class="p">//%</span><span class="k">}</span>; <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$search</span><span class="s2"> </span><span class="k">${</span><span class="p">!replace</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done</span>
+<span class="gp">%TESTAPP_FOO% </span>foo
+<span class="gp">%TESTAPP_BAR% </span>bar
+<span class="gp">%TESTAPP_BAZ% </span>baz
+</code></pre>
+</div>
+
+<ul>
+  <li><code class="highlighter-rouge">${var/pattern/replace}</code>  is like <code class="highlighter-rouge">s/pattern/replace/</code></li>
+  <li><code class="highlighter-rouge">${var//pattern/replace}</code> is like <code class="highlighter-rouge">s/pattern/replace/g</code></li>
+</ul>
+
+<p>With an empty “replace” you can omit the <code class="highlighter-rouge">/</code> after “pattern” meaning:</p>
+
+<p><code class="highlighter-rouge">${search//%}</code> is like <code class="highlighter-rouge">s/%//g</code> thus deleting all <code class="highlighter-rouge">%</code> characters.</p>
+
+<a name="var"></a>
+<h2 class="section-header">
+  <span id="var"></span>
+  <a class="anchor" href="#var">${!var}</a>
+</h2>
+
+<p>If the value of your variable is the name of a variable you can use <code class="highlighter-rouge">${!var}</code> to get its
+value. This is called variable <em>“indirection”</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">var</span><span class="o">=</span>SHELL
+<span class="gp">$ </span><span class="nb">echo</span> <span class="k">${</span><span class="p">!var</span><span class="k">}</span>
+/bin/bash
+</code></pre>
+</div>
+
+<p>It’s as if we just did <code class="highlighter-rouge">echo $SHELL</code> directly.</p>
+
+<p>If your <code class="highlighter-rouge">grep</code> has <code class="highlighter-rouge">-P</code> (chances are it does if you have <code class="highlighter-rouge">-o</code>) we can simplify things:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>grep -P -o <span class="s1">'%\KTESTAPP_[^%]+(?=%)'</span> testfile | 
+    <span class="k">while </span><span class="nb">read</span> -r search; <span class="k">do </span><span class="nb">echo</span> <span class="s2">"%</span><span class="nv">$search</span><span class="s2">% </span><span class="k">${</span><span class="p">!search</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done</span>
+<span class="gp">%TESTAPP_FOO% </span>foo
+<span class="gp">%TESTAPP_BAR% </span>bar
+<span class="gp">%TESTAPP_BAZ% </span>baz
+</code></pre>
+</div>
+
+<p>We have a list of search and replacement strings so we could just inject them into <code class="highlighter-rouge">sed</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat testfile
+Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
+<span class="gp">$ </span>grep -P -o <span class="s1">'%\KTESTAPP_[^%]+(?=%)'</span> testfile | 
+    <span class="k">while </span><span class="nb">read</span> -r search; <span class="k">do </span>sed -i <span class="s2">"s/%</span><span class="k">${</span><span class="nv">search</span><span class="k">}</span><span class="s2">%/</span><span class="k">${</span><span class="p">!search</span><span class="k">}</span><span class="s2">/g"</span> testfile; <span class="k">done</span>
+<span class="gp">$ </span>cat testfile
+Bobfoobarbazqux
+</code></pre>
+</div>
+
+<p>Certain versions of <code class="highlighter-rouge">sed</code> got <code class="highlighter-rouge">-i</code> from <code class="highlighter-rouge">perl</code> which outputs to a temporary file and then overwrites the
+original file.</p>
+
+<p>So this works for our example however there are some issues. Firstly it processes the input file multiple
+times. Second, injecting variables into sed commands can break under certain conditions.
+One is if the contents of your variables contains the delimiter i.e. <code class="highlighter-rouge">/</code> and another is if it contains newlines.
+You can change the delimiter e.g. <code class="highlighter-rouge">s@foo@bar@</code> however you would have to change it to something you know isn’t
+in your variable which may not be possible.</p>
+
+<a name="awk"></a>
+<h2 class="section-header">
+  <span id="awk"></span>
+  <a class="anchor" href="#awk">awk</a>
+</h2>
+
+<p><code class="highlighter-rouge">awk</code> has the <code class="highlighter-rouge">ENVIRON</code> array which can access variables as <code class="highlighter-rouge">%ENV</code> can in <code class="highlighter-rouge">perl</code>. Arrays in awk are
+“associative arrays” which are the same as a “hash” in <code class="highlighter-rouge">perl</code> or “dict” in <code class="highlighter-rouge">python</code>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo awk <span class="s1">'BEGIN { print ENVIRON["TESTAPP_FOO"] }'</span>
+foo
+</code></pre>
+</div>
+
+<p>We’ll just <code class="highlighter-rouge">export</code> the variables to save having a gigantic 1-liner:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat testfile
+Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
+<span class="gp">$ </span><span class="nb">export </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo <span class="nv">TESTAPP_BAR</span><span class="o">=</span>bar <span class="nv">TESTAPP_BAZ</span><span class="o">=</span>baz
+<span class="gp">$ </span>awk <span class="s1">'{ 
+    while (match($0, /%TESTAPP_[^%]+%/)) { 
+        search = substr($0, RSTART + 1, RLENGTH - 2)
+        $0 = substr($0, 1, RSTART - 1)   \
+             ENVIRON[search]             \
+             substr($0, RSTART + RLENGTH) 
+    } 
+    print 
+}'</span> testfile
+Bobfoobarbazqux
+</code></pre>
+</div>
+
+<p>This doesn’t modify the original file however GNU <code class="highlighter-rouge">awk</code> allows you to use <code class="highlighter-rouge">-i inplace</code> which 
+overwrites the original file. Without this you could use shell redirection to a temporary file
+and <code class="highlighter-rouge">mv</code> to overwrite the original e.g.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>awk <span class="s1">'...'</span> testfile &gt; tempfile <span class="o">&amp;&amp;</span> mv tempfile testfile
+</code></pre>
+</div>
+
+<p>You could use <code class="highlighter-rouge">mktemp</code> to generate a temporary file for you instead of hardcoding in <code class="highlighter-rouge">tempfile</code>
+as we did in this example.</p>
+
+<p>When you use <code class="highlighter-rouge">match()</code> in <code class="highlighter-rouge">awk</code> it sets the <code class="highlighter-rouge">RSTART</code> and <code class="highlighter-rouge">RLENGTH</code> variables. <code class="highlighter-rouge">RSTART</code> being the
+index of where the match starts in the string and <code class="highlighter-rouge">RLENGTH</code> being the length of the match. <code class="highlighter-rouge">$0</code> 
+refers to the whole <em>“line”</em>.</p>
+
+<p>Using these variables combined with <code class="highlighter-rouge">substr()</code> allows us to extract what comes before the match 
+(to the “left”) and what comes after the match (to the “right”). We then just rebuild the line 
+by inserting our replacement value in the middle e.g.</p>
+
+<pre><code class="language-awk">left  = substr($0, 1, RSTART - 1)
+right = substr($0, RSTART + RLENGTH)
+$0    = left ENVIRON[search] right
+</code></pre>
+
+<p><code class="highlighter-rouge">awk</code> will implicitly join the strings for us. This is why we have a trailing backslash on lines
+3 and 4 -  to have it treated as a “single line” e.g.</p>
+
+<pre><code class="language-awk">$0 = substr($0, 1, RSTART - 1) ENVIRON[search] substr($0, RSTART + RLENGTH)
+</code></pre>
+
+<p>Otherwise it would parse as:</p>
+
+<pre><code class="language-awk">$0 = substr($0, 1, RSTART - 1)
+ENVIRON[search]
+substr($0, RSTART + RLENGTH)
+</code></pre>
+
+<p>Which would just be a single assignment <code class="highlighter-rouge">$0 = substr($0, 1, RSTART - 1)</code> and that would be <em>“Less Than Awesome”</em>.</p>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>Well, not entirely. It was never mentioned what to do if a token string corresponded to a shell variable
+that was not defined or if that was possible, it was just assumed they would all exist.</p>
+
+<p>If you wanted to only replace if the variable was defined you could make some adjustments:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">export </span><span class="nv">TESTAPP_FOO</span><span class="o">=</span>foo <span class="nv">TESTAPP_BAR</span><span class="o">=</span>bar <span class="nv">TESTAPP_BAZ</span><span class="o">=</span>baz
+<span class="gp">$ </span><span class="nb">echo</span> %TESTAPP_DONTREPLACEME% | perl -pe <span class="s1">'s/%(TESTAPP_[^%]+)%/$ENV{$1}/ge'</span>
+
+<span class="gp">$ </span><span class="nb">echo</span> %TESTAPP_DONTREPLACEME% | perl -pe <span class="s1">'s/%(TESTAPP_[^%]+)%/exists $ENV{$1} ? $ENV{$1} : "%$1%"/ge'</span>
+%TESTAPP_DONTREPLACEME%
+</code></pre>
+</div>
+
+<p>So the <code class="highlighter-rouge">exists</code> call checks if the key is in the hash. If it is give us the value, else give us
+the key back with the surrounding <code class="highlighter-rouge">%</code>. The <code class="highlighter-rouge">e</code> modifier of the <code class="highlighter-rouge">s</code> command evalutes the
+right hand side as perl code which allows this to work.</p>
+
+<p>In <code class="highlighter-rouge">awk</code> you can use <code class="highlighter-rouge">in</code> to check if a key is in an array.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> %TESTAPP_FOO% %TESTAPP_DONTREPLACEME% | awk <span class="s1">'{ 
+    while (match($0, /%TESTAPP_[^%]+%/) &amp;&amp; substr($0, RSTART + 1, RLENGTH - 2) in ENVIRON) { 
+        search = substr($0, RSTART + 1, RLENGTH - 2)
+        $0 = substr($0, 1, RSTART - 1)    \
+             ENVIRON[search]              \
+             substr($0, RSTART + RLENGTH) 
+    } 
+    print 
+}'</span>
+foo %TESTAPP_DONTREPLACEME%
+</code></pre>
+</div>
+
+<p>As we are using <code class="highlighter-rouge">while(match())</code> if we don’t replace a token we will have an infinite loop 
+because <code class="highlighter-rouge">%TOKEN%</code> will still be in our string. One way to avoid this is by adding another
+check to the loop condition to test if the token corresponds to a defined variable in
+the <code class="highlighter-rouge">ENVIRON</code> array.</p>
+
+<p>As for the <code class="highlighter-rouge">grep</code> and <code class="highlighter-rouge">sed</code> approach it gets a bit messy and due to the potential problems
+with the whole injecting variables directly into commands so we will leave the rest of
+that discussion for perhaps another day.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (16)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/26/jq-by-example-simplifying-with-map/">jq by example: simplifying with map()</a></h2>
+          <p class="preview">The goal is update a list of objects by adding a new array to each 
+object that contains values from specific keys already defined in
+each object.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

@@ -5,9 +5,444 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 24 Mar 2017 00:02:57 +0000</pubDate>
-    <lastBuildDate>Fri, 24 Mar 2017 00:02:57 +0000</lastBuildDate>
+    <pubDate>Mon, 27 Mar 2017 00:08:45 +0100</pubDate>
+    <lastBuildDate>Mon, 27 Mar 2017 00:08:45 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>injecting shell variables into a file</title>
+        <description>&lt;p&gt;Given an alpine linux docker container image we need to replace “tokens” 
+or “placeholders” in a javascript file with values from shell variables 
+e.g.  &lt;code class=&quot;highlighter-rouge&quot;&gt;%TESTAPP_FOO%&lt;/code&gt; gets replaced with the value of the shell variable 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;TESTAPP_FOO&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;I suppose you could consider them as a “template file”:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;template&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So given &lt;code class=&quot;highlighter-rouge&quot;&gt;TESTAPP_FOO=foo TESTAPP_BAR=bar TESTAPP_BAZ=baz&lt;/code&gt; the desired output is:&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Bobfoobarbazqux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;perl&quot;&gt;perl&lt;/h2&gt;
+
+&lt;p&gt;So according to the internet &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; is “dead” and “unreadable” which I guess means the rest
+of this article doesn’t exist:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/$ENV{$1}/g'&lt;/span&gt; template
+Bobfoobarbazqux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;With perl’s &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; option it will overwrite the original file.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; takes an optional argument so we must use &lt;code class=&quot;highlighter-rouge&quot;&gt;-pi -e&lt;/code&gt; and not &lt;code class=&quot;highlighter-rouge&quot;&gt;-pie&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;What happens if we put the variable definitions onto their own line:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz 
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/$ENV{$1}/g'&lt;/span&gt; template
+Bobqux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;var=value command&lt;/code&gt; is like using &lt;code class=&quot;highlighter-rouge&quot;&gt;( export var=value; command )&lt;/code&gt; in that it exports those
+variable definitions only for that command. They are not defined in the current shell. Without
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; they are not visible from the &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; command.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;%(TESTAPP_&lt;/code&gt; matches &lt;code class=&quot;highlighter-rouge&quot;&gt;%TESTAPP_&lt;/code&gt; with the &lt;code class=&quot;highlighter-rouge&quot;&gt;(&lt;/code&gt; starting a capture group. Capture groups allow
+you to refer to what was captured. &lt;code class=&quot;highlighter-rouge&quot;&gt;$1&lt;/code&gt; to refers to the first capture group, &lt;code class=&quot;highlighter-rouge&quot;&gt;$2&lt;/code&gt; the second, etc.&lt;/p&gt;
+
+&lt;p&gt;If you want to match up to a character but you want to “wildcard” what can come before it
+you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;[^x]+x&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt; being the character. The &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; (meaning &lt;em&gt;“1 or more times”&lt;/em&gt;) 
+states there must be at least 1 character before &lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt;. If we wanted to remove this 
+stipulation we can replace &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; as &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; means &lt;em&gt;“0 or more”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;So as we have already matched &lt;code class=&quot;highlighter-rouge&quot;&gt;%TESTAPP_&lt;/code&gt; the &lt;code class=&quot;highlighter-rouge&quot;&gt;[^%]+%&lt;/code&gt; part of the regex (ignoring the &lt;code class=&quot;highlighter-rouge&quot;&gt;)&lt;/code&gt;) 
+matches up to the following &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; character.  Our use of &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; means the leading and 
+trailing &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; will not be included in &lt;code class=&quot;highlighter-rouge&quot;&gt;$1&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -nle &lt;span class=&quot;s1&quot;&gt;'print for /%(TESTAPP_[^%]+)%/g'&lt;/span&gt; testfile
+TESTAPP_FOO
+TESTAPP_BAR
+TESTAPP_BAZ
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Finally &lt;code class=&quot;highlighter-rouge&quot;&gt;%ENV&lt;/code&gt; is a perl hash that contains all of the environment’s variable definitions.
+We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;$ENV{key}&lt;/code&gt; to get a specific value from it:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo perl -le &lt;span class=&quot;s1&quot;&gt;'print $ENV{TESTAPP_FOO}'&lt;/span&gt;
+foo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So with &lt;code class=&quot;highlighter-rouge&quot;&gt;$ENV{$1}&lt;/code&gt; we are using the value of the capture group as the key to get the desired result.&lt;/p&gt;
+
+&lt;p&gt;Sadly, however, &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; was not available by default on this installation setup.&lt;/p&gt;
+
+&lt;h2 id=&quot;grep--sed&quot;&gt;grep + sed&lt;/h2&gt;
+
+&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt; which allows us to replicate the &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; code above to an extent:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -E -o &lt;span class=&quot;s1&quot;&gt;'%TESTAPP_[^%]+%'&lt;/span&gt; testfile 
+%TESTAPP_FOO%
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAR% &lt;/span&gt;
+%TESTAPP_BAZ%
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can then use &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; to help with the rest:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -E -o &lt;span class=&quot;s1&quot;&gt;'%TESTAPP_[^%]+%'&lt;/span&gt; testfile | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;//%&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$search&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!replace&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_FOO% &lt;/span&gt;foo
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAR% &lt;/span&gt;bar
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAZ% &lt;/span&gt;baz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;${var/pattern/replace}&lt;/code&gt;  is like &lt;code class=&quot;highlighter-rouge&quot;&gt;s/pattern/replace/&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;${var//pattern/replace}&lt;/code&gt; is like &lt;code class=&quot;highlighter-rouge&quot;&gt;s/pattern/replace/g&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;With an empty “replace” you can omit the &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt; after “pattern” meaning:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;${search//%}&lt;/code&gt; is like &lt;code class=&quot;highlighter-rouge&quot;&gt;s/%//g&lt;/code&gt; thus deleting all &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; characters.&lt;/p&gt;
+
+&lt;h2 id=&quot;var&quot;&gt;${!var}&lt;/h2&gt;
+
+&lt;p&gt;If the value of your variable is the name of a variable you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;${!var}&lt;/code&gt; to get its
+value. This is called variable &lt;em&gt;“indirection”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SHELL
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!var&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
+/bin/bash
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It’s as if we just did &lt;code class=&quot;highlighter-rouge&quot;&gt;echo $SHELL&lt;/code&gt; directly.&lt;/p&gt;
+
+&lt;p&gt;If your &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-P&lt;/code&gt; (chances are it does if you have &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt;) we can simplify things:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'%\KTESTAPP_[^%]+(?=%)'&lt;/span&gt; testfile | 
+    &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;%&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$search&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;% &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_FOO% &lt;/span&gt;foo
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAR% &lt;/span&gt;bar
+&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAZ% &lt;/span&gt;baz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We have a list of search and replacement strings so we could just inject them into &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
+Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'%\KTESTAPP_[^%]+(?=%)'&lt;/span&gt; testfile | 
+    &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;sed -i &lt;span class=&quot;s2&quot;&gt;&quot;s/%&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;%/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/g&quot;&lt;/span&gt; testfile; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
+Bobfoobarbazqux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Certain versions of &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt; got &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; from &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; which outputs to a temporary file and then overwrites the
+original file.&lt;/p&gt;
+
+&lt;p&gt;So this works for our example however there are some issues. Firstly it processes the input file multiple
+times. Second, injecting variables into sed commands can break under certain conditions.
+One is if the contents of your variables contains the delimiter i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt; and another is if it contains newlines.
+You can change the delimiter e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;s@foo@bar@&lt;/code&gt; however you would have to change it to something you know isn’t
+in your variable which may not be possible.&lt;/p&gt;
+
+&lt;h2 id=&quot;awk&quot;&gt;awk&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; has the &lt;code class=&quot;highlighter-rouge&quot;&gt;ENVIRON&lt;/code&gt; array which can access variables as &lt;code class=&quot;highlighter-rouge&quot;&gt;%ENV&lt;/code&gt; can in &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt;. Arrays in awk are
+“associative arrays” which are the same as a “hash” in &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; or “dict” in &lt;code class=&quot;highlighter-rouge&quot;&gt;python&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo awk &lt;span class=&quot;s1&quot;&gt;'BEGIN { print ENVIRON[&quot;TESTAPP_FOO&quot;] }'&lt;/span&gt;
+foo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ll just &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; the variables to save having a gigantic 1-liner:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
+Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'{ 
+    while (match($0, /%TESTAPP_[^%]+%/)) { 
+        search = substr($0, RSTART + 1, RLENGTH - 2)
+        $0 = substr($0, 1, RSTART - 1)   \
+             ENVIRON[search]             \
+             substr($0, RSTART + RLENGTH) 
+    } 
+    print 
+}'&lt;/span&gt; testfile
+Bobfoobarbazqux
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This doesn’t modify the original file however GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; allows you to use &lt;code class=&quot;highlighter-rouge&quot;&gt;-i inplace&lt;/code&gt; which 
+overwrites the original file. Without this you could use shell redirection to a temporary file
+and &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; to overwrite the original e.g.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'...'&lt;/span&gt; testfile &amp;gt; tempfile &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; mv tempfile testfile
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;You could use &lt;code class=&quot;highlighter-rouge&quot;&gt;mktemp&lt;/code&gt; to generate a temporary file for you instead of hardcoding in &lt;code class=&quot;highlighter-rouge&quot;&gt;tempfile&lt;/code&gt;
+as we did in this example.&lt;/p&gt;
+
+&lt;p&gt;When you use &lt;code class=&quot;highlighter-rouge&quot;&gt;match()&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; it sets the &lt;code class=&quot;highlighter-rouge&quot;&gt;RSTART&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;RLENGTH&lt;/code&gt; variables. &lt;code class=&quot;highlighter-rouge&quot;&gt;RSTART&lt;/code&gt; being the
+index of where the match starts in the string and &lt;code class=&quot;highlighter-rouge&quot;&gt;RLENGTH&lt;/code&gt; being the length of the match. &lt;code class=&quot;highlighter-rouge&quot;&gt;$0&lt;/code&gt; 
+refers to the whole &lt;em&gt;“line”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Using these variables combined with &lt;code class=&quot;highlighter-rouge&quot;&gt;substr()&lt;/code&gt; allows us to extract what comes before the match 
+(to the “left”) and what comes after the match (to the “right”). We then just rebuild the line 
+by inserting our replacement value in the middle e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-awk&quot;&gt;left  = substr($0, 1, RSTART - 1)
+right = substr($0, RSTART + RLENGTH)
+$0    = left ENVIRON[search] right
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; will implicitly join the strings for us. This is why we have a trailing backslash on lines
+3 and 4 -  to have it treated as a “single line” e.g.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-awk&quot;&gt;$0 = substr($0, 1, RSTART - 1) ENVIRON[search] substr($0, RSTART + RLENGTH)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Otherwise it would parse as:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-awk&quot;&gt;$0 = substr($0, 1, RSTART - 1)
+ENVIRON[search]
+substr($0, RSTART + RLENGTH)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Which would just be a single assignment &lt;code class=&quot;highlighter-rouge&quot;&gt;$0 = substr($0, 1, RSTART - 1)&lt;/code&gt; and that would be &lt;em&gt;“Less Than Awesome”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
+
+&lt;p&gt;Well, not entirely. It was never mentioned what to do if a token string corresponded to a shell variable
+that was not defined or if that was possible, it was just assumed they would all exist.&lt;/p&gt;
+
+&lt;p&gt;If you wanted to only replace if the variable was defined you could make some adjustments:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; %TESTAPP_DONTREPLACEME% | perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/$ENV{$1}/ge'&lt;/span&gt;
+
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; %TESTAPP_DONTREPLACEME% | perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/exists $ENV{$1} ? $ENV{$1} : &quot;%$1%&quot;/ge'&lt;/span&gt;
+%TESTAPP_DONTREPLACEME%
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;exists&lt;/code&gt; call checks if the key is in the hash. If it is give us the value, else give us
+the key back with the surrounding &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;e&lt;/code&gt; modifier of the &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; command evalutes the
+right hand side as perl code which allows this to work.&lt;/p&gt;
+
+&lt;p&gt;In &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;in&lt;/code&gt; to check if a key is in an array.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; %TESTAPP_FOO% %TESTAPP_DONTREPLACEME% | awk &lt;span class=&quot;s1&quot;&gt;'{ 
+    while (match($0, /%TESTAPP_[^%]+%/) &amp;amp;&amp;amp; substr($0, RSTART + 1, RLENGTH - 2) in ENVIRON) { 
+        search = substr($0, RSTART + 1, RLENGTH - 2)
+        $0 = substr($0, 1, RSTART - 1)    \
+             ENVIRON[search]              \
+             substr($0, RSTART + RLENGTH) 
+    } 
+    print 
+}'&lt;/span&gt;
+foo %TESTAPP_DONTREPLACEME%
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As we are using &lt;code class=&quot;highlighter-rouge&quot;&gt;while(match())&lt;/code&gt; if we don’t replace a token we will have an infinite loop 
+because &lt;code class=&quot;highlighter-rouge&quot;&gt;%TOKEN%&lt;/code&gt; will still be in our string. One way to avoid this is by adding another
+check to the loop condition to test if the token corresponds to a defined variable in
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;ENVIRON&lt;/code&gt; array.&lt;/p&gt;
+
+&lt;p&gt;As for the &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt; approach it gets a bit messy and due to the potential problems
+with the whole injecting variables directly into commands so we will leave the rest of
+that discussion for perhaps another day.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 26 Mar 2017 08:52:24 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/03/26/injecting-shell-variables-into-a-file/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/26/injecting-shell-variables-into-a-file/</guid>
+        
+        <category>bash</category>
+        
+        <category>perl</category>
+        
+        <category>sed</category>
+        
+        <category>awk</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>jq by example: simplifying with map()</title>
+        <description>&lt;p&gt;The goal is update a list of objects by adding a new array to each 
+object that contains values from specific keys already defined in
+each object.&lt;/p&gt;
+
+&lt;h2 id=&quot;input&quot;&gt;Input&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;input.json&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;omg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;output&quot;&gt;Output&lt;/h2&gt;
+
+&lt;p&gt;So by specifying &lt;code class=&quot;highlighter-rouge&quot;&gt;key1&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;key2&lt;/code&gt; the desired output would be:&lt;/p&gt;
+
+&lt;div class=&quot;language-json highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key3&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+       &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+       &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;omg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+  &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key1&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&quot;key2&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;w&quot;&gt; &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+       &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+       &lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+    &lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+
+  &lt;/span&gt;&lt;span class=&quot;err&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;w&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;adding-a-new-keyvalue-pair-with-&quot;&gt;adding a new key/value pair with +&lt;/h2&gt;
+
+&lt;p&gt;In other words: &lt;em&gt;“How do I add a new value to an object based on existing values
+in the object?”&lt;em&gt;&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;To add a new key/value pair to an object we can just use &lt;code class=&quot;highlighter-rouge&quot;&gt;. + {key: value}&lt;/code&gt; e.g.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq -c &lt;span class=&quot;s1&quot;&gt;'.[] | . + {&quot;key3&quot;: [.key1, .key2]}'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;:[&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;:[&lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,&lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This however gets rid of our original array. We can just wrap the whole expression
+inside &lt;code class=&quot;highlighter-rouge&quot;&gt;[]&lt;/code&gt; to get back an array:&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'[.[] | . + {&quot;key3&quot;: [.key1, .key2]}]'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;update&quot;&gt;update&lt;/h2&gt;
+
+&lt;p&gt;Another way to write it would be to use &lt;code class=&quot;highlighter-rouge&quot;&gt;|=&lt;/code&gt; which “updates” the left hand side
+so we don’t lose the original structure:&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'.[] |= . + {&quot;key3&quot;: [.key1, .key2]}'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;map&quot;&gt;map()&lt;/h2&gt;
+
+&lt;p&gt;Finally there is &lt;code class=&quot;highlighter-rouge&quot;&gt;map()&lt;/code&gt; which processes an array and produces an array. This allows us
+to simplify the expression down to:&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(. + {&quot;key3&quot;: [.key1, .key2]})'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key1&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key2&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;key3&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;d&quot;&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;map(expression)&lt;/code&gt; is just another way of writing &lt;code class=&quot;highlighter-rouge&quot;&gt;[ .[] | expression ]&lt;/code&gt;&lt;/p&gt;
+</description>
+        <pubDate>Sun, 26 Mar 2017 07:28:27 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/03/26/jq-by-example-simplifying-with-map/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/03/26/jq-by-example-simplifying-with-map/</guid>
+        
+        <category>jq</category>
+        
+        <category>json</category>
+        
+        
+      </item>
     
       <item>
         <title>jq by example: modifying arrays</title>
@@ -152,7 +587,7 @@ Well the issue is that our command:&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Thu, 23 Mar 2017 23:27:45 +0000</pubDate>
+        <pubDate>Thu, 23 Mar 2017 22:27:45 +0000</pubDate>
         <link>http://kaijento.github.io/2017/03/23/jq-by-example-modifying-arrays/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/jq-by-example-modifying-arrays/</guid>
         
@@ -270,7 +705,7 @@ we need the elements that do &lt;code class=&quot;highlighter-rouge&quot;&gt;not
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 </description>
-        <pubDate>Thu, 23 Mar 2017 22:51:45 +0000</pubDate>
+        <pubDate>Thu, 23 Mar 2017 21:51:45 +0000</pubDate>
         <link>http://kaijento.github.io/2017/03/23/jq-by-example-parsing-google-analytics-api/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/jq-by-example-parsing-google-analytics-api/</guid>
         
@@ -437,7 +872,7 @@ omglol
 &lt;p&gt;Well that’s all for now, perhaps next time we can look at extracting each chapter URL from the
 &lt;a href=&quot;http://mangastream.com/manga/demons_plan&quot;&gt;Full List&lt;/a&gt; page.&lt;/p&gt;
 </description>
-        <pubDate>Thu, 23 Mar 2017 16:57:42 +0000</pubDate>
+        <pubDate>Thu, 23 Mar 2017 15:57:42 +0000</pubDate>
         <link>http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com-2/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com-2/</guid>
         
@@ -973,7 +1408,7 @@ such cases using something like &lt;a href=&quot;http://doc.scrapy.org/&quot;&gt
 the Python code to a bash script/function that uses &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; aka 
 doing it &lt;em&gt;“The Wrong Way”&lt;/em&gt;.&lt;/p&gt;
 </description>
-        <pubDate>Thu, 23 Mar 2017 08:09:54 +0000</pubDate>
+        <pubDate>Thu, 23 Mar 2017 07:09:54 +0000</pubDate>
         <link>http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/03/23/Web-scraping-mangastream.com/</guid>
         
@@ -1352,7 +1787,7 @@ we use &lt;code class=&quot;highlighter-rouge&quot;&gt;add_line&lt;/code&gt; as 
 &lt;p&gt;We’re also using &lt;code class=&quot;highlighter-rouge&quot;&gt;enumerate()&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;start=1&lt;/code&gt; to give us a line count that we can
 compare against &lt;code class=&quot;highlighter-rouge&quot;&gt;line_number&lt;/code&gt;.&lt;/p&gt;
 </description>
-        <pubDate>Wed, 22 Mar 2017 10:53:42 +0000</pubDate>
+        <pubDate>Wed, 22 Mar 2017 09:53:42 +0000</pubDate>
         <link>http://kaijento.github.io/2017/03/22/Python-add-a-line-to-a-file-if-it's-not-already-there/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/03/22/Python-add-a-line-to-a-file-if-it's-not-already-there/</guid>
         
@@ -1600,7 +2035,7 @@ technically you could say that’s not what you’re doing:&lt;/p&gt;
 that introduces another issue with regards to the reading of stdin. It can be remedied by using
 process substituion a lá &lt;code class=&quot;highlighter-rouge&quot;&gt;python &amp;lt;(cat &amp;lt;&amp;lt;\.&lt;/code&gt; but that topic probably warrants its own discussion.&lt;/p&gt;
 </description>
-        <pubDate>Wed, 22 Mar 2017 06:53:42 +0000</pubDate>
+        <pubDate>Wed, 22 Mar 2017 05:53:42 +0000</pubDate>
         <link>http://kaijento.github.io/2017/03/22/creating-a-gist-from-the-command-line/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/03/22/creating-a-gist-from-the-command-line/</guid>
         
@@ -1938,524 +2373,6 @@ to alphabetical sorting:&lt;/p&gt;
         <category>json</category>
         
         <category>bash</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>reading a file into an array with bash</title>
-        <description>&lt;p&gt;&lt;em&gt;Given a list of countries, each on a new line, 
-your task is to read them into an array and then display the element indexed at 3.
-Note that indexing starts from 0.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Sample input&lt;/code&gt;:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Namibia
-Nauru
-Nepal
-Netherlands
-NewZealand
-Nicaragua
-Niger
-Nigeria
-NorthKorea
-Norway
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Sample Output&lt;/code&gt;:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Netherlands
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This question was taken from the &lt;a href=&quot;http://hackerrank.com&quot;&gt;http://hackerrank.com&lt;/a&gt; challenge posted 
-&lt;a href=&quot;https://www.hackerrank.com/challenges/bash-tutorials-display-the-third-element-of-an-array&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;simplest-solution&quot;&gt;Simplest solution?&lt;/h2&gt;
-
-&lt;p&gt;bash 4 introduced &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; (also known as &lt;code class=&quot;highlighter-rouge&quot;&gt;mapfile&lt;/code&gt;) which allows you to do:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;readarray -t countries
-&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;I’m assuming this is not what the author of the challenge had in mind so the rest of this article
-discusses how it would have &lt;em&gt;“normally”&lt;/em&gt; been implemented e.g. using a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop.&lt;/p&gt;
-
-&lt;h2 id=&quot;what-is-an-array&quot;&gt;What is an array?&lt;/h2&gt;
-
-&lt;p&gt;So firstly, what is an array? Well you have a “normal” variable which has a single value.
-An array is like a list in that it can hold multiple values.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nv&quot;&gt;normal&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;variable
-&lt;span class=&quot;nv&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;a b c&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;the-right-way-that-could-be-wrong&quot;&gt;The right way that could be wrong&lt;/h2&gt;
-
-&lt;p&gt;For the purposes of formatting we will only take a few countries from the sample input.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat sample-input
-Namibia
-Nauru
-Nepal
-Netherlands
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;country; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;countries+&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; sample-input
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;Nepal&quot; [3]=&quot;Netherlands&quot;)'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
-Netherlands
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;read country&lt;/code&gt; reads a line of input from stdin and stores it into the variable
-&lt;code class=&quot;highlighter-rouge&quot;&gt;country&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; means that it will loop over all lines in stdin.&lt;/p&gt;
-
-&lt;p&gt;Variables don’t need to be predeclared. You can append to a non-existing variable and
-it &lt;em&gt;“Just Works”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ s+=foo
-$ s+=bar
-$ declare -p s
-declare -- s=&quot;foobar&quot;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; did not exist initially and &lt;code class=&quot;highlighter-rouge&quot;&gt;s+=foo&lt;/code&gt; did the same as &lt;code class=&quot;highlighter-rouge&quot;&gt;s=foo&lt;/code&gt; in this instance as
-it appended &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; to nothing. By default, variable are treated as “strings” so 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;s+=bar&lt;/code&gt; then appends the string &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; to the existing value &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; giving us &lt;code class=&quot;highlighter-rouge&quot;&gt;foobar&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;In our code however, we have &lt;code class=&quot;highlighter-rouge&quot;&gt;countries+=()&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; here forces the variable to be treated
-as an array and not a string. When you append to an array it adds a new item to the end 
-of the array.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ s+=(baz)
-$ declare -p s
-declare -a s='([0]=&quot;foobar&quot; [1]=&quot;baz&quot;)'
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt; sample-input&lt;/code&gt; is file redirection. It sends the contents of the file &lt;code class=&quot;highlighter-rouge&quot;&gt;sample-input&lt;/code&gt; to 
-stdin. Incidientally, to redirect stdout to a file you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;gt; output-file&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;And finally we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;declare -p&lt;/code&gt; to give like a &lt;em&gt;“debugging output”&lt;/em&gt; representation 
-of a variable.&lt;/p&gt;
-
-&lt;h2 id=&quot;space-builds-a-new-place&quot;&gt;Space builds a new place&lt;/h2&gt;
-
-&lt;p&gt;So let’s replace &lt;code class=&quot;highlighter-rouge&quot;&gt;Nepal&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;New Zealand&lt;/code&gt; in our sample input. &lt;strong&gt;Note&lt;/strong&gt; that we
-are also adding in the space unlike in the given sample input.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat sample-input
-Namibia
-Nauru
-New Zealand
-Netherlands
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=()&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;country; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;countries+&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; sample-input
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;New&quot; [3]=&quot;Zealand&quot; [4]=&quot;Netherlands&quot;)'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;countries=()&lt;/code&gt; sets &lt;code class=&quot;highlighter-rouge&quot;&gt;countries&lt;/code&gt; back as an empty array removing the contents from
-our previous run.&lt;/p&gt;
-
-&lt;p&gt;We now have 5 countries instead of 4. WTF is going on pls?&lt;/p&gt;
-
-&lt;h2 id=&quot;word-splitting&quot;&gt;Word-splitting&lt;/h2&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;New Zealand
-bash: Zealand: &lt;span class=&quot;nb&quot;&gt;command &lt;/span&gt;not found
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;When parsing bash splits things into &lt;em&gt;“words”&lt;/em&gt; - so here we have 2 words &lt;code class=&quot;highlighter-rouge&quot;&gt;country=New&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Zealand&lt;/code&gt;.
-This is not the behaviour we want so we could use one of the following:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'New Zealand'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;New Zealand&quot;&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;country&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;New&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;Zealand
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The difference between single and double quotes is that inside double quotes variables will be replaced
-by their values. (You may see this referred to as &lt;em&gt;“expansion”&lt;/em&gt;.)&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Karl
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;My name is: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-My name is: Karl
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'My name is: $name'&lt;/span&gt;
-My name is: &lt;span class=&quot;nv&quot;&gt;$name&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;But we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt; to store our value in &lt;code class=&quot;highlighter-rouge&quot;&gt;country&lt;/code&gt; so that’s not our problem? Well yes, the problem is
-with &lt;code class=&quot;highlighter-rouge&quot;&gt;countries+=($country)&lt;/code&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;set--x&quot;&gt;set -x&lt;/h2&gt;
-
-&lt;p&gt;We will use &lt;code class=&quot;highlighter-rouge&quot;&gt;set -x&lt;/code&gt; which will enable debugging output of how bash is executing our commands. &lt;code class=&quot;highlighter-rouge&quot;&gt;set +x&lt;/code&gt; 
-can be used to turn it back off.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; -x
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;
-+ &lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;New Zealand
-New Zealand
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-+ &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'New Zealand'&lt;/span&gt;
-New Zealand
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So when we used double quotes around &lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; bash executed &lt;code class=&quot;highlighter-rouge&quot;&gt;echo 'New Zealand'&lt;/code&gt; i.e. it 
-treated the value of &lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; as a single word. Without the double quotes the value of 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; was split up into multiple words.&lt;/p&gt;
-
-&lt;h2 id=&quot;args-&quot;&gt;args ()&lt;/h2&gt;
-
-&lt;p&gt;To give another example:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;args &lt;span class=&quot;o&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$#;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;args &lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;
-2
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;args &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So here we define a shell function &lt;code class=&quot;highlighter-rouge&quot;&gt;args&lt;/code&gt; which just echos out &lt;code class=&quot;highlighter-rouge&quot;&gt;$#&lt;/code&gt; which is the number of arguments passed.
-As you can see because of the lack of double quotes word-splitting occurred and we passed 2 arguments
-instead of 1.&lt;/p&gt;
-
-&lt;p&gt;This is one of the reasons you will see &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;$var&quot;&lt;/code&gt; used instead of just &lt;code class=&quot;highlighter-rouge&quot;&gt;$var&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Okay so we want &lt;code class=&quot;highlighter-rouge&quot;&gt;$country&lt;/code&gt; to be treated as a single word so we must double quote it:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=()&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read &lt;/span&gt;country; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;countries+&lt;span class=&quot;o&quot;&gt;=(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$country&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; sample-input
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;New Zealand&quot; [3]=&quot;Netherlands&quot;)'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
-Netherlands
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;globbing&quot;&gt;globbing&lt;/h2&gt;
-
-&lt;p&gt;There are no quotes around &lt;code class=&quot;highlighter-rouge&quot;&gt;${countries[3]}&lt;/code&gt; but it did not make a difference in this instance.
-However, as well as the word-splitting issue another problem that can arise is if the value of your 
-variable contains &lt;em&gt;globbing&lt;/em&gt; characters:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls
-sample-input
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$var&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$var&lt;/span&gt;
-sample-input
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So unless you can be sure of the contents of your variable it’s usually a good idea to double quote
-any expansions.&lt;/p&gt;
-
-&lt;h2 id=&quot;read--r&quot;&gt;read -r&lt;/h2&gt;
-
-&lt;p&gt;There are other possible issues with regards to &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt; depending on the input being processed.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -a words &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'foo\ bar baz'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p words
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;words&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;foo bar&quot; [1]=&quot;baz&quot;)'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r -a words &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'foo\ bar baz'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p words
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;words&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;foo\\&quot; [1]=&quot;bar&quot; [2]=&quot;baz&quot;)'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Without &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt; bash interprets the backslash as a quoting character using it to group &lt;code class=&quot;highlighter-rouge&quot;&gt;'foo bar'&lt;/code&gt; 
-as a single word. Normally this is not something you want which is why some people will just always use &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-a&lt;/code&gt; option of read makes the variable we store the result in an array instead of a &lt;em&gt;“regular”&lt;/em&gt;
-variable. Like we had &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt; sample-input&lt;/code&gt; to redirect the contents of a file to stdin &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/code&gt; can be
-used to do with same with a &lt;em&gt;“string”&lt;em&gt; instead.&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;ifs&quot;&gt;IFS=&lt;/h2&gt;
-
-&lt;p&gt;Another possible issue is the removal of leading and trailing whitespace. By default both will
-be &lt;em&gt;“trimmed”&lt;/em&gt; or &lt;em&gt;“stripped”&lt;/em&gt;”.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r line &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'    I would like to keep my space.    '&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p line
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;I would like to keep my space.&quot;&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r line &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'    I would like to keep my space.    '&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p line
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;    I would like to keep my space.    &quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS&lt;/code&gt; variable is a string of characters that define how word-splitting behaves and how
-lines are split up into words when using &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt;. Its default value is &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;space&amp;gt;&amp;lt;tab&amp;gt;&amp;lt;newline&amp;gt;&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; %q&lt;span class=&quot;se&quot;&gt;\\&lt;/span&gt;n &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$IFS&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;span class=&quot;nv&quot;&gt;$'&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\t\n&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'
-&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS=&lt;/code&gt; temporarily sets it to nothing preventing the trimming which is why you will 
-see &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loops to read something line-by-line written as:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r line
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;varvalue-command&quot;&gt;var=value command&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;IFS= read&lt;/code&gt; doesn’t permanently overwrite &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS&lt;/code&gt; because bash supports the following syntax:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;var=value command
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This exports the variable into command’s environment (and only that command). We’ve just 
-given an empty value in &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS=&lt;/code&gt; case.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;b bash -c &lt;span class=&quot;s1&quot;&gt;'declare -p a'&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -x &lt;span class=&quot;nv&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p a
-bash: &lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt;: a: not found
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It’s essentially shorthand syntax for &lt;code class=&quot;highlighter-rouge&quot;&gt;( export var=value; command )&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; here explicitly 
-create a subshell so the parent’s environment remains unchanged.&lt;/p&gt;
-
-&lt;h2 id=&quot;readarray--mapfile&quot;&gt;readarray / mapfile&lt;/h2&gt;
-
-&lt;p&gt;Bash introduced &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; in version 4 which can take the place of the &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop. (For whatever
-reason they gave it 2 names &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;mapfile&lt;/code&gt; are the same thing. I think &lt;code class=&quot;highlighter-rouge&quot;&gt;readarray&lt;/code&gt; is a more
-suitable name but YMMV.)&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;readarray countries &amp;lt; sample-input
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia
-&quot; [1]=&quot;Nauru
-&quot; [2]=&quot;New Zealand
-&quot; [3]=&quot;Netherlands
-&quot;)'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;By default though, it keeps the trailing newline. You can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-t&lt;/code&gt; to have it strip 
-the trailing newline instead.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;readarray -t countries &amp;lt; sample-input
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p countries
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -a &lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'([0]=&quot;Namibia&quot; [1]=&quot;Nauru&quot; [2]=&quot;New Zealand&quot; [3]=&quot;Netherlands&quot;)'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;countries&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[3]&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-Netherlands
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The problem description doesn’t mention the use of a file at all so we can assume they will
-be providing the data on stdin already so we would remove &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt; sample-input&lt;/code&gt; from our
-actual solution.&lt;/p&gt;
-</description>
-        <pubDate>Sun, 19 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/19/reading-a-file-into-an-array-with-bash/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/19/reading-a-file-into-an-array-with-bash/</guid>
-        
-        <category>bash</category>
-        
-        <category>hackerrank</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>a function to call functions</title>
-        <description>&lt;p&gt;&lt;em&gt;How do I make a function that can repeat an arbitrary function 
-N times in Python?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;repeat.py&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'In foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'In bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;baz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'In baz'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;baz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Which gives the following output:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;In foo
-In foo
-In bar
-In baz
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;function-object&quot;&gt;Function object&lt;/h2&gt;
-
-&lt;p&gt;So referring to a function without the &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; gives you the
-&lt;em&gt;“function object”&lt;/em&gt; whereas using &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; calls the function.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f6b99174b90&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f6b99174b90&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;f = foo&lt;/code&gt; essentially created an &lt;em&gt;“alias”&lt;/em&gt; as we can now refer to
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; function using both names.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;In&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;globals&quot;&gt;globals()&lt;/h2&gt;
-
-&lt;p&gt;One may ask can we modify &lt;code class=&quot;highlighter-rouge&quot;&gt;repeat()&lt;/code&gt; to take the name of the function we want to call
-as a string as opposed to passing the function itself?&lt;/p&gt;
-
-&lt;p&gt;Well yes, there is:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]()&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;And here it is in action:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;In&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;In&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;globals()&lt;/code&gt; returns a dict of &lt;em&gt;“variables”&lt;/em&gt; defined in the current scope.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'repeat'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;repeat&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fdb9b9628c0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
- &lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f6b99174b90&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
- &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;function&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f6b99174b90&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;globals()['foo']&lt;/code&gt; refers to the function object just as &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt;
-does. In order to call it we add &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]()&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;In&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So what happens if we try call a function that doesn’t exist?&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; repeat('lol', 1)
-Traceback (most recent call last):
-  File &quot;&amp;lt;stdin&amp;gt;&quot;, line  1, in &amp;lt;module&amp;gt;
-    repeat('lol', 2)
-  File &quot;&amp;lt;stdin&amp;gt;&quot;, line 22, in repeat
-    globals()[func]()
-KeyError: 'lol'
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;dictget-and-callable&quot;&gt;dict.get() and callable()&lt;/h2&gt;
-
-&lt;p&gt;It could be made more robust by making sure &lt;code class=&quot;highlighter-rouge&quot;&gt;func&lt;/code&gt; is actually a valid function name&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;callable&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-            &lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]()&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We use the &lt;code class=&quot;highlighter-rouge&quot;&gt;dict.get()&lt;/code&gt; method to avoid any possible &lt;code class=&quot;highlighter-rouge&quot;&gt;KeyError&lt;/code&gt; and we use &lt;code class=&quot;highlighter-rouge&quot;&gt;callable()&lt;/code&gt;
-to check if what we got is actually a function.&lt;/p&gt;
-
-&lt;p&gt;So is &lt;code class=&quot;highlighter-rouge&quot;&gt;repeat()&lt;/code&gt; good to go?&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; repeat('repeat', 1)
-Traceback (most recent call last):
-  File &quot;&amp;lt;stdin&amp;gt;&quot;, line 1, in &amp;lt;module&amp;gt;
-  File &quot;&amp;lt;stdin&amp;gt;&quot;, line 22, in repeat
-    globals()[func]()
-TypeError: repeat() takes exactly 2 arguments (0 given)
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Probably not, no. It allows access to &lt;strong&gt;ANY&lt;/strong&gt; function visible in &lt;code class=&quot;highlighter-rouge&quot;&gt;globals()&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;Instead, we could specify a &lt;em&gt;“whitelist”&lt;/em&gt; of valid names for &lt;code class=&quot;highlighter-rouge&quot;&gt;func&lt;/code&gt;:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;repeat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;func&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'baz'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;_&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;times&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-            &lt;span class=&quot;nb&quot;&gt;globals&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;func&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]()&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;dispatch-table&quot;&gt;Dispatch Table&lt;/h2&gt;
-
-&lt;p&gt;Usually though, in the case of wanting to map strings to functions you would 
-create your own dict of function objects.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'In foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'In bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;baz&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'In baz'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bar&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'baz'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;baz&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;c&quot;&gt;# command = input('What command would you like to run? ')&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'callme'&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;command&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]()&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ERROR: {} is not a valid command.'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This type of structure is commonly referred to as a &lt;em&gt;“Dispatch Table”&lt;/em&gt;.&lt;/p&gt;
-</description>
-        <pubDate>Sat, 18 Mar 2017 00:00:00 +0000</pubDate>
-        <link>http://kaijento.github.io/2017/03/18/a-function-to-call-functions/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/18/a-function-to-call-functions/</guid>
-        
-        <category>python</category>
         
         
       </item>
