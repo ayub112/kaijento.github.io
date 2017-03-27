@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/27/PDF-scraping-gwinnetttaxcommissioner.publicaccessnow.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>PDF scraping: Gwinnett County Tax | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/27/PDF-scraping-gwinnetttaxcommissioner.publicaccessnow.com/">PDF scraping: Gwinnett County Tax</a></h1>
+  <p class="text-muted">27 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/pdf/">pdf</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/pdftotext/">pdftotext</a>
+  
+    
+  <a href="/categories/csv/">csv</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given a PDF file from 
+<a href="http://gwinnetttaxcommissioner.publicaccessnow.com">http://gwinnetttaxcommissioner.publicaccessnow.com</a>
+we need to extract certain text from it and convert it to CSV using Python. You could say we want to 
+<em>“Convert a PDF to TXT”</em> or even <em>“Convert a PDF to CSV”</em> with Python.</p>
+
+<a name="pdftotext"></a>
+<h2 class="section-header">
+  <span id="pdftotext"></span>
+  <a class="anchor" href="#pdftotext">pdftotext</a>
+</h2>
+
+<p>There are various PDF modules for Python such as <code class="highlighter-rouge">PyPDF2</code> and <code class="highlighter-rouge">pdfminer</code> however I’ve 
+never had much luck with their <code class="highlighter-rouge">extractText()</code> functions (it has been a while since I tried them, 
+perhaps things have changed). The best results have come from using <code class="highlighter-rouge">pdftotext</code> tool from the 
+<code class="highlighter-rouge">Poppler</code> PDF rendering library.</p>
+
+<p>It should be available as <code class="highlighter-rouge">poppler-utils</code> from your package manager on linux or <code class="highlighter-rouge">poppler</code> from homebrew
+if you’re on a mac. For windows there is a pdftotext from <code class="highlighter-rouge">xpdf</code> (Poppler is based on the xpdf codebase) 
+<a href="http://www.foolabs.com/xpdf/download.html">here</a>. I’ve not tested but I’m assuming it should work the
+same.</p>
+
+<p><code class="highlighter-rouge">pdttotext</code> has a <code class="highlighter-rouge">-layout</code> option which attempts to keep the structure of the text which greatly simplifies
+working with its output.</p>
+
+<p>The sample URL we’re given is 
+<a href="http://gwinnetttaxcommissioner.publicaccessnow.com/Portals/0/PDF/Excess%20funds%20all%20years%20-%20rev02232017.pdf">this</a>
+and here is what the PDF looks like:</p>
+
+<p><img src="/img/1490605297-gwinnetttaxcommissioner-pdf.png" alt="" /></p>
+
+<p>Let’s run the PDF file through <code class="highlighter-rouge">pdftotext</code>. By default <code class="highlighter-rouge">pdftotext</code> will create a new file
+with a <code class="highlighter-rouge">txt</code> extension e.g. if you run <code class="highlighter-rouge">pdftotext blah.pdf</code> it will create <code class="highlighter-rouge">blah.txt</code>.
+We use <code class="highlighter-rouge">-</code> here as the output filename to make it print to stdout instead.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>pdftotext Excess<span class="se">\ </span>funds<span class="se">\ </span>all<span class="se">\ </span>years<span class="se">\ </span>-<span class="se">\ </span>rev02232017.pdf - | less
+</code></pre>
+</div>
+
+<p>We should see output structured like this:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>OWNER #1 
+COMPANY NAME #1
+
+R3007 766
+R6066 125
+
+COMPANY NAME #2
+OWNER #2
+
+COMPANY #1 ADDRESS
+COMPANY #2 ADDRESS 
+
+$
+$
+
+289.31
+3,551.35
+</code></pre>
+</div>
+
+<a name="pdftotext--layout"></a>
+<h2 class="section-header">
+  <span id="pdftotext--layout"></span>
+  <a class="anchor" href="#pdftotext--layout">pdftotext -layout</a>
+</h2>
+
+<p>So records are intertwined together which is going to make it rather difficult to work with.
+Let’s try again with <code class="highlighter-rouge">-layout</code>:</p>
+
+<p><img src="/img/1490606509-pdftotext-layout.png" alt="" /></p>
+
+<p>Not exactly perfect but it’s something we can work with. Each record is on its own line (it looks
+like 2 but that’s only due to line-wrapping in my terminal). There are some issues with whitespace
+between the dollar sign and amount. The same issue appears fon page 2 with the Parcel Number. 
+They all seem to follow the same format though so we should be able to clean that up.</p>
+
+<p>So each record we want starts with a number and it ends with MONTH YEAR e.g. <code class="highlighter-rouge">3 .... AUG 2011</code>. The
+simplest way to isolate these is probably to use regex. The records we want are numbered from <code class="highlighter-rouge">3</code> 
+to <code class="highlighter-rouge">77</code> meaning that there are <code class="highlighter-rouge">74</code> in total.</p>
+
+<a name="subprocess"></a>
+<h2 class="section-header">
+  <span id="subprocess"></span>
+  <a class="anchor" href="#subprocess">subprocess</a>
+</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">subprocess</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pdf_file</span> <span class="o">=</span> <span class="s">'Excess funds all years - rev02232017.pdf'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">command</span>  <span class="o">=</span> <span class="p">[</span><span class="s">'pdftotext'</span><span class="p">,</span> <span class="s">'-layout'</span><span class="p">,</span> <span class="n">pdf_file</span><span class="p">,</span> <span class="s">'-'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">output</span>   <span class="o">=</span>  <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'(?m)^</span><span class="err">\</span><span class="s">d.* [A-Z]{3} </span><span class="err">\</span><span class="s">d{4}$'</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+<span class="mi">74</span>
+</code></pre>
+</div>
+
+<p>To execute external commands we use the <code class="highlighter-rouge">subprocess</code> module. <code class="highlighter-rouge">check_output()</code> will return
+the output as a single byte string so we <code class="highlighter-rouge">decode()</code> it. Note that we don’t pass the command
+as a single string but we pass it as a list (or tuple) of “arguments”.</p>
+
+<a name="regex"></a>
+<h2 class="section-header">
+  <span id="regex"></span>
+  <a class="anchor" href="#regex">regex</a>
+</h2>
+
+<p>In regex <code class="highlighter-rouge">^</code> matches the start of the string and <code class="highlighter-rouge">$</code> matches the end of the string. The <code class="highlighter-rouge">m</code>
+modifer changes their behaviour so they match the start and end of the “line”.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'^</span><span class="err">\</span><span class="s">d.*?$'</span><span class="p">,</span> <span class="s">'1 line</span><span class="se">\n</span><span class="s">2 line</span><span class="se">\n</span><span class="s">3 line'</span><span class="p">)</span>
+<span class="p">[]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'(?m)^</span><span class="err">\</span><span class="s">d.*?$'</span><span class="p">,</span> <span class="s">'1 line</span><span class="se">\n</span><span class="s">2 line</span><span class="se">\n</span><span class="s">3 line'</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'1 line'</span><span class="p">,</span> <span class="s">'2 line'</span><span class="p">,</span> <span class="s">'3 line'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>So with multiline mode <code class="highlighter-rouge">^</code> matches the start of each “line” as opposed to just the start
+of the string. It’s also possible to pass <code class="highlighter-rouge">flags=re.MULTILINE</code> instead of embedding 
+<code class="highlighter-rouge">(?m)</code> into your pattern.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'^</span><span class="err">\</span><span class="s">d.*?$'</span><span class="p">,</span> <span class="s">'1 line</span><span class="se">\n</span><span class="s">2 line</span><span class="se">\n</span><span class="s">3 line'</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'1 line'</span><span class="p">,</span> <span class="s">'2 line'</span><span class="p">,</span> <span class="s">'3 line'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>So back to our pattern for matching our lines:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">\d</code> matches a digit</li>
+  <li><code class="highlighter-rouge">.</code> matches “any” character (it wont match <code class="highlighter-rouge">\n</code> unless <code class="highlighter-rouge">(?s)</code> or <code class="highlighter-rouge">re.DOTALL</code> have been used)</li>
+  <li><code class="highlighter-rouge">*</code> means the previous “item” 0 or more times so <code class="highlighter-rouge">.*</code> allows to match “anything”</li>
+  <li><code class="highlighter-rouge">[A-Z]</code> matches an upppercase letter <code class="highlighter-rouge"><span class="p">{</span><span class="err">3</span><span class="p">}</span></code> means 3 times i.e the month <code class="highlighter-rouge">AUG</code></li>
+  <li><code class="highlighter-rouge">\d{4}</code> matches 4 digits i.e. the year <code class="highlighter-rouge">2011</code></li>
+</ul>
+
+<p>So this is how we can match any lines that start with a digit and ends with space followed by
+3 uppercase letters followed by space followed by 4 digits.</p>
+
+<a name="resplit"></a>
+<h2 class="section-header">
+  <span id="resplit"></span>
+  <a class="anchor" href="#resplit">re.split()</a>
+</h2>
+
+<p>So now that we can match each line how do we split it up correctly?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span> <span class="o">=</span> <span class="s">'3 NAME NAME NAME     R7042   003B     COMPANY NAME         ADDRESS LINE 1         $        100.00      AUG 2011'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'3'</span><span class="p">,</span> <span class="s">'NAME'</span><span class="p">,</span> <span class="s">'NAME'</span><span class="p">,</span> <span class="s">'NAME'</span><span class="p">,</span> <span class="s">'R7042'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'  '</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'3 NAME NAME NAME'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">' R7042'</span><span class="p">,</span> <span class="s">' 003B'</span><span class="p">,</span> <span class="s">''</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>If we split on a single space we wont be able to identify the individual pieces of information. If
+we split on 2 spaces we will get lots of empty elements and some elements will require space trimming.</p>
+
+<p>How do we split on “2 or more” spaces? That sounds like something regex can help us with?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'3 NAME NAME NAME'</span><span class="p">,</span> <span class="s">'R7042'</span><span class="p">,</span> <span class="s">'003B'</span><span class="p">,</span> <span class="s">'COMPANY NAME'</span><span class="p">,</span> <span class="s">'ADDRESS LINE 1'</span><span class="p">,</span> <span class="s">'$'</span><span class="p">,</span> <span class="s">'100.00'</span><span class="p">,</span> <span class="s">'AUG 2011'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Yes, there is <code class="highlighter-rouge">re.split()</code> which is like regular <code class="highlighter-rouge">split()</code> except it takes a regex as opposed 
+to a string. <code class="highlighter-rouge">*</code> means “0 or more times” which is really just shorthand for <code class="highlighter-rouge"><span class="p">{</span><span class="err">0,</span><span class="p">}</span></code>. So “2 or more
+times” is simply <code class="highlighter-rouge"><span class="p">{</span><span class="err">2,</span><span class="p">}</span></code>.</p>
+
+<p>There is a problem though with the spacing between the dollar sign and amount and with the parcel
+number. We will need to fix these issues before we <code class="highlighter-rouge">re.split()</code>.</p>
+
+<p>For the dollar sign we just need to replace <code class="highlighter-rouge">$</code> followed by 1 or more spaces with <code class="highlighter-rouge">$</code>. There are
+no other instances of <code class="highlighter-rouge">$</code> in our data so we don’t need to be more specific with the pattern.</p>
+
+<a name="resub"></a>
+<h2 class="section-header">
+  <span id="resub"></span>
+  <a class="anchor" href="#resub">re.sub()</a>
+</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">$ +'</span><span class="p">,</span> <span class="s">'$'</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
+<span class="p">[</span><span class="s">'3 NAME NAME NAME'</span><span class="p">,</span> <span class="s">'R7042'</span><span class="p">,</span> <span class="s">'003B'</span><span class="p">,</span> <span class="s">'COMPANY NAME'</span><span class="p">,</span> <span class="s">'ADDRESS LINE 1'</span><span class="p">,</span> <span class="s">'$100.00'</span><span class="p">,</span> <span class="s">'AUG 2011'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">re.sub()</code> allows you to substitute a regex pattern for replacement in a “string”. The
+<code class="highlighter-rouge">r''</code> here is a raw string which you can read about in the <a href="https://docs.python.org/3/library/re.html#module-re">re docs</a>.</p>
+
+<p>So because <code class="highlighter-rouge">$</code> has special meaning in regex we need to escape it to match a literal dollar sign.
+Space followed by <code class="highlighter-rouge">+</code> matches “1 or more” spaces which we simply replace with <code class="highlighter-rouge">$</code>.</p>
+
+<p>Onto the parcel number. Each parcel number follows the same pattern:</p>
+
+<p>The letter <code class="highlighter-rouge">R</code> followed by 4 digits followed by “0 or more” spaces followed by 3 digits. Some 
+of them end with an uppercase letter meaning it may not be there i.e. it is optional 
+(0 or 1 times).</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">$</span><span class="err">\</span><span class="s">s+'</span><span class="p">,</span> <span class="s">'$'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r' (R</span><span class="err">\</span><span class="s">d{4}) *(</span><span class="err">\</span><span class="s">d{3}[A-Z]?) '</span><span class="p">,</span> <span class="s">r' </span><span class="err">\</span><span class="s">1</span><span class="err">\</span><span class="s">2 '</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
+<span class="p">[</span><span class="s">'3 NAME NAME NAME'</span><span class="p">,</span> <span class="s">'R7042003B'</span><span class="p">,</span> <span class="s">'COMPANY NAME'</span><span class="p">,</span> <span class="s">'ADDRESS LINE 1'</span><span class="p">,</span> <span class="s">'$100.00'</span><span class="p">,</span> <span class="s">'AUG 2011'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">re.sub()</code> doesn’t modify <code class="highlighter-rouge">line</code> it just returns the substituted text so we must assign it
+back into <code class="highlighter-rouge">line</code> to update its contents.</p>
+
+<p><code class="highlighter-rouge">()</code> in regex creates a capture group which allows us to refer to what was captured. <code class="highlighter-rouge">\1</code> being
+the first capture group <code class="highlighter-rouge">\2</code> the second, etc. These are commonly referred to as “backreferences”.</p>
+
+<p><code class="highlighter-rouge">?</code> is the same as <code class="highlighter-rouge"><span class="p">{</span><span class="err">0,1</span><span class="p">}</span></code> which means “0 or 1 times”
+i.e. <code class="highlighter-rouge">[A-Z]?</code> makes the presence of the <code class="highlighter-rouge">[A-Z]</code> “optional”. So we capture both parts of
+the parcel number and join them together in the replacement with <code class="highlighter-rouge">r' \1\2 '</code>. We’re using a
+raw string here because we don’t want the backreferences to be interpreted as string escapes.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'</span><span class="se">\110\151</span><span class="s">'</span>
+<span class="s">'Hi'</span>
+</code></pre>
+</div>
+
+<p>We’ve matched the leading and trailing space in our pattern and put them back in the replacement.
+The reason for matching the spaces was just to lessen the chances of our pattern accidentally 
+matching something that isn’t a parcel number.</p>
+
+<p>We get the same results without the spaces with our current data but we’ll just leave them in
+our pattern.</p>
+
+<a name="csv"></a>
+<h2 class="section-header">
+  <span id="csv"></span>
+  <a class="anchor" href="#csv">csv</a>
+</h2>
+
+<p>Now that we can match the lines and split them up correctly let’s use the <code class="highlighter-rouge">csv</code> module to
+turn it into CSV.</p>
+
+<p><code class="highlighter-rouge">pdftotext.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">sys</span>
+
+<span class="n">pdf_file</span> <span class="o">=</span> <span class="s">'Excess funds all years - rev02232017.pdf'</span>
+<span class="n">command</span>  <span class="o">=</span> <span class="p">[</span><span class="s">'pdftotext'</span><span class="p">,</span> <span class="s">'-layout'</span><span class="p">,</span> <span class="n">pdf_file</span><span class="p">,</span> <span class="s">'-'</span><span class="p">]</span>
+<span class="n">output</span>   <span class="o">=</span>  <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'(?m)^</span><span class="err">\</span><span class="s">d.+[A-Z]{3} </span><span class="err">\</span><span class="s">d{4}$'</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">$ +'</span><span class="p">,</span> <span class="s">'$'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r' (R</span><span class="err">\</span><span class="s">d{4}) *(</span><span class="err">\</span><span class="s">d{3}[A-Z]?) '</span><span class="p">,</span> <span class="s">r' </span><span class="err">\</span><span class="s">1</span><span class="err">\</span><span class="s">2 '</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">row</span>  <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Let’s run it and see what the output looks like:</p>
+
+<p><img src="/img/1490637328-pdftotext.py.png" alt="" /></p>
+
+<p>The <code class="highlighter-rouge">head</code> command prints the first 10 lines (you can change the number with <code class="highlighter-rouge">-n</code> e.g. <code class="highlighter-rouge">-n 20</code>). Note
+that the <code class="highlighter-rouge">csv</code> module will automatically quote any fields that contain the delimiter e.g. <code class="highlighter-rouge">"$3,551.35"</code>
+in the output.</p>
+
+<p>We’ve used <code class="highlighter-rouge">sys.stdout</code> as the target of the <code class="highlighter-rouge">csv.writer()</code> you could instead save the output to a file
+from within the code.</p>
+
+<a name="requests"></a>
+<h2 class="section-header">
+  <span id="requests"></span>
+  <a class="anchor" href="#requests">requests</a>
+</h2>
+
+<p>The code assumes the PDF file is already saved to disk. Can we fetch the file from Python?
+We will use <code class="highlighter-rouge">requests</code> to do so:</p>
+
+<p><code class="highlighter-rouge">pdftotext-url.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
+<span class="kn">from</span>   <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">'http://gwinnetttaxcommissioner.publicaccessnow.com/'</span>
+    <span class="s">'Portals/0/PDF/Excess</span><span class="si">%20</span><span class="s">funds</span><span class="si">%20</span><span class="s">all</span><span class="si">%20</span><span class="s">years</span><span class="si">%20</span><span class="s">-</span><span class="si">%20</span><span class="s">rev02232017.pdf'</span>
+<span class="p">)</span>
+
+<span class="n">command</span> <span class="o">=</span> <span class="p">[</span><span class="s">'pdftotext'</span><span class="p">,</span> <span class="s">'-layout'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="s">'-'</span><span class="p">]</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">Popen</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stdin</span><span class="o">=</span><span class="n">PIPE</span><span class="p">)</span>
+<span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+
+<span class="n">stdin</span>  <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">content</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="n">stdin</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">'(?m)^</span><span class="err">\</span><span class="s">d.+</span><span class="err">\</span><span class="s">d$'</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">$ +'</span><span class="p">,</span> <span class="s">'$'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r' (R</span><span class="err">\</span><span class="s">d{4}) *(</span><span class="err">\</span><span class="s">d{3}[A-Z]?) '</span><span class="p">,</span> <span class="s">r' </span><span class="err">\</span><span class="s">1</span><span class="err">\</span><span class="s">2 '</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">row</span>  <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>The declaration of <code class="highlighter-rouge">url</code> may look like a tuple to you but it’s not. Python will
+implicity join strings together:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="s">'foo'</span>   <span class="s">'bar'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span>
+<span class="s">'foobar'</span>
+</code></pre>
+</div>
+
+<p>If you want to do that with strings on different lines we need to group them with
+<code class="highlighter-rouge">()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="p">(</span> 
+<span class="o">...</span>     <span class="s">'foo'</span>
+<span class="o">...</span>     <span class="s">'bar'</span>
+<span class="o">...</span> <span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span>
+<span class="s">'foobar'</span>
+</code></pre>
+</div>
+
+<p>We’ve changed the <code class="highlighter-rouge">command</code> to use <code class="highlighter-rouge">-</code> as the input filename which will make pdftotext
+read from stdin. We can’t use <code class="highlighter-rouge">check_output()</code> anymore either we must use <code class="highlighter-rouge">Popen()</code>.
+We will use <code class="highlighter-rouge">communicate()</code> to pipe to the commands stdin. This means that we must<br />
+set <code class="highlighter-rouge">stdin</code> and <code class="highlighter-rouge">stdout</code> to <code class="highlighter-rouge">subprocess.PIPE</code> in our <code class="highlighter-rouge">Popen()</code> call.</p>
+
+<p>To fetch the URL we use <code class="highlighter-rouge">requests.get()</code> whilst setting the <code class="highlighter-rouge">user-agent</code>. The result
+is available in <code class="highlighter-rouge">r.content</code> which we then pipe in as stdin of the pdftotext command.</p>
+
+<p>Does it work as expected?</p>
+
+<p><img src="/img/1490639685-pdftotext-url.py.png" alt="" /></p>
+
+<p>It sure does. So what we have done here is essentially emulated a shell pipeline and as
+we’re using an external command to process the PDF we could do it without Python at all.</p>
+
+<a name="perl-is-alive"></a>
+<h2 class="section-header">
+  <span id="perl-is-alive"></span>
+  <a class="anchor" href="#perl-is-alive">perl is alive</a>
+</h2>
+
+<p><img src="/img/1490640260-perl.png" alt="" /></p>
+
+<p>We could use also use <code class="highlighter-rouge">curl</code> to fetch the file for us to replicate the last version of our
+code</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s1">'http://...'</span> | pdftotext -layout - - | perl -nle <span class="s1">'print ....'</span>
+</code></pre>
+</div>
+
+<p>So let’s break down that <code class="highlighter-rouge">perl</code> command:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -nle <span class="s1">'
+      print join ",", 
+        map { /,/ ? "\"$_\"" : $_ } 
+        split / {2,}/ 
+        if s/\$ +/\$/, 
+           s/ (R\d{4}) *(\d{3}[A-Z]?) / $1$2 /, 
+           /^\d.+ [A-Z]{3} \d{4}$/'</span>
+</code></pre>
+</div>
+
+<p>Perl’s <code class="highlighter-rouge">-n</code> option makes it read input line-by-line.
+There is also <code class="highlighter-rouge">-p</code> which does the same but has an implicit <code class="highlighter-rouge">print</code> at the end.</p>
+
+<p>Let’s start from the end:</p>
+
+<p><code class="highlighter-rouge">if s/\$ +/\$/, s/ (R\d{4}) *(\d{3}[A-Z]?) / $1$2 /, /^\d.+ [A-Z]{3} \d{4}$/</code></p>
+
+<p>This should look somewhat familiar to you <code class="highlighter-rouge">s///</code> is just like the <code class="highlighter-rouge">re.sub()</code> we did in 
+Python. For backreferences we use <code class="highlighter-rouge">$</code> instead of <code class="highlighter-rouge">\</code> (although it does support <code class="highlighter-rouge">\</code>).</p>
+
+<p>The <code class="highlighter-rouge">$</code> in the first replacement needs to be escaped because Perl has a variable named
+<code class="highlighter-rouge">$/</code> so the <code class="highlighter-rouge">\</code> stops Perl from interpreting it as that variable.</p>
+
+<p><code class="highlighter-rouge">/pattern/</code> does a match so with the above we’ve essentially done the equivalent of the 
+following Python:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code>    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+            <span class="o">...</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">split / {2,}/</code> splits on 2 or more spaces and <code class="highlighter-rouge">",", join</code> joins them all together using
+the comma as the delimiter. So what is this <code class="highlighter-rouge">map { ... }</code> business? Well remember how 
+we noted that the <code class="highlighter-rouge">csv</code> module quoted any fields that contained the delimiter?</p>
+
+<p><code class="highlighter-rouge">map { /,/ ? "\"$_\"" : $_ } split / {2,}/</code></p>
+
+<p>So the <code class="highlighter-rouge">map</code> takes all items from the <code class="highlighter-rouge">split</code> as input. Inside the <code class="highlighter-rouge">map</code> block the current item
+is available in the <code class="highlighter-rouge">$_</code> (default) variable. <code class="highlighter-rouge">/,/</code> checks if it contains a comma, if so
+we return the item quoted else we return the item untouched.</p>
+
+<p>It would be similar to the following Python:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="s">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">'"{}"'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">if</span> <span class="s">','</span> <span class="ow">in</span> <span class="n">item</span> <span class="k">else</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>Each PDF file will be different so the exact details of “scraping” the data you
+will change each time. Using <code class="highlighter-rouge">pdftotext</code> with its <code class="highlighter-rouge">-layout</code> option will usually
+be a good first step to take though.</p>
+
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (17)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/26/injecting-shell-variables-into-a-file/">injecting shell variables into a file</a></h2>
+          <p class="preview">Given an alpine linux docker container image we need to replace “tokens” 
+or “placeholders” in a javascript file with values from shell variables 
+e.g.  <code class="highlighter-rouge">%TESTAPP_FOO%</code> gets replaced with the value of the shell variable 
+<code class="highlighter-rouge">TESTAPP_FOO</code></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
