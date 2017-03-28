@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/28/PDF-scraping-Tim-Hortons-Invoice/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>PDF scraping: Tim Hortons Invoice | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/28/PDF-scraping-Tim-Hortons-Invoice/">PDF scraping: Tim Hortons Invoice</a></h1>
+  <p class="text-muted">28 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/pdf/">pdf</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/pdftotext/">pdftotext</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is to take a Tim Hortons Invoice that is in PDF format and
+“scrape” some information from it and turn it into JSON using Python.</p>
+
+<p>The PDF file looks like:</p>
+
+<p><img src="/img/1490698343-tim-hortons.pdf.png" alt="" /></p>
+
+<p>It has 8 pages but the number of pages differs we are only interested
+in the last page.</p>
+
+<p>We’re going to be using <code class="highlighter-rouge">pdftotext</code> as discussed 
+<a href="/2017/03/27/PDF-scraping-gwinnetttaxcommissioner.publicaccessnow.com/#pdftotext">in the previous PDF scraping article</a>.</p>
+
+<p>So let’s run the PDF through it to see how it does:</p>
+
+<p><img src="/img/1490698611-pdftotext-layout.png" alt="" /></p>
+
+<p>It has done a pretty decent job. Most bits of information should be easy to extract apart from 
+the <code class="highlighter-rouge">Sold To</code> and <code class="highlighter-rouge">Deliver To</code> addresses.</p>
+
+<p>We will start with the output:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python timhortons.py
+<span class="o">{</span>
+    <span class="s2">"Bill of Lading"</span>: <span class="s2">"82608215"</span>, 
+    <span class="s2">"Currency"</span>: <span class="s2">"CAD"</span>, 
+    <span class="s2">"Customer PO"</span>: <span class="s2">"4125310"</span>, 
+    <span class="s2">"Delivered To"</span>: <span class="o">[</span>
+        <span class="s2">"102922"</span>, 
+        <span class="s2">"2922 TIM HORTONS"</span>, 
+        <span class="s2">"20345 CANON STREET"</span>, 
+        <span class="s2">"PO BOX 219"</span>, 
+        <span class="s2">"SOUTH LANCASTER ON K0C 2C0"</span>, 
+        <span class="s2">"CANADA"</span>
+    <span class="o">]</span>, 
+    <span class="s2">"Due Date"</span>: <span class="s2">"02/09/2017"</span>, 
+    <span class="s2">"Fuel Surcharge"</span>: <span class="s2">"0.00"</span>, 
+    <span class="s2">"GST/HST Base"</span>: <span class="s2">"656.02"</span>, 
+    <span class="s2">"GST/HST Total"</span>: <span class="s2">"85.26"</span>, 
+    <span class="s2">"Grand Total"</span>: <span class="s2">"3329.96"</span>, 
+    <span class="s2">"Invoice Date"</span>: <span class="s2">"01/25/2017"</span>, 
+    <span class="s2">"Invoice Number"</span>: <span class="s2">"5053548359"</span>, 
+    <span class="s2">"Order Number"</span>: <span class="s2">"102512339"</span>, 
+    <span class="s2">"Payment Term"</span>: <span class="s2">"Net 15 Days"</span>, 
+    <span class="s2">"Sales Tax Base"</span>: <span class="s2">"0.00"</span>, 
+    <span class="s2">"Sold To"</span>: <span class="o">[</span>
+        <span class="s2">"102922"</span>, 
+        <span class="s2">"102922 1697315 Ontario Inc."</span>, 
+        <span class="s2">"20345 CANON STREET"</span>, 
+        <span class="s2">"PO BOX 219"</span>, 
+        <span class="s2">"SOUTH LANCASTER ON K0C 2C0"</span>, 
+        <span class="s2">"CANADA"</span>
+    <span class="o">]</span>, 
+    <span class="s2">"Total"</span>: <span class="s2">"3244.70"</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Here is the code that generated it:</p>
+
+<p><code class="highlighter-rouge">pdftojson.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">subprocess</span>
+
+<span class="n">pdfname</span> <span class="o">=</span> <span class="s">'invoice.pdf'</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span>
+    <span class="p">[</span><span class="s">'pdftotext'</span><span class="p">,</span> <span class="s">'-layout'</span><span class="p">,</span> <span class="n">pdfname</span><span class="p">,</span> <span class="s">'-'</span><span class="p">])</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+<span class="n">pages</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">'</span><span class="se">\f</span><span class="s">'</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\f</span><span class="s">'</span><span class="p">)</span>
+<span class="n">page</span>  <span class="o">=</span> <span class="n">pages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="n">address</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'(?s)(?&lt;=Sold To:).+?(?=</span><span class="err">\</span><span class="s">n</span><span class="err">\</span><span class="s">n)'</span><span class="p">,</span> <span class="n">pages</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="n">address</span> <span class="o">=</span> <span class="n">address</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'Deliver To:'</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+
+<span class="n">sold_to</span><span class="p">,</span> <span class="n">delivered_to</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">))</span>
+
+<span class="n">bill_of_lading</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Bill Of Lading:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>    <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">currency</span>       <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Currency:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>          <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">customer_po</span>    <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Customer PO:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>       <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">due_date</span>       <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Due Date:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>          <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">invoice_number</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Invoice Number:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>    <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">invoice_date</span>   <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Invoice Date:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>      <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">order_number</span>   <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Order #:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>           <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">payment_term</span>   <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Payment Term:</span><span class="err">\</span><span class="s">s*(.+?)</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sales_tax_base</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'Sales Tax Base</span><span class="err">\</span><span class="s">s*:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span> <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">gst_hst_base</span>   <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'GST/HST Base</span><span class="err">\</span><span class="s">s*:</span><span class="err">\</span><span class="s">s*(</span><span class="err">\</span><span class="s">S+)'</span>   <span class="p">,</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">expenses</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+    <span class="s">r'(?s)(Description</span><span class="err">\</span><span class="s">s*Extended Price</span><span class="err">\</span><span class="s">s*.+?Grand Total</span><span class="err">\</span><span class="s">s*</span><span class="err">\</span><span class="s">S+)'</span><span class="p">,</span> <span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="n">expenses</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+    <span class="s">r'Price including</span><span class="err">\</span><span class="s">s*</span><span class="err">\</span><span class="s">n</span><span class="err">\</span><span class="s">s*Sales Tax'</span><span class="p">,</span> <span class="s">'Price Including Sales Tax'</span><span class="p">,</span> <span class="n">expenses</span><span class="p">)</span>
+
+<span class="n">expenses</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">expenses</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+<span class="p">]</span>
+
+<span class="n">total</span><span class="p">,</span> <span class="n">fuel_surcharge</span><span class="p">,</span> <span class="n">gst_hst_total</span><span class="p">,</span> <span class="n">grand_total</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">expense</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+<span class="p">]</span>
+
+<span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'Sold To'</span>       <span class="p">:</span> <span class="n">sold_to</span><span class="p">,</span>        <span class="s">'Delivered To'</span>  <span class="p">:</span> <span class="n">delivered_to</span><span class="p">,</span> 
+    <span class="s">'Bill of Lading'</span><span class="p">:</span> <span class="n">bill_of_lading</span><span class="p">,</span> <span class="s">'Currency'</span>      <span class="p">:</span> <span class="n">currency</span><span class="p">,</span>
+    <span class="s">'Customer PO'</span>   <span class="p">:</span> <span class="n">customer_po</span><span class="p">,</span>    <span class="s">'Due Date'</span>      <span class="p">:</span> <span class="n">due_date</span><span class="p">,</span>
+    <span class="s">'Invoice Number'</span><span class="p">:</span> <span class="n">invoice_number</span><span class="p">,</span> <span class="s">'Invoice Date'</span>  <span class="p">:</span> <span class="n">invoice_date</span><span class="p">,</span>
+    <span class="s">'Order Number'</span>  <span class="p">:</span> <span class="n">order_number</span><span class="p">,</span>   <span class="s">'Payment Term'</span>  <span class="p">:</span> <span class="n">payment_term</span><span class="p">,</span>
+    <span class="s">'Sales Tax Base'</span><span class="p">:</span> <span class="n">sales_tax_base</span><span class="p">,</span> <span class="s">'GST/HST Base'</span>  <span class="p">:</span> <span class="n">gst_hst_base</span><span class="p">,</span>
+    <span class="s">'Total'</span>         <span class="p">:</span> <span class="n">total</span><span class="p">,</span>          <span class="s">'Fuel Surcharge'</span><span class="p">:</span> <span class="n">fuel_surcharge</span><span class="p">,</span>
+    <span class="s">'GST/HST Total'</span> <span class="p">:</span> <span class="n">gst_hst_total</span><span class="p">,</span>  <span class="s">'Grand Total'</span>   <span class="p">:</span> <span class="n">grand_total</span>
+<span class="p">}</span>
+
+<span class="s">'''
+summary['Expenses'] = [
+    dict(zip(expenses[0], expense)) for expense in expenses[1:-4]
+]
+'''</span>
+<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>You’ll notice at the end we have the <code class="highlighter-rouge">Expenses</code> commented out. This was just
+to keep the output at a reasonable size, when uncommented the <code class="highlighter-rouge">Expenses</code> section
+looks like this:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">"Description"</span>: <span class="s2">"Food &amp; Beverage"</span>, 
+        <span class="s2">"Extended Price"</span>: <span class="s2">"2614.61"</span>, 
+        <span class="s2">"Price Including Sales Tax"</span>: <span class="s2">"2614.61"</span>, 
+        <span class="s2">"Sales Tax"</span>: <span class="s2">"0.00"</span>
+    <span class="o">}</span>, 
+    <span class="o">{</span>
+        <span class="s2">"Description"</span>: <span class="s2">"Packaging"</span>, 
+        <span class="s2">"Extended Price"</span>: <span class="s2">"490.71"</span>, 
+        <span class="s2">"Price Including Sales Tax"</span>: <span class="s2">"490.71"</span>, 
+        <span class="s2">"Sales Tax"</span>: <span class="s2">"0.00"</span>
+    <span class="o">}</span>, 
+    <span class="o">{</span>
+        <span class="s2">"Description"</span>: <span class="s2">"Merchandise"</span>, 
+        <span class="s2">"Extended Price"</span>: <span class="s2">"0.00"</span>, 
+        <span class="s2">"Price Including Sales Tax"</span>: <span class="s2">"0.00"</span>, 
+        <span class="s2">"Sales Tax"</span>: <span class="s2">"0.00"</span>
+    <span class="o">}</span>, 
+    <span class="o">{</span>
+        <span class="s2">"Description"</span>: <span class="s2">"Cleaning"</span>, 
+        <span class="s2">"Extended Price"</span>: <span class="s2">"120.93"</span>, 
+        <span class="s2">"Price Including Sales Tax"</span>: <span class="s2">"120.93"</span>, 
+        <span class="s2">"Sales Tax"</span>: <span class="s2">"0.00"</span>
+    <span class="o">}</span>, 
+    <span class="o">{</span>
+        <span class="s2">"Description"</span>: <span class="s2">"Smallwares"</span>, 
+        <span class="s2">"Extended Price"</span>: <span class="s2">"5.00"</span>, 
+        <span class="s2">"Price Including Sales Tax"</span>: <span class="s2">"5.00"</span>, 
+        <span class="s2">"Sales Tax"</span>: <span class="s2">"0.00"</span>
+    <span class="o">}</span>, 
+    <span class="o">{</span>
+        <span class="s2">"Description"</span>: <span class="s2">"Office Supplies"</span>, 
+        <span class="s2">"Extended Price"</span>: <span class="s2">"13.45"</span>, 
+        <span class="s2">"Price Including Sales Tax"</span>: <span class="s2">"13.45"</span>, 
+        <span class="s2">"Sales Tax"</span>: <span class="s2">"0.00"</span>
+    <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">pdftotext</code> separates pages in its output with the <code class="highlighter-rouge">ASCII 12 form feed</code> character. 
+It may be represented as the control char <code class="highlighter-rouge">^L</code>. We can use <code class="highlighter-rouge">\f</code> to represent it inside a 
+string in Python. (<code class="highlighter-rouge">0C</code> in hex is <code class="highlighter-rouge">12</code> in decimal)</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'</span><span class="se">\f</span><span class="s">'</span>
+<span class="s">'</span><span class="se">\x0c</span><span class="s">'</span>
+</code></pre>
+</div>
+
+<p>So we can use <code class="highlighter-rouge">split('\f')</code> and <code class="highlighter-rouge">[-1]</code> to get the last page. Well not quite, there may be 
+multiple trailing <code class="highlighter-rouge">\f</code> characters in the output so we can <code class="highlighter-rouge">strip('\f')</code> before we <code class="highlighter-rouge">split()</code>
+to ensure <code class="highlighter-rouge">pages[-1]</code> will always give the last page.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'page1</span><span class="se">\f</span><span class="s">page2</span><span class="se">\f\f\f</span><span class="s">'</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\f</span><span class="s">'</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'page1'</span><span class="p">,</span> <span class="s">'page2'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'page1</span><span class="se">\f</span><span class="s">page2</span><span class="se">\f\f\f</span><span class="s">'</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">'</span><span class="se">\f</span><span class="s">'</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'</span><span class="se">\f</span><span class="s">'</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'page1'</span><span class="p">,</span> <span class="s">'page2'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>So the <code class="highlighter-rouge">address</code> lines start on the line containing <code class="highlighter-rouge">Sold To:</code> and they end with a blank line.
+To extract that block we’ve used <code class="highlighter-rouge">r'(?s)(?&lt;=Sold To:).+?(?=\n\n)'</code></p>
+
+<p><code class="highlighter-rouge">(?s)</code> is the same as passing <code class="highlighter-rouge">flags=re.DOTALL</code> it allows <code class="highlighter-rouge">.</code> to match <code class="highlighter-rouge">\n</code> meaning we can grab
+multiple lines with <code class="highlighter-rouge">.+?</code>. The <code class="highlighter-rouge">(?&lt;=)</code> is a positive lookbehind and the <code class="highlighter-rouge">(?=)</code> is a 
+positive lookahead. These just exclude what is inside them from the match.</p>
+
+<p>Once we have the address we then remove <code class="highlighter-rouge">Deliver To:</code> from it and split it up into a list of lines.
+What about this <code class="highlighter-rouge">zip(*())</code> madness?!</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">address</span> <span class="o">=</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE1   ADDRESS2 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS1 LINE2   ADDRESS2 LINE2'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">))</span>
+<span class="p">[([</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],),</span> <span class="p">([</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">],)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">)))</span>
+<span class="p">[(</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS1 LINE2'</span><span class="p">),</span> <span class="p">(</span><span class="s">'ADDRESS2 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">)]</span>
+</code></pre>
+</div>
+
+<p>Let’s define a simple function that prints out all arguments passed to it to try
+and see what’s going on:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">args</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">])</span>
+<span class="mi">1</span>
+<span class="p">([[</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">]],)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">args</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">])</span>
+<span class="mi">2</span>
+<span class="p">([</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p>So the <code class="highlighter-rouge">*</code> causes the list to be “unpacked” and each element inside it is passed
+as an individual argument. This means instead of passing a single list to <code class="highlighter-rouge">zip()</code>
+which doesn’t make sense we are passing multiple lists.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">address</span> <span class="o">=</span> <span class="p">[[</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">]]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
+<span class="p">[([</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],),</span> <span class="p">([</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">],)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">address</span><span class="p">))</span>
+<span class="p">[(</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS1 LINE2'</span><span class="p">),</span> <span class="p">(</span><span class="s">'ADDRESS2 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">)]</span>
+</code></pre>
+</div>
+
+<p>The rest of the patterns are all pretty similar:</p>
+
+<p><code class="highlighter-rouge">r'Bill Of Lading:\s*(\S+)'</code></p>
+
+<p><code class="highlighter-rouge">\s*</code> matches any whitespace characters if present and <code class="highlighter-rouge">\S+</code> matches non-whitespace characters 
+i.e. the first “word”. So we match all of the labels and capture the first word that appears
+after them.</p>
+
+<p>The <code class="highlighter-rouge">Payment Term</code> pattern differs because we need to capture multiple words. We replace <code class="highlighter-rouge">\S+</code>
+with <code class="highlighter-rouge">(.+?)\s{2,}</code> which captures “anything” up until we see 2 consecutive whitespace characters.
+The <code class="highlighter-rouge">?</code> after <code class="highlighter-rouge">.+</code> here makes it “non-greedy” i.e. it will match up to the first instance.
+Without <code class="highlighter-rouge">?</code> it would match up to the last instance.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'f.*o'</span><span class="p">,</span> <span class="s">'foofoobar'</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="s">'foofoo'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'f.*?o'</span><span class="p">,</span> <span class="s">'foofoobar'</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="s">'fo'</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">?</code> makes it match up to the first instance of <code class="highlighter-rouge">o</code> instead of the last.</p>
+
+<p>The following pattern is used to extract the Expenses “block”:</p>
+
+<p><code class="highlighter-rouge">r'(?s)(Description\s*Extended Price\s*.+?Grand Total\s*\S+)'</code></p>
+
+<p>Note the <code class="highlighter-rouge">?</code> in <code class="highlighter-rouge">.+?Grand Total</code> as there is another <code class="highlighter-rouge">Grand Total</code> further down
+so we want to stop at the first instance.</p>
+
+<p>The <code class="highlighter-rouge">Price including Sales Tax</code> header is actually split over 2 lines so we 
+use <code class="highlighter-rouge">re.sub()</code> to put all of the text back on the same line.</p>
+
+<p>When it’s all done <code class="highlighter-rouge">expenses</code> looks like this:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">:</span>
+<span class="o">...</span>     <span class="n">expense</span>
+<span class="o">...</span> 
+<span class="p">[</span><span class="s">u'Description'</span><span class="p">,</span> <span class="s">u'Extended Price'</span><span class="p">,</span> <span class="s">u'Sales Tax'</span><span class="p">,</span> <span class="s">u'Price Including Sales Tax'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Food &amp; Beverage'</span><span class="p">,</span> <span class="s">u'2614.61'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'2614.61'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Packaging'</span><span class="p">,</span> <span class="s">u'490.71'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'490.71'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Merchandise'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Cleaning'</span><span class="p">,</span> <span class="s">u'120.93'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'120.93'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Smallwares'</span><span class="p">,</span> <span class="s">u'5.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'5.00'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Office Supplies'</span><span class="p">,</span> <span class="s">u'13.45'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'13.45'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Total'</span><span class="p">,</span> <span class="s">u'3244.70'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'3244.70'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Fuel Surcharge'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'GST/HST/VAT'</span><span class="p">,</span> <span class="s">u'85.26'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">u'Grand Total'</span><span class="p">,</span> <span class="s">u'3329.96'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">expenses[0]</code> contains the headers which we want to use as the keys in our dict.
+If you have a list of keys and list of values you can use <code class="highlighter-rouge">dict(zip(keys, values))</code>
+to turn them into a dict:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Description'</span><span class="p">,</span> <span class="s">'Extended Price'</span><span class="p">,</span> <span class="s">'Sales Tax'</span><span class="p">,</span> <span class="s">'Price Including Sales Tax'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">expense</span> <span class="o">=</span> <span class="p">[</span><span class="s">'Food &amp; Beverage'</span><span class="p">,</span> <span class="s">'2614.61'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'2614.61'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="n">expense</span><span class="p">)),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="s">"Description"</span><span class="p">:</span> <span class="s">"Food &amp; Beverage"</span><span class="p">,</span> 
+    <span class="s">"Extended Price"</span><span class="p">:</span> <span class="s">"2614.61"</span><span class="p">,</span> 
+    <span class="s">"Price Including Sales Tax"</span><span class="p">:</span> <span class="s">"2614.61"</span><span class="p">,</span> 
+    <span class="s">"Sales Tax"</span><span class="p">:</span> <span class="s">"0.00"</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>We want to ignore the first element in <code class="highlighter-rouge">expenses</code> and also the last 4 so we use the slice
+<code class="highlighter-rouge">[1:-4]</code> to do that.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">[</span><span class="s">'Expenses'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">expenses</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expense</span><span class="p">))</span> <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Finally we use <code class="highlighter-rouge">json.dumps()</code> to turn our dict into a JSON string.
+The <code class="highlighter-rouge">indent=4</code> pretty-prints the output instead of producing a 
+single-line string. <code class="highlighter-rouge">sort_keys</code> sorts the keys to give us
+consistent ordering of the output.</p>
+
+<p>The final code and PDF file used in this article are available <a href="https://github.com/kaijento/code/tree/master/pdfscraping/timhortons">here</a>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (18)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/27/PDF-scraping-gwinnetttaxcommissioner.publicaccessnow.com/">PDF scraping: Gwinnett County Tax</a></h2>
+          <p class="preview">Given a PDF file from 
+<a href="http://gwinnetttaxcommissioner.publicaccessnow.com">http://gwinnetttaxcommissioner.publicaccessnow.com</a>
+we need to extract certain text from it and convert it to CSV using Python. You could say we want to 
+<em>“Convert a PDF to TXT”</em> or even <em>“Convert a PDF to CSV”</em> with Python.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
