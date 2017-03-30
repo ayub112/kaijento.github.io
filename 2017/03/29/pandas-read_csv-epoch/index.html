@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/03/29/pandas-read_csv-epoch/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>pandas: read_csv() and epoch time | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/03/29/pandas-read_csv-epoch/">pandas: read_csv() and epoch time</a></h1>
+  <p class="text-muted">29 Mar 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/pandas/">pandas</a>
+  
+    
+  <a href="/categories/csv/">csv</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given a CSV file that contains dates formatted as <a href="https://en.wikipedia.org/wiki/Unix_time">epoch time</a>
+how do we convert them into <code class="highlighter-rouge">datetime</code> objects within a pandas dataframe?</p>
+
+<a name="pandasread_csv"></a>
+<h2 class="section-header">
+  <span id="pandasread_csv"></span>
+  <a class="anchor" href="#pandasread_csv">pandas.read_csv()</a>
+</h2>
+
+<p>To turn a CSV file into a dataframe we can use <code class="highlighter-rouge">pandas.read_csv()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pandas</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'epoch.csv'</span><span class="p">)</span>
+     <span class="n">who</span>        <span class="n">when</span>
+<span class="mi">0</span>    <span class="n">bob</span>  <span class="mi">1490772583</span>
+<span class="mi">1</span>  <span class="n">alice</span>  <span class="mi">1490771000</span>
+<span class="mi">2</span>    <span class="n">ted</span>  <span class="mi">1490772400</span>
+</code></pre>
+</div>
+
+<p>To access a particular “field” or “column” we can use “dict indexing”:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'epoch.csv'</span><span class="p">)[</span><span class="s">'when'</span><span class="p">]</span>
+<span class="mi">0</span>    <span class="mi">1490772583</span>
+<span class="mi">1</span>    <span class="mi">1490771000</span>
+<span class="mi">2</span>    <span class="mi">1490772400</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">when</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+</code></pre>
+</div>
+
+<p>Another way you may see is the following:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'epoch.csv'</span><span class="p">)</span><span class="o">.</span><span class="n">when</span>
+<span class="mi">0</span>    <span class="mi">1490772583</span>
+<span class="mi">1</span>    <span class="mi">1490771000</span>
+<span class="mi">2</span>    <span class="mi">1490772400</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">when</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+</code></pre>
+</div>
+
+<p>So pandas takes the column headers and makes them available as attributes. This
+may not always work however as there may be name clashes with existing <code class="highlighter-rouge">pandas.DataFrame</code>
+attributes or methods.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'values.csv'</span><span class="p">)</span>
+     <span class="n">who</span>  <span class="n">values</span>
+<span class="mi">0</span>    <span class="n">bob</span>       <span class="mi">1</span>
+<span class="mi">1</span>  <span class="n">alice</span>       <span class="mi">3</span>
+<span class="mi">2</span>    <span class="n">ted</span>       <span class="mi">2</span>
+
+<span class="p">[</span><span class="mi">3</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">2</span> <span class="n">columns</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'values.csv'</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">array</span><span class="p">([[</span><span class="s">'bob'</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+       <span class="p">[</span><span class="s">'alice'</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+       <span class="p">[</span><span class="s">'ted'</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">pandas.DataFrame.values</code> already exists which pandas will not overwrite.
+Using the dict indexing approach however will always give us column data:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'values.csv'</span><span class="p">)[</span><span class="s">'values'</span><span class="p">]</span>
+<span class="mi">0</span>    <span class="mi">1</span>
+<span class="mi">1</span>    <span class="mi">3</span>
+<span class="mi">2</span>    <span class="mi">2</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">int64</span>
+</code></pre>
+</div>
+
+<a name="pandasto_datetime"></a>
+<h2 class="section-header">
+  <span id="pandasto_datetime"></span>
+  <a class="anchor" href="#pandasto_datetime">pandas.to_datetime()</a>
+</h2>
+
+<p>To convert to a datetime we can use <code class="highlighter-rouge">pandas.to_datetime()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1490772583</span><span class="p">)</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'1970-01-01 00:00:01.490772583'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>The default unit is nanoseconds and not seconds which is what we have.
+To convert seconds to nanoseconds we can multiply by <code class="highlighter-rouge">1e9</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1490772583</span> <span class="o">*</span> <span class="mf">1e9</span><span class="p">)</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'2017-03-29 07:29:43'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Or we can just specify the unit value as <code class="highlighter-rouge">s</code> for seconds:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1490772583</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'2017-03-29 07:29:43'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1490772583</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span><span class="o">.</span><span class="n">weekday_name</span>
+<span class="s">'Wednesday'</span>
+</code></pre>
+</div>
+
+<a name="tz_localize"></a>
+<h2 class="section-header">
+  <span id="tz_localize"></span>
+  <a class="anchor" href="#tz_localize">tz_localize()</a>
+</h2>
+
+<p>The resulting object has no timezone associated with it. If you’d like to 
+give it one you could <code class="highlighter-rouge">tz_localize()</code> it:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1490772583</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s">'Europe/Dublin'</span><span class="p">)</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'2017-03-29 07:29:43+0100'</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s">'Europe/Dublin'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>If it was UTC time which you wanted to convert to another timezone you could 
+<code class="highlighter-rouge">tz_localize('UTC')</code> first then <code class="highlighter-rouge">tz_convert()</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="mi">1490772583</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s">'UTC'</span><span class="p">)</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s">'Europe/Dublin'</span><span class="p">)</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'2017-03-29 08:29:43+0100'</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="s">'Europe/Dublin'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>So can we convert them all at once?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span>
+<span class="mi">0</span>   <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mi">29</span><span class="p">:</span><span class="mi">43</span>
+<span class="mi">1</span>   <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mo">03</span><span class="p">:</span><span class="mi">20</span>
+<span class="mi">2</span>   <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">40</span>
+<span class="n">Name</span><span class="p">:</span> <span class="n">when</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="n">datetime64</span><span class="p">[</span><span class="n">ns</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Nice. What about a timezone?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s">'Europe/Dublin'</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="nb">TypeError</span><span class="p">:</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">a</span> <span class="n">valid</span> <span class="n">DatetimeIndex</span> <span class="ow">or</span> <span class="n">PeriodIndex</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">))</span>
+<span class="o">&lt;</span><span class="k">class</span> <span class="err">'</span><span class="nc">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">series</span><span class="o">.</span><span class="n">Series</span><span class="s">'&gt;</span><span class="err">
+</span></code></pre>
+</div>
+
+<a name="pandasdataframevalues"></a>
+<h2 class="section-header">
+  <span id="pandasdataframevalues"></span>
+  <a class="anchor" href="#pandasdataframevalues">pandas.DataFrame.values</a>
+</h2>
+
+<p>We can instead pass <code class="highlighter-rouge">.values</code> so that we get back a <code class="highlighter-rouge">DatetimeIndex</code> instead of <code class="highlighter-rouge">Series</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="o">.</span><span class="n">values</span>
+<span class="n">array</span><span class="p">([</span><span class="s">'2017-03-29T07:29:43.000000000'</span><span class="p">,</span> <span class="s">'2017-03-29T07:03:20.000000000'</span><span class="p">,</span>
+       <span class="s">'2017-03-29T07:26:40.000000000'</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s">'datetime64[ns]'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span>
+<span class="n">DatetimeIndex</span><span class="p">([</span><span class="s">'2017-03-29 07:29:43'</span><span class="p">,</span> <span class="s">'2017-03-29 07:03:20'</span><span class="p">,</span>
+               <span class="s">'2017-03-29 07:26:40'</span><span class="p">],</span>
+              <span class="n">dtype</span><span class="o">=</span><span class="s">'datetime64[ns]'</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>This allows us to give them a timezone all at once:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s">'Europe/Dublin'</span><span class="p">)</span>
+<span class="n">DatetimeIndex</span><span class="p">([</span><span class="s">'2017-03-29 07:29:43+01:00'</span><span class="p">,</span> <span class="s">'2017-03-29 07:03:20+01:00'</span><span class="p">,</span>
+               <span class="s">'2017-03-29 07:26:40+01:00'</span><span class="p">],</span>
+              <span class="n">dtype</span><span class="o">=</span><span class="s">'datetime64[ns, Europe/Dublin]'</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">None</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>To update our changes we can assign the result back into our dataframe
+and overwrite the <code class="highlighter-rouge">df.when</code> column:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">when</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span>
+     <span class="n">who</span>                <span class="n">when</span>
+<span class="mi">0</span>    <span class="n">bob</span> <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mi">29</span><span class="p">:</span><span class="mi">43</span>
+<span class="mi">1</span>  <span class="n">alice</span> <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mo">03</span><span class="p">:</span><span class="mi">20</span>
+<span class="mi">2</span>    <span class="n">ted</span> <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">40</span>
+</code></pre>
+</div>
+
+<p>Let’s check a particular row value:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'2017-03-29 07:29:43'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">when</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">weekday_name</span>
+<span class="s">'Wednesday'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s">'when'</span><span class="p">]</span>
+<span class="n">Timestamp</span><span class="p">(</span><span class="s">'2017-03-29 07:29:43'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s">'when'</span><span class="p">]</span><span class="o">.</span><span class="n">weekday_name</span>
+<span class="s">'Wednesday'</span>
+</code></pre>
+</div>
+
+<a name="parse_dates-and-date_parser"></a>
+<h2 class="section-header">
+  <span id="parse_dates-and-date_parser"></span>
+  <a class="anchor" href="#parse_dates-and-date_parser">parse_dates and date_parser</a>
+</h2>
+
+<p>Finally it is also possible to use the <code class="highlighter-rouge">parse_dates</code> and <code class="highlighter-rouge">date_parser</code> arguments when calling <code class="highlighter-rouge">read_csv()</code> to
+convert dates:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'epoch.csv'</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s">'when'</span><span class="p">],</span> <span class="n">date_parser</span><span class="o">=</span><span class="k">lambda</span> <span class="n">epoch</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s">'s'</span><span class="p">))</span>
+     <span class="n">who</span>                <span class="n">when</span>
+<span class="mi">0</span>    <span class="n">bob</span> <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mi">29</span><span class="p">:</span><span class="mi">43</span>
+<span class="mi">1</span>  <span class="n">alice</span> <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mo">03</span><span class="p">:</span><span class="mi">20</span>
+<span class="mi">2</span>    <span class="n">ted</span> <span class="mi">2017</span><span class="o">-</span><span class="mo">03</span><span class="o">-</span><span class="mi">29</span> <span class="mo">07</span><span class="p">:</span><span class="mi">26</span><span class="p">:</span><span class="mi">40</span>
+</code></pre>
+</div>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (20)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/28/PDF-scraping-Tim-Hortons-Invoice/">PDF scraping: Tim Hortons Invoice</a></h2>
+          <p class="preview">The goal is to take a Tim Hortons Invoice that is in PDF format and
+“scrape” some information from it and turn it into JSON using Python.</p>
+
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/30/BeautifulSoup-Removing-tags/">BeautifulSoup: Removing tags</a></h2>
+          <p class="preview">The task is to extract the Nominal GDP sector composition table from the
+<a href="https://en.wikipedia.org/wiki/List_of_countries_by_GDP_sector_composition">List_of_countries_by_GDP_sector_composition wikipedia page</a>
+and convert it to CSV using Python.</p>
+
+
+        </div>
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

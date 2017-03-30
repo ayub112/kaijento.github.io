@@ -6415,7 +6415,7 @@ pre {
   font-family: Helvetica, "Helvetica Neue", Arial, sans-serif; }
 
 p.text-muted {
-  font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  font-family: Georgia;
   font-size: 15px;
   margin-bottom: 0px; }
 
@@ -6430,6 +6430,9 @@ a.img img {
 
 h1 {
   font-size: 29px; }
+
+h1, h2, h3 {
+  font-family: Open Sans; }
 
 .navbar-static-top {
   border-bottom: 2px solid;
