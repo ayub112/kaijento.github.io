@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/01/web-scraping-steamcommunity.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: steamcommunity.com | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/01/web-scraping-steamcommunity.com/">Web scraping: steamcommunity.com</a></h1>
+  <p class="text-muted">01 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/scrapy/">scrapy</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given a URL to a steamcommunity.com group page we would like to access
+the profile page of each member. The example URL given was 
+<a href="http://steamcommunity.com/groups/KeyVendorNet">http://steamcommunity.com/groups/KeyVendorNet</a>.</p>
+
+<p>Let’s open it up and take a look in the <code class="highlighter-rouge">Inspector</code> tab:</p>
+
+<p><img src="/img/1491025694-steamcommunity.png" alt="" /></p>
+
+<p>So the HTML for the first group member looks like:</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"member_block_content  online"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div&gt;&lt;a</span> <span class="na">class=</span><span class="s">"linkFriend"</span> <span class="na">href=</span><span class="s">"http://steamcommunity.com/id/jambozx"</span><span class="nt">&gt;</span>Jambo | B: skins 73%+ <span class="ni">&amp;gt;</span> CS.DEALS<span class="nt">&lt;/a&gt;&lt;/div&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"friendSmallText"</span><span class="nt">&gt;</span>Online<span class="nt">&lt;/div&gt;</span>
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<p>Let’s use <code class="highlighter-rouge">requests</code> and <code class="highlighter-rouge">BeautifulSoup</code> to fetch and extract it:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://steamcommunity.com/groups/KeyVendorNet#members'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.linkFriend'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+</code></pre>
+</div>
+
+<p>Hmm.. no result let’s see if the <code class="highlighter-rouge">href</code> is in the response we got:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'http://steamcommunity.com/id/jambozx'</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+<span class="bp">True</span>
+</code></pre>
+</div>
+
+<p>What about the class name?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'linkFriend'</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+<span class="bp">False</span>
+</code></pre>
+</div>
+
+<a name="looks-can-be-deceiving"></a>
+<h2 class="section-header">
+  <span id="looks-can-be-deceiving"></span>
+  <a class="anchor" href="#looks-can-be-deceiving">Looks can be deceiving</a>
+</h2>
+
+<p>So the HTML response we’ve received differs from the DOM representation we see in the <code class="highlighter-rouge">Inspector</code> 
+tab. In this instance it is because Javascript is enabled in the web browser which is fetching 
+the group member data to populate the page. <code class="highlighter-rouge">requests</code> does not execute Javascript so we don’t 
+get the same result.</p>
+
+<p>Let’s inspect the page navigation area:</p>
+
+<p><img src="/img/1491044149-steamcommunity-paging.png" alt="" /></p>
+
+<p>The HTML looks like:</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"group_paging"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"pageLinks"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"pagebtn disabled"</span><span class="nt">&gt;</span><span class="ni">&amp;lt;</span><span class="nt">&lt;/span&gt;</span><span class="ni">&amp;nbsp;</span>1<span class="ni">&amp;nbsp;&amp;nbsp;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"pagelink"</span> <span class="na">href=</span><span class="s">"http://steamcommunity.com/groups/KeyVendorNet#members/?p=2"</span><span class="nt">&gt;</span>2<span class="nt">&lt;/a&gt;</span>
+    <span class="ni">&amp;nbsp;&amp;nbsp;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"pagelink"</span> <span class="na">href=</span><span class="s">"http://steamcommunity.com/groups/KeyVendorNet#members/?p=3"</span><span class="nt">&gt;</span>3<span class="nt">&lt;/a&gt;</span>
+    <span class="ni">&amp;nbsp;</span>...<span class="ni">&amp;nbsp;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"pagelink"</span> <span class="na">href=</span><span class="s">"http://steamcommunity.com/groups/KeyVendorNet#members/?p=911"</span><span class="nt">&gt;</span>911<span class="nt">&lt;/a&gt;</span>
+    <span class="ni">&amp;nbsp;</span>
+    <span class="nt">&lt;a</span> <span class="na">class=</span><span class="s">"pagebtn"</span> <span class="na">href=</span><span class="s">"http://steamcommunity.com/groups/KeyVendorNet#members/?p=2"</span><span class="nt">&gt;</span><span class="ni">&amp;gt;</span><span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/div&gt;</span>
+    1 - 51 of 46,447 Members 
+<span class="nt">&lt;/div&gt;</span>
+</code></pre>
+</div>
+
+<p>So to get to page 2 it’s passing <code class="highlighter-rouge">p=2</code> as a GET parameter in the request, let’s try pass <code class="highlighter-rouge">p=1</code>
+to our first page request:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://steamcommunity.com/groups/KeyVendorNet#members/?p=1'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'http://steamcommunity.com/id/jambozx'</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'linkFriend'</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+<span class="bp">False</span>
+</code></pre>
+</div>
+
+<p>Still no luck. Let’s open up the <code class="highlighter-rouge">Network</code> tab and click on the page 2 button to see what request
+is being made.</p>
+
+<a name="the-network-tab"></a>
+<h2 class="section-header">
+  <span id="the-network-tab"></span>
+  <a class="anchor" href="#the-network-tab">The Network Tab</a>
+</h2>
+
+<p><img src="/img/1491027094-steamcommunity-network.png" alt="" /></p>
+
+<p>We’re filtering the <code class="highlighter-rouge">XHR</code> category which stands for <code class="highlighter-rouge">XMLHttpRequest</code>. This is generally where you 
+will find the requests that are fetching the data via Javascript. More often than not the response
+type of these requests will be <code class="highlighter-rouge">JSON</code> but in this case the API endpoint is returning <code class="highlighter-rouge">HTML</code>.</p>
+
+<p>So it’s making a request to:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>http://steamcommunity.com/groups/KeyVendorNet/members/?p=2&amp;content_only=true
+</code></pre>
+</div>
+
+<p>Note the <code class="highlighter-rouge">/</code> after the group name as opposed to the <code class="highlighter-rouge">#</code> we see in the URL we clicked on. 
+Let’s fetch page 1 using this URL to see if it works:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://steamcommunity.com/groups/KeyVendorNet/members/?p=1'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'linkFriend'</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.linkFriend'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">a</span> <span class="n">class</span><span class="o">=</span><span class="s">"linkFriend"</span> <span class="n">href</span><span class="o">=</span><span class="s">"http://steamcommunity.com/id/jambozx"</span><span class="o">&gt;</span><span class="n">Jambo</span> <span class="o">|</span> <span class="n">B</span><span class="p">:</span> <span class="n">skins</span> <span class="mi">73</span><span class="o">%+</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">CS</span><span class="o">.</span><span class="n">DEALS</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.linkFriend'</span><span class="p">)[</span><span class="s">'href'</span><span class="p">]</span>
+<span class="s">u'http://steamcommunity.com/id/jambozx'</span>
+</code></pre>
+</div>
+
+<p>Okay so now we’re getting somewhere.</p>
+
+<p><code class="highlighter-rouge">.linkFriend</code> is a CSS Selector. It returns any tag that contains the word <code class="highlighter-rouge">linkFriend</code> in their <code class="highlighter-rouge">class</code> 
+attribute. We could have used <code class="highlighter-rouge">a.linkFriend</code> to limit the search to only <code class="highlighter-rouge">&lt;a&gt;</code> tags but there are no
+other uses of this class attribute in the HTML.</p>
+
+<p>There are various ways to isolate particular items using <code class="highlighter-rouge">BeautifulSoup</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'linkFriend'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">a</span> <span class="n">class</span><span class="o">=</span><span class="s">"linkFriend"</span> <span class="n">href</span><span class="o">=</span><span class="s">"http://steamcommunity.com/id/jambozx"</span><span class="o">&gt;</span><span class="n">Jambo</span> <span class="o">|</span> <span class="n">B</span><span class="p">:</span> <span class="n">skins</span> <span class="mi">73</span><span class="o">%+</span> <span class="o">&amp;</span><span class="n">gt</span><span class="p">;</span> <span class="n">CS</span><span class="o">.</span><span class="n">DEALS</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'linkFriend'</span><span class="p">)[</span><span class="s">'href'</span><span class="p">]</span>
+<span class="s">u'http://steamcommunity.com/id/jambozx'</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">find(tag, value)</code> is shorthand for <code class="highlighter-rouge">find(tag, {'class': 'value'})</code> i.e. it defaults to matching against 
+the class attribute. Do note however that using the find methods will be an exact comparison e.g. if we
+had <code class="highlighter-rouge">&lt;a class="something linkFriend"&gt;</code> the CSS Selector would still return a match because <code class="highlighter-rouge">.class</code> tests
+against each “word”.</p>
+
+<p><code class="highlighter-rouge">select_one()</code> returns the first match like <code class="highlighter-rouge">find()</code>. <code class="highlighter-rouge">select()</code> returns a list of matches similar to 
+<code class="highlighter-rouge">find_all()</code>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.linkFriend'</span><span class="p">))</span>
+<span class="mi">51</span>
+</code></pre>
+</div>
+
+<p>If you notice from the navigation area it says <code class="highlighter-rouge">1 - 51 of 46,447 Members</code> meaning there
+are <code class="highlighter-rouge">51</code> members on te page which is the result we got.</p>
+
+<p>So now we know how to get the profile pages of each member on a page, how do we get all
+the pages? Well we could extract the URL from the next page link however we know that
+to request page <code class="highlighter-rouge">N</code> of the results we simply use the <code class="highlighter-rouge">p=N</code> parameter. This means we could 
+just extract the last page number and use <code class="highlighter-rouge">range()</code> to loop over all of the page numbers.</p>
+
+<a name="looping-through-the-pages"></a>
+<h2 class="section-header">
+  <span id="looping-through-the-pages"></span>
+  <a class="anchor" href="#looping-through-the-pages">Looping through the pages</a>
+</h2>
+
+<p>The page links are all <code class="highlighter-rouge">&lt;a class="pagelink" ...</code> tags and we want the last one. There is
+no <code class="highlighter-rouge">select_last()</code> so we can <code class="highlighter-rouge">select()</code> them all and using <code class="highlighter-rouge">[-1]</code> to index the list to get 
+the last element.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.pagelink'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">a</span> <span class="n">class</span><span class="o">=</span><span class="s">"pagelink"</span> <span class="n">href</span><span class="o">=</span><span class="s">"http://steamcommunity.com/groups/KeyVendorNet#members/?p=912"</span><span class="o">&gt;</span><span class="mi">912</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.pagelink'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+<span class="s">u'912'</span>
+</code></pre>
+</div>
+
+<p>We can use <code class="highlighter-rouge">int()</code> to convert it into a number to use within <code class="highlighter-rouge">range()</code> e.g.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">last_page</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.pagelink'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">last_page</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="o">....</span>
+</code></pre>
+</div>
+
+<p>In this example we have <code class="highlighter-rouge">912</code> pages to process just to get the profile page
+URLs of each member. Then you would need to make <code class="highlighter-rouge">46,447</code> requests to process
+each profile page. I personally would classify this type of task as “crawling”
+and for such cases using a tool such as <a href="http://doc.scrapy.org/">Scrapy</a> would
+be a good idea.</p>
+
+<p>If we were to do this manually with a for loop using <code class="highlighter-rouge">requests</code> each request
+would be made sequentially. <code class="highlighter-rouge">Scrapy</code> automatically does parallel requests. Also,
+how would we handle errors? retries? rate-limiting? Once again <code class="highlighter-rouge">Scrapy</code> can handle
+all of this for you and more.</p>
+
+<a name="scrapy"></a>
+<h2 class="section-header">
+  <span id="scrapy"></span>
+  <a class="anchor" href="#scrapy">Scrapy</a>
+</h2>
+
+<p>Let’s take a look at how we would do it with <code class="highlighter-rouge">Scrapy</code>:</p>
+
+<p><code class="highlighter-rouge">steamcommunity.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">scrapy</span>
+
+<span class="n">group</span> <span class="o">=</span> <span class="s">'KeyVendorNet'</span>
+
+<span class="k">class</span> <span class="nc">SteamCommunity</span><span class="p">(</span><span class="n">scrapy</span><span class="o">.</span><span class="n">Spider</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">'Steam Community'</span>
+
+    <span class="n">base_url</span> <span class="o">=</span> <span class="s">'http://steamcommunity.com/groups/{}/members/'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+    <span class="n">base_url</span> <span class="o">+=</span> <span class="s">'?p={}'</span>
+
+    <span class="n">start_urls</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">base_url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="n">last_page</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="s">'.pagelink::text'</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c">#for n in range(2, int(last_page) + 1):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">scrapy</span><span class="o">.</span><span class="n">Request</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">base_url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">extract_members</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">extract_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">href</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="s">'.linkFriend::attr(href)'</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">{</span> <span class="s">'href'</span><span class="p">:</span> <span class="n">href</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>In the simplest form we can use the <code class="highlighter-rouge">scrapy runspider</code> command to run our “spider”, “crawler” or
+whatever you wish to call it. You define a <code class="highlighter-rouge">class</code> that inherits from <code class="highlighter-rouge">scrapy.Spider</code>. It must
+have a <code class="highlighter-rouge">name</code> and it can have <code class="highlighter-rouge">start_urls</code> which a list of URLs to process initially.</p>
+
+<p>Each URL in <code class="highlighter-rouge">start_urls</code> is fetched and the result is passed to the <code class="highlighter-rouge">parse()</code> method (or <em>“callback”</em>)
+which you are to define. To use CSS Selectors we call the <code class="highlighter-rouge">css()</code> method on the <code class="highlighter-rouge">response</code> object.
+The syntax differs slightly to <code class="highlighter-rouge">BeautifulSoup</code> as we can extract text and attributes using the
+CSS3 pseudo-elements e.g. <code class="highlighter-rouge">::text</code> or <code class="highlighter-rouge">::attr(name)</code>.</p>
+
+<p>So <code class="highlighter-rouge">.pagelink::text</code> extracts the text content of each tag whose <code class="highlighter-rouge">class</code> attribute contains the
+“word” <code class="highlighter-rouge">pagelink</code>. <code class="highlighter-rouge">css()</code> returns a <code class="highlighter-rouge">Selector</code> object which we must call <code class="highlighter-rouge">extract()</code> on to actually 
+access the actual data which we then index using <code class="highlighter-rouge">[-1]</code> to get the last element.</p>
+
+<p>We have the <code class="highlighter-rouge">for</code> loop commented out because I don’t want to run 900+ requests for demonstration
+purposes. So in our for loop we <code class="highlighter-rouge">yield</code> a <code class="highlighter-rouge">scrapy.Request()</code> object. All this does is that it
+fetches the URL we construct and <code class="highlighter-rouge">callback=</code> specifies what function/method to call and pass
+the result to.</p>
+
+<p>So in this example we are yielding:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>http://steamcommunity.com/groups/KeyVendorNet/members/?p=1
+http://steamcommunity.com/groups/KeyVendorNet/members/?p=2
+http://steamcommunity.com/groups/KeyVendorNet/members/?p=3
+[...]
+http://steamcommunity.com/groups/KeyVendorNet/members/?p=9
+</code></pre>
+</div>
+
+<p>…and passing the results to <code class="highlighter-rouge">extract_members()</code> inside which we use a CSS Selector to 
+get the profile URLs as we did in our initial <code class="highlighter-rouge">BeautifulSoup</code> example.</p>
+
+<p>Finally we <code class="highlighter-rouge">yield</code> the dict <code class="highlighter-rouge"><span class="p">{</span><span class="w"> </span><span class="err">'href':</span><span class="w"> </span><span class="err">href.extract()</span><span class="w"> </span><span class="p">}</span></code>. If we were extracting multiple
+items it would perhaps look more “obvious” what was going on e.g.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">yield</span> <span class="p">{</span>
+    <span class="s">'name'</span> <span class="p">:</span> <span class="n">foo</span><span class="p">,</span>
+    <span class="s">'level'</span><span class="p">:</span> <span class="n">bar</span><span class="p">,</span>
+    <span class="s">'href'</span> <span class="p">:</span> <span class="n">baz</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>We <code class="highlighter-rouge">yield</code> a dict as it links header/field names to values which <code class="highlighter-rouge">Scrapy</code> can then use
+in the final output e.g. to put column headers into a CSV file.</p>
+
+<p>If you have never seen <code class="highlighter-rouge">yield</code> before we can just think of it like <code class="highlighter-rouge">return</code> for now
+except that it allows you to “return” multiple times. If you’d like actual
+details you can read about
+<a href="https://docs.python.org/3/tutorial/classes.html#generators"><em>generators</em> here</a>.</p>
+
+<p>As well as <code class="highlighter-rouge">css()</code> you can use XPath expressions via <code class="highlighter-rouge">xpath()</code> if you prefer.</p>
+
+<p>So let’s run it with <code class="highlighter-rouge">scrapy runspider</code> we can use <code class="highlighter-rouge">-s</code> to modify the global settings
+which we do here to change the <code class="highlighter-rouge">user-agent</code> header. We use <code class="highlighter-rouge">-o</code> to specify an output file.</p>
+
+<p>Depending on the extension you give <code class="highlighter-rouge">Scrapy</code> will use the appropriate 
+<a href="https://doc.scrapy.org/en/1.3/topics/feed-exports.html#feed-exporters">FEED EXPORTER</a>
+to format the output. We’ll choose <code class="highlighter-rouge">CSV</code> for this example as it’s just a single value
+and that will give us a simple list of lines.</p>
+
+<a name="runspider"></a>
+<h2 class="section-header">
+  <span id="runspider"></span>
+  <a class="anchor" href="#runspider">runspider</a>
+</h2>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>scrapy runspider steamcommunity.py -s <span class="nv">USER_AGENT</span><span class="o">=</span>Mozilla/5.0 -o links.csv
+<span class="o">[</span>...]
+2017-04-01 14:15:26 <span class="o">[</span>scrapy.core.engine] INFO: Closing spider <span class="o">(</span>finished<span class="o">)</span>
+2017-04-01 14:15:26 <span class="o">[</span>scrapy.extensions.feedexport] INFO: Stored csv feed <span class="o">(</span>459 items<span class="o">)</span> <span class="k">in</span>: links.csv
+2017-04-01 14:15:26 <span class="o">[</span>scrapy.statscollectors] INFO: Dumping Scrapy stats:
+<span class="o">{</span><span class="s1">'downloader/request_bytes'</span>: 3745,
+ <span class="s1">'downloader/request_count'</span>: 10,
+ <span class="s1">'downloader/request_method_count/GET'</span>: 10,
+ <span class="s1">'downloader/response_bytes'</span>: 131536,
+ <span class="s1">'downloader/response_count'</span>: 10,
+ <span class="s1">'downloader/response_status_count/200'</span>: 10,
+ <span class="s1">'finish_reason'</span>: <span class="s1">'finished'</span>,
+ <span class="s1">'finish_time'</span>: datetime.datetime<span class="o">(</span>2017, 4, 1, 13, 15, 26, 730336<span class="o">)</span>,
+ <span class="s1">'item_scraped_count'</span>: 459,
+ <span class="s1">'log_count/DEBUG'</span>: 470,
+ <span class="s1">'log_count/INFO'</span>: 8,
+ <span class="s1">'request_depth_max'</span>: 1,
+ <span class="s1">'response_received_count'</span>: 10,
+ <span class="s1">'scheduler/dequeued'</span>: 10,
+ <span class="s1">'scheduler/dequeued/memory'</span>: 10,
+ <span class="s1">'scheduler/enqueued'</span>: 10,
+ <span class="s1">'scheduler/enqueued/memory'</span>: 10,
+ <span class="s1">'start_time'</span>: datetime.datetime<span class="o">(</span>2017, 4, 1, 13, 15, 24, 173021<span class="o">)}</span>
+2017-04-01 14:15:26 <span class="o">[</span>scrapy.core.engine] INFO: Spider closed <span class="o">(</span>finished<span class="o">)</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">item_scraped_count</code> is <code class="highlighter-rouge">459</code>. We crawled <code class="highlighter-rouge">9</code> pages with <code class="highlighter-rouge">51</code> members per page:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="mi">51</span> <span class="o">*</span> <span class="mi">9</span>
+<span class="mi">459</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">request</code> count is <code class="highlighter-rouge">10</code> as we fetched the first page twice. The reason for this
+was to avoid duplicating the <code class="highlighter-rouge">extract_members()</code> code inside the <code class="highlighter-rouge">parse()</code> method.
+It was simpler to just request the page again instead of special-casing the first
+request.</p>
+
+<p>It saved the <code class="highlighter-rouge">459</code> results into <code class="highlighter-rouge">links.csv</code>:</p>
+
+<p><code class="highlighter-rouge">INFO: Stored csv feed (459 items) in: links.csv</code></p>
+
+<p>Instead of simply extracting the URLs we could have yielded <code class="highlighter-rouge">scrapy.Request()</code> objects
+from inside <code class="highlighter-rouge">parse_members()</code> to actually fetch the profile pages and pass them on
+to another callback e.g. <code class="highlighter-rouge">parse_profile()</code> in which we could have extracted whatever
+pieces of information from the profiles were deemed important.</p>
+
+<p>Another possible modification would be to pass the group name as a command line argument.
+Doing this you would need to define your own <code class="highlighter-rouge">start_requests</code> method as described
+<a href="https://doc.scrapy.org/en/latest/topics/spiders.html#spider-arguments">here</a>.</p>
+
+<p>The final Scrapy example is 
+<a href="https://github.com/kaijento/code/blob/master/webscraping/steamcommunity.com/get-group-members.py">on github</a>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (21)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/03/30/BeautifulSoup-Removing-tags/">BeautifulSoup: Removing tags</a></h2>
+          <p class="preview">The task is to extract the Nominal GDP sector composition table from the
+<a href="https://en.wikipedia.org/wiki/List_of_countries_by_GDP_sector_composition">List_of_countries_by_GDP_sector_composition wikipedia page</a>
+and convert it to CSV using Python.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
