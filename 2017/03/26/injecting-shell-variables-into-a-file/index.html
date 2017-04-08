@@ -344,9 +344,20 @@ because <code class="highlighter-rouge">%TOKEN%</code> will still be in our stri
 check to the loop condition to test if the token corresponds to a defined variable in
 the <code class="highlighter-rouge">ENVIRON</code> array.</p>
 
-<p>As for the <code class="highlighter-rouge">grep</code> and <code class="highlighter-rouge">sed</code> approach it gets a bit messy and due to the potential problems
-with the whole injecting variables directly into commands so we will leave the rest of
-that discussion for perhaps another day.</p>
+<p>As for the <code class="highlighter-rouge">grep</code> and <code class="highlighter-rouge">sed</code> approach it is still possible. We can use <code class="highlighter-rouge">[[ -v varname ]]</code> to 
+test if a variable is set. As the name of the variable we want is contained in <code class="highlighter-rouge">search</code> we 
+can use <code class="highlighter-rouge">[[ -v $search ]]</code> to test correctly:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat testfile
+<span class="gp">%TESTAPP_DONTREPLACEME% </span>%TESTAPP_FOO%
+<span class="gp">$ </span>grep -P -o <span class="s1">'%\KTESTAPP_[^%]+(?=%)'</span> testfile | 
+    <span class="k">while </span><span class="nb">read</span> -r search; <span class="k">do</span> <span class="o">[[</span> -v <span class="nv">$search</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> sed -i <span class="s2">"s/%</span><span class="k">${</span><span class="nv">search</span><span class="k">}</span><span class="s2">%/</span><span class="k">${</span><span class="p">!search</span><span class="k">}</span><span class="s2">/g"</span> testfile; <span class="k">done</span>
+<span class="gp">$ </span>cat testfile
+<span class="gp">%TESTAPP_DONTREPLACEME% </span>foo
+</code></pre>
+</div>
+
+<p>However in an ideal situation <code class="highlighter-rouge">perl</code> would be available and you could use that solution.</p>
 
 </div>
 
@@ -357,7 +368,7 @@ that discussion for perhaps another day.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (21)</a>
+            <a href="/archive">View Archive (22)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/03/26/jq-by-example-simplifying-with-map/">jq by example: simplifying with map()</a></h2>
           <p class="preview">The goal is update a list of objects by adding a new array to each 

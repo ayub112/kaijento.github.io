@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/08/find-permissions-with-perm/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>find: permissions with -perm | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/08/find-permissions-with-perm/">find: permissions with -perm</a></h1>
+  <p class="text-muted">08 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/find/">find</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>I would like to find <em>“files”</em> that have octal permissions <code class="highlighter-rouge">755</code> although
+I’m not looking for an exact match. I would like files that have <code class="highlighter-rouge">7</code> set for user
+OR <code class="highlighter-rouge">5</code> set for <code class="highlighter-rouge">group</code> OR <code class="highlighter-rouge">5</code> set for other.</p>
+
+<a name="permissions"></a>
+<h2 class="section-header">
+  <span id="permissions"></span>
+  <a class="anchor" href="#permissions">permissions</a>
+</h2>
+
+<p>The first column in the output of <code class="highlighter-rouge">ls -l</code> shows us the symbolic mode of permissions:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -l c 
+-rwxr-xr-x 1 user group 0 Apr  3 06:54 c
+</code></pre>
+</div>
+
+<p>GNU <code class="highlighter-rouge">stat</code> allows you to see the octal representation of permissions by supplying
+<code class="highlighter-rouge">%a</code> in the format string whereas <code class="highlighter-rouge">%n</code> gives the name.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>stat -c %a<span class="se">\ </span>%n c
+755 c
+</code></pre>
+</div>
+
+<p>So given <code class="highlighter-rouge">-rwxr-xr-x</code> if we ignore the intial <code class="highlighter-rouge">-</code> we have 3 “sets” of permissions
+<code class="highlighter-rouge">user</code>, <code class="highlighter-rouge">group</code> and <code class="highlighter-rouge">other</code>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">rwx</code> for <code class="highlighter-rouge">user</code></li>
+  <li><code class="highlighter-rouge">r-x</code> for <code class="highlighter-rouge">group</code></li>
+  <li><code class="highlighter-rouge">r-x</code> for <code class="highlighter-rouge">other</code></li>
+</ul>
+
+<p>These are commonly referred to as “bits” e.g. <code class="highlighter-rouge">r</code> stands for the “read bit”. Each “bit”
+has a particular octal value:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>symbol</th>
+      <th>name</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="highlighter-rouge">r</code></td>
+      <td><code class="highlighter-rouge">read</code></td>
+      <td><code class="highlighter-rouge">4</code></td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">w</code></td>
+      <td><code class="highlighter-rouge">write</code></td>
+      <td><code class="highlighter-rouge">2</code></td>
+    </tr>
+    <tr>
+      <td><code class="highlighter-rouge">x</code></td>
+      <td><code class="highlighter-rouge">execute</code></td>
+      <td><code class="highlighter-rouge">1</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>So if the user bits set are <code class="highlighter-rouge">rwx</code> this means the octal value is <code class="highlighter-rouge">4 + 2 + 1</code> which gives us
+<code class="highlighter-rouge">7</code>. The <code class="highlighter-rouge">-</code> means the bit is not set so <code class="highlighter-rouge">r-x</code> gives us <code class="highlighter-rouge">4 + 0 + 1</code> i.e. <code class="highlighter-rouge">5</code>.</p>
+
+<a name="find"></a>
+<h2 class="section-header">
+  <span id="find"></span>
+  <a class="anchor" href="#find">find</a>
+</h2>
+
+<p>For finding things we can use the <code class="highlighter-rouge">find</code> command. For dealing with
+permissions we can use its <code class="highlighter-rouge">-perm</code> option. In its simplest
+form <code class="highlighter-rouge">-perm</code> is used to match permissions exactly:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find . -perm 755 -exec ls -li <span class="o">{}</span> +
+3103056319 -rwxr-xr-x 1 user group 0 Apr  3 06:54 ./c
+<span class="gp">$ </span>find -perm 755 -ls
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+<span class="gp">$ </span>find -perm 755 -exec stat -c %a<span class="se">\ </span>%n <span class="o">{}</span> +
+755 ./c
+</code></pre>
+</div>
+
+<p>GNU <code class="highlighter-rouge">find</code> allows you to omit the start directories to search and will default
+to <code class="highlighter-rouge">.</code> i.e. the current directory.</p>
+
+<p>It also has an <code class="highlighter-rouge">-ls</code> option which is essentially 
+the same as supplying <code class="highlighter-rouge">-exec ls -li {} +</code>. If your <code class="highlighter-rouge">find</code> command does not support 
+these features you can use the full form as shown in the first command above.</p>
+
+<p>The <code class="highlighter-rouge">-exec</code> option is used for executing commands. If <code class="highlighter-rouge"><span class="p">{}</span></code> is used inside of <code class="highlighter-rouge">-exec</code>
+it is replaced with the pathname of the current “found” file.</p>
+
+<p><code class="highlighter-rouge">-exec</code> must be terminated by either <code class="highlighter-rouge">;</code> or <code class="highlighter-rouge">+</code> and as <code class="highlighter-rouge">;</code> has special meaning 
+to the shell it must be quoted for it to be seen by <code class="highlighter-rouge">find</code> e.g. with <code class="highlighter-rouge">\</code> <code class="highlighter-rouge">''</code> or <code class="highlighter-rouge">""</code></p>
+
+<p><code class="highlighter-rouge">-perm</code> can also be given symbolic modes:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -perm <span class="nv">u</span><span class="o">=</span>rwx,g<span class="o">=</span>rx,o<span class="o">=</span>rx -ls
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+</code></pre>
+</div>
+
+<p>It’s extremely verbose compared to the octal <code class="highlighter-rouge">755</code> in this instance but can be of use 
+in certain situations.</p>
+
+<a name="mode"></a>
+<h2 class="section-header">
+  <span id="mode"></span>
+  <a class="anchor" href="#mode">/mode</a>
+</h2>
+
+<p>So back to the original problem we don’t want an exact match on the permissions
+which <code class="highlighter-rouge">-perm</code> also allows you to do:</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">-perm /mode</code></p>
+
+  <p>Any of the permission bits mode are set for the file.  Symbolic modes are accepted in this form.</p>
+</blockquote>
+
+<p>This sounds like <code class="highlighter-rouge">-perm /755</code> should do what we want, right?</p>
+
+<p>First, some test files:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -ls 
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056317    0 -rw-------   1 user group        0 Apr  3 06:54 ./a
+3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+3103824358    0 ---x--x--x   1 user group        0 Apr  3 06:54 ./d
+3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
+3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+</code></pre>
+</div>
+
+<p>Their permissions in octal:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -exec stat -c %04a<span class="se">\ </span>%n <span class="o">{}</span> +
+0700 .
+0600 ./a
+4605 ./b
+0755 ./c
+0111 ./d
+0152 ./e
+0007 ./f
+0711 ./g
+</code></pre>
+</div>
+
+<p>So how does <code class="highlighter-rouge">-perm /755</code> fare?</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -perm /755 -ls
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056317    0 -rw-------   1 user group        0 Apr  3 06:54 ./a
+3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+3103824358    0 ---x--x--x   1 user group        0 Apr  3 06:54 ./d
+3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
+3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+</code></pre>
+</div>
+
+<p>Not quite what we were expecting. What’s going on here?</p>
+
+<p>Perhaps using a symbolic mode example will make it easier to understand.</p>
+
+<p>The octal <code class="highlighter-rouge">700</code> is equivalent to the symbolic mode <code class="highlighter-rouge">u=rwx</code> so when it says 
+<strong>Any of the permission bits</strong> are set this means that if <code class="highlighter-rouge">u=r</code>,
+<code class="highlighter-rouge">u=w</code> or <code class="highlighter-rouge">u=x</code> are set there will be a match i.e.</p>
+
+<p><em>“if any of the user mode bits in X are set or any of the group mode bits
+in Y are set or any of the other mode bits in Z or set”<em>.</em></em></p>
+
+<a name="-mode"></a>
+<h2 class="section-header">
+  <span id="-mode"></span>
+  <a class="anchor" href="#-mode">-mode</a>
+</h2>
+
+<p>As well as <code class="highlighter-rouge">/mode</code> there is <code class="highlighter-rouge">-mode</code></p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">-perm -mode</code></p>
+
+  <p>All of the permission bits mode are set for the file.</p>
+</blockquote>
+
+<p><code class="highlighter-rouge">/mode</code> had previously been <code class="highlighter-rouge">+mode</code> in GNU <code class="highlighter-rouge">find</code> but was deprecated
+in favour of <code class="highlighter-rouge">/mode</code> due to issues regarding <code class="highlighter-rouge">+</code> as it can be part of the 
+symbolic mode string.</p>
+
+<p>So for example <code class="highlighter-rouge">-perm -700</code> stipulates that <code class="highlighter-rouge">u=r</code> and <code class="highlighter-rouge">u=w</code> and <code class="highlighter-rouge">u=x</code> must 
+all be set for there to be a match.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -perm -700 -ls
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+<span class="gp">$ </span>find -perm -u<span class="o">=</span>rwx -ls 
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+</code></pre>
+</div>
+
+<p>This means we can combine multiple <code class="highlighter-rouge">-perm</code> clauses to satisfy the original
+goal. One for user, one for group and one for other:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find <span class="se">\(</span> -perm -700 -or -perm -050 -or -perm -005 <span class="se">\)</span> -ls 
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
+3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+<span class="gp">$ </span>find <span class="se">\(</span> -perm -u<span class="o">=</span>rwx -or -perm -g<span class="o">=</span>rx -or -perm -o<span class="o">=</span>rx <span class="se">\)</span> -ls
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
+3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+</code></pre>
+</div>
+
+<a name="implicit--and"></a>
+<h2 class="section-header">
+  <span id="implicit--and"></span>
+  <a class="anchor" href="#implicit--and">implicit -and</a>
+</h2>
+
+<p>When you build a <code class="highlighter-rouge">find</code> command items are chained with an implicit “and” e.g.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>find -name foo -type f
+</code></pre>
+</div>
+
+<p>is processed as if the command given was:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>find -name foo -and -type f
+</code></pre>
+</div>
+
+<p>This is why we need to group the chain of “or” clauses with <code class="highlighter-rouge">()</code> (which need to 
+be quoted so the shell doesn’t interpret them) as otherwise the logic of the 
+command would be incorrect.</p>
+
+<p>i.e. we would have:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>A -or B -or ( C -and D )
+</code></pre>
+</div>
+
+<p>instead of:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>( A -or B -or C ) -and D
+</code></pre>
+</div>
+
+<p>Do note that <code class="highlighter-rouge">-and</code> <code class="highlighter-rouge">-or</code> and <code class="highlighter-rouge">-not</code> are extensions. Their original equivalents
+are <code class="highlighter-rouge">-a</code> <code class="highlighter-rouge">-o</code> and <code class="highlighter-rouge">!</code> respectively.</p>
+
+<a name="at-least-exactly"></a>
+<h2 class="section-header">
+  <span id="at-least-exactly"></span>
+  <a class="anchor" href="#at-least-exactly">at least exactly</a>
+</h2>
+
+<p>So <code class="highlighter-rouge">./f</code> is matched because the <code class="highlighter-rouge">o=rx</code> bits are set. It also has <code class="highlighter-rouge">o=w</code> 
+set meaning its octal value is <code class="highlighter-rouge">7</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
+</code></pre>
+</div>
+
+<p>What if we wanted to stipulate that it must be <code class="highlighter-rouge">5</code>?</p>
+
+<p>We could add <code class="highlighter-rouge">-not -perm /022</code> to filter out results that have <code class="highlighter-rouge">g=w</code> or <code class="highlighter-rouge">o=w</code> set:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find <span class="se">\(</span> -perm -700 -or -perm -050 -or -perm -005 <span class="se">\)</span> -not -perm /022 -ls 
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+</code></pre>
+</div>
+
+<p>This however could be considered incorrect depending on the exact
+intention as it doesn’t match <code class="highlighter-rouge">./e</code> whose group bits equal octal <code class="highlighter-rouge">5</code>
+exactly:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
+</code></pre>
+</div>
+
+<p>Here the group permission bits equal octal <code class="highlighter-rouge">5</code> but it’s not a match 
+because it has <code class="highlighter-rouge">o=w</code> set.</p>
+
+<p>If we wanted to consider that as a match i.e.
+if either group or other is exactly equal to <code class="highlighter-rouge">5</code> aka <code class="highlighter-rouge">r-x</code> we 
+could do the following:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find <span class="se">\(</span> -perm -700 -or <span class="se">\(</span> -perm -050 -not -perm /020 <span class="se">\)</span> -or <span class="se">\(</span> -perm -005 -not -perm /002 <span class="se">\)</span> <span class="se">\)</span> -ls
+3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
+3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
+3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
+3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
+2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
+</code></pre>
+</div>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (22)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/01/web-scraping-steamcommunity.com/">Web scraping: steamcommunity.com</a></h2>
+          <p class="preview">Given a URL to a steamcommunity.com group page we would like to access
+the profile page of each member. The example URL given was 
+<a href="http://steamcommunity.com/groups/KeyVendorNet">http://steamcommunity.com/groups/KeyVendorNet</a>.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
