@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/08/python-remove_duplicates/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Python: remove_duplicates | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/08/python-remove_duplicates/">Python: remove_duplicates</a></h1>
+  <p class="text-muted">08 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>
+Write a function called remove_duplicates which will take one argument called string. 
+This string input will only have characters between a-z.<br />
+The function should remove all repeated characters in the string and return a tuple with two values:<br />
+  A new string with only unique, sorted characters.<br />
+  The total number of duplicates dropped.
+</em></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">remove_duplicates</span><span class="p">(</span><span class="s">'aaabbbac'</span><span class="p">)</span>  <span class="o">=&gt;</span> <span class="p">(</span><span class="s">'abc'</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">remove_duplicates</span><span class="p">(</span><span class="s">'a'</span><span class="p">)</span>         <span class="o">=&gt;</span> <span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">remove_duplicates</span><span class="p">(</span><span class="s">'thelexash'</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(</span><span class="s">'aehlstx'</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<a name="solution"></a>
+<h2 class="section-header">
+  <span id="solution"></span>
+  <a class="anchor" href="#solution">solution</a>
+</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">remove_duplicates</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">unique</span>  <span class="o">=</span> <span class="s">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="p">)))</span>
+<span class="o">...</span>     <span class="n">removed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">return</span> <span class="n">unique</span><span class="p">,</span> <span class="n">removed</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">remove_duplicates</span><span class="p">(</span><span class="s">'aaabbbac'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'abc'</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">remove_duplicates</span><span class="p">(</span><span class="s">'a'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'a'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">remove_duplicates</span><span class="p">(</span><span class="s">'thelexash'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'aehlstx'</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<a name="explanation"></a>
+<h2 class="section-header">
+  <span id="explanation"></span>
+  <a class="anchor" href="#explanation">explanation</a>
+</h2>
+
+<p>A <code class="highlighter-rouge">set</code> is a container for storing items similar to a <code class="highlighter-rouge">list</code>. The main differences
+being that they are unordered and they cannot store duplicated items:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">'one'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span>
+<span class="nb">set</span><span class="p">([</span><span class="s">'one'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">'one'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">'one'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span>
+<span class="nb">set</span><span class="p">([</span><span class="s">'one'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">'two'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">s</span>
+<span class="nb">set</span><span class="p">([</span><span class="s">'two'</span><span class="p">,</span> <span class="s">'one'</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p>We added <code class="highlighter-rouge">'one'</code> multiple times but as the values of a set are unique the subsequent
+adds are ignored.</p>
+
+<p>We can also pass an iterable to <code class="highlighter-rouge">set()</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">set</span><span class="p">(</span><span class="s">'aaabbbac'</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'c'</span><span class="p">,</span> <span class="s">'b'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">set</span><span class="p">([</span><span class="s">'bob'</span><span class="p">,</span> <span class="s">'alice'</span><span class="p">,</span> <span class="s">'bob'</span><span class="p">])</span>
+<span class="nb">set</span><span class="p">([</span><span class="s">'bob'</span><span class="p">,</span> <span class="s">'alice'</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p>A common question is <em>“How do I remove duplicates from a list?”</em> and you can
+do that using sets.</p>
+
+<p>So let’s step through the code to see what’s going on:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">string</span> <span class="o">=</span> <span class="s">'thelexash'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">([</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'e'</span><span class="p">,</span> <span class="s">'h'</span><span class="p">,</span> <span class="s">'l'</span><span class="p">,</span> <span class="s">'s'</span><span class="p">,</span> <span class="s">'t'</span><span class="p">,</span> <span class="s">'x'</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="p">))</span>
+<span class="p">[</span><span class="s">'a'</span><span class="p">,</span> <span class="s">'e'</span><span class="p">,</span> <span class="s">'h'</span><span class="p">,</span> <span class="s">'l'</span><span class="p">,</span> <span class="s">'s'</span><span class="p">,</span> <span class="s">'t'</span><span class="p">,</span> <span class="s">'x'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="p">)))</span>
+<span class="s">'aehlstx'</span>
+</code></pre>
+</div>
+
+<p>As we cannot rely on the order we use <code class="highlighter-rouge">sorted()</code> to sort the set for us
+and give us back a list. We then use <code class="highlighter-rouge">''.join()</code> to turn the list
+into a string containing the unique characters.</p>
+
+<p>Now that we have the unique characters how do we calculate how many were 
+removed? We can simply take the length of the unique character string
+and substract it from the length of the original string.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">unique</span> <span class="o">=</span> <span class="s">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">string</span><span class="p">)))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">unique</span><span class="p">)</span>
+<span class="mi">2</span>
+</code></pre>
+</div>
+
+<p>We then have the 2 values needed which we <code class="highlighter-rouge">return</code> from the function as a tuple.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (23)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/08/find-permissions-with-perm/">find: permissions with -perm</a></h2>
+          <p class="preview">I would like to find <em>“files”</em> that have octal permissions <code class="highlighter-rouge">755</code> although
+I’m not looking for an exact match. I would like files that have <code class="highlighter-rouge">7</code> set for user
+OR <code class="highlighter-rouge">5</code> set for <code class="highlighter-rouge">group</code> OR <code class="highlighter-rouge">5</code> set for other.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
