@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/09/python-convert-a-text-file-into-a-dict/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Python: convert a text file into a dictionary | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/09/python-convert-a-text-file-into-a-dict/">Python: convert a text file into a dictionary</a></h1>
+  <p class="text-muted">09 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given the following data in a text file the task is
+to convert it into a Python dict having the command
+names as the keys and the command descriptions as the
+values.</p>
+
+<p><code class="highlighter-rouge">commands.txt</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ABBREV                                          Abbreviation processsor
+ADDISK                                               (Operator command)
+ADD_REMOTE_ID                        Sets up user id for remote systems
+AMLC                                                 (Operator command)
+ARCHIVE                                     Archives disk files to tape
+ARCHIVE_RELEASE                 Releases an ARCHIVE tape for future use
+ARCHIVE_RESTORE                 Restores files archived on tape to disk
+</code></pre>
+</div>
+
+<p>We will start with some output:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python build-commands.py 
+<span class="o">{</span>
+    <span class="s2">"ABBREV"</span>: <span class="s2">"Abbreviation processsor"</span>, 
+    <span class="s2">"ADDISK"</span>: <span class="s2">"(Operator command)"</span>, 
+    <span class="s2">"ADD_REMOTE_ID"</span>: <span class="s2">"Sets up user id for remote systems"</span>, 
+    <span class="s2">"AMLC"</span>: <span class="s2">"(Operator command)"</span>, 
+    <span class="s2">"ARCHIVE"</span>: <span class="s2">"Archives disk files to tape"</span>, 
+    <span class="s2">"ARCHIVE_RELEASE"</span>: <span class="s2">"Releases an ARCHIVE tape for future use"</span>, 
+    <span class="s2">"ARCHIVE_RESTORE"</span>: <span class="s2">"Restores files archived on tape to disk"</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>The code that generated it:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s">'commands.txt'</span>
+
+<span class="n">commands</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">command</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">json</code> module is only being used here as a way to pretty-print our dict.
+If you’ve never seen <code class="highlighter-rouge">with</code> before it’s commonly used for opening files.
+When the <code class="highlighter-rouge">with</code> block is exited it will automatically call <code class="highlighter-rouge">.close()</code> on the
+file for us.</p>
+
+<a name="split"></a>
+<h2 class="section-header">
+  <span id="split"></span>
+  <a class="anchor" href="#split">split()</a>
+</h2>
+
+<p>You have probably encountered<code class="highlighter-rouge">split()</code> before but its second argument may be new to
+you.</p>
+
+<p>Note that in Python 3 you can pass it as the named argument <code class="highlighter-rouge">maxsplit</code>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span> <span class="o">=</span> <span class="s">'ABBREV                                          Abbreviation processsor</span><span class="se">\n</span><span class="s">'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">'Abbreviation'</span><span class="p">,</span> <span class="s">'processsor'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> 
+<span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span>
+<span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> 
+<span class="s">'Abbreviation'</span><span class="p">,</span> <span class="s">'processsor</span><span class="se">\n</span><span class="s">'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">'                                         Abbreviation processsor</span><span class="se">\n</span><span class="s">'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>So instead of splitting on each space it splits on the first space only which leaves 
+the description string intact albeit with surrounding whitespace that needs to be trimmed.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">'                                         Abbreviation processsor'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">command</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">command</span>
+<span class="s">'ABBREV'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">description</span>
+<span class="s">'                                         Abbreviation processsor'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="s">'Abbreviation processsor'</span>
+</code></pre>
+</div>
+
+<p>So now we have <code class="highlighter-rouge">command</code> and <code class="highlighter-rouge">description</code> trimmed correctly we simply add them to 
+the dict.</p>
+
+<p>There is, however, another possible approach.</p>
+
+<a name="splitnone-1"></a>
+<h2 class="section-header">
+  <span id="splitnone-1"></span>
+  <a class="anchor" href="#splitnone-1">split(None, 1)</a>
+</h2>
+
+<p>Instead of specifying to split on a space character we can however take advantage of the
+default behaviour of <code class="highlighter-rouge">split()</code> which is <code class="highlighter-rouge">sep=None</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">'                                         Abbreviation processsor</span><span class="se">\n</span><span class="s">'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">'Abbreviation processsor</span><span class="se">\n</span><span class="s">'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'ABBREV'</span><span class="p">,</span> <span class="s">'Abbreviation processsor'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>In Python 3 you could also use the named-argument approach i.e. <code class="highlighter-rouge">.split(maxsplit=1)</code></p>
+
+<p>This would allow us to use <code class="highlighter-rouge">dict()</code> with a <em>generator statement</em> to construct our
+dict:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+<span class="o">...</span>     <span class="n">commands</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="s">"ABBREV"</span><span class="p">:</span> <span class="s">"Abbreviation processsor"</span><span class="p">,</span> 
+    <span class="s">"ADDISK"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+    <span class="s">"ADD_REMOTE_ID"</span><span class="p">:</span> <span class="s">"Sets up user id for remote systems"</span><span class="p">,</span> 
+    <span class="s">"AMLC"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+    <span class="s">"ARCHIVE"</span><span class="p">:</span> <span class="s">"Archives disk files to tape"</span><span class="p">,</span> 
+    <span class="s">"ARCHIVE_RELEASE"</span><span class="p">:</span> <span class="s">"Releases an ARCHIVE tape for future use"</span><span class="p">,</span> 
+    <span class="s">"ARCHIVE_RESTORE"</span><span class="p">:</span> <span class="s">"Restores files archived on tape to disk"</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<a name="dictrefindall"></a>
+<h2 class="section-header">
+  <span id="dictrefindall"></span>
+  <a class="anchor" href="#dictrefindall">dict(re.findall())</a>
+</h2>
+
+<p>Finally you may have experience using regular expressions in which
+case you could pass the result of <code class="highlighter-rouge">re.findall()</code> directly to <code class="highlighter-rouge">dict()</code>
+to create the desired result:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+<span class="o">...</span>     <span class="n">commands</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'(</span><span class="err">\</span><span class="s">S+)</span><span class="err">\</span><span class="s">s+(.+)'</span><span class="p">,</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="s">"ABBREV"</span><span class="p">:</span> <span class="s">"Abbreviation processsor"</span><span class="p">,</span> 
+    <span class="s">"ADDISK"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+    <span class="s">"ADD_REMOTE_ID"</span><span class="p">:</span> <span class="s">"Sets up user id for remote systems"</span><span class="p">,</span> 
+    <span class="s">"AMLC"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+    <span class="s">"ARCHIVE"</span><span class="p">:</span> <span class="s">"Archives disk files to tape"</span><span class="p">,</span> 
+    <span class="s">"ARCHIVE_RELEASE"</span><span class="p">:</span> <span class="s">"Releases an ARCHIVE tape for future use"</span><span class="p">,</span> 
+    <span class="s">"ARCHIVE_RESTORE"</span><span class="p">:</span> <span class="s">"Restores files archived on tape to disk"</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">(\S+)</code> matches and captures the command name i.e. <em>1 or more non-whitespace
+characters</em>. <code class="highlighter-rouge">\s+</code> then matches the sequence of <em>1 or more whitespace 
+characters</em> in between the command name and description.</p>
+
+<p>Finally, the description is captured with <code class="highlighter-rouge">(.+)</code></p>
+
+<p>It may also be worth noting that with this approach we’re passing the full 
+file contents as a single string with the <code class="highlighter-rouge">fh.read()</code> call although that
+could be changed if needed.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (26)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/09/python-fixing-broken-csv-data/">Python: fixing broken "CSV" data</a></h2>
+          <p class="preview">We are given the following “CSV” data which we are asked
+to “fix” using Python:</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

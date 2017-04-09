@@ -5,9 +5,184 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 09 Apr 2017 06:18:46 +0100</pubDate>
-    <lastBuildDate>Sun, 09 Apr 2017 06:18:46 +0100</lastBuildDate>
+    <pubDate>Sun, 09 Apr 2017 07:33:40 +0100</pubDate>
+    <lastBuildDate>Sun, 09 Apr 2017 07:33:40 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Python: convert a text file into a dictionary</title>
+        <description>&lt;p&gt;Given the following data in a text file the task is
+to convert it into a Python dict having the command
+names as the keys and the command descriptions as the
+values.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;commands.txt&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ABBREV                                          Abbreviation processsor
+ADDISK                                               (Operator command)
+ADD_REMOTE_ID                        Sets up user id for remote systems
+AMLC                                                 (Operator command)
+ARCHIVE                                     Archives disk files to tape
+ARCHIVE_RELEASE                 Releases an ARCHIVE tape for future use
+ARCHIVE_RESTORE                 Restores files archived on tape to disk
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We will start with some output:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python build-commands.py 
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;ABBREV&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Abbreviation processsor&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;ADDISK&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;(Operator command)&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;ADD_REMOTE_ID&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Sets up user id for remote systems&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;AMLC&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;(Operator command)&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;ARCHIVE&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Archives disk files to tape&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;ARCHIVE_RELEASE&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Releases an ARCHIVE tape for future use&quot;&lt;/span&gt;, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;ARCHIVE_RESTORE&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Restores files archived on tape to disk&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The code that generated it:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'commands.txt'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;' '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;json&lt;/code&gt; module is only being used here as a way to pretty-print our dict.
+If you’ve never seen &lt;code class=&quot;highlighter-rouge&quot;&gt;with&lt;/code&gt; before it’s commonly used for opening files.
+When the &lt;code class=&quot;highlighter-rouge&quot;&gt;with&lt;/code&gt; block is exited it will automatically call &lt;code class=&quot;highlighter-rouge&quot;&gt;.close()&lt;/code&gt; on the
+file for us.&lt;/p&gt;
+
+&lt;h2 id=&quot;split&quot;&gt;split()&lt;/h2&gt;
+
+&lt;p&gt;You have probably encountered&lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt; before but its second argument may be new to
+you.&lt;/p&gt;
+
+&lt;p&gt;Note that in Python 3 you can pass it as the named argument &lt;code class=&quot;highlighter-rouge&quot;&gt;maxsplit&lt;/code&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ABBREV                                          Abbreviation processsor&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Abbreviation'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'processsor'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;' '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+&lt;span class=&quot;s&quot;&gt;'Abbreviation'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'processsor&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;' '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'                                         Abbreviation processsor&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So instead of splitting on each space it splits on the first space only which leaves 
+the description string intact albeit with surrounding whitespace that needs to be trimmed.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;' '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'                                         Abbreviation processsor'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;' '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;command&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'                                         Abbreviation processsor'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'Abbreviation processsor'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So now we have &lt;code class=&quot;highlighter-rouge&quot;&gt;command&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;description&lt;/code&gt; trimmed correctly we simply add them to 
+the dict.&lt;/p&gt;
+
+&lt;p&gt;There is, however, another possible approach.&lt;/p&gt;
+
+&lt;h2 id=&quot;splitnone-1&quot;&gt;split(None, 1)&lt;/h2&gt;
+
+&lt;p&gt;Instead of specifying to split on a space character we can however take advantage of the
+default behaviour of &lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt; which is &lt;code class=&quot;highlighter-rouge&quot;&gt;sep=None&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;' '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'                                         Abbreviation processsor&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Abbreviation processsor&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ABBREV'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Abbreviation processsor'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In Python 3 you could also use the named-argument approach i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;.split(maxsplit=1)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This would allow us to use &lt;code class=&quot;highlighter-rouge&quot;&gt;dict()&lt;/code&gt; with a &lt;em&gt;generator statement&lt;/em&gt; to construct our
+dict:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;ABBREV&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Abbreviation processsor&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ADDISK&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;(Operator command)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ADD_REMOTE_ID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Sets up user id for remote systems&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;AMLC&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;(Operator command)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ARCHIVE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Archives disk files to tape&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ARCHIVE_RELEASE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Releases an ARCHIVE tape for future use&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ARCHIVE_RESTORE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Restores files archived on tape to disk&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;dictrefindall&quot;&gt;dict(re.findall())&lt;/h2&gt;
+
+&lt;p&gt;Finally you may have experience using regular expressions in which
+case you could pass the result of &lt;code class=&quot;highlighter-rouge&quot;&gt;re.findall()&lt;/code&gt; directly to &lt;code class=&quot;highlighter-rouge&quot;&gt;dict()&lt;/code&gt;
+to create the desired result:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s+(.+)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fh&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()))&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;commands&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;ABBREV&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Abbreviation processsor&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ADDISK&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;(Operator command)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ADD_REMOTE_ID&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Sets up user id for remote systems&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;AMLC&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;(Operator command)&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ARCHIVE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Archives disk files to tape&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ARCHIVE_RELEASE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Releases an ARCHIVE tape for future use&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;ARCHIVE_RESTORE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Restores files archived on tape to disk&quot;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(\S+)&lt;/code&gt; matches and captures the command name i.e. &lt;em&gt;1 or more non-whitespace
+characters&lt;/em&gt;. &lt;code class=&quot;highlighter-rouge&quot;&gt;\s+&lt;/code&gt; then matches the sequence of &lt;em&gt;1 or more whitespace 
+characters&lt;/em&gt; in between the command name and description.&lt;/p&gt;
+
+&lt;p&gt;Finally, the description is captured with &lt;code class=&quot;highlighter-rouge&quot;&gt;(.+)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;It may also be worth noting that with this approach we’re passing the full 
+file contents as a single string with the &lt;code class=&quot;highlighter-rouge&quot;&gt;fh.read()&lt;/code&gt; call although that
+could be changed if needed.&lt;/p&gt;
+</description>
+        <pubDate>Sun, 09 Apr 2017 06:24:34 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/04/09/python-convert-a-text-file-into-a-dict/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/09/python-convert-a-text-file-into-a-dict/</guid>
+        
+        <category>python</category>
+        
+        <category>regex</category>
+        
+        
+      </item>
     
       <item>
         <title>Python: fixing broken &quot;CSV&quot; data</title>
@@ -2289,293 +2464,6 @@ be a good first step to take though.&lt;/p&gt;
         <category>csv</category>
         
         <category>regex</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>injecting shell variables into a file</title>
-        <description>&lt;p&gt;Given an alpine linux docker container image we need to replace “tokens” 
-or “placeholders” in a javascript file with values from shell variables 
-e.g.  &lt;code class=&quot;highlighter-rouge&quot;&gt;%TESTAPP_FOO%&lt;/code&gt; gets replaced with the value of the shell variable 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;TESTAPP_FOO&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;I suppose you could consider them as a “template file”:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;template&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So given &lt;code class=&quot;highlighter-rouge&quot;&gt;TESTAPP_FOO=foo TESTAPP_BAR=bar TESTAPP_BAZ=baz&lt;/code&gt; the desired output is:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Bobfoobarbazqux
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;perl&quot;&gt;perl&lt;/h2&gt;
-
-&lt;p&gt;So according to the internet &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; is “dead” and “unreadable” which I guess means the rest
-of this article doesn’t exist:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/$ENV{$1}/g'&lt;/span&gt; template
-Bobfoobarbazqux
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;With perl’s &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; option it will overwrite the original file.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; takes an optional argument so we must use &lt;code class=&quot;highlighter-rouge&quot;&gt;-pi -e&lt;/code&gt; and not &lt;code class=&quot;highlighter-rouge&quot;&gt;-pie&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;What happens if we put the variable definitions onto their own line:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz 
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/$ENV{$1}/g'&lt;/span&gt; template
-Bobqux
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;var=value command&lt;/code&gt; is like using &lt;code class=&quot;highlighter-rouge&quot;&gt;( export var=value; command )&lt;/code&gt; in that it exports those
-variable definitions only for that command. They are not defined in the current shell. Without
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; they are not visible from the &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; command.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;%(TESTAPP_&lt;/code&gt; matches &lt;code class=&quot;highlighter-rouge&quot;&gt;%TESTAPP_&lt;/code&gt; with the &lt;code class=&quot;highlighter-rouge&quot;&gt;(&lt;/code&gt; starting a capture group. Capture groups allow
-you to refer to what was captured. &lt;code class=&quot;highlighter-rouge&quot;&gt;$1&lt;/code&gt; to refers to the first capture group, &lt;code class=&quot;highlighter-rouge&quot;&gt;$2&lt;/code&gt; the second, etc.&lt;/p&gt;
-
-&lt;p&gt;If you want to match up to a character but you want to “wildcard” what can come before it
-you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;[^x]+x&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt; being the character. The &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; (meaning &lt;em&gt;“1 or more times”&lt;/em&gt;) 
-states there must be at least 1 character before &lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt;. If we wanted to remove this 
-stipulation we can replace &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; as &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; means &lt;em&gt;“0 or more”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;So as we have already matched &lt;code class=&quot;highlighter-rouge&quot;&gt;%TESTAPP_&lt;/code&gt; the &lt;code class=&quot;highlighter-rouge&quot;&gt;[^%]+%&lt;/code&gt; part of the regex (ignoring the &lt;code class=&quot;highlighter-rouge&quot;&gt;)&lt;/code&gt;) 
-matches up to the following &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; character.  Our use of &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; means the leading and 
-trailing &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; will not be included in &lt;code class=&quot;highlighter-rouge&quot;&gt;$1&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -nle &lt;span class=&quot;s1&quot;&gt;'print for /%(TESTAPP_[^%]+)%/g'&lt;/span&gt; testfile
-TESTAPP_FOO
-TESTAPP_BAR
-TESTAPP_BAZ
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Finally &lt;code class=&quot;highlighter-rouge&quot;&gt;%ENV&lt;/code&gt; is a perl hash that contains all of the environment’s variable definitions.
-We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;$ENV{key}&lt;/code&gt; to get a specific value from it:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo perl -le &lt;span class=&quot;s1&quot;&gt;'print $ENV{TESTAPP_FOO}'&lt;/span&gt;
-foo
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So with &lt;code class=&quot;highlighter-rouge&quot;&gt;$ENV{$1}&lt;/code&gt; we are using the value of the capture group as the key to get the desired result.&lt;/p&gt;
-
-&lt;p&gt;Sadly, however, &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; was not available by default on this installation setup.&lt;/p&gt;
-
-&lt;h2 id=&quot;grep--sed&quot;&gt;grep + sed&lt;/h2&gt;
-
-&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt; which allows us to replicate the &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; code above to an extent:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -E -o &lt;span class=&quot;s1&quot;&gt;'%TESTAPP_[^%]+%'&lt;/span&gt; testfile 
-%TESTAPP_FOO%
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAR% &lt;/span&gt;
-%TESTAPP_BAZ%
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We can then use &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; to help with the rest:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -E -o &lt;span class=&quot;s1&quot;&gt;'%TESTAPP_[^%]+%'&lt;/span&gt; testfile | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;//%&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$search&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!replace&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_FOO% &lt;/span&gt;foo
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAR% &lt;/span&gt;bar
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAZ% &lt;/span&gt;baz
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;${var/pattern/replace}&lt;/code&gt;  is like &lt;code class=&quot;highlighter-rouge&quot;&gt;s/pattern/replace/&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;${var//pattern/replace}&lt;/code&gt; is like &lt;code class=&quot;highlighter-rouge&quot;&gt;s/pattern/replace/g&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;With an empty “replace” you can omit the &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt; after “pattern” meaning:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;${search//%}&lt;/code&gt; is like &lt;code class=&quot;highlighter-rouge&quot;&gt;s/%//g&lt;/code&gt; thus deleting all &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; characters.&lt;/p&gt;
-
-&lt;h2 id=&quot;var&quot;&gt;${!var}&lt;/h2&gt;
-
-&lt;p&gt;If the value of your variable is the name of a variable you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;${!var}&lt;/code&gt; to get its
-value. This is called variable &lt;em&gt;“indirection”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;var&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;SHELL
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!var&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;
-/bin/bash
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It’s as if we just did &lt;code class=&quot;highlighter-rouge&quot;&gt;echo $SHELL&lt;/code&gt; directly.&lt;/p&gt;
-
-&lt;p&gt;If your &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-P&lt;/code&gt; (chances are it does if you have &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt;) we can simplify things:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'%\KTESTAPP_[^%]+(?=%)'&lt;/span&gt; testfile | 
-    &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;%&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$search&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;% &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_FOO% &lt;/span&gt;foo
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAR% &lt;/span&gt;bar
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_BAZ% &lt;/span&gt;baz
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We have a list of search and replacement strings so we could just inject them into &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
-Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'%\KTESTAPP_[^%]+(?=%)'&lt;/span&gt; testfile | 
-    &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;sed -i &lt;span class=&quot;s2&quot;&gt;&quot;s/%&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;%/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/g&quot;&lt;/span&gt; testfile; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
-Bobfoobarbazqux
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Certain versions of &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt; got &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; from &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; which outputs to a temporary file and then overwrites the
-original file.&lt;/p&gt;
-
-&lt;p&gt;So this works for our example however there are some issues. Firstly it processes the input file multiple
-times. Second, injecting variables into sed commands can break under certain conditions.
-One is if the contents of your variables contains the delimiter i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt; and another is if it contains newlines.
-You can change the delimiter e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;s@foo@bar@&lt;/code&gt; however you would have to change it to something you know isn’t
-in your variable which may not be possible.&lt;/p&gt;
-
-&lt;h2 id=&quot;awk&quot;&gt;awk&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; has the &lt;code class=&quot;highlighter-rouge&quot;&gt;ENVIRON&lt;/code&gt; array which can access variables as &lt;code class=&quot;highlighter-rouge&quot;&gt;%ENV&lt;/code&gt; can in &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt;. Arrays in awk are
-“associative arrays” which are the same as a “hash” in &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; or “dict” in &lt;code class=&quot;highlighter-rouge&quot;&gt;python&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo awk &lt;span class=&quot;s1&quot;&gt;'BEGIN { print ENVIRON[&quot;TESTAPP_FOO&quot;] }'&lt;/span&gt;
-foo
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We’ll just &lt;code class=&quot;highlighter-rouge&quot;&gt;export&lt;/code&gt; the variables to save having a gigantic 1-liner:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
-Bob%TESTAPP_FOO%%TESTAPP_BAR%%TESTAPP_BAZ%qux
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'{ 
-    while (match($0, /%TESTAPP_[^%]+%/)) { 
-        search = substr($0, RSTART + 1, RLENGTH - 2)
-        $0 = substr($0, 1, RSTART - 1)   \
-             ENVIRON[search]             \
-             substr($0, RSTART + RLENGTH) 
-    } 
-    print 
-}'&lt;/span&gt; testfile
-Bobfoobarbazqux
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This doesn’t modify the original file however GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; allows you to use &lt;code class=&quot;highlighter-rouge&quot;&gt;-i inplace&lt;/code&gt; which 
-overwrites the original file. Without this you could use shell redirection to a temporary file
-and &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; to overwrite the original e.g.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'...'&lt;/span&gt; testfile &amp;gt; tempfile &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; mv tempfile testfile
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You could use &lt;code class=&quot;highlighter-rouge&quot;&gt;mktemp&lt;/code&gt; to generate a temporary file for you instead of hardcoding in &lt;code class=&quot;highlighter-rouge&quot;&gt;tempfile&lt;/code&gt;
-as we did in this example.&lt;/p&gt;
-
-&lt;p&gt;When you use &lt;code class=&quot;highlighter-rouge&quot;&gt;match()&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; it sets the &lt;code class=&quot;highlighter-rouge&quot;&gt;RSTART&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;RLENGTH&lt;/code&gt; variables. &lt;code class=&quot;highlighter-rouge&quot;&gt;RSTART&lt;/code&gt; being the
-index of where the match starts in the string and &lt;code class=&quot;highlighter-rouge&quot;&gt;RLENGTH&lt;/code&gt; being the length of the match. &lt;code class=&quot;highlighter-rouge&quot;&gt;$0&lt;/code&gt; 
-refers to the whole &lt;em&gt;“line”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Using these variables combined with &lt;code class=&quot;highlighter-rouge&quot;&gt;substr()&lt;/code&gt; allows us to extract what comes before the match 
-(to the “left”) and what comes after the match (to the “right”). We then just rebuild the line 
-by inserting our replacement value in the middle e.g.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&quot;language-awk&quot;&gt;left  = substr($0, 1, RSTART - 1)
-right = substr($0, RSTART + RLENGTH)
-$0    = left ENVIRON[search] right
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; will implicitly join the strings for us. This is why we have a trailing backslash on lines
-3 and 4 -  to have it treated as a “single line” e.g.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&quot;language-awk&quot;&gt;$0 = substr($0, 1, RSTART - 1) ENVIRON[search] substr($0, RSTART + RLENGTH)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Otherwise it would parse as:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&quot;language-awk&quot;&gt;$0 = substr($0, 1, RSTART - 1)
-ENVIRON[search]
-substr($0, RSTART + RLENGTH)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Which would just be a single assignment &lt;code class=&quot;highlighter-rouge&quot;&gt;$0 = substr($0, 1, RSTART - 1)&lt;/code&gt; and that would be &lt;em&gt;“Less Than Awesome”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
-
-&lt;p&gt;Well, not entirely. It was never mentioned what to do if a token string corresponded to a shell variable
-that was not defined or if that was possible, it was just assumed they would all exist.&lt;/p&gt;
-
-&lt;p&gt;If you wanted to only replace if the variable was defined you could make some adjustments:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;TESTAPP_FOO&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;foo &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAR&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar &lt;span class=&quot;nv&quot;&gt;TESTAPP_BAZ&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;baz
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; %TESTAPP_DONTREPLACEME% | perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/$ENV{$1}/ge'&lt;/span&gt;
-
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; %TESTAPP_DONTREPLACEME% | perl -pe &lt;span class=&quot;s1&quot;&gt;'s/%(TESTAPP_[^%]+)%/exists $ENV{$1} ? $ENV{$1} : &quot;%$1%&quot;/ge'&lt;/span&gt;
-%TESTAPP_DONTREPLACEME%
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;exists&lt;/code&gt; call checks if the key is in the hash. If it is give us the value, else give us
-the key back with the surrounding &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;e&lt;/code&gt; modifier of the &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; command evalutes the
-right hand side as perl code which allows this to work.&lt;/p&gt;
-
-&lt;p&gt;In &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;in&lt;/code&gt; to check if a key is in an array.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; %TESTAPP_FOO% %TESTAPP_DONTREPLACEME% | awk &lt;span class=&quot;s1&quot;&gt;'{ 
-    while (match($0, /%TESTAPP_[^%]+%/) &amp;amp;&amp;amp; substr($0, RSTART + 1, RLENGTH - 2) in ENVIRON) { 
-        search = substr($0, RSTART + 1, RLENGTH - 2)
-        $0 = substr($0, 1, RSTART - 1)    \
-             ENVIRON[search]              \
-             substr($0, RSTART + RLENGTH) 
-    } 
-    print 
-}'&lt;/span&gt;
-foo %TESTAPP_DONTREPLACEME%
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;As we are using &lt;code class=&quot;highlighter-rouge&quot;&gt;while(match())&lt;/code&gt; if we don’t replace a token we will have an infinite loop 
-because &lt;code class=&quot;highlighter-rouge&quot;&gt;%TOKEN%&lt;/code&gt; will still be in our string. One way to avoid this is by adding another
-check to the loop condition to test if the token corresponds to a defined variable in
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;ENVIRON&lt;/code&gt; array.&lt;/p&gt;
-
-&lt;p&gt;As for the &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt; approach it is still possible. We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;[[ -v varname ]]&lt;/code&gt; to 
-test if a variable is set. As the name of the variable we want is contained in &lt;code class=&quot;highlighter-rouge&quot;&gt;search&lt;/code&gt; we 
-can use &lt;code class=&quot;highlighter-rouge&quot;&gt;[[ -v $search ]]&lt;/code&gt; to test correctly:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_DONTREPLACEME% &lt;/span&gt;%TESTAPP_FOO%
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -P -o &lt;span class=&quot;s1&quot;&gt;'%\KTESTAPP_[^%]+(?=%)'&lt;/span&gt; testfile | 
-    &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r search; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[[&lt;/span&gt; -v &lt;span class=&quot;nv&quot;&gt;$search&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; sed -i &lt;span class=&quot;s2&quot;&gt;&quot;s/%&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;%/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;!search&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;/g&quot;&lt;/span&gt; testfile; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat testfile
-&lt;span class=&quot;gp&quot;&gt;%TESTAPP_DONTREPLACEME% &lt;/span&gt;foo
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;However in an ideal situation &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; would be available and you could use that solution.&lt;/p&gt;
-</description>
-        <pubDate>Sun, 26 Mar 2017 08:52:24 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/03/26/injecting-shell-variables-into-a-file/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/26/injecting-shell-variables-into-a-file/</guid>
-        
-        <category>bash</category>
-        
-        <category>perl</category>
-        
-        <category>sed</category>
-        
-        <category>awk</category>
         
         
       </item>
