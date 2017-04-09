@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/09/web-scraping-dotabuff.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: dotabuff.com | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/09/web-scraping-dotabuff.com/">Web scraping: dotabuff.com</a></h1>
+  <p class="text-muted">09 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+    
+  <a href="/categories/pandas/">pandas</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The task is to extract out the stats from the <em>WORST VERSUS</em> table
+on a <a href="https://dotabuff.com">Defense of the Ancients</a> hero page using 
+Python. The person did not want to use <code class="highlighter-rouge">BeautifulSoup</code> as they are 
+only learning Python and feel it would be better for learning purposes
+to complete the task using <em>“vanilla Python”</em>.</p>
+
+<p>The example URL we’ve been given is of <code class="highlighter-rouge">Abaddon</code>:</p>
+
+<p><a href="https://www.dotabuff.com/heroes/abaddon">https://www.dotabuff.com/heroes/abaddon</a></p>
+
+<p>Let’s open up the page in our browser and check out the <code class="highlighter-rouge">Inspector</code> tab:</p>
+
+<p><img src="/img/1491732263-dotabuff.com.png" alt="" /></p>
+
+<p>The HTML for the table we’re after looks something like this:</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;section&gt;</span>
+  <span class="nt">&lt;header&gt;</span>Worst Versus<span class="nt">&lt;small&gt;</span>This Week
+    <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"more"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/heroes/abaddon/matchups"</span><span class="nt">&gt;</span> <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"fa fa-plus-square"</span><span class="nt">&gt;&lt;/i&gt;</span> more <span class="nt">&lt;/a&gt;</span>
+    <span class="nt">&lt;/div&gt;&lt;/small&gt;</span>
+  <span class="nt">&lt;/header&gt;</span>
+  <span class="nt">&lt;article&gt;</span>
+    <span class="nt">&lt;table&gt;</span>
+      <span class="nt">&lt;thead&gt;</span>
+        <span class="nt">&lt;tr&gt;</span>
+          <span class="nt">&lt;th</span> <span class="na">colspan=</span><span class="s">"2"</span><span class="nt">&gt;</span>Item<span class="nt">&lt;/th&gt;&lt;th</span> <span class="na">class=</span><span class="s">"cell-large"</span><span class="nt">&gt;</span>Advantage<span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"r-none-mobile"</span><span class="nt">&gt;&lt;i</span> <span class="err">...</span>
+          <span class="err">&lt;</span><span class="na">th</span> <span class="na">class=</span><span class="s">"cell-large"</span><span class="nt">&gt;</span>Win Rate<span class="nt">&lt;/th&gt;</span>
+          <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">"cell-large"</span><span class="nt">&gt;</span>Matches<span class="nt">&lt;/th&gt;</span>
+        <span class="nt">&lt;/tr&gt;</span>
+      <span class="nt">&lt;/thead&gt;</span>
+      <span class="nt">&lt;tbody&gt;</span>
+        <span class="nt">&lt;tr</span> <span class="na">data-link-to=</span><span class="s">"/heroes/anti-mage"</span><span class="nt">&gt;</span>
+          <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cell-icon"</span><span class="nt">&gt;&lt;div</span> <span class="err">...</span>
+          <span class="err">&lt;</span><span class="na">td</span><span class="nt">&gt;&lt;a</span> <span class="na">class=</span><span class="s">"link-type-hero"</span> <span class="na">href=</span><span class="s">"/heroes/anti-mage"</span><span class="nt">&gt;</span>Anti-Mage<span class="nt">&lt;/a&gt;&lt;/td&gt;</span>
+          <span class="nt">&lt;td&gt;</span>-4.54% ...
+          <span class="nt">&lt;td&gt;</span>54.25% ...
+</code></pre>
+</div>
+
+<p>We’ve truncated the full contents for formatting purposes but we can see that there are no
+distinct markers for the <code class="highlighter-rouge">&lt;table&gt;</code> in question. Normally you may see a specific 
+<code class="highlighter-rouge">class</code> or <code class="highlighter-rouge">id</code> attribute for the different sections to allows us to easily locate it.</p>
+
+<a name="regexing-html"></a>
+<h2 class="section-header">
+  <span id="regexing-html"></span>
+  <a class="anchor" href="#regexing-html">regexing html</a>
+</h2>
+
+<p>According to <em>“the internet”</em> you’re never supposed to use regular expressions 
+and you’re never never supposed to use regular expressions on HTML.</p>
+
+<p>So I guess it’s time for some <em>“Epic lulz”</em>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'https://www.dotabuff.com/heroes/abaddon'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">html</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">section</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'&lt;section&gt;&lt;header&gt;Worst Versus.+?&lt;/section&gt;'</span><span class="p">,</span> <span class="n">html</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'&lt;th[^&gt;]*&gt;([^&lt;]+)'</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">headers</span>
+<span class="p">[</span><span class="s">'Item'</span><span class="p">,</span> <span class="s">'Advantage'</span><span class="p">,</span> <span class="s">'Win Rate'</span><span class="p">,</span> <span class="s">'Matches'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'&lt;td&gt;(?:&lt;a[^&gt;]*&gt;)?([^&lt;]+)'</span><span class="p">,</span> <span class="n">section</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span><span class="p">[:</span><span class="mi">8</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Anti-Mage'</span><span class="p">,</span> <span class="s">'-4.57</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'54.15</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'48,635'</span><span class="p">,</span> <span class="s">'Undying'</span><span class="p">,</span> <span class="s">'-3.60</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'52.26</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'10,975'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="mi">4</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">rows</span><span class="p">[</span><span class="n">n</span><span class="p">:</span><span class="n">n</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+<span class="o">...</span> 
+<span class="p">[</span><span class="s">'Anti-Mage'</span><span class="p">,</span> <span class="s">'-4.57</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'54.15</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'48,635'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Undying'</span><span class="p">,</span> <span class="s">'-3.60</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'52.26</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'10,975'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Outworld Devourer'</span><span class="p">,</span> <span class="s">'-3.02</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'56.10</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'23,404'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Lone Druid'</span><span class="p">,</span> <span class="s">'-2.97</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'64.06</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'7,340'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Io'</span><span class="p">,</span> <span class="s">'-2.91</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'66.74</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'4,092'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Lycan'</span><span class="p">,</span> <span class="s">'-2.81</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'52.12</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'6,978'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Doom'</span><span class="p">,</span> <span class="s">'-2.75</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'61.36</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'12,941'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Broodmother'</span><span class="p">,</span> <span class="s">'-2.49</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'64.96</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'5,559'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Lina'</span><span class="p">,</span> <span class="s">'-2.39</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'56.13</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'52,591'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Invoker'</span><span class="p">,</span> <span class="s">'-2.32</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'56.28</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'86,323'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>So the regex <code class="highlighter-rouge">&lt;section&gt;&lt;header&gt;Worst Versus.+?&lt;/section&gt;</code> isolates the 
+<em>WORST VERSUS</em> <code class="highlighter-rouge">&lt;section&gt;</code> for us. If there were nested <code class="highlighter-rouge">&lt;section&gt;</code> tags
+this would not work correctly which is one of the reasons that parsing HTML
+with regex is usually discouraged.</p>
+
+<p>The data we’re after comes after every plain <code class="highlighter-rouge">&lt;td&gt;</code> tag inside the section.
+The only one that differs is the Item name as that has an <code class="highlighter-rouge">&lt;a ...&gt;</code> tag.</p>
+
+<p>The <code class="highlighter-rouge">(?:&lt;a[^&gt;]*&gt;)?</code> part of our second regex handles this case. <code class="highlighter-rouge">&lt;a[^&gt;]*&gt;</code> 
+matches any <code class="highlighter-rouge">&lt;a&gt;</code> tag the <code class="highlighter-rouge">(?:)</code> makes the group non-capturing and the 
+trailing <code class="highlighter-rouge">?</code> makes it optional meaning that it may or may not be present.</p>
+
+<p>Finally we have <code class="highlighter-rouge">([^&lt;]+)</code> we matches and captures <em>not “&lt;” 1 or more times</em>
+which is how you can match up to the <code class="highlighter-rouge">&lt;</code> character i.e. the start of the closing
+tag.</p>
+
+<p>Because <code class="highlighter-rouge">re.findall()</code> gives us back a flat list of matches we need to process
+it 4 items at a time which we can do with a combination of <code class="highlighter-rouge">range()</code> and 
+slicing.</p>
+
+<a name="beautifulsoup"></a>
+<h2 class="section-header">
+  <span id="beautifulsoup"></span>
+  <a class="anchor" href="#beautifulsoup">BeautifulSoup</a>
+</h2>
+
+<p>So that gives us the data needed, how could we approach it using a parser
+such as <code class="highlighter-rouge">BeautifulSoup</code>?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>As the particular section / table we’re after doesn’t have any distinct 
+attributes we could just use number position. It is the fifth table
+on the page (this was discovered by trial and error i.e. by
+inspecting <code class="highlighter-rouge">soup('table')[0]</code>, <code class="highlighter-rouge">soup('table')[1]</code>, etc.)</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="n">soup</span><span class="p">(</span><span class="s">'table'</span><span class="p">)[</span><span class="mi">4</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Note here we’re using the shorthand form of <code class="highlighter-rouge">soup.find_all('table')</code> which
+you can use if you prefer.</p>
+
+<p>In cases where you can’t isolate a tag by a distinctive attribute another 
+useful approach can be to use the <code class="highlighter-rouge">string</code> argument to the find
+methods. This allows you to match based on the content of a tag. Here
+we could search for the <code class="highlighter-rouge">Worst Versus</code> string inside the <code class="highlighter-rouge">&lt;header&gt;</code> tag:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'header'</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">'Worst Versus'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+</code></pre>
+</div>
+
+<p>Hmm… pls y u no result?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">(</span><span class="s">'header'</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">header</span><span class="o">.</span><span class="n">string</span>
+<span class="o">...</span> 
+<span class="s">'Lane Presence'</span>
+<span class="s">'Time Played'</span>
+<span class="s">'Dotabuff Plus'</span>
+</code></pre>
+</div>
+
+<p>Only <code class="highlighter-rouge">3</code> results that does not look right…</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">soup</span><span class="p">(</span><span class="s">'header'</span><span class="p">))</span>
+<span class="mi">14</span>
+</code></pre>
+</div>
+
+<p>We should have <code class="highlighter-rouge">14</code> …</p>
+
+<a name="string-vs-text"></a>
+<h2 class="section-header">
+  <span id="string-vs-text"></span>
+  <a class="anchor" href="#string-vs-text">.string vs .text</a>
+</h2>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">(</span><span class="s">'header'</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">header</span><span class="o">.</span><span class="n">string</span><span class="p">,</span> <span class="n">header</span><span class="o">.</span><span class="n">text</span>
+<span class="o">...</span> 
+<span class="p">(</span><span class="s">'Lane Presence'</span><span class="p">,</span> <span class="s">'Lane Presence'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Trending Guide2017-04-07 more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Most Popular Ability Build16.01</span><span class="si">% </span><span class="s">Build Rate more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Most Used ItemsThis Week more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Best VersusThis Week more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Worst VersusThis Week more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Win RateThis Week more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Pick RateThis Week more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Meta TrendsThis Week more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Talent Usage more'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Hero Rankings more'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Time Played'</span><span class="p">,</span> <span class="s">'Time Played'</span><span class="p">)</span>
+<span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="s">'Hero Attributes more'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Dotabuff Plus'</span><span class="p">,</span> <span class="s">'Dotabuff Plus'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>The issue is that because some of the <code class="highlighter-rouge">&lt;header&gt;</code> tags contain children tags
+<code class="highlighter-rouge">.string</code> will be empty as the content is contained inside the children.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;header&gt;</span>Lane Presence<span class="nt">&lt;/header&gt;</span>
+...
+<span class="nt">&lt;header&gt;</span>Worst Versus<span class="nt">&lt;small&gt;</span>This Week
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">.text</code> or <code class="highlighter-rouge">.get_text()</code> on the other hand will give you the combined 
+string content of a tag and all of its children.</p>
+
+<p>So this means we cannot use the <code class="highlighter-rouge">find('header', string=...)</code> approach. It is still
+possible to locate it based on the <code class="highlighter-rouge">Worst Versus</code> string but it’s rather
+verbose:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">next</span><span class="p">(</span><span class="n">header</span> <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">(</span><span class="s">'header'</span><span class="p">)</span> <span class="k">if</span> <span class="nb">next</span><span class="p">(</span><span class="n">header</span><span class="o">.</span><span class="n">strings</span><span class="p">)</span> <span class="o">==</span> <span class="s">'Worst Versus'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">header</span><span class="o">&gt;</span><span class="n">Worst</span> <span class="n">Versus</span><span class="o">&lt;</span><span class="n">small</span><span class="o">&gt;</span><span class="n">This</span> <span class="n">Week</span><span class="o">&lt;</span><span class="n">div</span><span class="o">...</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">.strings</code> gives you a generator of all the contained strings so we can use 
+<code class="highlighter-rouge">next(headers.strings)</code> to test against the first one.</p>
+
+<p>I’ve not checked but <code class="highlighter-rouge">.text</code> mentioned above probably just 
+does <code class="highlighter-rouge">''.join(tag.strings)</code> in the background.</p>
+
+<p>From the <code class="highlighter-rouge">&lt;header&gt;</code> tag we could <code class="highlighter-rouge">find_next('table')</code> to then get the correct table. 
+We will just rely on the position approach for the rest of this example by taking the 
+<em>“fifth table”</em>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="n">soup</span><span class="p">(</span><span class="s">'table'</span><span class="p">)[</span><span class="mi">4</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<a name="pandasread_html"></a>
+<h2 class="section-header">
+  <span id="pandasread_html"></span>
+  <a class="anchor" href="#pandasread_html">pandas.read_html()</a>
+</h2>
+
+<p>So now that we have the table in question how do we extract the stats?</p>
+
+<p>One possible approach could be to load it up as a <code class="highlighter-rouge">pandas</code> DataFrame
+using <code class="highlighter-rouge">pandas.read_html()</code></p>
+
+<p><code class="highlighter-rouge">read_html()</code> can take a URL, file object or even a string and will
+return a list of dataframes containing the parsed tables found. The
+reason we don’t pass it our URL directly is that it uses <code class="highlighter-rouge">urllib</code> to
+fetch the data and there is no way (currently) to change the 
+<code class="highlighter-rouge">user-agent</code> header for the request and in this case <code class="highlighter-rouge">dotabuff.com</code> 
+blocks the default <code class="highlighter-rouge">urllib</code> and <code class="highlighter-rouge">requests</code> user-agent strings.</p>
+
+<p>Let’s pass it <code class="highlighter-rouge">str(table)</code> and see how it does:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+<span class="p">[</span>   <span class="n">Item</span>          <span class="n">Advantage</span> <span class="n">Win</span> <span class="n">Rate</span> <span class="n">Matches</span>  <span class="n">Unnamed</span><span class="p">:</span> <span class="mi">4</span>
+<span class="mi">0</span>   <span class="n">NaN</span>          <span class="n">Anti</span><span class="o">-</span><span class="n">Mage</span>   <span class="o">-</span><span class="mf">4.59</span><span class="o">%</span>  <span class="mf">54.14</span><span class="o">%</span>       <span class="mi">49012</span>
+<span class="mi">1</span>   <span class="n">NaN</span>            <span class="n">Undying</span>   <span class="o">-</span><span class="mf">3.56</span><span class="o">%</span>  <span class="mf">52.31</span><span class="o">%</span>       <span class="mi">11056</span>
+<span class="mi">2</span>   <span class="n">NaN</span>  <span class="n">Outworld</span> <span class="n">Devourer</span>   <span class="o">-</span><span class="mf">3.00</span><span class="o">%</span>  <span class="mf">56.12</span><span class="o">%</span>       <span class="mi">23590</span>
+<span class="mi">3</span>   <span class="n">NaN</span>         <span class="n">Lone</span> <span class="n">Druid</span>   <span class="o">-</span><span class="mf">2.99</span><span class="o">%</span>  <span class="mf">64.04</span><span class="o">%</span>        <span class="mi">7386</span>
+<span class="mi">4</span>   <span class="n">NaN</span>                 <span class="n">Io</span>   <span class="o">-</span><span class="mf">2.91</span><span class="o">%</span>  <span class="mf">66.75</span><span class="o">%</span>        <span class="mi">4111</span>
+<span class="mi">5</span>   <span class="n">NaN</span>              <span class="n">Lycan</span>   <span class="o">-</span><span class="mf">2.87</span><span class="o">%</span>  <span class="mf">52.06</span><span class="o">%</span>        <span class="mi">7026</span>
+<span class="mi">6</span>   <span class="n">NaN</span>               <span class="n">Doom</span>   <span class="o">-</span><span class="mf">2.71</span><span class="o">%</span>  <span class="mf">61.43</span><span class="o">%</span>       <span class="mi">13045</span>
+<span class="mi">7</span>   <span class="n">NaN</span>        <span class="n">Broodmother</span>   <span class="o">-</span><span class="mf">2.44</span><span class="o">%</span>  <span class="mf">65.00</span><span class="o">%</span>        <span class="mi">5600</span>
+<span class="mi">8</span>   <span class="n">NaN</span>               <span class="n">Lina</span>   <span class="o">-</span><span class="mf">2.39</span><span class="o">%</span>  <span class="mf">56.13</span><span class="o">%</span>       <span class="mi">53033</span>
+<span class="mi">9</span>   <span class="n">NaN</span>              <span class="n">Meepo</span>   <span class="o">-</span><span class="mf">2.38</span><span class="o">%</span>  <span class="mf">61.92</span><span class="o">%</span>       <span class="mi">10465</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>The problem is that we have <code class="highlighter-rouge">4</code> <code class="highlighter-rouge">&lt;th&gt;</code> tags but each row contains <code class="highlighter-rouge">5</code>
+<code class="highlighter-rouge">&lt;td&gt;</code> tags. The first <code class="highlighter-rouge">&lt;td&gt;</code> holding the Item image:</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;tr</span> <span class="na">data-link-to=</span><span class="s">"/heroes/anti-mage"</span><span class="nt">&gt;&lt;td</span> <span class="na">class=</span><span class="s">"cell-icon"</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>We could remove the first <code class="highlighter-rouge">&lt;td&gt;</code> tag from each <code class="highlighter-rouge">&lt;tr&gt;</code> inside the <code class="highlighter-rouge">&lt;tbody&gt;</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">tbody</span><span class="p">(</span><span class="s">'tr'</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">tr</span><span class="o">.</span><span class="n">td</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+<span class="p">[</span>                <span class="n">Item</span> <span class="n">Advantage</span> <span class="n">Win</span> <span class="n">Rate</span>  <span class="n">Matches</span>
+<span class="mi">0</span>          <span class="n">Anti</span><span class="o">-</span><span class="n">Mage</span>    <span class="o">-</span><span class="mf">4.59</span><span class="o">%</span>   <span class="mf">54.14</span><span class="o">%</span>    <span class="mi">49012</span>
+<span class="mi">1</span>            <span class="n">Undying</span>    <span class="o">-</span><span class="mf">3.56</span><span class="o">%</span>   <span class="mf">52.31</span><span class="o">%</span>    <span class="mi">11056</span>
+<span class="mi">2</span>  <span class="n">Outworld</span> <span class="n">Devourer</span>    <span class="o">-</span><span class="mf">3.00</span><span class="o">%</span>   <span class="mf">56.12</span><span class="o">%</span>    <span class="mi">23590</span>
+<span class="mi">3</span>         <span class="n">Lone</span> <span class="n">Druid</span>    <span class="o">-</span><span class="mf">2.99</span><span class="o">%</span>   <span class="mf">64.04</span><span class="o">%</span>     <span class="mi">7386</span>
+<span class="mi">4</span>                 <span class="n">Io</span>    <span class="o">-</span><span class="mf">2.91</span><span class="o">%</span>   <span class="mf">66.75</span><span class="o">%</span>     <span class="mi">4111</span>
+<span class="mi">5</span>              <span class="n">Lycan</span>    <span class="o">-</span><span class="mf">2.87</span><span class="o">%</span>   <span class="mf">52.06</span><span class="o">%</span>     <span class="mi">7026</span>
+<span class="mi">6</span>               <span class="n">Doom</span>    <span class="o">-</span><span class="mf">2.71</span><span class="o">%</span>   <span class="mf">61.43</span><span class="o">%</span>    <span class="mi">13045</span>
+<span class="mi">7</span>        <span class="n">Broodmother</span>    <span class="o">-</span><span class="mf">2.44</span><span class="o">%</span>   <span class="mf">65.00</span><span class="o">%</span>     <span class="mi">5600</span>
+<span class="mi">8</span>               <span class="n">Lina</span>    <span class="o">-</span><span class="mf">2.39</span><span class="o">%</span>   <span class="mf">56.13</span><span class="o">%</span>    <span class="mi">53033</span>
+<span class="mi">9</span>              <span class="n">Meepo</span>    <span class="o">-</span><span class="mf">2.38</span><span class="o">%</span>   <span class="mf">61.92</span><span class="o">%</span>    <span class="mi">10465</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>We can use <code class="highlighter-rouge">.decompose()</code> to remove / destroy a tag. There is also <code class="highlighter-rouge">extract()</code> 
+which returns the removed tag if needed. Written out fully using <code class="highlighter-rouge">find_all()</code>
+and <code class="highlighter-rouge">find()</code> calls it would look like:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'tbody'</span><span class="p">)</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'tr'</span><span class="p">):</span>
+    <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span><span class="o">.</span><span class="n">decompse</span><span class="p">()</span>
+</code></pre>
+</div>
+
+<p>I prefer to use the shorthand variations though.</p>
+
+<p>It wasn’t specified what was to be done to the data but after it’s loaded into
+a DataFrame you could use methods such as <code class="highlighter-rouge">to_csv()</code>, <code class="highlighter-rouge">to_excel()</code> or 
+<code class="highlighter-rouge">to_sql()</code> depending on the exact goal.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">stats</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">stats</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Gives us:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Item,Advantage,Win Rate,Matches
+Anti-Mage,-4.59%,54.14%,49012
+Undying,-3.56%,52.31%,11056
+Outworld Devourer,-3.00%,56.12%,23590
+Lone Druid,-2.99%,64.04%,7386
+Io,-2.91%,66.75%,4111
+Lycan,-2.87%,52.06%,7026
+Doom,-2.71%,61.43%,13045
+Broodmother,-2.44%,65.00%,5600
+Lina,-2.39%,56.13%,53033
+Meepo,-2.38%,61.92%,10465
+</code></pre>
+</div>
+
+<a name="processing-a-table-with-beautifulsoup"></a>
+<h2 class="section-header">
+  <span id="processing-a-table-with-beautifulsoup"></span>
+  <a class="anchor" href="#processing-a-table-with-beautifulsoup">processing a table with BeautifulSoup</a>
+</h2>
+
+<p>You could also extract the data just using <code class="highlighter-rouge">BeautifulSoup</code> and some
+<em>list comprehensions</em>.</p>
+
+<p>The headers:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">table</span> <span class="o">=</span> <span class="n">soup</span><span class="p">(</span><span class="s">'table'</span><span class="p">)[</span><span class="mi">4</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span> <span class="n">th</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">th</span> <span class="ow">in</span> <span class="n">table</span><span class="p">(</span><span class="s">'th'</span><span class="p">)</span> <span class="p">]</span>
+<span class="p">[</span><span class="s">'Item'</span><span class="p">,</span> <span class="s">'Advantage'</span><span class="p">,</span> <span class="s">'Win Rate'</span><span class="p">,</span> <span class="s">'Matches'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>The rows:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span> <span class="p">[</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span> <span class="p">]</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">tbody</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span> <span class="p">]</span>
+<span class="p">[[</span><span class="s">'Anti-Mage'</span><span class="p">,</span> <span class="s">'-4.59</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'54.14</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'49,012'</span><span class="p">],</span> <span class="p">[</span><span class="s">'Undying'</span><span class="p">,</span> <span class="s">'-3.56</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'52.31</span><span class="si">%</span><span class="s">'</span><span class="p">,</span> <span class="s">'11,056'</span><span class="p">],</span> <span class="o">...</span>
+
+</code></pre>
+</div>
+
+<p>From there you could easily use the <code class="highlighter-rouge">csv</code> module to export it to CSV or perhaps
+even use <code class="highlighter-rouge">dict(zip(headers, row))</code> to build a list of dict and export it to JSON</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">headers</span> <span class="o">=</span> <span class="p">[</span> <span class="n">th</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">th</span> <span class="ow">in</span> <span class="n">table</span><span class="p">(</span><span class="s">'th'</span><span class="p">)</span> <span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span>    <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span> <span class="p">]</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">tbody</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span> <span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">stats</span>   <span class="o">=</span> <span class="p">[</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span> <span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s">"Advantage"</span><span class="p">:</span> <span class="s">"-4.59</span><span class="si">%</span><span class="s">"</span><span class="p">,</span>
+        <span class="s">"Item"</span><span class="p">:</span> <span class="s">"Anti-Mage"</span><span class="p">,</span>
+        <span class="s">"Matches"</span><span class="p">:</span> <span class="s">"49,012"</span><span class="p">,</span>
+        <span class="s">"Win Rate"</span><span class="p">:</span> <span class="s">"54.14</span><span class="si">%</span><span class="s">"</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s">"Advantage"</span><span class="p">:</span> <span class="s">"-3.56</span><span class="si">%</span><span class="s">"</span><span class="p">,</span>
+        <span class="s">"Item"</span><span class="p">:</span> <span class="s">"Undying"</span><span class="p">,</span>
+        <span class="s">"Matches"</span><span class="p">:</span> <span class="s">"11,056"</span><span class="p">,</span>
+        <span class="s">"Win Rate"</span><span class="p">:</span> <span class="s">"52.31</span><span class="si">%</span><span class="s">"</span>
+    <span class="p">},</span>
+    <span class="o">...</span>
+</code></pre>
+</div>
+
+<p>It all depends on what you want to do with the data.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (27)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/09/python-convert-a-text-file-into-a-dict/">Python: convert a text file into a dictionary</a></h2>
+          <p class="preview">Given the following data in a text file the task is
+to convert it into a Python dict having the command
+names as the keys and the command descriptions as the
+values.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
