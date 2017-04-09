@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 09 Apr 2017 13:32:04 +0100</pubDate>
-    <lastBuildDate>Sun, 09 Apr 2017 13:32:04 +0100</lastBuildDate>
+    <pubDate>Sun, 09 Apr 2017 13:37:33 +0100</pubDate>
+    <lastBuildDate>Sun, 09 Apr 2017 13:37:33 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -238,7 +238,8 @@ blocks the default &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib&lt;/co
 
 &lt;p&gt;Let’s pass it &lt;code class=&quot;highlighter-rouge&quot;&gt;str(table)&lt;/code&gt; and see how it does:&lt;/p&gt;
 
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pandas&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read_html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;table&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;pandas&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pandas&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read_html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;table&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;Item&lt;/span&gt;          &lt;span class=&quot;n&quot;&gt;Advantage&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Win&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Rate&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Matches&lt;/span&gt;  &lt;span class=&quot;n&quot;&gt;Unnamed&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
 &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;NaN&lt;/span&gt;          &lt;span class=&quot;n&quot;&gt;Anti&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Mage&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;4.59&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;  &lt;span class=&quot;mf&quot;&gt;54.14&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;       &lt;span class=&quot;mi&quot;&gt;49012&lt;/span&gt;
 &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;NaN&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;Undying&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mf&quot;&gt;3.56&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;  &lt;span class=&quot;mf&quot;&gt;52.31&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;%&lt;/span&gt;       &lt;span class=&quot;mi&quot;&gt;11056&lt;/span&gt;

@@ -315,7 +315,8 @@ blocks the default <code class="highlighter-rouge">urllib</code> and <code class
 
 <p>Let’s pass it <code class="highlighter-rouge">str(table)</code> and see how it does:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pandas</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">table</span><span class="p">))</span>
 <span class="p">[</span>   <span class="n">Item</span>          <span class="n">Advantage</span> <span class="n">Win</span> <span class="n">Rate</span> <span class="n">Matches</span>  <span class="n">Unnamed</span><span class="p">:</span> <span class="mi">4</span>
 <span class="mi">0</span>   <span class="n">NaN</span>          <span class="n">Anti</span><span class="o">-</span><span class="n">Mage</span>   <span class="o">-</span><span class="mf">4.59</span><span class="o">%</span>  <span class="mf">54.14</span><span class="o">%</span>       <span class="mi">49012</span>
 <span class="mi">1</span>   <span class="n">NaN</span>            <span class="n">Undying</span>   <span class="o">-</span><span class="mf">3.56</span><span class="o">%</span>  <span class="mf">52.31</span><span class="o">%</span>       <span class="mi">11056</span>
