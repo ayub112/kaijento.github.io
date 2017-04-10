@@ -5,9 +5,386 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 09 Apr 2017 13:37:33 +0100</pubDate>
-    <lastBuildDate>Sun, 09 Apr 2017 13:37:33 +0100</lastBuildDate>
+    <pubDate>Mon, 10 Apr 2017 09:25:30 +0100</pubDate>
+    <lastBuildDate>Mon, 10 Apr 2017 09:25:30 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>bash: remove trailing spaces from filenames</title>
+        <description>&lt;p&gt;&lt;em&gt;I have a directory full of files that contain trailing spaces
+which is causing problems when trying to read them on Windows.
+I am booted into Linux and have a bash shell how do I remove the
+trailing spaces?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;If you’re just looking for possible solutions:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;extglob&lt;/code&gt; &lt;small&gt;note: non-recursive&lt;/small&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s dotglob extglob nullglob
+&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;globstar + extglob&lt;/code&gt; &lt;small&gt;note: requires bash 4&lt;/small&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s dotglob extglob globstar nullglob
+&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;find + extglob&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find . -name &lt;span class=&quot;s1&quot;&gt;'* '&lt;/span&gt; -exec bash -c &lt;span class=&quot;s1&quot;&gt;'shopt -s extglob; mv -v &quot;$1&quot; &quot;${1%%+( )}&quot;'&lt;/span&gt; _ &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;find + prename&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find . -name &lt;span class=&quot;s1&quot;&gt;'* '&lt;/span&gt; -exec rename -v &lt;span class=&quot;s1&quot;&gt;'s/ +$//'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It is &lt;strong&gt;highly recommended&lt;/strong&gt; to have a backup of your data and work on 
+a copy in the event of anything going wrong.&lt;/p&gt;
+
+&lt;p&gt;Please be aware that if multiple filenames result in the same name
+after trailing space removal they will be overwritten. You may wish to 
+use the &lt;code class=&quot;highlighter-rouge&quot;&gt;-n&lt;/code&gt; option with &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; and/or &lt;code class=&quot;highlighter-rouge&quot;&gt;-b / --backup&lt;/code&gt; if your &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; 
+supports it.&lt;/p&gt;
+
+&lt;p&gt;The remainder of this article is an explanation of the possible solutions 
+that were suggested.&lt;/p&gt;
+
+&lt;h2 id=&quot;test-files&quot;&gt;Test files&lt;/h2&gt;
+
+&lt;p&gt;We’ve created some test files to work with. We use &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt; with the &lt;code class=&quot;highlighter-rouge&quot;&gt;-Q&lt;/code&gt; 
+option to quote the filenames which allows us to easily see the trailing 
+spaces characters:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -RQ
+&lt;span class=&quot;s2&quot;&gt;&quot;.&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;bbq    &quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;lol &quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;omg &quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;subdir&quot;&lt;/span&gt;
+
+&lt;span class=&quot;s2&quot;&gt;&quot;./subdir&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;filename        &quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Another option could be to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;-ls&lt;/code&gt; option to &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -ls
+8665642    0 drwx------   3 user group      111 Apr 10 04:49 .
+8665643    0 -rw-------   1 user group        0 Apr 10 04:48 ./lol&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;
+8665644    0 -rw-------   1 user group        0 Apr 10 04:48 ./omg&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;
+8665645    0 -rw-------   1 user group        0 Apr 10 04:48 ./a
+8665646    0 -rw-------   1 user group        0 Apr 10 04:48 ./b
+8665647    0 -rw-------   1 user group        0 Apr 10 04:48 ./c
+8665651    0 -rw-------   1 user group        0 Apr 10 04:48 ./bbq&lt;span class=&quot;se&quot;&gt;\ \ \ \ &lt;/span&gt;
+4472706    0 drwx------   2 user group       54 Apr 10 04:49 ./subdir
+4595526    0 -rw-------   1 user group        0 Apr 10 04:49 ./subdir/filename&lt;span class=&quot;se&quot;&gt;\ \ \ \ \ \ \ \ &lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;small&gt;note: GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; will default to the current directory &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; 
+if you do not give any directory names to process&lt;/small&gt;&lt;/p&gt;
+
+&lt;p&gt;It was not stated in the problem description whether or not a recursive solution
+was required. A recursive approach will work for both cases so we will assume 
+that is was.&lt;/p&gt;
+
+&lt;p&gt;The non-recursive solution that was suggested above is very similar to the
+recursive solution using &lt;code class=&quot;highlighter-rouge&quot;&gt;globstar&lt;/code&gt; which is explained below so it shouldn’t 
+need a separate explanation.&lt;/p&gt;
+
+&lt;h2 id=&quot;prename&quot;&gt;prename&lt;/h2&gt;
+
+&lt;p&gt;You may or may not have a &lt;code class=&quot;highlighter-rouge&quot;&gt;rename&lt;/code&gt; command available on your system. There 
+is a &lt;code class=&quot;highlighter-rouge&quot;&gt;rename&lt;/code&gt; command that is written in Perl and one that is not. The 
+suggested solution that was given will only work with the Perl version.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;rename
+Usage: rename &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;-v] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;-n] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;-f] perlexpr &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;filenames]
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;readlink -f /usr/bin/rename
+/usr/bin/prename
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;prename
+Usage: rename &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;-v] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;-n] &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;-f] perlexpr &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;filenames]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you see &lt;code class=&quot;highlighter-rouge&quot;&gt;perlexpr&lt;/code&gt; in the usage output you should be good to go.&lt;/p&gt;
+
+&lt;p&gt;Its &lt;code class=&quot;highlighter-rouge&quot;&gt;-n&lt;/code&gt; option will print out what will happen without acting:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -name &lt;span class=&quot;s1&quot;&gt;'* '&lt;/span&gt; -exec rename -n &lt;span class=&quot;s1&quot;&gt;'s/ +$//'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+./lol  renamed as ./lol
+./omg  renamed as ./omg
+./bbq     renamed as ./bbq
+./subdir/filename         renamed as ./subdir/filename 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It should probably quote the filenames though similar to how &lt;code class=&quot;highlighter-rouge&quot;&gt;mv -v&lt;/code&gt; does to make
+viewing trailing spaces easier. We’ll replace &lt;code class=&quot;highlighter-rouge&quot;&gt;-n&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;-v&lt;/code&gt; to actually rename
+the files:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -name &lt;span class=&quot;s1&quot;&gt;'* '&lt;/span&gt; -exec rename -v &lt;span class=&quot;s1&quot;&gt;'s/ +$//'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+./lol  renamed as ./lol
+./omg  renamed as ./omg
+./bbq     renamed as ./bbq
+./subdir/filename         renamed as ./subdir/filename
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Let’s check the result:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -RQ
+&lt;span class=&quot;s2&quot;&gt;&quot;.&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;bbq&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;subdir&quot;&lt;/span&gt;
+
+&lt;span class=&quot;s2&quot;&gt;&quot;./subdir&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;filename&quot;&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -ls
+8665642    0 drwx------   3 user group      105 Apr 10 04:49 .
+8665645    0 -rw-------   1 user group        0 Apr 10 04:48 ./a
+8665646    0 -rw-------   1 user group        0 Apr 10 04:48 ./b
+8665647    0 -rw-------   1 user group        0 Apr 10 04:48 ./c
+4472706    0 drwx------   2 user group       46 Apr 10 04:49 ./subdir
+4595526    0 -rw-------   1 user group        0 Apr 10 04:49 ./subdir/filename
+8665643    0 -rw-------   1 user group        0 Apr 10 04:48 ./lol
+8665644    0 -rw-------   1 user group        0 Apr 10 04:48 ./omg
+8665651    0 -rw-------   1 user group        0 Apr 10 04:48 ./bbq
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-name&lt;/code&gt; option of &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; takes a &lt;em&gt;“glob pattern”&lt;/em&gt;. If you’re familiar
+with regular expressions the glob pattern used is equivalent to the regex &lt;code class=&quot;highlighter-rouge&quot;&gt;.* $&lt;/code&gt; 
+i.e. &lt;em&gt;anything that ends with a space character&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;rename&lt;/code&gt; command allows you to use any &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; code but it’s most common to see 
+it used with the &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; command. &lt;code class=&quot;highlighter-rouge&quot;&gt;s/ +$//&lt;/code&gt; matches &lt;em&gt;1 or
+more space characters followed by the end of the string&lt;/em&gt; and replaces
+them with nothing i.e. removes them.&lt;/p&gt;
+
+&lt;p&gt;We could use &lt;code class=&quot;highlighter-rouge&quot;&gt;\s+$&lt;/code&gt; to match any trailing “whitespace” as opposed to just space
+characters specifically.&lt;/p&gt;
+
+&lt;p&gt;If you don’t have the Perl &lt;code class=&quot;highlighter-rouge&quot;&gt;rename&lt;/code&gt; command you can use some of bash’s string
+manipulation capabilities to achieve the same result.&lt;/p&gt;
+
+&lt;h2 id=&quot;parameter-expansion&quot;&gt;parameter expansion&lt;/h2&gt;
+
+&lt;p&gt;We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;${var%pattern}&lt;/code&gt; to &lt;em&gt;“trim” (remove)&lt;/em&gt; the given &lt;em&gt;pattern&lt;/em&gt; 
+from the end of shell variable &lt;em&gt;var&lt;/em&gt;. If you use a double percent i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;%%&lt;/code&gt; 
+it will remove the longest match of &lt;em&gt;pattern&lt;/em&gt; whereas the default is 
+the shortest match.&lt;/p&gt;
+
+&lt;p&gt;So if it was just a single trailing space we could do the following:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'omg lol '&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;% &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; | sed -n l
+omg lol&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;small&gt;note: we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;sed -n l&lt;/code&gt; here just to show the trailing spaces. &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt;
+denotes the end of the string&lt;/small&gt;&lt;/p&gt;
+
+&lt;p&gt;With multiple trailing spaces this approach wont work:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'omg lol    '&lt;/span&gt; 
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;% &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; | sed -n l
+omg lol   &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;What if we try with &lt;code class=&quot;highlighter-rouge&quot;&gt;%%&lt;/code&gt;?&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%% &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; | sed -n l
+omg lol   &lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Our pattern is just a single space character which will only ever match a single
+space character. What we need to do is remove the longest match of &lt;em&gt;1 or more
+space characters&lt;/em&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;extglob&quot;&gt;extglob&lt;/h2&gt;
+
+&lt;p&gt;You can do this using the &lt;code class=&quot;highlighter-rouge&quot;&gt;+(pattern)&lt;/code&gt; syntax which matches &lt;em&gt;1 or more&lt;/em&gt;
+instances of pattern. It’s not part of the standard globbing syntax which means
+that you need to enable &lt;em&gt;extended globbing&lt;/em&gt; to use it:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s extglob
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; | sed -n l
+omg lol&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This allows us to replace &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec rename&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec bash&lt;/code&gt; and a &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; command.&lt;/p&gt;
+
+&lt;p&gt;We’ll use a leading &lt;code class=&quot;highlighter-rouge&quot;&gt;echo&lt;/code&gt; to first see what the generated commands would look like:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -name &lt;span class=&quot;s1&quot;&gt;'* '&lt;/span&gt; -exec bash -c &lt;span class=&quot;s1&quot;&gt;'shopt -s extglob; echo mv -v &quot;$1&quot; &quot;${1%%+( )}&quot;'&lt;/span&gt; _ &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
+mv -v ./subdir/filename         ./subdir/filename
+mv -v ./bbq     ./bbq
+mv -v ./lol  ./lol
+mv -v ./omg  ./omg
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We remove the &lt;code class=&quot;highlighter-rouge&quot;&gt;echo&lt;/code&gt; to actually execute the &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; commands:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -name &lt;span class=&quot;s1&quot;&gt;'* '&lt;/span&gt; -exec bash -c &lt;span class=&quot;s1&quot;&gt;'shopt -s extglob; mv -v &quot;$1&quot; &quot;${1%%+( )}&quot;'&lt;/span&gt; _ &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
+‘./subdir/filename        ’ -&amp;gt; ‘./subdir/filename’
+‘./bbq    ’ -&amp;gt; ‘./bbq’
+‘./lol ’ -&amp;gt; ‘./lol’
+‘./omg ’ -&amp;gt; ‘./omg’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Check the results:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -RQ
+&lt;span class=&quot;s2&quot;&gt;&quot;.&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;bbq&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;subdir&quot;&lt;/span&gt;
+
+&lt;span class=&quot;s2&quot;&gt;&quot;./subdir&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;filename&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The above &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; command will execute &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; for each file found.&lt;/p&gt;
+
+&lt;p&gt;A common idiom you may see when execing a shell is:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-exec bash -c &lt;span class=&quot;s1&quot;&gt;'for path; do ...; done'&lt;/span&gt; _ &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So you may see the above &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; command written like:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-exec bash -c &lt;span class=&quot;s1&quot;&gt;'
+  shopt -s extglob; for old; do mv -v &quot;$old&quot; &quot;${old%%+( )}&quot;; done'&lt;/span&gt; _ &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This approach could save some forking of bash processes but it’s probably
+not going to make too much of a difference.&lt;/p&gt;
+
+&lt;h2 id=&quot;globstar&quot;&gt;globstar&lt;/h2&gt;
+
+&lt;p&gt;Version 4 of &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; added the &lt;code class=&quot;highlighter-rouge&quot;&gt;globstar&lt;/code&gt; shell option which allows &lt;em&gt;recursive globbing&lt;/em&gt;.
+Using this we can remove the need for &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s globstar
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;‘&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;’&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+‘./bbq    ’
+‘./lol ’
+‘./omg ’
+‘./subdir/filename        ’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We still use the &lt;code class=&quot;highlighter-rouge&quot;&gt;*' '&lt;/code&gt; pattern however before it we use &lt;code class=&quot;highlighter-rouge&quot;&gt;./**/&lt;/code&gt; which matches 
+all directories and subdirectories.&lt;/p&gt;
+
+&lt;p&gt;So let’s combine the &lt;code class=&quot;highlighter-rouge&quot;&gt;extglob&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;globstar&lt;/code&gt; operations:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s extglob globstar
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done
+&lt;/span&gt;mv -v ./bbq     ./bbq
+mv -v ./lol  ./lol
+mv -v ./omg  ./omg
+mv -v ./subdir/filename         ./subdir/filename
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Output looks okay so we remove the &lt;code class=&quot;highlighter-rouge&quot;&gt;echo&lt;/code&gt; once again to 
+execute the &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; commands:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s extglob globstar
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+‘./bbq    ’ -&amp;gt; ‘./bbq’
+‘./lol ’ -&amp;gt; ‘./lol’
+‘./omg ’ -&amp;gt; ‘./omg’
+‘./subdir/filename        ’ -&amp;gt; ‘./subdir/filename’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Check the result:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -RQ
+&lt;span class=&quot;s2&quot;&gt;&quot;.&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;bbq&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;c&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;lol&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;omg&quot;&lt;/span&gt;  &lt;span class=&quot;s2&quot;&gt;&quot;subdir&quot;&lt;/span&gt;
+
+&lt;span class=&quot;s2&quot;&gt;&quot;./subdir&quot;&lt;/span&gt;:
+&lt;span class=&quot;s2&quot;&gt;&quot;filename&quot;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;nullglob--dotglob&quot;&gt;nullglob + dotglob&lt;/h2&gt;
+
+&lt;p&gt;The files have been renamed correctly. Let’s now create a new &lt;em&gt;“hidden”&lt;/em&gt; file
+and run our loop again:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch &lt;span class=&quot;s1&quot;&gt;'.hidden file       '&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done
+&lt;/span&gt;mv -v ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;  ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;U wot m8?&lt;/p&gt;
+
+&lt;p&gt;If a glob (well, technically it’s a &lt;em&gt;pathname expansion&lt;/em&gt; here) does not match 
+the default behaviour is that the glob will be returned.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.nothere; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;found: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done
+&lt;/span&gt;found: ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.nothere
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To disable this we can enable &lt;code class=&quot;highlighter-rouge&quot;&gt;nullglob&lt;/code&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s nullglob
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We created a new &lt;em&gt;“hidden”&lt;/em&gt; file with trailing spaces though so why didn’t 
+it match?&lt;/p&gt;
+
+&lt;p&gt;By default the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; at the start of the name (or after a &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt;) must
+be explicitly matched. This behaviour can be changed with &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s dotglob
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;' '&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%%+( )&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done
+&lt;/span&gt;mv -v ./.hidden file        ./.hidden file
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So without &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt; it would miss &lt;em&gt;hidden&lt;/em&gt; files and it would also miss any
+files contained in &lt;em&gt;hidden&lt;/em&gt; directories.&lt;/p&gt;
+
+&lt;p&gt;You may or may not want this behaviour so you can include or exclude &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt; as
+you see fit.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 10 Apr 2017 04:51:22 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/04/10/bash-remove-trailing-spaces-from-filenames/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/10/bash-remove-trailing-spaces-from-filenames/</guid>
+        
+        <category>bash</category>
+        
+        <category>find</category>
+        
+        <category>perl</category>
+        
+        <category>regex</category>
+        
+        <category>glob</category>
+        
+        
+      </item>
     
       <item>
         <title>Web scraping: dotabuff.com</title>
@@ -2111,341 +2488,6 @@ convert dates:&lt;/p&gt;
         <category>pandas</category>
         
         <category>csv</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>PDF scraping: Tim Hortons Invoice</title>
-        <description>&lt;p&gt;The goal is to take a Tim Hortons Invoice that is in PDF format and
-“scrape” some information from it and turn it into JSON using Python.&lt;/p&gt;
-
-&lt;p&gt;The PDF file looks like:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1490698343-tim-hortons.pdf.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;It has 8 pages but the number of pages differs we are only interested
-in the last page.&lt;/p&gt;
-
-&lt;p&gt;We’re going to be using &lt;code class=&quot;highlighter-rouge&quot;&gt;pdftotext&lt;/code&gt; as discussed 
-&lt;a href=&quot;/2017/03/27/PDF-scraping-gwinnetttaxcommissioner.publicaccessnow.com/#pdftotext&quot;&gt;in the previous PDF scraping article&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;So let’s run the PDF through it to see how it does:&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1490698611-pdftotext-layout.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;It has done a pretty decent job. Most bits of information should be easy to extract apart from 
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;Sold To&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;Deliver To&lt;/code&gt; addresses.&lt;/p&gt;
-
-&lt;p&gt;We will start with the output:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python timhortons.py
-&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;Bill of Lading&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;82608215&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Currency&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;CAD&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Customer PO&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;4125310&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Delivered To&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;102922&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;2922 TIM HORTONS&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;20345 CANON STREET&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;PO BOX 219&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;SOUTH LANCASTER ON K0C 2C0&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;CANADA&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Due Date&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;02/09/2017&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Fuel Surcharge&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;GST/HST Base&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;656.02&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;GST/HST Total&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;85.26&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Grand Total&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;3329.96&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Invoice Date&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;01/25/2017&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Invoice Number&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;5053548359&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Order Number&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;102512339&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Payment Term&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Net 15 Days&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax Base&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Sold To&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;102922&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;102922 1697315 Ontario Inc.&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;20345 CANON STREET&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;PO BOX 219&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;SOUTH LANCASTER ON K0C 2C0&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;CANADA&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;, 
-    &lt;span class=&quot;s2&quot;&gt;&quot;Total&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;3244.70&quot;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Here is the code that generated it:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pdftojson.py&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;subprocess&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;pdfname&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'invoice.pdf'&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;subprocess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;check_output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'pdftotext'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'-layout'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pdfname&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'-'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;decode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;pages&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pages&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;address&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'(?s)(?&amp;lt;=Sold To:).+?(?=&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;n)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pages&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;address&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Deliver To:'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;splitlines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;sold_to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;delivered_to&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;bill_of_lading&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Bill Of Lading:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;currency&lt;/span&gt;       &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Currency:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;          &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;customer_po&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Customer PO:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;       &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;due_date&lt;/span&gt;       &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Due Date:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;          &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;invoice_number&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Invoice Number:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;invoice_date&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Invoice Date:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;order_number&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Order #:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;           &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;payment_term&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Payment Term:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(.+?)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;sales_tax_base&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'Sales Tax Base&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;gst_hst_base&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'GST/HST Base&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*:&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;r'(?s)(Description&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*Extended Price&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*.+?Grand Total&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sub&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;r'Price including&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s*Sales Tax'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Price Including Sales Tax'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;splitlines&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;total&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fuel_surcharge&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gst_hst_total&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;grand_total&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;summary&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Sold To'&lt;/span&gt;       &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sold_to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;        &lt;span class=&quot;s&quot;&gt;'Delivered To'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;delivered_to&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-    &lt;span class=&quot;s&quot;&gt;'Bill of Lading'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;bill_of_lading&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Currency'&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;currency&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Customer PO'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;customer_po&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;    &lt;span class=&quot;s&quot;&gt;'Due Date'&lt;/span&gt;      &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;due_date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Invoice Number'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invoice_number&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Invoice Date'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invoice_date&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Order Number'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;order_number&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;'Payment Term'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;payment_term&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Sales Tax Base'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sales_tax_base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'GST/HST Base'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gst_hst_base&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Total'&lt;/span&gt;         &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;total&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;          &lt;span class=&quot;s&quot;&gt;'Fuel Surcharge'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fuel_surcharge&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'GST/HST Total'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gst_hst_total&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;'Grand Total'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;grand_total&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;s&quot;&gt;'''
-summary['Expenses'] = [
-    dict(zip(expenses[0], expense)) for expense in expenses[1:-4]
-]
-'''&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You’ll notice at the end we have the &lt;code class=&quot;highlighter-rouge&quot;&gt;Expenses&lt;/code&gt; commented out. This was just
-to keep the output at a reasonable size, when uncommented the &lt;code class=&quot;highlighter-rouge&quot;&gt;Expenses&lt;/code&gt; section
-looks like this:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Food &amp;amp; Beverage&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;2614.61&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;2614.61&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Packaging&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;490.71&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;490.71&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Merchandise&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Cleaning&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;120.93&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;120.93&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Smallwares&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;5.00&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;5.00&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;Description&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;Office Supplies&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;13.45&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;13.45&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pdftotext&lt;/code&gt; separates pages in its output with the &lt;code class=&quot;highlighter-rouge&quot;&gt;ASCII 12 form feed&lt;/code&gt; character. 
-It may be represented as the control char &lt;code class=&quot;highlighter-rouge&quot;&gt;^L&lt;/code&gt;. We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;\f&lt;/code&gt; to represent it inside a 
-string in Python. (&lt;code class=&quot;highlighter-rouge&quot;&gt;0C&lt;/code&gt; in hex is &lt;code class=&quot;highlighter-rouge&quot;&gt;12&lt;/code&gt; in decimal)&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\x0c&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;split('\f')&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;[-1]&lt;/code&gt; to get the last page. Well not quite, there may be 
-multiple trailing &lt;code class=&quot;highlighter-rouge&quot;&gt;\f&lt;/code&gt; characters in the output so we can &lt;code class=&quot;highlighter-rouge&quot;&gt;strip('\f')&lt;/code&gt; before we &lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt;
-to ensure &lt;code class=&quot;highlighter-rouge&quot;&gt;pages[-1]&lt;/code&gt; will always give the last page.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'page1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;page2&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f\f\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'page2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'page1&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;page2&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f\f\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'page2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;address&lt;/code&gt; lines start on the line containing &lt;code class=&quot;highlighter-rouge&quot;&gt;Sold To:&lt;/code&gt; and they end with a blank line.
-To extract that block we’ve used &lt;code class=&quot;highlighter-rouge&quot;&gt;r'(?s)(?&amp;lt;=Sold To:).+?(?=\n\n)'&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(?s)&lt;/code&gt; is the same as passing &lt;code class=&quot;highlighter-rouge&quot;&gt;flags=re.DOTALL&lt;/code&gt; it allows &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; to match &lt;code class=&quot;highlighter-rouge&quot;&gt;\n&lt;/code&gt; meaning we can grab
-multiple lines with &lt;code class=&quot;highlighter-rouge&quot;&gt;.+?&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;(?&amp;lt;=)&lt;/code&gt; is a positive lookbehind and the &lt;code class=&quot;highlighter-rouge&quot;&gt;(?=)&lt;/code&gt; is a 
-positive lookahead. These just exclude what is inside them from the match.&lt;/p&gt;
-
-&lt;p&gt;Once we have the address we then remove &lt;code class=&quot;highlighter-rouge&quot;&gt;Deliver To:&lt;/code&gt; from it and split it up into a list of lines.
-What about this &lt;code class=&quot;highlighter-rouge&quot;&gt;zip(*())&lt;/code&gt; madness?!&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1   ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2   ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],)]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Let’s define a simple function that prints out all arguments passed to it to try
-and see what’s going on:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;([[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]],)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s{2,}'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So the &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; causes the list to be “unpacked” and each element inside it is passed
-as an individual argument. This means instead of passing a single list to &lt;code class=&quot;highlighter-rouge&quot;&gt;zip()&lt;/code&gt;
-which doesn’t make sense we are passing multiple lists.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;address&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],)]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;address&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS1 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'ADDRESS2 LINE2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The rest of the patterns are all pretty similar:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;r'Bill Of Lading:\s*(\S+)'&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\s*&lt;/code&gt; matches any whitespace characters if present and &lt;code class=&quot;highlighter-rouge&quot;&gt;\S+&lt;/code&gt; matches non-whitespace characters 
-i.e. the first “word”. So we match all of the labels and capture the first word that appears
-after them.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Payment Term&lt;/code&gt; pattern differs because we need to capture multiple words. We replace &lt;code class=&quot;highlighter-rouge&quot;&gt;\S+&lt;/code&gt;
-with &lt;code class=&quot;highlighter-rouge&quot;&gt;(.+?)\s{2,}&lt;/code&gt; which captures “anything” up until we see 2 consecutive whitespace characters.
-The &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; after &lt;code class=&quot;highlighter-rouge&quot;&gt;.+&lt;/code&gt; here makes it “non-greedy” i.e. it will match up to the first instance.
-Without &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; it would match up to the last instance.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'f.*o'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'foofoobar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;'foofoo'&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'f.*?o'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'foofoobar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;'fo'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; makes it match up to the first instance of &lt;code class=&quot;highlighter-rouge&quot;&gt;o&lt;/code&gt; instead of the last.&lt;/p&gt;
-
-&lt;p&gt;The following pattern is used to extract the Expenses “block”:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;r'(?s)(Description\s*Extended Price\s*.+?Grand Total\s*\S+)'&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;Note the &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;.+?Grand Total&lt;/code&gt; as there is another &lt;code class=&quot;highlighter-rouge&quot;&gt;Grand Total&lt;/code&gt; further down
-so we want to stop at the first instance.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Price including Sales Tax&lt;/code&gt; header is actually split over 2 lines so we 
-use &lt;code class=&quot;highlighter-rouge&quot;&gt;re.sub()&lt;/code&gt; to put all of the text back on the same line.&lt;/p&gt;
-
-&lt;p&gt;When it’s all done &lt;code class=&quot;highlighter-rouge&quot;&gt;expenses&lt;/code&gt; looks like this:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Description'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'Extended Price'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'Sales Tax'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'Price Including Sales Tax'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Food &amp;amp; Beverage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'2614.61'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'2614.61'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Packaging'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'490.71'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'490.71'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Merchandise'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Cleaning'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'120.93'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'120.93'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Smallwares'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'5.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'5.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Office Supplies'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'13.45'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'13.45'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Total'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'3244.70'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'3244.70'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Fuel Surcharge'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'GST/HST/VAT'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'85.26'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'Grand Total'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'3329.96'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;expenses[0]&lt;/code&gt; contains the headers which we want to use as the keys in our dict.
-If you have a list of keys and list of values you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;dict(zip(keys, values))&lt;/code&gt;
-to turn them into a dict:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Description'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Extended Price'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Sales Tax'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Price Including Sales Tax'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Food &amp;amp; Beverage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'2614.61'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'0.00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'2614.61'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;&quot;Description&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Food &amp;amp; Beverage&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-    &lt;span class=&quot;s&quot;&gt;&quot;Extended Price&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;2614.61&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-    &lt;span class=&quot;s&quot;&gt;&quot;Price Including Sales Tax&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;2614.61&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-    &lt;span class=&quot;s&quot;&gt;&quot;Sales Tax&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;0.00&quot;&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We want to ignore the first element in &lt;code class=&quot;highlighter-rouge&quot;&gt;expenses&lt;/code&gt; and also the last 4 so we use the slice
-&lt;code class=&quot;highlighter-rouge&quot;&gt;[1:-4]&lt;/code&gt; to do that.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;summary&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Expenses'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;zip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expense&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;expenses&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Finally we use &lt;code class=&quot;highlighter-rouge&quot;&gt;json.dumps()&lt;/code&gt; to turn our dict into a JSON string.
-The &lt;code class=&quot;highlighter-rouge&quot;&gt;indent=4&lt;/code&gt; pretty-prints the output instead of producing a 
-single-line string. &lt;code class=&quot;highlighter-rouge&quot;&gt;sort_keys&lt;/code&gt; sorts the keys to give us
-consistent ordering of the output.&lt;/p&gt;
-
-&lt;p&gt;The final code and PDF file used in this article are available &lt;a href=&quot;https://github.com/kaijento/code/tree/master/pdfscraping/timhortons&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
-</description>
-        <pubDate>Tue, 28 Mar 2017 11:39:05 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/03/28/PDF-scraping-Tim-Hortons-Invoice/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/03/28/PDF-scraping-Tim-Hortons-Invoice/</guid>
-        
-        <category>pdf</category>
-        
-        <category>python</category>
-        
-        <category>pdftotext</category>
-        
-        <category>json</category>
-        
-        <category>regex</category>
         
         
       </item>

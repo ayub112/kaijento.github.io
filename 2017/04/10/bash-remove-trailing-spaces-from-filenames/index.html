@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/10/bash-remove-trailing-spaces-from-filenames/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: remove trailing spaces from filenames | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/10/bash-remove-trailing-spaces-from-filenames/">bash: remove trailing spaces from filenames</a></h1>
+  <p class="text-muted">10 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/find/">find</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+    
+  <a href="/categories/glob/">glob</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>I have a directory full of files that contain trailing spaces
+which is causing problems when trying to read them on Windows.
+I am booted into Linux and have a bash shell how do I remove the
+trailing spaces?</em></p>
+
+<p>If you’re just looking for possible solutions:</p>
+
+<p><code class="highlighter-rouge">extglob</code> <small>note: non-recursive</small></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">shopt</span> -s dotglob extglob nullglob
+<span class="k">for </span>old <span class="k">in</span> ./<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">globstar + extglob</code> <small>note: requires bash 4</small></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="nb">shopt</span> -s dotglob extglob globstar nullglob
+<span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">find + extglob</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>find . -name <span class="s1">'* '</span> -exec bash -c <span class="s1">'shopt -s extglob; mv -v "$1" "${1%%+( )}"'</span> _ <span class="o">{}</span> <span class="se">\;</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">find + prename</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>find . -name <span class="s1">'* '</span> -exec rename -v <span class="s1">'s/ +$//'</span> <span class="o">{}</span> +
+</code></pre>
+</div>
+
+<p>It is <strong>highly recommended</strong> to have a backup of your data and work on 
+a copy in the event of anything going wrong.</p>
+
+<p>Please be aware that if multiple filenames result in the same name
+after trailing space removal they will be overwritten. You may wish to 
+use the <code class="highlighter-rouge">-n</code> option with <code class="highlighter-rouge">mv</code> and/or <code class="highlighter-rouge">-b / --backup</code> if your <code class="highlighter-rouge">mv</code> 
+supports it.</p>
+
+<p>The remainder of this article is an explanation of the possible solutions 
+that were suggested.</p>
+
+<a name="test-files"></a>
+<h2 class="section-header">
+  <span id="test-files"></span>
+  <a class="anchor" href="#test-files">Test files</a>
+</h2>
+
+<p>We’ve created some test files to work with. We use <code class="highlighter-rouge">ls</code> with the <code class="highlighter-rouge">-Q</code> 
+option to quote the filenames which allows us to easily see the trailing 
+spaces characters:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -RQ
+<span class="s2">"."</span>:
+<span class="s2">"a"</span>  <span class="s2">"b"</span>  <span class="s2">"bbq    "</span>  <span class="s2">"c"</span>  <span class="s2">"lol "</span>  <span class="s2">"omg "</span>  <span class="s2">"subdir"</span>
+
+<span class="s2">"./subdir"</span>:
+<span class="s2">"filename        "</span>
+</code></pre>
+</div>
+
+<p>Another option could be to use the <code class="highlighter-rouge">-ls</code> option to <code class="highlighter-rouge">find</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -ls
+8665642    0 drwx------   3 user group      111 Apr 10 04:49 .
+8665643    0 -rw-------   1 user group        0 Apr 10 04:48 ./lol<span class="se">\ </span>
+8665644    0 -rw-------   1 user group        0 Apr 10 04:48 ./omg<span class="se">\ </span>
+8665645    0 -rw-------   1 user group        0 Apr 10 04:48 ./a
+8665646    0 -rw-------   1 user group        0 Apr 10 04:48 ./b
+8665647    0 -rw-------   1 user group        0 Apr 10 04:48 ./c
+8665651    0 -rw-------   1 user group        0 Apr 10 04:48 ./bbq<span class="se">\ \ \ \ </span>
+4472706    0 drwx------   2 user group       54 Apr 10 04:49 ./subdir
+4595526    0 -rw-------   1 user group        0 Apr 10 04:49 ./subdir/filename<span class="se">\ \ \ \ \ \ \ \ </span>
+</code></pre>
+</div>
+
+<p><small>note: GNU <code class="highlighter-rouge">find</code> will default to the current directory <code class="highlighter-rouge">.</code> 
+if you do not give any directory names to process</small></p>
+
+<p>It was not stated in the problem description whether or not a recursive solution
+was required. A recursive approach will work for both cases so we will assume 
+that is was.</p>
+
+<p>The non-recursive solution that was suggested above is very similar to the
+recursive solution using <code class="highlighter-rouge">globstar</code> which is explained below so it shouldn’t 
+need a separate explanation.</p>
+
+<a name="prename"></a>
+<h2 class="section-header">
+  <span id="prename"></span>
+  <a class="anchor" href="#prename">prename</a>
+</h2>
+
+<p>You may or may not have a <code class="highlighter-rouge">rename</code> command available on your system. There 
+is a <code class="highlighter-rouge">rename</code> command that is written in Perl and one that is not. The 
+suggested solution that was given will only work with the Perl version.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>rename
+Usage: rename <span class="o">[</span>-v] <span class="o">[</span>-n] <span class="o">[</span>-f] perlexpr <span class="o">[</span>filenames]
+<span class="gp">$ </span>readlink -f /usr/bin/rename
+/usr/bin/prename
+<span class="gp">$ </span>prename
+Usage: rename <span class="o">[</span>-v] <span class="o">[</span>-n] <span class="o">[</span>-f] perlexpr <span class="o">[</span>filenames]
+</code></pre>
+</div>
+
+<p>If you see <code class="highlighter-rouge">perlexpr</code> in the usage output you should be good to go.</p>
+
+<p>Its <code class="highlighter-rouge">-n</code> option will print out what will happen without acting:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -name <span class="s1">'* '</span> -exec rename -n <span class="s1">'s/ +$//'</span> <span class="o">{}</span> +
+./lol  renamed as ./lol
+./omg  renamed as ./omg
+./bbq     renamed as ./bbq
+./subdir/filename         renamed as ./subdir/filename 
+</code></pre>
+</div>
+
+<p>It should probably quote the filenames though similar to how <code class="highlighter-rouge">mv -v</code> does to make
+viewing trailing spaces easier. We’ll replace <code class="highlighter-rouge">-n</code> with <code class="highlighter-rouge">-v</code> to actually rename
+the files:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -name <span class="s1">'* '</span> -exec rename -v <span class="s1">'s/ +$//'</span> <span class="o">{}</span> +
+./lol  renamed as ./lol
+./omg  renamed as ./omg
+./bbq     renamed as ./bbq
+./subdir/filename         renamed as ./subdir/filename
+</code></pre>
+</div>
+
+<p>Let’s check the result:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -RQ
+<span class="s2">"."</span>:
+<span class="s2">"a"</span>  <span class="s2">"b"</span>  <span class="s2">"bbq"</span>  <span class="s2">"c"</span>  <span class="s2">"lol"</span>  <span class="s2">"omg"</span>  <span class="s2">"subdir"</span>
+
+<span class="s2">"./subdir"</span>:
+<span class="s2">"filename"</span>
+<span class="gp">$ </span>find -ls
+8665642    0 drwx------   3 user group      105 Apr 10 04:49 .
+8665645    0 -rw-------   1 user group        0 Apr 10 04:48 ./a
+8665646    0 -rw-------   1 user group        0 Apr 10 04:48 ./b
+8665647    0 -rw-------   1 user group        0 Apr 10 04:48 ./c
+4472706    0 drwx------   2 user group       46 Apr 10 04:49 ./subdir
+4595526    0 -rw-------   1 user group        0 Apr 10 04:49 ./subdir/filename
+8665643    0 -rw-------   1 user group        0 Apr 10 04:48 ./lol
+8665644    0 -rw-------   1 user group        0 Apr 10 04:48 ./omg
+8665651    0 -rw-------   1 user group        0 Apr 10 04:48 ./bbq
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">-name</code> option of <code class="highlighter-rouge">find</code> takes a <em>“glob pattern”</em>. If you’re familiar
+with regular expressions the glob pattern used is equivalent to the regex <code class="highlighter-rouge">.* $</code> 
+i.e. <em>anything that ends with a space character</em>.</p>
+
+<p>The <code class="highlighter-rouge">rename</code> command allows you to use any <code class="highlighter-rouge">perl</code> code but it’s most common to see 
+it used with the <code class="highlighter-rouge">s</code> command. <code class="highlighter-rouge">s/ +$//</code> matches <em>1 or
+more space characters followed by the end of the string</em> and replaces
+them with nothing i.e. removes them.</p>
+
+<p>We could use <code class="highlighter-rouge">\s+$</code> to match any trailing “whitespace” as opposed to just space
+characters specifically.</p>
+
+<p>If you don’t have the Perl <code class="highlighter-rouge">rename</code> command you can use some of bash’s string
+manipulation capabilities to achieve the same result.</p>
+
+<a name="parameter-expansion"></a>
+<h2 class="section-header">
+  <span id="parameter-expansion"></span>
+  <a class="anchor" href="#parameter-expansion">parameter expansion</a>
+</h2>
+
+<p>We can use <code class="highlighter-rouge">${var%pattern}</code> to <em>“trim” (remove)</em> the given <em>pattern</em> 
+from the end of shell variable <em>var</em>. If you use a double percent i.e. <code class="highlighter-rouge">%%</code> 
+it will remove the longest match of <em>pattern</em> whereas the default is 
+the shortest match.</p>
+
+<p>So if it was just a single trailing space we could do the following:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">name</span><span class="o">=</span><span class="s1">'omg lol '</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">name</span><span class="p">% </span><span class="k">}</span><span class="s2">"</span> | sed -n l
+omg lol<span class="err">$</span>
+</code></pre>
+</div>
+
+<p><small>note: we’re using <code class="highlighter-rouge">sed -n l</code> here just to show the trailing spaces. <code class="highlighter-rouge">$</code>
+denotes the end of the string</small></p>
+
+<p>With multiple trailing spaces this approach wont work:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">name</span><span class="o">=</span><span class="s1">'omg lol    '</span> 
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">name</span><span class="p">% </span><span class="k">}</span><span class="s2">"</span> | sed -n l
+omg lol   <span class="err">$</span>
+</code></pre>
+</div>
+
+<p>What if we try with <code class="highlighter-rouge">%%</code>?</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">name</span><span class="p">%% </span><span class="k">}</span><span class="s2">"</span> | sed -n l
+omg lol   <span class="err">$</span>
+</code></pre>
+</div>
+
+<p>Our pattern is just a single space character which will only ever match a single
+space character. What we need to do is remove the longest match of <em>1 or more
+space characters</em>.</p>
+
+<a name="extglob"></a>
+<h2 class="section-header">
+  <span id="extglob"></span>
+  <a class="anchor" href="#extglob">extglob</a>
+</h2>
+
+<p>You can do this using the <code class="highlighter-rouge">+(pattern)</code> syntax which matches <em>1 or more</em>
+instances of pattern. It’s not part of the standard globbing syntax which means
+that you need to enable <em>extended globbing</em> to use it:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s extglob
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">name</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span> | sed -n l
+omg lol<span class="err">$</span>
+</code></pre>
+</div>
+
+<p>This allows us to replace <code class="highlighter-rouge">-exec rename</code> with <code class="highlighter-rouge">-exec bash</code> and a <code class="highlighter-rouge">mv</code> command.</p>
+
+<p>We’ll use a leading <code class="highlighter-rouge">echo</code> to first see what the generated commands would look like:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -name <span class="s1">'* '</span> -exec bash -c <span class="s1">'shopt -s extglob; echo mv -v "$1" "${1%%+( )}"'</span> _ <span class="o">{}</span> <span class="se">\;</span>
+mv -v ./subdir/filename         ./subdir/filename
+mv -v ./bbq     ./bbq
+mv -v ./lol  ./lol
+mv -v ./omg  ./omg
+</code></pre>
+</div>
+
+<p>We remove the <code class="highlighter-rouge">echo</code> to actually execute the <code class="highlighter-rouge">mv</code> commands:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -name <span class="s1">'* '</span> -exec bash -c <span class="s1">'shopt -s extglob; mv -v "$1" "${1%%+( )}"'</span> _ <span class="o">{}</span> <span class="se">\;</span>
+‘./subdir/filename        ’ -&gt; ‘./subdir/filename’
+‘./bbq    ’ -&gt; ‘./bbq’
+‘./lol ’ -&gt; ‘./lol’
+‘./omg ’ -&gt; ‘./omg’
+</code></pre>
+</div>
+
+<p>Check the results:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -RQ
+<span class="s2">"."</span>:
+<span class="s2">"a"</span>  <span class="s2">"b"</span>  <span class="s2">"bbq"</span>  <span class="s2">"c"</span>  <span class="s2">"lol"</span>  <span class="s2">"omg"</span>  <span class="s2">"subdir"</span>
+
+<span class="s2">"./subdir"</span>:
+<span class="s2">"filename"</span>
+</code></pre>
+</div>
+
+<p>The above <code class="highlighter-rouge">-exec</code> command will execute <code class="highlighter-rouge">bash</code> for each file found.</p>
+
+<p>A common idiom you may see when execing a shell is:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>-exec bash -c <span class="s1">'for path; do ...; done'</span> _ <span class="o">{}</span> +
+</code></pre>
+</div>
+
+<p>So you may see the above <code class="highlighter-rouge">-exec</code> command written like:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>-exec bash -c <span class="s1">'
+  shopt -s extglob; for old; do mv -v "$old" "${old%%+( )}"; done'</span> _ <span class="o">{}</span> +
+</code></pre>
+</div>
+
+<p>This approach could save some forking of bash processes but it’s probably
+not going to make too much of a difference.</p>
+
+<a name="globstar"></a>
+<h2 class="section-header">
+  <span id="globstar"></span>
+  <a class="anchor" href="#globstar">globstar</a>
+</h2>
+
+<p>Version 4 of <code class="highlighter-rouge">bash</code> added the <code class="highlighter-rouge">globstar</code> shell option which allows <em>recursive globbing</em>.
+Using this we can remove the need for <code class="highlighter-rouge">find</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s globstar
+<span class="gp">$ </span><span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span><span class="nb">echo</span> <span class="s2">"‘</span><span class="nv">$old</span><span class="s2">’"</span>; <span class="k">done</span>
+‘./bbq    ’
+‘./lol ’
+‘./omg ’
+‘./subdir/filename        ’
+</code></pre>
+</div>
+
+<p>We still use the <code class="highlighter-rouge">*' '</code> pattern however before it we use <code class="highlighter-rouge">./**/</code> which matches 
+all directories and subdirectories.</p>
+
+<p>So let’s combine the <code class="highlighter-rouge">extglob</code> and <code class="highlighter-rouge">globstar</code> operations:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s extglob globstar
+<span class="gp">$ </span><span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span><span class="nb">echo </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done
+</span>mv -v ./bbq     ./bbq
+mv -v ./lol  ./lol
+mv -v ./omg  ./omg
+mv -v ./subdir/filename         ./subdir/filename
+</code></pre>
+</div>
+
+<p>Output looks okay so we remove the <code class="highlighter-rouge">echo</code> once again to 
+execute the <code class="highlighter-rouge">mv</code> commands:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s extglob globstar
+<span class="gp">$ </span><span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done</span>
+‘./bbq    ’ -&gt; ‘./bbq’
+‘./lol ’ -&gt; ‘./lol’
+‘./omg ’ -&gt; ‘./omg’
+‘./subdir/filename        ’ -&gt; ‘./subdir/filename’
+</code></pre>
+</div>
+
+<p>Check the result:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -RQ
+<span class="s2">"."</span>:
+<span class="s2">"a"</span>  <span class="s2">"b"</span>  <span class="s2">"bbq"</span>  <span class="s2">"c"</span>  <span class="s2">"lol"</span>  <span class="s2">"omg"</span>  <span class="s2">"subdir"</span>
+
+<span class="s2">"./subdir"</span>:
+<span class="s2">"filename"</span>
+</code></pre>
+</div>
+
+<a name="nullglob--dotglob"></a>
+<h2 class="section-header">
+  <span id="nullglob--dotglob"></span>
+  <a class="anchor" href="#nullglob--dotglob">nullglob + dotglob</a>
+</h2>
+
+<p>The files have been renamed correctly. Let’s now create a new <em>“hidden”</em> file
+and run our loop again:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>touch <span class="s1">'.hidden file       '</span>
+<span class="gp">$ </span><span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span><span class="nb">echo </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done
+</span>mv -v ./<span class="k">**</span>/<span class="k">*</span>  ./<span class="k">**</span>/<span class="k">*</span>
+</code></pre>
+</div>
+
+<p>U wot m8?</p>
+
+<p>If a glob (well, technically it’s a <em>pathname expansion</em> here) does not match 
+the default behaviour is that the glob will be returned.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>f <span class="k">in</span> ./<span class="k">*</span>.nothere; <span class="k">do </span><span class="nb">echo</span> <span class="s2">"found: </span><span class="nv">$f</span><span class="s2">"</span>; <span class="k">done
+</span>found: ./<span class="k">*</span>.nothere
+</code></pre>
+</div>
+
+<p>To disable this we can enable <code class="highlighter-rouge">nullglob</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s nullglob
+<span class="gp">$ </span><span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span><span class="nb">echo </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done</span>
+<span class="err">$</span>
+</code></pre>
+</div>
+
+<p>We created a new <em>“hidden”</em> file with trailing spaces though so why didn’t 
+it match?</p>
+
+<p>By default the leading <code class="highlighter-rouge">.</code> at the start of the name (or after a <code class="highlighter-rouge">/</code>) must
+be explicitly matched. This behaviour can be changed with <code class="highlighter-rouge">dotglob</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s dotglob
+<span class="gp">$ </span><span class="k">for </span>old <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span><span class="s1">' '</span>; <span class="k">do </span><span class="nb">echo </span>mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%%+( )</span><span class="k">}</span><span class="s2">"</span>; <span class="k">done
+</span>mv -v ./.hidden file        ./.hidden file
+</code></pre>
+</div>
+
+<p>So without <code class="highlighter-rouge">dotglob</code> it would miss <em>hidden</em> files and it would also miss any
+files contained in <em>hidden</em> directories.</p>
+
+<p>You may or may not want this behaviour so you can include or exclude <code class="highlighter-rouge">dotglob</code> as
+you see fit.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (28)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/09/web-scraping-dotabuff.com/">Web scraping: dotabuff.com</a></h2>
+          <p class="preview">The task is to extract out the stats from the <em>WORST VERSUS</em> table
+on a <a href="https://dotabuff.com">Defense of the Ancients</a> hero page using 
+Python. The person did not want to use <code class="highlighter-rouge">BeautifulSoup</code> as they are 
+only learning Python and feel it would be better for learning purposes
+to complete the task using <em>“vanilla Python”</em>.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
