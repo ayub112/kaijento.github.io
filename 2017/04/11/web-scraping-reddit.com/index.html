@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/11/web-scraping-reddit.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: reddit.com | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/11/web-scraping-reddit.com/">Web scraping: reddit.com</a></h1>
+  <p class="text-muted">11 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/praw/">praw</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>How do I scrape the front page of a subreddit using Python?</em></p>
+
+<p><em>Scraping a subreddit</em> seems to be a commonly requested task
+ and people usually attempt to do it using <code class="highlighter-rouge">urllib</code> or <code class="highlighter-rouge">requests</code> 
+combined with <code class="highlighter-rouge">lxml</code> or <code class="highlighter-rouge">BeautifulSoup</code>.</p>
+
+<p>Reddit does have an <a href="https://www.reddit.com/dev/api">official API</a> and 
+there is a Python interface to it in <a href="https://praw.readthedocs.io/">PRAW</a>. 
+You do however, need to register an account and use OAuth with this 
+approach.</p>
+
+<p>There is also another option. Reddit allows you to add a <code class="highlighter-rouge">.json</code> 
+extension to the end of your request and will give you back 
+the data in JSON format which can then be processed using a
+JSON parser such as the <code class="highlighter-rouge">json</code> module.</p>
+
+<p>It is sort of like they provide unauthorized access to their JSON API
+with this method.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://reddit.com/r/learnpython/new/.json'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">])</span>
+<span class="mi">25</span>
+</code></pre>
+</div>
+
+<p>Reddit blocks certain user-agent strings so we must spoof it.</p>
+
+<a name="rjson"></a>
+<h2 class="section-header">
+  <span id="rjson"></span>
+  <a class="anchor" href="#rjson">r.json()</a>
+</h2>
+
+<p><code class="highlighter-rouge">r.json()</code> just does a <code class="highlighter-rouge">json.loads()</code> in the background which turns
+a JSON string into a Python structure. We get back a nested structure 
+of dicts and lists.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+<span class="o">&lt;</span><span class="nb">type</span> <span class="s">'dict'</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">])</span>
+<span class="o">&lt;</span><span class="nb">type</span> <span class="s">'dict'</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="p">[</span><span class="s">u'modhash'</span><span class="p">,</span> <span class="s">u'children'</span><span class="p">,</span> <span class="s">u'after'</span><span class="p">,</span> <span class="s">u'before'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>To view a pretty-printed version of the structure we can use <code class="highlighter-rouge">json.dumps()</code>
+e.g. <code class="highlighter-rouge">print(json.dumps(r.json(), indent=4, sort_keys=True))</code></p>
+
+<p>You will get a lot of output running it directly on <code class="highlighter-rouge">r.json()</code> so it may 
+make sense to write it out to a file (<code class="highlighter-rouge">json.dump()</code>) instead.</p>
+
+<p>After looking at the structure we can see that the posts are available inside
+the <code class="highlighter-rouge">['data']['children']</code> list. <code class="highlighter-rouge">['data']</code> also holds some other information.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'after'</span><span class="p">]</span>
+<span class="s">u't3_64o6gh'</span>
+</code></pre>
+</div>
+
+<p>These <code class="highlighter-rouge">before</code> and <code class="highlighter-rouge">after</code> values are used for result page navigation
+when you click on the <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">prev</code> buttons. To get to the next
+page we can pass <code class="highlighter-rouge">after=t3_64o6gh</code> as a GET param.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">next_page_url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s">'?&amp;after='</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'after'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">next_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page2_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">next_page</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
+<span class="s">u'https://www.reddit.com/r/learnpython/comments/64o5yx/help_breakdown_list_comprehension_example/'</span>
+</code></pre>
+</div>
+
+<p>When making multiple requests however, you will usually want to use a 
+<a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">session object</a>.</p>
+
+<p>So each post is a dict and the important information is available inside the <code class="highlighter-rouge">data</code> key:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="s">"data"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">"approved_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+        <span class="s">"archived"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+        <span class="s">"author"</span><span class="p">:</span> <span class="s">"HolyCoder"</span><span class="p">,</span> 
+        <span class="s">"author_flair_css_class"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+        <span class="s">"author_flair_text"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+        <span class="s">"banned_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+        <span class="s">"brand_safe"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> 
+        <span class="s">"clicked"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+        <span class="s">"contest_mode"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+        <span class="s">"created"</span><span class="p">:</span> <span class="mf">1491943248.0</span><span class="p">,</span> 
+        <span class="s">"created_utc"</span><span class="p">:</span> <span class="mf">1491914448.0</span><span class="p">,</span> 
+        <span class="s">"distinguished"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+        <span class="s">"domain"</span><span class="p">:</span> <span class="s">"self.learnpython"</span><span class="p">,</span> 
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>I’ve truncated the output here but the ones people are usually after are <code class="highlighter-rouge">author</code>,
+<code class="highlighter-rouge">selftext</code>, <code class="highlighter-rouge">title</code> and <code class="highlighter-rouge">url</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
+<span class="s">u'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'title'</span><span class="p">]</span>
+<span class="s">u'Efficiency of an algorithm'</span>
+</code></pre>
+</div>
+
+<p>It’s pretty annoying having to use <code class="highlighter-rouge">['data']</code> all the time so we could have 
+instead done:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">]</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span> <span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
+<span class="s">u'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
+</code></pre>
+</div>
+
+<a name="raww"></a>
+<h2 class="section-header">
+  <span id="raww"></span>
+  <a class="anchor" href="#raww">r/aww</a>
+</h2>
+
+<p>So let’s say you wanted to “scrape” all the newest “images” from 
+<a href="http://reddit.com/r/aww/new/">r/aww</a> for teh cuddlez you could:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'http://www.reddit.com/r/aww/new/.json'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]:</span>
+<span class="o">...</span>     <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
+<span class="o">...</span> 
+<span class="s">u'https://youtu.be/nJRf-fJNdJ4'</span>
+<span class="s">u'https://i.redd.it/jmctfmktixqy.jpg'</span>
+<span class="s">u'http://imgur.com/gallery/k5UvK'</span>
+<span class="s">u'https://i.redd.it/q0ybf3nlixqy.jpg'</span>
+<span class="s">u'http://i.imgur.com/JoF5FNd.jpg'</span>
+<span class="s">u'http://i.imgur.com/NI5GuJf.gifv'</span>
+<span class="s">u'http://i.imgur.com/UHg5RbU.jpg'</span>
+<span class="s">u'https://i.redd.it/5jwksp64hxqy.jpg'</span>
+<span class="s">u'http://i.imgur.com/Bninome.gifv'</span>
+<span class="s">u'http://i.imgur.com/gs8rRg4.jpg'</span>
+<span class="s">u'https://i.redd.it/m6xpbtuogxqy.jpg'</span>
+<span class="s">u'https://i.redd.it/gwenjc8dgxqy.jpg'</span>
+<span class="s">u'http://i.imgur.com/zLmZJTc.gifv'</span>
+<span class="s">u'http://i.imgur.com/7ihgzyx.gifv'</span>
+<span class="s">u'http://imgur.com/gallery/jjr6C'</span>
+<span class="s">u'http://imgur.com/AkdxXuT.gifv'</span>
+<span class="s">u'https://gfycat.com/UnpleasantBothJunco'</span>
+<span class="s">u'https://i.redd.it/hk9y3kb8fxqy.jpg'</span>
+<span class="s">u'http://imgur.com/ADLfEwY'</span>
+<span class="s">u'https://i.redd.it/wfn3t1b5fxqy.jpg'</span>
+<span class="s">u'https://i.redd.it/wa44h0zaexqy.jpg'</span>
+<span class="s">u'https://i.redd.it/viy7gp1cexqy.jpg'</span>
+<span class="s">u'https://i.redd.it/a1nw9bcydxqy.png'</span>
+<span class="s">u'https://i.redd.it/wmbn7lf2owqy.jpg'</span>
+<span class="s">u'https://i.redd.it/yestv4i5dxqy.jpg'</span>
+</code></pre>
+</div>
+
+<p>These URLs would require further processing though as not all of them are 
+direct links and not all of them are images however it seems to be a
+common request with the image dedicated subreddits.</p>
+
+<a name="beautifulsoup"></a>
+<h2 class="section-header">
+  <span id="beautifulsoup"></span>
+  <a class="anchor" href="#beautifulsoup">BeautifulSoup</a>
+</h2>
+
+<p>You can of course just request the regular URL and process the HTML
+ with a parser such as <code class="highlighter-rouge">BeautifulSoup</code>:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'http://reddit.com/r/aww/new/'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">div</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'div.thing'</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">div</span><span class="p">[</span><span class="s">'data-url'</span><span class="p">]</span>
+<span class="o">...</span> 
+<span class="s">u'https://youtu.be/nJRf-fJNdJ4'</span>
+<span class="s">u'https://i.redd.it/jmctfmktixqy.jpg'</span>
+<span class="s">u'http://imgur.com/gallery/k5UvK'</span>
+<span class="s">u'https://i.redd.it/q0ybf3nlixqy.jpg'</span>
+<span class="s">u'http://i.imgur.com/JoF5FNd.jpg'</span>
+<span class="s">u'http://i.imgur.com/NI5GuJf.gifv'</span>
+<span class="s">u'http://i.imgur.com/UHg5RbU.jpg'</span>
+<span class="s">u'https://i.redd.it/5jwksp64hxqy.jpg'</span>
+<span class="s">u'http://i.imgur.com/Bninome.gifv'</span>
+<span class="s">u'http://i.imgur.com/gs8rRg4.jpg'</span>
+<span class="s">u'https://i.redd.it/m6xpbtuogxqy.jpg'</span>
+<span class="s">u'https://i.redd.it/gwenjc8dgxqy.jpg'</span>
+<span class="s">u'http://i.imgur.com/zLmZJTc.gifv'</span>
+<span class="s">u'http://i.imgur.com/7ihgzyx.gifv'</span>
+<span class="s">u'http://imgur.com/gallery/jjr6C'</span>
+<span class="s">u'http://imgur.com/AkdxXuT.gifv'</span>
+<span class="s">u'https://gfycat.com/UnpleasantBothJunco'</span>
+<span class="s">u'https://i.redd.it/hk9y3kb8fxqy.jpg'</span>
+<span class="s">u'http://imgur.com/ADLfEwY'</span>
+<span class="s">u'https://i.redd.it/wfn3t1b5fxqy.jpg'</span>
+<span class="s">u'https://i.redd.it/wa44h0zaexqy.jpg'</span>
+<span class="s">u'https://i.redd.it/viy7gp1cexqy.jpg'</span>
+<span class="s">u'https://i.redd.it/a1nw9bcydxqy.png'</span>
+<span class="s">u'https://i.redd.it/wmbn7lf2owqy.jpg'</span>
+<span class="s">u'https://i.redd.it/yestv4i5dxqy.jpg'</span>
+</code></pre>
+</div>
+
+<p>Which to me at least looks like a simpler way of getting the data compared to
+the JSON response parsing approach.</p>
+
+<p>As already mentioned Reddit does have an API with
+<a href="https://github.com/reddit/reddit/wiki/API#rules">rules / guidelines</a> and if 
+you’re wanting to do some large-scale interaction with Reddit you should
+probably go that route and use one of the extensive API interfaces for
+your language such as <a href="https://praw.readthedocs.io/">PRAW</a> in the case of
+Python.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (29)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/10/bash-remove-trailing-spaces-from-filenames/">bash: remove trailing spaces from filenames</a></h2>
+          <p class="preview"><em>I have a directory full of files that contain trailing spaces
+which is causing problems when trying to read them on Windows.
+I am booted into Linux and have a bash shell how do I remove the
+trailing spaces?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

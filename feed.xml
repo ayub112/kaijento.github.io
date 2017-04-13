@@ -5,12 +5,12 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 11 Apr 2017 15:45:28 +0100</pubDate>
-    <lastBuildDate>Tue, 11 Apr 2017 15:45:28 +0100</lastBuildDate>
+    <pubDate>Thu, 13 Apr 2017 20:53:53 +0100</pubDate>
+    <lastBuildDate>Thu, 13 Apr 2017 20:53:53 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
-        <title>Webscraping: reddit.com</title>
+        <title>Web scraping: reddit.com</title>
         <description>&lt;p&gt;&lt;em&gt;How do I scrape the front page of a subreddit using Python?&lt;/em&gt;&lt;/p&gt;
 
 &lt;p&gt;&lt;em&gt;Scraping a subreddit&lt;/em&gt; seems to be a commonly requested task
@@ -218,12 +218,14 @@ your language such as &lt;a href=&quot;https://praw.readthedocs.io/&quot;&gt;PRA
 Python.&lt;/p&gt;
 </description>
         <pubDate>Tue, 11 Apr 2017 13:25:28 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/11/webscraping-reddit.com/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/11/webscraping-reddit.com/</guid>
+        <link>http://kaijento.github.io/2017/04/11/web-scraping-reddit.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/11/web-scraping-reddit.com/</guid>
         
         <category>python</category>
         
         <category>requests</category>
+        
+        <category>webscraping</category>
         
         <category>beautifulsoup</category>
         
@@ -607,6 +609,8 @@ you see fit.&lt;/p&gt;
         <category>regex</category>
         
         <category>glob</category>
+        
+        <category>rename</category>
         
         
       </item>
