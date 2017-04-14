@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/12/bash-rename-modification-time/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: rename files based on modification time | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/12/bash-rename-modification-time/">bash: rename files based on modification time</a></h1>
+  <p class="text-muted">12 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/find/">find</a>
+  
+    
+  <a href="/categories/rename/">rename</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>I have a directory full of files. I would like to prefix
+each filename with an ascending count starting from the oldest.</em></p>
+
+<p>before</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -l
+total 0K
+-rw------- 1 user group 0 Apr 12 05:44 a
+-rw------- 1 user group 0 Apr 12 04:45 b
+-rw------- 1 user group 0 Apr 12 03:45 c
+</code></pre>
+</div>
+
+<p>after</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 03:45 <span class="s2">"01 c"</span>
+-rw------- 1 user group 0 Apr 12 04:45 <span class="s2">"02 b"</span>
+-rw------- 1 user group 0 Apr 12 05:44 <span class="s2">"03 a"</span>
+</code></pre>
+</div>
+
+<p>Generally when talking about the age of files on <em>“*nix”</em>
+the last modification time or <code class="highlighter-rouge">mtime</code> is used as the presence of 
+“creation time” is filesystem specific and may not exist.</p>
+
+<p>We’re using Linux here which means we have access to
+GNU <code class="highlighter-rouge">ls</code> which has <code class="highlighter-rouge">-Q</code> to quote the filename. This 
+can be useful for highlighting the filename portion of 
+the ouput when using <code class="highlighter-rouge">-l</code> as shown above.</p>
+
+<p>So let’s create some test files.</p>
+
+<p>GNU <code class="highlighter-rouge">date</code> has <code class="highlighter-rouge">-d</code> which can simplify creating dates 
+in the past (or future).</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>touch -t <span class="k">$(</span>date +%m%d%H%M -d <span class="s1">'1 hour ago'</span><span class="k">)</span> c
+<span class="gp">$ </span>touch -t <span class="k">$(</span>date +%m%d%H%M -d <span class="s1">'2 hour ago'</span><span class="k">)</span> b
+<span class="gp">$ </span>touch a
+<span class="gp">$ </span>ls -l
+total 0K
+-rw------- 1 user group 0 Apr 12 07:31 a
+-rw------- 1 user group 0 Apr 12 05:31 b
+-rw------- 1 user group 0 Apr 12 06:31 c
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">$()</code> here is called <em>Command Substitution</em>.
+It is used for capturing the output of a command. You may 
+also see it written using backticks (<em>“backquotes”</em>) 
+e.g. <code class="highlighter-rouge">`date +%m%d%H%M -d '1 hour ago'`</code></p>
+
+<p>The backtick form is considered <em>old-style</em> and there
+are some slight differences with regards to backslash handling.</p>
+
+<p>You will of course read on <em>“the internet”</em> that you are
+<em>“never”</em> to use the old-style but some people find it 
+<em>“prettier”</em> and easier to type.</p>
+
+<a name="ls"></a>
+<h2 class="section-header">
+  <span id="ls"></span>
+  <a class="anchor" href="#ls">ls</a>
+</h2>
+
+<p><code class="highlighter-rouge">ls</code> has the <code class="highlighter-rouge">-t</code> option which will sort by modification time.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lt 
+total 0K
+-rw------- 1 user group 0 Apr 12 07:31 a
+-rw------- 1 user group 0 Apr 12 06:31 c
+-rw------- 1 user group 0 Apr 12 05:31 b
+</code></pre>
+</div>
+
+<p>With <code class="highlighter-rouge">-r</code> you can reverse the sort order.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -ltr 
+total 0K
+-rw------- 1 user group 0 Apr 12 05:31 b
+-rw------- 1 user group 0 Apr 12 06:31 c
+-rw------- 1 user group 0 Apr 12 07:31 a
+</code></pre>
+</div>
+
+<p>According to <em>“the internet”</em> you’re <em>“never”</em>
+supposed to parse <code class="highlighter-rouge">ls</code> but <em>“h8rz gonna h8”</em> as they say.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>f <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do </span><span class="nb">let </span>i++; mv -v <span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2"> </span><span class="nv">$f</span><span class="s2">"</span>; <span class="k">done</span>
+‘b’ -&gt; ‘1 b’
+‘c’ -&gt; ‘2 c’
+‘a’ -&gt; ‘3 a’
+</code></pre>
+</div>
+
+<p>Check the results:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 05:31 <span class="s2">"1 b"</span>
+-rw------- 1 user group 0 Apr 12 06:31 <span class="s2">"2 c"</span>
+-rw------- 1 user group 0 Apr 12 07:31 <span class="s2">"3 a"</span>
+</code></pre>
+</div>
+
+<a name="math-in-bash"></a>
+<h2 class="section-header">
+  <span id="math-in-bash"></span>
+  <a class="anchor" href="#math-in-bash">math in bash</a>
+</h2>
+
+<p>There are various ways to perform arithmetic in bash. 
+Instead of <code class="highlighter-rouge">let i++</code> we could have used <code class="highlighter-rouge">((i++))</code>. There is also
+the <code class="highlighter-rouge">$(())</code> form which will return the result meaning we could
+inline the incrementation into the <code class="highlighter-rouge">dest</code> filename e.g. 
+<code class="highlighter-rouge">mv -v "$f" "$((++i)) $f"</code></p>
+
+<p>With inlining we need to change the increment from postfix to prefix 
+otherwise we would start at <code class="highlighter-rouge">0</code> e.g. <code class="highlighter-rouge">0 b</code>, <code class="highlighter-rouge">1 c</code> and <code class="highlighter-rouge">2 a</code></p>
+
+<p>We did not explicitly initialize <code class="highlighter-rouge">i</code> as it’s not needed.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">declare</span> -p i
+-bash: <span class="nb">declare</span>: i: not found
+<span class="gp">$ </span><span class="o">((</span>i++<span class="o">))</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p i
+<span class="nb">declare</span> -- <span class="nv">i</span><span class="o">=</span><span class="s2">"1"</span>
+</code></pre>
+</div>
+
+<a name="printf-padding"></a>
+<h2 class="section-header">
+  <span id="printf-padding"></span>
+  <a class="anchor" href="#printf-padding">printf padding</a>
+</h2>
+
+<p>The requirements stated that numbers 1-9 should be padded with a leading 0. We can use <code class="highlighter-rouge">printf</code>
+to achieve that.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="nb">printf</span> <span class="s1">'%02d\n'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span>
+01
+</code></pre>
+</div>
+
+<p>We’re explicitly setting <code class="highlighter-rouge">i=0</code> here because the previous example was executed
+in the same bash instance so <code class="highlighter-rouge">i</code> had a value of <code class="highlighter-rouge">1</code>. We will set <code class="highlighter-rouge">i</code> for
+the remaining examples.</p>
+
+<p>bash’s <code class="highlighter-rouge">printf</code> was given <code class="highlighter-rouge">-v</code> which allows you to store the output into a 
+variable instead of printing it out.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="nb">printf</span> -v new %02d <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p new
+<span class="nb">declare</span> -- <span class="nv">new</span><span class="o">=</span><span class="s2">"01"</span>
+</code></pre>
+</div>
+
+<p>You could of course use <em>Command Substitution</em> if your version did not
+support <code class="highlighter-rouge">-v</code>. Let’s try again with <code class="highlighter-rouge">printf</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="k">for </span>old <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do 
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+‘b’ -&gt; ‘01 b’
+‘c’ -&gt; ‘02 c’
+‘a’ -&gt; ‘03 a’
+</code></pre>
+</div>
+
+<a name="to-parse-or-not-to-parse"></a>
+<h2 class="section-header">
+  <span id="to-parse-or-not-to-parse"></span>
+  <a class="anchor" href="#to-parse-or-not-to-parse">to parse or not to parse</a>
+</h2>
+
+<p><em>But OMG it sez on d internet nevar parse <code class="highlighter-rouge">ls</code> !!! lmao wut r u doin u t0t4l n00bz0r3!!!!</em></p>
+
+<p>The problem with parsing <code class="highlighter-rouge">ls</code> this way is that it cannot handle 
+all possible filenames, one example being filenames that contain spaces.</p>
+
+<p>Enter the spaces.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 07:31 <span class="s2">"a"</span>
+-rw------- 1 user group 0 Apr 12 05:31 <span class="s2">"b"</span>
+-rw------- 1 user group 0 Apr 12 06:31 <span class="s2">"c d"</span>
+</code></pre>
+</div>
+
+<p>Enter the errors.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="k">for </span>old <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do 
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+‘b’ -&gt; ‘01 b’
+mv: cannot stat ‘c’: No such file or directory
+mv: cannot stat ‘d’: No such file or directory
+‘a’ -&gt; ‘04 a’
+</code></pre>
+</div>
+
+<p>The problem here is that <code class="highlighter-rouge">for</code> iterates over “words”</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">help </span><span class="k">for
+  for</span>: <span class="k">for </span>NAME <span class="o">[</span><span class="k">in </span>WORDS ... <span class="o">]</span> ; <span class="k">do </span>COMMANDS; <span class="k">done</span>
+</code></pre>
+</div>
+
+<p>And because we have a filename that contains a space we end up with <code class="highlighter-rouge">4</code>
+“words” for the <code class="highlighter-rouge">3</code> filenames.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -tr
+b  c d  a
+</code></pre>
+</div>
+
+<p>To fix this we could change the <code class="highlighter-rouge">for</code> loop to a <code class="highlighter-rouge">while</code> loop and treat 
+each filename as a “line” instead of a “word”</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; ls -tr | <span class="k">while </span><span class="nb">read</span> -r old; <span class="k">do 
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+‘b’   -&gt; ‘01 b’
+‘c d’ -&gt; ‘02 c d’
+‘a’   -&gt; ‘03 a’
+</code></pre>
+</div>
+
+<p>This approach will break though if any filename contains a newline character.
+Yes, filenames can contain newlines. No, I’ve never had a filename with a
+newline in it.</p>
+
+<p>We can create such a filename using <code class="highlighter-rouge">touch $'e\nf'</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 07:31 <span class="s2">"a"</span>
+-rw------- 1 user group 0 Apr 12 05:31 <span class="s2">"b"</span>
+-rw------- 1 user group 0 Apr 12 06:31 <span class="s2">"c d"</span>
+-rw------- 1 user group 0 Apr 12 21:46 <span class="s2">"e</span><span class="se">\n</span><span class="s2">f"</span>
+</code></pre>
+</div>
+
+<p>From the <a href="https://www.gnu.org/software/bash/manual/bashref.html#ANSI_002dC-Quoting">manual</a>:</p>
+
+<blockquote>
+  <p>Words of the form <code class="highlighter-rouge">$'string'</code> are treated specially.<br />
+The word expands to string, with backslash-escaped characters 
+replaced as specified¬ by the ANSI C standard.
+The expanded result is single-quoted, as if the dollar sign had not been present.</p>
+</blockquote>
+
+<p>Similar to the extra “word” problem with <code class="highlighter-rouge">for</code> we now have an 
+extra “line” with <code class="highlighter-rouge">while</code> as <code class="highlighter-rouge">e</code> and <code class="highlighter-rouge">f</code> are treated as separate
+filenames.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; ls -tr | <span class="k">while </span><span class="nb">read</span> -r old; <span class="k">do 
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+‘b’   -&gt; ‘01 b’
+‘c d’ -&gt; ‘02 c d’
+‘a’   -&gt; ‘03 a’
+mv: cannot stat ‘e’: No such file or directory
+mv: cannot stat ‘f’: No such file or directory
+</code></pre>
+</div>
+
+<p>One possible solution to this problem is to use the 
+<em>null-byte</em> to delimit entries as opposed to 
+spaces or newlines and that means ditching the use of <code class="highlighter-rouge">ls</code>.</p>
+
+<a name="find"></a>
+<h2 class="section-header">
+  <span id="find"></span>
+  <a class="anchor" href="#find">find</a>
+</h2>
+
+<p>GNU <code class="highlighter-rouge">find</code> has <code class="highlighter-rouge">-printf</code> which takes a format string to print out
+all kinds of stats (similar to the <code class="highlighter-rouge">stat(1)</code> command) such as
+<code class="highlighter-rouge">%t</code> for the last modification time. GNU <code class="highlighter-rouge">sort</code> has <code class="highlighter-rouge">-z</code> which 
+allows it to process null-delimited records.</p>
+
+<p>This allows us to build a list of null-delimited filenames and sort 
+them according to their last modification time which we can then 
+process with a <code class="highlighter-rouge">while read</code> loop.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; find -mindepth 1 -printf <span class="s1">'%T@ %p\0'</span> | sort -z -k1,1n | 
+<span class="k">while </span><span class="nb">read</span> -r -d <span class="s1">''</span> _ old
+<span class="k">do 
+    </span><span class="nv">dirname</span><span class="o">=</span><span class="k">${</span><span class="nv">old</span><span class="p">%/*</span><span class="k">}</span>/
+    <span class="nb">printf</span> -v new <span class="s1">'%s%02d %s'</span> <span class="s2">"</span><span class="nv">$dirname</span><span class="s2">"</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">##*/</span><span class="k">}</span><span class="s2">"</span>
+    mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>
+<span class="k">done</span>
+‘./b’    -&gt; ‘./01 b’
+‘./c d’  -&gt; ‘./02 c d’
+‘./a’    -&gt; ‘./03 a’
+‘./e<span class="se">\n</span>f’ -&gt; ‘./04 e<span class="se">\n</span>f’
+</code></pre>
+</div>
+
+<p>The result:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 05:31 <span class="s2">"01 b"</span>
+-rw------- 1 user group 0 Apr 12 06:31 <span class="s2">"02 c d"</span>
+-rw------- 1 user group 0 Apr 12 07:31 <span class="s2">"03 a"</span>
+-rw------- 1 user group 0 Apr 12 21:46 <span class="s2">"04 e</span><span class="se">\n</span><span class="s2">f"</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">-mindepth 1</code> prevents the directory from appearing
+in the results.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find
+.
+./b
+./c d
+./a
+./e?f
+<span class="gp">$ </span>find -mindepth 1
+./b
+./c d
+./a
+./e?f
+</code></pre>
+</div>
+
+<p>As mentioned <code class="highlighter-rouge">%t</code> prints the last modification time. Using
+<code class="highlighter-rouge">%T</code> also prints it but allows you to customize the format. 
+<code class="highlighter-rouge">@</code> is used to set the format to <em>epoch time</em> i.e.
+to print it out as seconds since the epoch.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -mindepth 1 -printf <span class="s1">'%t\n'</span>
+Wed Apr 12 05:31:00.0000000000 2017
+Wed Apr 12 06:31:00.0000000000 2017
+Wed Apr 12 07:31:17.0508221217 2017
+Wed Apr 12 21:46:53.0661150219 2017
+<span class="gp">$ </span>find -mindepth 1 -printf <span class="s1">'%T@\n'</span>
+1491971460.0000000000
+1491975060.0000000000
+1491978677.5082212170
+1492030013.6611502190
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">%p</code> is the path of the item found and we used <code class="highlighter-rouge">\0</code> to delimit
+the record with the null-byte.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -mindepth 1 -printf <span class="s1">'%T@\0'</span> | cat -vet
+1491971460.0000000000^@1491975060.0000000000^@1491978677.5082212170^@1492030013.6611502190^@<span class="err">$</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">^@</code> here is a visual representation of the null-byte.</p>
+
+<p>A full list of the <code class="highlighter-rouge">-printf</code> format directives can be found 
+<a href="https://www.gnu.org/software/findutils/manual/html_node/find_html/Format-Directives.html#Format-Directives">in the manual</a>.</p>
+
+<p>The requirements we were given stated that we had a flat directory that
+only contained files and they were all to be renamed. A solution using
+<code class="highlighter-rouge">find</code> would allow for recurision and one could also utilize the filtering
+capabilities of <code class="highlighter-rouge">find</code> if needed e.g. <code class="highlighter-rouge">-name</code>, <code class="highlighter-rouge">-type</code>, etc.</p>
+
+<p>The results of the <code class="highlighter-rouge">find</code> command are piped to <code class="highlighter-rouge">sort -z -k1,1n</code></p>
+
+<p><code class="highlighter-rouge">-z</code> tells <code class="highlighter-rouge">sort</code> to expect null-delimited records as opposed to newline. 
+<code class="highlighter-rouge">-k1,1n</code> is to sort on the first “field” where <code class="highlighter-rouge">n</code> means to sort
+numerically.</p>
+
+<p>The sorted results are then fed to <code class="highlighter-rouge">while read -r -d '' _ old</code></p>
+
+<p><code class="highlighter-rouge">-r</code> has to do with backslash handing, you pretty much always 
+want to use <code class="highlighter-rouge">-r</code> with <code class="highlighter-rouge">read</code></p>
+
+<p><code class="highlighter-rouge">-d ''</code> sets the delimiter to null rather than a newline.</p>
+
+<p><code class="highlighter-rouge">_</code> is just a placeholder variable name, we could have instead 
+used <code class="highlighter-rouge">read -r -d '' time old</code>. Using <code class="highlighter-rouge">_</code> is a naming convention
+if you have to set a variable but don’t need to use it.</p>
+
+<p>Because <code class="highlighter-rouge">%p</code> from the <code class="highlighter-rouge">-printf</code> gives the full path to the file 
+we need to break it up into the <code class="highlighter-rouge">directory</code> component and <code class="highlighter-rouge">filename</code>
+component as to only add the prefix to the filename.</p>
+
+<p>That is what we’re doing with <code class="highlighter-rouge">dirname=${old%/*}/</code> and <code class="highlighter-rouge">${old##*/}</code>
+which is called <em>Parameter Expansion</em> and they’re essentially
+doing the same as the <code class="highlighter-rouge">dirname</code> and <code class="highlighter-rouge">basename</code> commands.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">old</span><span class="o">=</span>/foo/bar/baz/file.ext
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">%/*</span><span class="k">}</span><span class="s2">"</span>
+/foo/bar/baz
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">##*/</span><span class="k">}</span><span class="s2">"</span>
+file.ext
+</code></pre>
+</div>
+
+<p>If you didn’t have access to GNU <code class="highlighter-rouge">find</code> and <code class="highlighter-rouge">sort</code> you would probably
+have to reach for <code class="highlighter-rouge">perl</code>, <code class="highlighter-rouge">python</code>, <code class="highlighter-rouge">ruby</code> or whichever language
+you like to use.</p>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">perl</a>
+</h2>
+
+<p>With <code class="highlighter-rouge">perl</code> you could use something like:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -e <span class="s1">'system "echo", "mv", "-v", $_, sprintf "%02d %s", ++$i, $_ 
+    for sort { (stat $a)[9] &lt;=&gt; (stat $b)[9] } &lt;*&gt;'</span>
+mv -v b 01 b
+mv -v c d 02 c d
+mv -v a 03 a
+mv -v e
+f 04 e
+f
+</code></pre>
+</div>
+
+<p>We use <code class="highlighter-rouge">sprintf</code> to do the zero-padding and gives us back a string.
+<code class="highlighter-rouge">&lt;*&gt;</code> here is doing the same as <code class="highlighter-rouge">glob "*"</code> which as the name 
+suggests mimics the behaviour of the shell glob <code class="highlighter-rouge">*</code></p>
+
+<p>These filenames are passed to the <code class="highlighter-rouge">sort</code> block which sorts 
+based on the 10th element of the <code class="highlighter-rouge">stat</code> function which is 
+the last modification time.</p>
+
+<p>Written out in “full-form” it could look like:</p>
+
+<div class="language-perl highlighter-rouge"><pre class="highlight"><code><span class="k">my</span> <span class="nv">@files</span> <span class="o">=</span> <span class="nb">sort</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span> <span class="nb">glob</span> <span class="s">"*"</span><span class="p">;</span>
+<span class="k">for</span> <span class="k">my</span> <span class="nv">$file</span> <span class="p">(</span><span class="nv">@files</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">system</span> <span class="s">"echo"</span><span class="p">,</span> <span class="s">"mv"</span><span class="p">,</span> <span class="s">"-v"</span><span class="p">,</span> <span class="nv">$file</span><span class="p">,</span> <span class="o">...</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">$_</code> in our one-liner is called the <em>Default Variable</em>.
+If you don’t supply a variable name to the <code class="highlighter-rouge">for</code> loop <code class="highlighter-rouge">$_</code> will
+be used. So <code class="highlighter-rouge">$_</code> will contain the filename on each iteration of
+the loop.</p>
+
+<p>We’re only executing <code class="highlighter-rouge">echo</code> to see how the generated command will
+look. It looks okay so we can remove it to run <code class="highlighter-rouge">mv</code> instead.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -e <span class="s1">'system "mv", "-v", $_, sprintf "%02d %s", ++$i, $_ 
+    for sort { (stat $a)[9] &lt;=&gt; (stat $b)[9] } &lt;*&gt;'</span>
+‘b’    -&gt; ‘01 b’
+‘c d’  -&gt; ‘02 c d’
+‘a’    -&gt; ‘03 a’
+‘e<span class="se">\n</span>f’ -&gt; ‘04 e<span class="se">\n</span>f’
+<span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 05:31 <span class="s2">"01 b"</span>
+-rw------- 1 user group 0 Apr 12 06:31 <span class="s2">"02 c d"</span>
+-rw------- 1 user group 0 Apr 12 07:31 <span class="s2">"03 a"</span>
+-rw------- 1 user group 0 Apr 12 21:46 <span class="s2">"04 e</span><span class="se">\n</span><span class="s2">f"</span>
+</code></pre>
+</div>
+
+<p>You could use Perl’s <code class="highlighter-rouge">grep</code> if you needed to filter the filenames
+generated from the <code class="highlighter-rouge">glob</code> e.g. <code class="highlighter-rouge">grep { -f } &lt;*&gt;</code> to match only 
+<em>“plain files”</em>.</p>
+
+<p>You could also use the <code class="highlighter-rouge">File::Find</code> module to implement a 
+recursive solution if needed.</p>
+
+<a name="python"></a>
+<h2 class="section-header">
+  <span id="python"></span>
+  <a class="anchor" href="#python">python</a>
+</h2>
+
+<p>It’s also possible to produce a Python <em>“one-liner”</em> to
+do rougly the same thing.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -c <span class="s1">'import os, subprocess; [
+    subprocess.call(("echo", "mv", "-v", f, "%02d %s" % (i, f))) 
+      for i, f in enumerate(sorted(os.listdir("."), key=os.path.getmtime), start=1)]'</span>
+mv -v b 01 b
+mv -v c d 02 c d
+mv -v a 03 a
+mv -v e
+f 04 e
+f
+</code></pre>
+</div>
+
+<p>You can of course just write it “normally” which could look something like:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">subprocess</span>
+    
+<span class="n">filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">"."</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">sorted()</code> can take a <em>“callback”</em> (the name of a function to call or
+an <em>“inlined”</em> function created with <code class="highlighter-rouge">lambda</code>) via the <code class="highlighter-rouge">key</code> argument.</p>
+
+<p><code class="highlighter-rouge">enumerate()</code> takes an iterable and gives us the <code class="highlighter-rouge">index</code> and <code class="highlighter-rouge">item</code> per iteration.
+It defaults to <code class="highlighter-rouge">start</code> at <code class="highlighter-rouge">0</code> so we change that to <code class="highlighter-rouge">1</code>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">([</span><span class="s">'one'</span><span class="p">,</span> <span class="s">'two'</span><span class="p">,</span> <span class="s">'three'</span><span class="p">]))</span>
+<span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s">'one'</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">'two'</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'three'</span><span class="p">)]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">enumerate</span><span class="p">([</span><span class="s">'one'</span><span class="p">,</span> <span class="s">'two'</span><span class="p">,</span> <span class="s">'three'</span><span class="p">],</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s">'one'</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'two'</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">'three'</span><span class="p">)]</span>
+</code></pre>
+</div>
+
+<p>As we’re importing the <code class="highlighter-rouge">os</code> module we can replace our <code class="highlighter-rouge">subprocess.call()</code> to <code class="highlighter-rouge">mv</code>
+with <code class="highlighter-rouge">os.rename()</code>. We lose the verbose output from <code class="highlighter-rouge">mv -v</code> though.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -c <span class="s1">'import os; [ os.rename(f, "%02d %s" % (i, f))
+    for i, f in enumerate(sorted(os.listdir("."), key=os.path.getmtime), start=1)]'</span>
+<span class="gp">$ </span>ls -lQ
+total 0K
+-rw------- 1 user group 0 Apr 12 05:31 <span class="s2">"01 b"</span>
+-rw------- 1 user group 0 Apr 12 06:31 <span class="s2">"02 c d"</span>
+-rw------- 1 user group 0 Apr 12 07:31 <span class="s2">"03 a"</span>
+-rw------- 1 user group 0 Apr 12 21:46 <span class="s2">"04 e</span><span class="se">\n</span><span class="s2">f"</span>
+</code></pre>
+</div>
+
+<p>You could utilize <code class="highlighter-rouge">os.walk()</code> if you needed a recursive solution.</p>
+
+<a name="summary"></a>
+<h2 class="section-header">
+  <span id="summary"></span>
+  <a class="anchor" href="#summary">summary</a>
+</h2>
+
+<p>Yes, you can to parse <code class="highlighter-rouge">ls</code>. Yes, there are edge cases where it can fail.<br />
+Be aware of these cases and choose the appropriate approach for
+your specific needs.</p>
+
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (30)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/11/web-scraping-reddit.com/">Web scraping: reddit.com</a></h2>
+          <p class="preview"><em>How do I scrape the front page of a subreddit using Python?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
