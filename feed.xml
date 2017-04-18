@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 08:46:12 +0100</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 08:46:12 +0100</lastBuildDate>
+    <pubDate>Tue, 18 Apr 2017 09:47:28 +0100</pubDate>
+    <lastBuildDate>Tue, 18 Apr 2017 09:47:28 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -457,18 +457,72 @@ total 0K
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
+&lt;h2 id=&quot;double-dash&quot;&gt;double dash&lt;/h2&gt;
+
+&lt;p&gt;Instead of the filename &lt;code class=&quot;highlighter-rouge&quot;&gt;b&lt;/code&gt; we will use &lt;code class=&quot;highlighter-rouge&quot;&gt;-b&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch -b
+touch: invalid option -- &lt;span class=&quot;s1&quot;&gt;'b'&lt;/span&gt;
+Try &lt;span class=&quot;s1&quot;&gt;'touch --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The problem is that &lt;code class=&quot;highlighter-rouge&quot;&gt;-b&lt;/code&gt; is being parsed by &lt;code class=&quot;highlighter-rouge&quot;&gt;touch&lt;/code&gt; as an argument
+due to the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;-&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;There are 2 options, we can can give the full path e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;./-b&lt;/code&gt; or we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-- -b&lt;/code&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;A  &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; signals the end of options and disables further option processing.&lt;br /&gt;
+Any arguments after the &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; are treated as filenames and arguments.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lt 
+total 0K
+-rw------- 1 user group 0 Apr 12 07:31 a
+-rw------- 1 user group 0 Apr 12 06:31 c
+-rw------- 1 user group 0 Apr 12 05:31 -b
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Does our loop still work?&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;i++; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+‘c’ -&amp;gt; ‘1 c’
+‘a’ -&amp;gt; ‘2 a’
+mv: missing destination file operand after ‘3 -b’
+Try &lt;span class=&quot;s1&quot;&gt;'mv --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So as with the &lt;code class=&quot;highlighter-rouge&quot;&gt;touch&lt;/code&gt; example above &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; is interpreting &lt;code class=&quot;highlighter-rouge&quot;&gt;-b&lt;/code&gt; as an option
+thus breaking the command.&lt;/p&gt;
+
+&lt;p&gt;We could use add &lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt; in but we will choose the &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; option instead.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;i++; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+‘-b’ -&amp;gt; ‘1 -b’
+‘c’ -&amp;gt; ‘2 c’
+‘a’ -&amp;gt; ‘3 a’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’re explicitly setting &lt;code class=&quot;highlighter-rouge&quot;&gt;i=0&lt;/code&gt; here because the previous example was executed
+in the same bash instance so &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; had a value of &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;. We will set &lt;code class=&quot;highlighter-rouge&quot;&gt;i=0&lt;/code&gt; for
+the remaining examples.&lt;/p&gt;
+
 &lt;h2 id=&quot;math-in-bash&quot;&gt;math in bash&lt;/h2&gt;
 
 &lt;p&gt;There are various ways to perform arithmetic in bash. 
 Instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;let i++&lt;/code&gt; we could have used &lt;code class=&quot;highlighter-rouge&quot;&gt;((i++))&lt;/code&gt;. There is also
 the &lt;code class=&quot;highlighter-rouge&quot;&gt;$(())&lt;/code&gt; form which will return the result meaning we could
 inline the incrementation into the &lt;code class=&quot;highlighter-rouge&quot;&gt;dest&lt;/code&gt; filename e.g. 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;mv -v &quot;$f&quot; &quot;$((++i)) $f&quot;&lt;/code&gt;&lt;/p&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;mv -v -- &quot;$f&quot; &quot;$((++i)) $f&quot;&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;With inlining we need to change the increment from postfix to prefix 
 otherwise we would start at &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;0 b&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;1 c&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;2 a&lt;/code&gt;&lt;/p&gt;
 
-&lt;p&gt;We did not explicitly initialize &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; as it’s not needed.&lt;/p&gt;
+&lt;p&gt;We did not explicitly initialize &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; in the first example as it wasn’t needed.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p i
 -bash: &lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt;: i: not found
@@ -488,10 +542,6 @@ to achieve that.&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;We’re explicitly setting &lt;code class=&quot;highlighter-rouge&quot;&gt;i=0&lt;/code&gt; here because the previous example was executed
-in the same bash instance so &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; had a value of &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;. We will set &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; for
-the remaining examples.&lt;/p&gt;
-
 &lt;p&gt;bash’s &lt;code class=&quot;highlighter-rouge&quot;&gt;printf&lt;/code&gt; was given &lt;code class=&quot;highlighter-rouge&quot;&gt;-v&lt;/code&gt; which allows you to store the output into a 
 variable instead of printing it out.&lt;/p&gt;
 
@@ -505,10 +555,10 @@ variable instead of printing it out.&lt;/p&gt;
 support &lt;code class=&quot;highlighter-rouge&quot;&gt;-v&lt;/code&gt;. Let’s try again with &lt;code class=&quot;highlighter-rouge&quot;&gt;printf&lt;/code&gt;:&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘b’ -&amp;gt; ‘01 b’
-‘c’ -&amp;gt; ‘02 c’
-‘a’ -&amp;gt; ‘03 a’
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+‘-b’ -&amp;gt; ‘01 -b’
+‘c’  -&amp;gt; ‘02 c’
+‘a’  -&amp;gt; ‘03 a’
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
@@ -532,7 +582,7 @@ total 0K
 &lt;p&gt;Enter the errors.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 ‘b’ -&amp;gt; ‘01 b’
 mv: cannot stat ‘c’: No such file or directory
 mv: cannot stat ‘d’: No such file or directory
@@ -559,7 +609,7 @@ b  c d  a
 each filename as a “line” instead of a “word”&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; ls -tr | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r old; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 ‘b’   -&amp;gt; ‘01 b’
 ‘c d’ -&amp;gt; ‘02 c d’
 ‘a’   -&amp;gt; ‘03 a’
@@ -595,7 +645,7 @@ extra “line” with &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/
 filenames.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; ls -tr | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r old; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
+    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 ‘b’   -&amp;gt; ‘01 b’
 ‘c d’ -&amp;gt; ‘02 c d’
 ‘a’   -&amp;gt; ‘03 a’
@@ -624,7 +674,7 @@ process with a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/co
 &lt;span class=&quot;k&quot;&gt;do 
     &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%/*&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/
     &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%s%02d %s'&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$dirname&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;##*/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-    mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
+    mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
 ‘./b’    -&amp;gt; ‘./01 b’
 ‘./c d’  -&amp;gt; ‘./02 c d’
@@ -738,12 +788,12 @@ you like to use.&lt;/p&gt;
 
 &lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; you could use something like:&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -e &lt;span class=&quot;s1&quot;&gt;'system &quot;echo&quot;, &quot;mv&quot;, &quot;-v&quot;, $_, sprintf &quot;%02d %s&quot;, ++$i, $_ 
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -e &lt;span class=&quot;s1&quot;&gt;'system &quot;echo&quot;, &quot;mv&quot;, &quot;-v&quot;, &quot;--&quot;, $_, sprintf &quot;%02d %s&quot;, ++$i, $_ 
     for sort { (stat $a)[9] &amp;lt;=&amp;gt; (stat $b)[9] } &amp;lt;*&amp;gt;'&lt;/span&gt;
-mv -v b 01 b
-mv -v c d 02 c d
-mv -v a 03 a
-mv -v e
+mv -v -- b 01 b
+mv -v -- c d 02 c d
+mv -v -- a 03 a
+mv -v -- e
 f 04 e
 f
 &lt;/code&gt;&lt;/pre&gt;
@@ -761,7 +811,7 @@ the last modification time.&lt;/p&gt;
 
 &lt;div class=&quot;language-perl highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;@files&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;glob&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;*&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;@files&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nb&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;echo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;mv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-v&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+    &lt;span class=&quot;nb&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;echo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;mv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-v&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;--&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
@@ -774,7 +824,7 @@ the loop.&lt;/p&gt;
 &lt;p&gt;We’re only executing &lt;code class=&quot;highlighter-rouge&quot;&gt;echo&lt;/code&gt; to see how the generated command will
 look. It looks okay so we can remove it to run &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; instead.&lt;/p&gt;
 
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -e &lt;span class=&quot;s1&quot;&gt;'system &quot;mv&quot;, &quot;-v&quot;, $_, sprintf &quot;%02d %s&quot;, ++$i, $_ 
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -e &lt;span class=&quot;s1&quot;&gt;'system &quot;mv&quot;, &quot;-v&quot;, &quot;--&quot;, $_, sprintf &quot;%02d %s&quot;, ++$i, $_ 
     for sort { (stat $a)[9] &amp;lt;=&amp;gt; (stat $b)[9] } &amp;lt;*&amp;gt;'&lt;/span&gt;
 ‘b’    -&amp;gt; ‘01 b’
 ‘c d’  -&amp;gt; ‘02 c d’
@@ -802,12 +852,12 @@ recursive solution if needed.&lt;/p&gt;
 do rougly the same thing.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -c &lt;span class=&quot;s1&quot;&gt;'import os, subprocess; [
-    subprocess.call((&quot;echo&quot;, &quot;mv&quot;, &quot;-v&quot;, f, &quot;%02d %s&quot; % (i, f))) 
+    subprocess.call((&quot;echo&quot;, &quot;mv&quot;, &quot;-v&quot;, &quot;--&quot;, f, &quot;%02d %s&quot; % (i, f))) 
       for i, f in enumerate(sorted(os.listdir(&quot;.&quot;), key=os.path.getmtime), start=1)]'&lt;/span&gt;
-mv -v b 01 b
-mv -v c d 02 c d
-mv -v a 03 a
-mv -v e
+mv -v -- b 01 b
+mv -v -- c d 02 c d
+mv -v -- a 03 a
+mv -v -- e
 f 04 e
 f
 &lt;/code&gt;&lt;/pre&gt;
@@ -855,9 +905,11 @@ total 0K
 &lt;h2 id=&quot;summary&quot;&gt;summary&lt;/h2&gt;
 
 &lt;p&gt;Yes, you can to parse &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt;. Yes, there are edge cases where it can fail.&lt;br /&gt;
-Be aware of these cases and choose the appropriate approach for
-your specific needs.&lt;/p&gt;
+If these edge cases do not apply to you however, it can be the “simplest”
+approach.&lt;/p&gt;
 
+&lt;p&gt;Be aware of the edge cases and choose the appropriate approach for your 
+specific needs.&lt;/p&gt;
 </description>
         <pubDate>Wed, 12 Apr 2017 07:17:57 +0100</pubDate>
         <link>http://kaijento.github.io/2017/04/12/bash-rename-modification-time/</link>

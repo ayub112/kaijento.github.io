@@ -178,6 +178,64 @@ total 0K
 </code></pre>
 </div>
 
+<a name="double-dash"></a>
+<h2 class="section-header">
+  <span id="double-dash"></span>
+  <a class="anchor" href="#double-dash">double dash</a>
+</h2>
+
+<p>Instead of the filename <code class="highlighter-rouge">b</code> we will use <code class="highlighter-rouge">-b</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>touch -b
+touch: invalid option -- <span class="s1">'b'</span>
+Try <span class="s1">'touch --help'</span> <span class="k">for </span>more information.
+</code></pre>
+</div>
+
+<p>The problem is that <code class="highlighter-rouge">-b</code> is being parsed by <code class="highlighter-rouge">touch</code> as an argument
+due to the leading <code class="highlighter-rouge">-</code>.</p>
+
+<p>There are 2 options, we can can give the full path e.g. <code class="highlighter-rouge">./-b</code> or we can use <code class="highlighter-rouge">-- -b</code></p>
+
+<blockquote>
+  <p>A  <code class="highlighter-rouge">--</code> signals the end of options and disables further option processing.<br />
+Any arguments after the <code class="highlighter-rouge">--</code> are treated as filenames and arguments.</p>
+</blockquote>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lt 
+total 0K
+-rw------- 1 user group 0 Apr 12 07:31 a
+-rw------- 1 user group 0 Apr 12 06:31 c
+-rw------- 1 user group 0 Apr 12 05:31 -b
+</code></pre>
+</div>
+
+<p>Does our loop still work?</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>f <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do </span><span class="nb">let </span>i++; mv -v <span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2"> </span><span class="nv">$f</span><span class="s2">"</span>; <span class="k">done</span>
+‘c’ -&gt; ‘1 c’
+‘a’ -&gt; ‘2 a’
+mv: missing destination file operand after ‘3 -b’
+Try <span class="s1">'mv --help'</span> <span class="k">for </span>more information.
+</code></pre>
+</div>
+
+<p>So as with the <code class="highlighter-rouge">touch</code> example above <code class="highlighter-rouge">mv</code> is interpreting <code class="highlighter-rouge">-b</code> as an option
+thus breaking the command.</p>
+
+<p>We could use add <code class="highlighter-rouge">./</code> in but we will choose the <code class="highlighter-rouge">--</code> option instead.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="k">for </span>f <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do </span><span class="nb">let </span>i++; mv -v -- <span class="s2">"</span><span class="nv">$f</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$i</span><span class="s2"> </span><span class="nv">$f</span><span class="s2">"</span>; <span class="k">done</span>
+‘-b’ -&gt; ‘1 -b’
+‘c’ -&gt; ‘2 c’
+‘a’ -&gt; ‘3 a’
+</code></pre>
+</div>
+
+<p>We’re explicitly setting <code class="highlighter-rouge">i=0</code> here because the previous example was executed
+in the same bash instance so <code class="highlighter-rouge">i</code> had a value of <code class="highlighter-rouge">1</code>. We will set <code class="highlighter-rouge">i=0</code> for
+the remaining examples.</p>
+
 <a name="math-in-bash"></a>
 <h2 class="section-header">
   <span id="math-in-bash"></span>
@@ -188,12 +246,12 @@ total 0K
 Instead of <code class="highlighter-rouge">let i++</code> we could have used <code class="highlighter-rouge">((i++))</code>. There is also
 the <code class="highlighter-rouge">$(())</code> form which will return the result meaning we could
 inline the incrementation into the <code class="highlighter-rouge">dest</code> filename e.g. 
-<code class="highlighter-rouge">mv -v "$f" "$((++i)) $f"</code></p>
+<code class="highlighter-rouge">mv -v -- "$f" "$((++i)) $f"</code></p>
 
 <p>With inlining we need to change the increment from postfix to prefix 
 otherwise we would start at <code class="highlighter-rouge">0</code> e.g. <code class="highlighter-rouge">0 b</code>, <code class="highlighter-rouge">1 c</code> and <code class="highlighter-rouge">2 a</code></p>
 
-<p>We did not explicitly initialize <code class="highlighter-rouge">i</code> as it’s not needed.</p>
+<p>We did not explicitly initialize <code class="highlighter-rouge">i</code> in the first example as it wasn’t needed.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">declare</span> -p i
 -bash: <span class="nb">declare</span>: i: not found
@@ -217,10 +275,6 @@ to achieve that.</p>
 </code></pre>
 </div>
 
-<p>We’re explicitly setting <code class="highlighter-rouge">i=0</code> here because the previous example was executed
-in the same bash instance so <code class="highlighter-rouge">i</code> had a value of <code class="highlighter-rouge">1</code>. We will set <code class="highlighter-rouge">i</code> for
-the remaining examples.</p>
-
 <p>bash’s <code class="highlighter-rouge">printf</code> was given <code class="highlighter-rouge">-v</code> which allows you to store the output into a 
 variable instead of printing it out.</p>
 
@@ -234,10 +288,10 @@ variable instead of printing it out.</p>
 support <code class="highlighter-rouge">-v</code>. Let’s try again with <code class="highlighter-rouge">printf</code>:</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="k">for </span>old <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do 
-    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
-‘b’ -&gt; ‘01 b’
-‘c’ -&gt; ‘02 c’
-‘a’ -&gt; ‘03 a’
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v -- <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+‘-b’ -&gt; ‘01 -b’
+‘c’  -&gt; ‘02 c’
+‘a’  -&gt; ‘03 a’
 </code></pre>
 </div>
 
@@ -265,7 +319,7 @@ total 0K
 <p>Enter the errors.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; <span class="k">for </span>old <span class="k">in</span> <span class="sb">`</span>ls -tr<span class="sb">`</span>; <span class="k">do 
-    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v -- <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
 ‘b’ -&gt; ‘01 b’
 mv: cannot stat ‘c’: No such file or directory
 mv: cannot stat ‘d’: No such file or directory
@@ -292,7 +346,7 @@ b  c d  a
 each filename as a “line” instead of a “word”</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; ls -tr | <span class="k">while </span><span class="nb">read</span> -r old; <span class="k">do 
-    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v -- <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
 ‘b’   -&gt; ‘01 b’
 ‘c d’ -&gt; ‘02 c d’
 ‘a’   -&gt; ‘03 a’
@@ -328,7 +382,7 @@ extra “line” with <code class="highlighter-rouge">while</code> as <code clas
 filenames.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">i</span><span class="o">=</span>0; ls -tr | <span class="k">while </span><span class="nb">read</span> -r old; <span class="k">do 
-    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
+    </span><span class="nb">printf</span> -v new <span class="s1">'%02d %s'</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span>; mv -v -- <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>; <span class="k">done</span>
 ‘b’   -&gt; ‘01 b’
 ‘c d’ -&gt; ‘02 c d’
 ‘a’   -&gt; ‘03 a’
@@ -361,7 +415,7 @@ process with a <code class="highlighter-rouge">while read</code> loop.</p>
 <span class="k">do 
     </span><span class="nv">dirname</span><span class="o">=</span><span class="k">${</span><span class="nv">old</span><span class="p">%/*</span><span class="k">}</span>/
     <span class="nb">printf</span> -v new <span class="s1">'%s%02d %s'</span> <span class="s2">"</span><span class="nv">$dirname</span><span class="s2">"</span> <span class="k">$((</span><span class="o">++</span>i<span class="k">))</span> <span class="s2">"</span><span class="k">${</span><span class="nv">old</span><span class="p">##*/</span><span class="k">}</span><span class="s2">"</span>
-    mv -v <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>
+    mv -v -- <span class="s2">"</span><span class="nv">$old</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$new</span><span class="s2">"</span>
 <span class="k">done</span>
 ‘./b’    -&gt; ‘./01 b’
 ‘./c d’  -&gt; ‘./02 c d’
@@ -479,12 +533,12 @@ you like to use.</p>
 
 <p>With <code class="highlighter-rouge">perl</code> you could use something like:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -e <span class="s1">'system "echo", "mv", "-v", $_, sprintf "%02d %s", ++$i, $_ 
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -e <span class="s1">'system "echo", "mv", "-v", "--", $_, sprintf "%02d %s", ++$i, $_ 
     for sort { (stat $a)[9] &lt;=&gt; (stat $b)[9] } &lt;*&gt;'</span>
-mv -v b 01 b
-mv -v c d 02 c d
-mv -v a 03 a
-mv -v e
+mv -v -- b 01 b
+mv -v -- c d 02 c d
+mv -v -- a 03 a
+mv -v -- e
 f 04 e
 f
 </code></pre>
@@ -502,7 +556,7 @@ the last modification time.</p>
 
 <div class="language-perl highlighter-rouge"><pre class="highlight"><code><span class="k">my</span> <span class="nv">@files</span> <span class="o">=</span> <span class="nb">sort</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span> <span class="nb">glob</span> <span class="s">"*"</span><span class="p">;</span>
 <span class="k">for</span> <span class="k">my</span> <span class="nv">$file</span> <span class="p">(</span><span class="nv">@files</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nb">system</span> <span class="s">"echo"</span><span class="p">,</span> <span class="s">"mv"</span><span class="p">,</span> <span class="s">"-v"</span><span class="p">,</span> <span class="nv">$file</span><span class="p">,</span> <span class="o">...</span>
+    <span class="nb">system</span> <span class="s">"echo"</span><span class="p">,</span> <span class="s">"mv"</span><span class="p">,</span> <span class="s">"-v"</span><span class="p">,</span> <span class="s">"--"</span><span class="p">,</span> <span class="nv">$file</span><span class="p">,</span> <span class="o">...</span>
 <span class="p">}</span>
 </code></pre>
 </div>
@@ -515,7 +569,7 @@ the loop.</p>
 <p>We’re only executing <code class="highlighter-rouge">echo</code> to see how the generated command will
 look. It looks okay so we can remove it to run <code class="highlighter-rouge">mv</code> instead.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -e <span class="s1">'system "mv", "-v", $_, sprintf "%02d %s", ++$i, $_ 
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -e <span class="s1">'system "mv", "-v", "--", $_, sprintf "%02d %s", ++$i, $_ 
     for sort { (stat $a)[9] &lt;=&gt; (stat $b)[9] } &lt;*&gt;'</span>
 ‘b’    -&gt; ‘01 b’
 ‘c d’  -&gt; ‘02 c d’
@@ -547,12 +601,12 @@ recursive solution if needed.</p>
 do rougly the same thing.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -c <span class="s1">'import os, subprocess; [
-    subprocess.call(("echo", "mv", "-v", f, "%02d %s" % (i, f))) 
+    subprocess.call(("echo", "mv", "-v", "--", f, "%02d %s" % (i, f))) 
       for i, f in enumerate(sorted(os.listdir("."), key=os.path.getmtime), start=1)]'</span>
-mv -v b 01 b
-mv -v c d 02 c d
-mv -v a 03 a
-mv -v e
+mv -v -- b 01 b
+mv -v -- c d 02 c d
+mv -v -- a 03 a
+mv -v -- e
 f 04 e
 f
 </code></pre>
@@ -604,9 +658,11 @@ total 0K
 </h2>
 
 <p>Yes, you can to parse <code class="highlighter-rouge">ls</code>. Yes, there are edge cases where it can fail.<br />
-Be aware of these cases and choose the appropriate approach for
-your specific needs.</p>
+If these edge cases do not apply to you however, it can be the “simplest”
+approach.</p>
 
+<p>Be aware of the edge cases and choose the appropriate approach for your 
+specific needs.</p>
 
 </div>
 
