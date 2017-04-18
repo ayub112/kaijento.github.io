@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/18/bash-add-line-from-file/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: add line from file1 to end of lines in file2 | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/18/bash-add-line-from-file/">bash: add line from file1 to end of lines in file2</a></h1>
+  <p class="text-muted">18 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/awk/">awk</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>I have file1 that contains a single line how do I add this
+line to the end of all lines in file2?</em></p>
+
+<p>Let’s create our 2 test files.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat file1
+    line from file1
+<span class="gp">$ </span>cat file2
+1
+2
+3
+4
+5
+</code></pre>
+</div>
+
+<p>We could use a <code class="highlighter-rouge">while read</code> loop:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="o">(</span> <span class="nv">IFS</span><span class="o">=</span>; <span class="nb">read</span> -r line1 &lt; file1; <span class="k">while </span><span class="nb">read</span> -r line; <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$line$line1</span><span class="s2">"</span>; <span class="k">done</span> &lt; file2 <span class="o">)</span>
+1    line from file1
+2    line from file1
+3    line from file1
+4    line from file1
+5    line from file1
+</code></pre>
+</div>
+
+<p>We are creating an explicit subshell here with the surrounding <code class="highlighter-rouge">()</code> as we’re 
+modifying the <code class="highlighter-rouge">IFS</code> variable and don’t want to modify it for our current shell.</p>
+
+<p>We’re setting <code class="highlighter-rouge">IFS</code> to an empty value as to not strip any possible leading or
+trailing whitespace.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">read</span> -r line1 &lt; file1; <span class="nb">declare</span> -p line1
+<span class="nb">declare</span> -- <span class="nv">line1</span><span class="o">=</span><span class="s2">"line from file1"</span>
+<span class="gp">$ </span><span class="nv">IFS</span><span class="o">=</span> <span class="nb">read</span> -r line1 &lt; file1; <span class="nb">declare</span> -p line1
+<span class="nb">declare</span> -- <span class="nv">line1</span><span class="o">=</span><span class="s2">"    line from file1"</span>
+</code></pre>
+</div>
+
+<p>Another approach could be to use <code class="highlighter-rouge">awk</code>:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>awk <span class="s1">'NR == FNR { line = $0; next } $0 = $0 line'</span> file1 file2
+1    line from file1
+2    line from file1
+3    line from file1
+4    line from file1
+5    line from file1
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">NR</code> in the current record number (records by default in <code class="highlighter-rouge">awk</code> are lines) and 
+<code class="highlighter-rouge">FNR</code> is the current record number of the current file. This means that 
+<code class="highlighter-rouge">NR == FNR</code> will be true when the first file is being processed.</p>
+
+<p><code class="highlighter-rouge">$0</code> is the current record content and <code class="highlighter-rouge">awk</code> will implicitly join strings
+for us. It’s as if we did <code class="highlighter-rouge">printf("%s%s\n", $0, line)</code></p>
+
+<p>Because we know that <code class="highlighter-rouge">file1</code> only has a single line we could simplify the command:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>awk <span class="s1">'BEGIN { getline line } $0 = $0 line'</span> file1 file2
+1    line from file1
+2    line from file1
+3    line from file1
+4    line from file1
+5    line from file1
+</code></pre>
+</div>
+
+<p>If we wanted to modify <code class="highlighter-rouge">file2</code> with the updated changes we could
+use <code class="highlighter-rouge">perl</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -pe <span class="s1">'BEGIN { chomp($line = `cat file1`) } s/$/$line/'</span> file2
+1    line from file1
+2    line from file1
+3    line from file1
+4    line from file1
+5    line from file1
+</code></pre>
+</div>
+
+<p>We can also add the <code class="highlighter-rouge">-i</code> option to overwrite
+the original file e.g. <code class="highlighter-rouge">perl -pi -e '...'</code></p>
+
+<p>We’re shelling out to <code class="highlighter-rouge">cat</code> here as it’s less code. You could <code class="highlighter-rouge">open</code>
+the file without shelling out if you wished.</p>
+
+<p>Recent versions of GNU <code class="highlighter-rouge">awk</code> have <code class="highlighter-rouge">-i inplace</code> which can also overwrite 
+the original file however you would have to modify the command as we’re
+passing it 2 filenames as arguments.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (33)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/18/bash-mv-all-except/">bash: mv all except ...</a></h2>
+          <p class="preview"><em>I have the directory structure <code class="highlighter-rouge">A/B</code> how do I <code class="highlighter-rouge">mv</code> everything
+inside <code class="highlighter-rouge">A</code> down 1 level into <code class="highlighter-rouge">B</code>?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
