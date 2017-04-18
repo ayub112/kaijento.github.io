@@ -5,9 +5,224 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 13:15:25 +0100</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 13:15:25 +0100</lastBuildDate>
+    <pubDate>Tue, 18 Apr 2017 17:13:01 +0100</pubDate>
+    <lastBuildDate>Tue, 18 Apr 2017 17:13:01 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>bash: mv all except ...</title>
+        <description>&lt;p&gt;&lt;em&gt;I have the directory structure &lt;code class=&quot;highlighter-rouge&quot;&gt;A/B&lt;/code&gt; how do I &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; everything
+inside &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; down 1 level into &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt;?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;This is essentially asking &lt;em&gt;“How do I move everything except X?”&lt;em&gt;&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;find&quot;&gt;find&lt;/h2&gt;
+
+&lt;p&gt;There are many ways to approach this task. I think the simplest
+solution is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;small&gt;(note: We’re using GNU find here)&lt;/small&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A
+A
+A/B
+A/-foo
+A/bar
+A/.baz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-mindepth 1&lt;/code&gt; to remove the search directory from the results&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A -mindepth 1
+A/B
+A/-foo
+A/bar
+A/.baz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In our example structure &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; contains no subdirectories. If it did we would
+want to also use &lt;code class=&quot;highlighter-rouge&quot;&gt;-maxdepth 1&lt;/code&gt; to prevent &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; from descending into 
+subdirectories.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A -mindepth 1 
+A/B
+A/B/C
+A/bar
+A/.baz
+A/-foo
+A/D
+A/D/E
+A/D/E/F
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A -mindepth 1 -maxdepth 1
+A/B
+A/bar
+A/.baz
+A/-foo
+A/D
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We will keep &lt;code class=&quot;highlighter-rouge&quot;&gt;-maxdepth 1&lt;/code&gt; in our command for the sake of &lt;em&gt;“completeness”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;To filter out &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-not -name B&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A -mindepth 1 -not -name B
+A/-foo
+A/bar
+A/.baz
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If we wanted to filter out multiple names one option is to use the
+&lt;code class=&quot;highlighter-rouge&quot;&gt;\( -not -name B -or -not -name C \)&lt;/code&gt; syntax.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; lists &lt;em&gt;“hidden”&lt;/em&gt; entries too so when you say
+&lt;em&gt;“all”&lt;/em&gt; we assume you mean hidden entries too.&lt;/p&gt;
+
+&lt;p&gt;You could add in a &lt;code class=&quot;highlighter-rouge&quot;&gt;-not -name '.*'&lt;/code&gt;
+if you wanted to filter out hidden entries.&lt;/p&gt;
+
+&lt;p&gt;Finally we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; to execute &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A -mindepth 1 -maxdepth 1 -not -name B -exec mv -v -t A/B &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+‘A/-foo’ -&amp;gt; ‘A/B/-foo’
+‘A/bar’  -&amp;gt; ‘A/B/bar’
+‘A/.baz’ -&amp;gt; ‘A/B/.baz’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;inside an &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; clause &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;&lt;/code&gt; is replaced with each &lt;em&gt;“item”&lt;/em&gt; found. 
+You may like to think of it as a &lt;em&gt;“placeholder”&lt;/em&gt;.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-t&lt;/code&gt; which takes the &lt;em&gt;target&lt;/em&gt; as an argument. it allows you
+to &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; multiples files somewhere in a single &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; call.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The &lt;em&gt;“portable”&lt;/em&gt; way to write it without &lt;code class=&quot;highlighter-rouge&quot;&gt;-t&lt;/code&gt; would be:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find A -mindepth 1 -maxdepth 1 -not -name B -exec mv -v &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; A/B &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; is ended by &lt;code class=&quot;highlighter-rouge&quot;&gt;;&lt;/code&gt; (we need &lt;code class=&quot;highlighter-rouge&quot;&gt;\;&lt;/code&gt; to stop the shell from interpreting the &lt;code class=&quot;highlighter-rouge&quot;&gt;;&lt;/code&gt;)
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; clause is executed once per item found. When &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; is used the &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; clause
+is executed as many times as needed. Multiple arguments are passed to the command being
+executed similar to how &lt;code class=&quot;highlighter-rouge&quot;&gt;xargs&lt;/code&gt; works.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find 
+.
+./a
+./b
+./c
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -exec &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
+.
+./a
+./b
+./c
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -exec &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
+. ./a ./b ./c
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As you can see with &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; the &lt;code class=&quot;highlighter-rouge&quot;&gt;echo&lt;/code&gt; was only executed once. There is a limit on the size
+of a command line which you can see with &lt;code class=&quot;highlighter-rouge&quot;&gt;getconf ARG_MAX&lt;/code&gt; so it will fill as many 
+arguments in as possible on each execution.&lt;/p&gt;
+
+&lt;h2 id=&quot;globbing&quot;&gt;globbing&lt;/h2&gt;
+
+&lt;p&gt;As well as find you can use bash’s &lt;em&gt;globbing&lt;/em&gt; to achieve the same result.
+You can use &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; to say &lt;em&gt;“all”&lt;/em&gt; &lt;small&gt;(although it wont match &lt;em&gt;“hidden”&lt;/em&gt;
+entries unless &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt; is enabled)&lt;/small&gt; you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;!(pattern)&lt;/code&gt; to say 
+&lt;em&gt;“everything but pattern” &lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;This is not part of the standard globbing syntax and needs &lt;code class=&quot;highlighter-rouge&quot;&gt;extglob&lt;/code&gt; enabled to work.&lt;/p&gt;
+
+&lt;p&gt;&lt;small&gt;(note: You can also supply multiple patterns separated by &lt;code class=&quot;highlighter-rouge&quot;&gt;|&lt;/code&gt; e.g &lt;code class=&quot;highlighter-rouge&quot;&gt;!(foo|bar)&lt;/code&gt;)&lt;/small&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;A
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s extglob
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; !&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;B&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+bar -foo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We need to enable &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt; to allow globs to match hidden entries.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s dotglob
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; !&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;B&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+bar .baz -foo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It’s also useful to enable &lt;code class=&quot;highlighter-rouge&quot;&gt;nullglob&lt;/code&gt; to prevent any possible
+errors if there are no matches to the glob. You can enable
+all three at the same time.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s dotglob extglob nullglob
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Let’s try to &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mv -v -t B !&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;B&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+mv: invalid option -- &lt;span class=&quot;s1&quot;&gt;'o'&lt;/span&gt;
+Try &lt;span class=&quot;s1&quot;&gt;'mv --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The problem here is that the leading dash in &lt;code class=&quot;highlighter-rouge&quot;&gt;-foo&lt;/code&gt; is being
+interpreted as an option by &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; we can use the &lt;em&gt;“double dash”&lt;/em&gt; 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; to indiciate the end of command line options.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mv -v -t B -- !&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;B&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+‘bar’  -&amp;gt; ‘B/bar’
+‘.baz’ -&amp;gt; ‘B/.baz’
+‘-foo’ -&amp;gt; ‘B/-foo’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Another option is to use the full path in our glob by prepending
+&lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ./!&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;B&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+./bar ./.baz ./-foo
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mv -v -t B ./!&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;B&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+‘./bar’  -&amp;gt; ‘B/bar’
+‘./.baz’ -&amp;gt; ‘B/.baz’
+‘./-foo’ -&amp;gt; ‘B/-foo’
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As mentioned there are other approaches for example you
+could &lt;code class=&quot;highlighter-rouge&quot;&gt;mv B&lt;/code&gt; somewhere temporarily out of &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; then use
+&lt;code class=&quot;highlighter-rouge&quot;&gt;mv A/* path/to/B&lt;/code&gt; and finally &lt;code class=&quot;highlighter-rouge&quot;&gt;mv B&lt;/code&gt; back into &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt;.
+Again note the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt; if you want “hidden” 
+entries to be matched.&lt;/p&gt;
+
+&lt;p&gt;Another option could be to use &lt;code class=&quot;highlighter-rouge&quot;&gt;rsync&lt;/code&gt;. I personally 
+prefer the &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; the most straightforward approach but 
+YMMV.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 18 Apr 2017 13:40:12 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/04/18/bash-mv-all-except/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/18/bash-mv-all-except/</guid>
+        
+        <category>bash</category>
+        
+        <category>find</category>
+        
+        <category>glob</category>
+        
+        <category>linux</category>
+        
+        
+      </item>
     
       <item>
         <title>Parsing XML with Python</title>
@@ -929,6 +1144,8 @@ specific needs.&lt;/p&gt;
         
         <category>python</category>
         
+        <category>linux</category>
+        
         
       </item>
     
@@ -1534,6 +1751,8 @@ you see fit.&lt;/p&gt;
         <category>glob</category>
         
         <category>rename</category>
+        
+        <category>linux</category>
         
         
       </item>
@@ -2531,310 +2750,6 @@ and substract it from the length of the original string.&lt;/p&gt;
         <guid isPermaLink="true">http://kaijento.github.io/2017/04/08/python-remove_duplicates/</guid>
         
         <category>python</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>find: permissions with -perm</title>
-        <description>&lt;p&gt;I would like to find &lt;em&gt;“files”&lt;/em&gt; that have octal permissions &lt;code class=&quot;highlighter-rouge&quot;&gt;755&lt;/code&gt; although
-I’m not looking for an exact match. I would like files that have &lt;code class=&quot;highlighter-rouge&quot;&gt;7&lt;/code&gt; set for user
-OR &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt; set for &lt;code class=&quot;highlighter-rouge&quot;&gt;group&lt;/code&gt; OR &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt; set for other.&lt;/p&gt;
-
-&lt;h2 id=&quot;permissions&quot;&gt;permissions&lt;/h2&gt;
-
-&lt;p&gt;The first column in the output of &lt;code class=&quot;highlighter-rouge&quot;&gt;ls -l&lt;/code&gt; shows us the symbolic mode of permissions:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -l c 
--rwxr-xr-x 1 user group 0 Apr  3 06:54 c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;stat&lt;/code&gt; allows you to see the octal representation of permissions by supplying
-&lt;code class=&quot;highlighter-rouge&quot;&gt;%a&lt;/code&gt; in the format string whereas &lt;code class=&quot;highlighter-rouge&quot;&gt;%n&lt;/code&gt; gives the name.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;stat -c %a&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;%n c
-755 c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So given &lt;code class=&quot;highlighter-rouge&quot;&gt;-rwxr-xr-x&lt;/code&gt; if we ignore the intial &lt;code class=&quot;highlighter-rouge&quot;&gt;-&lt;/code&gt; we have 3 “sets” of permissions
-&lt;code class=&quot;highlighter-rouge&quot;&gt;user&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;group&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;other&lt;/code&gt;:&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;rwx&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;user&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;r-x&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;group&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;r-x&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;other&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;These are commonly referred to as “bits” e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;r&lt;/code&gt; stands for the “read bit”. Each “bit”
-has a particular octal value:&lt;/p&gt;
-
-&lt;table&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th&gt;symbol&lt;/th&gt;
-      &lt;th&gt;name&lt;/th&gt;
-      &lt;th&gt;value&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-    &lt;tr&gt;
-      &lt;td&gt;r&lt;/td&gt;
-      &lt;td&gt;read&lt;/td&gt;
-      &lt;td&gt;4&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;w&lt;/td&gt;
-      &lt;td&gt;write&lt;/td&gt;
-      &lt;td&gt;2&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;tr&gt;
-      &lt;td&gt;x&lt;/td&gt;
-      &lt;td&gt;execute&lt;/td&gt;
-      &lt;td&gt;1&lt;/td&gt;
-    &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-
-&lt;p&gt;So if the user bits set are &lt;code class=&quot;highlighter-rouge&quot;&gt;rwx&lt;/code&gt; this means the octal value is &lt;code class=&quot;highlighter-rouge&quot;&gt;4 + 2 + 1&lt;/code&gt; which gives us
-&lt;code class=&quot;highlighter-rouge&quot;&gt;7&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;-&lt;/code&gt; means the bit is not set so &lt;code class=&quot;highlighter-rouge&quot;&gt;r-x&lt;/code&gt; gives us &lt;code class=&quot;highlighter-rouge&quot;&gt;4 + 0 + 1&lt;/code&gt; i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;find&quot;&gt;find&lt;/h2&gt;
-
-&lt;p&gt;For finding things we can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; command. For dealing with
-permissions we can use its &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm&lt;/code&gt; option. In its simplest
-form &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm&lt;/code&gt; is used to match permissions exactly:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find . -perm 755 -exec ls -li &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
-3103056319 -rwxr-xr-x 1 user group 0 Apr  3 06:54 ./c
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -perm 755 -ls
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -perm 755 -exec stat -c %a&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;%n &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
-755 ./c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; allows you to omit the start directories to search and will default
-to &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; i.e. the current directory.&lt;/p&gt;
-
-&lt;p&gt;It also has an &lt;code class=&quot;highlighter-rouge&quot;&gt;-ls&lt;/code&gt; option which is essentially 
-the same as supplying &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec ls -li {} +&lt;/code&gt;. If your &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; command does not support 
-these features you can use the full form as shown in the first command above.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; option is used for executing commands. If &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;&lt;/code&gt; is used inside of &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt;
-it is replaced with the pathname of the current “found” file.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; must be terminated by either &lt;code class=&quot;highlighter-rouge&quot;&gt;;&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; and as &lt;code class=&quot;highlighter-rouge&quot;&gt;;&lt;/code&gt; has special meaning 
-to the shell it must be quoted for it to be seen by &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; e.g. with &lt;code class=&quot;highlighter-rouge&quot;&gt;\&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;''&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&quot;&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-perm&lt;/code&gt; can also be given symbolic modes:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -perm &lt;span class=&quot;nv&quot;&gt;u&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rwx,g&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rx,o&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rx -ls
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It’s extremely verbose compared to the octal &lt;code class=&quot;highlighter-rouge&quot;&gt;755&lt;/code&gt; in this instance but can be of use 
-in certain situations.&lt;/p&gt;
-
-&lt;h2 id=&quot;mode&quot;&gt;/mode&lt;/h2&gt;
-
-&lt;p&gt;So back to the original problem we don’t want an exact match on the permissions
-which &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm&lt;/code&gt; also allows you to do:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-perm /mode&lt;/code&gt;&lt;/p&gt;
-
-  &lt;p&gt;Any of the permission bits mode are set for the file.  Symbolic modes are accepted in this form.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;This sounds like &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm /755&lt;/code&gt; should do what we want, right?&lt;/p&gt;
-
-&lt;p&gt;First, some test files:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -ls 
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056317    0 -rw-------   1 user group        0 Apr  3 06:54 ./a
-3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-3103824358    0 ---x--x--x   1 user group        0 Apr  3 06:54 ./d
-3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
-3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Their permissions in octal:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -exec stat -c %04a&lt;span class=&quot;se&quot;&gt;\ &lt;/span&gt;%n &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
-0700 .
-0600 ./a
-4605 ./b
-0755 ./c
-0111 ./d
-0152 ./e
-0007 ./f
-0711 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So how does &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm /755&lt;/code&gt; fare?&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -perm /755 -ls
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056317    0 -rw-------   1 user group        0 Apr  3 06:54 ./a
-3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-3103824358    0 ---x--x--x   1 user group        0 Apr  3 06:54 ./d
-3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
-3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Not quite what we were expecting. What’s going on here?&lt;/p&gt;
-
-&lt;p&gt;Perhaps using a symbolic mode example will make it easier to understand.&lt;/p&gt;
-
-&lt;p&gt;The octal &lt;code class=&quot;highlighter-rouge&quot;&gt;700&lt;/code&gt; is equivalent to the symbolic mode &lt;code class=&quot;highlighter-rouge&quot;&gt;u=rwx&lt;/code&gt; so when it says 
-&lt;strong&gt;Any of the permission bits&lt;/strong&gt; are set this means that if &lt;code class=&quot;highlighter-rouge&quot;&gt;u=r&lt;/code&gt;,
-&lt;code class=&quot;highlighter-rouge&quot;&gt;u=w&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;u=x&lt;/code&gt; are set there will be a match i.e.&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;“if any of the user mode bits in X are set or any of the group mode bits
-in Y are set or any of the other mode bits in Z or set”&lt;em&gt;.&lt;/em&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;-mode&quot;&gt;-mode&lt;/h2&gt;
-
-&lt;p&gt;As well as &lt;code class=&quot;highlighter-rouge&quot;&gt;/mode&lt;/code&gt; there is &lt;code class=&quot;highlighter-rouge&quot;&gt;-mode&lt;/code&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-perm -mode&lt;/code&gt;&lt;/p&gt;
-
-  &lt;p&gt;All of the permission bits mode are set for the file.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/mode&lt;/code&gt; had previously been &lt;code class=&quot;highlighter-rouge&quot;&gt;+mode&lt;/code&gt; in GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; but was deprecated
-in favour of &lt;code class=&quot;highlighter-rouge&quot;&gt;/mode&lt;/code&gt; due to issues regarding &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; as it can be part of the 
-symbolic mode string.&lt;/p&gt;
-
-&lt;p&gt;So for example &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm -700&lt;/code&gt; stipulates that &lt;code class=&quot;highlighter-rouge&quot;&gt;u=r&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;u=w&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;u=x&lt;/code&gt; must 
-all be set for there to be a match.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -perm -700 -ls
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -perm -u&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rwx -ls 
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This means we can combine multiple &lt;code class=&quot;highlighter-rouge&quot;&gt;-perm&lt;/code&gt; clauses to satisfy the original
-goal. One for user, one for group and one for other:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find &lt;span class=&quot;se&quot;&gt;\(&lt;/span&gt; -perm -700 -or -perm -050 -or -perm -005 &lt;span class=&quot;se&quot;&gt;\)&lt;/span&gt; -ls 
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
-3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find &lt;span class=&quot;se&quot;&gt;\(&lt;/span&gt; -perm -u&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rwx -or -perm -g&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rx -or -perm -o&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;rx &lt;span class=&quot;se&quot;&gt;\)&lt;/span&gt; -ls
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
-3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;implicit--and&quot;&gt;implicit -and&lt;/h2&gt;
-
-&lt;p&gt;When you build a &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; command items are chained with an implicit “and” e.g.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find -name foo -type f
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;is processed as if the command given was:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find -name foo -and -type f
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This is why we need to group the chain of “or” clauses with &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; (which need to 
-be quoted so the shell doesn’t interpret them) as otherwise the logic of the 
-command would be incorrect.&lt;/p&gt;
-
-&lt;p&gt;i.e. we would have:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;A -or B -or ( C -and D )
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;instead of:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;( A -or B -or C ) -and D
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Do note that &lt;code class=&quot;highlighter-rouge&quot;&gt;-and&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;-or&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;-not&lt;/code&gt; are extensions. Their original equivalents
-are &lt;code class=&quot;highlighter-rouge&quot;&gt;-a&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;!&lt;/code&gt; respectively.&lt;/p&gt;
-
-&lt;h2 id=&quot;at-least-exactly&quot;&gt;at least exactly&lt;/h2&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;./f&lt;/code&gt; is matched because the &lt;code class=&quot;highlighter-rouge&quot;&gt;o=rx&lt;/code&gt; bits are set. It also has &lt;code class=&quot;highlighter-rouge&quot;&gt;o=w&lt;/code&gt; 
-set meaning its octal value is &lt;code class=&quot;highlighter-rouge&quot;&gt;7&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;3103056316    0 -------rwx   1 user group        0 Apr  3 06:54 ./f
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;What if we wanted to stipulate that it must be &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt;?&lt;/p&gt;
-
-&lt;p&gt;We could add &lt;code class=&quot;highlighter-rouge&quot;&gt;-not -perm /022&lt;/code&gt; to filter out results that have &lt;code class=&quot;highlighter-rouge&quot;&gt;g=w&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;o=w&lt;/code&gt; set:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find &lt;span class=&quot;se&quot;&gt;\(&lt;/span&gt; -perm -700 -or -perm -050 -or -perm -005 &lt;span class=&quot;se&quot;&gt;\)&lt;/span&gt; -not -perm /022 -ls 
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This however could be considered incorrect depending on the exact
-intention as it doesn’t match &lt;code class=&quot;highlighter-rouge&quot;&gt;./e&lt;/code&gt; whose group bits equal octal &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt;
-exactly:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Here the group permission bits equal octal &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt; but it’s not a match 
-because it has &lt;code class=&quot;highlighter-rouge&quot;&gt;o=w&lt;/code&gt; set.&lt;/p&gt;
-
-&lt;p&gt;If we wanted to consider that as a match i.e.
-if either group or other is exactly equal to &lt;code class=&quot;highlighter-rouge&quot;&gt;5&lt;/code&gt; aka &lt;code class=&quot;highlighter-rouge&quot;&gt;r-x&lt;/code&gt; we 
-could do the following:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find &lt;span class=&quot;se&quot;&gt;\(&lt;/span&gt; -perm -700 -or &lt;span class=&quot;se&quot;&gt;\(&lt;/span&gt; -perm -050 -not -perm /020 &lt;span class=&quot;se&quot;&gt;\)&lt;/span&gt; -or &lt;span class=&quot;se&quot;&gt;\(&lt;/span&gt; -perm -005 -not -perm /002 &lt;span class=&quot;se&quot;&gt;\)&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\)&lt;/span&gt; -ls
-3103056314    0 drwx------   2 user group       62 Apr  3 06:54 .
-3103056318    0 -rwS---r-x   1 user group        0 Apr  3 06:54 ./b
-3103056319    0 -rwxr-xr-x   1 user group        0 Apr  3 06:54 ./c
-3103824359    0 ---xr-x-w-   1 user group        0 Apr  3 06:54 ./e
-2505025145    0 -rwx--x--x   1 user group        0 Apr  3 06:54 ./g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Sat, 08 Apr 2017 06:00:58 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/08/find-permissions-with-perm/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/08/find-permissions-with-perm/</guid>
-        
-        <category>find</category>
         
         
       </item>
