@@ -5,9 +5,193 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 19:06:12 +0100</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 19:06:12 +0100</lastBuildDate>
+    <pubDate>Tue, 18 Apr 2017 23:19:36 +0100</pubDate>
+    <lastBuildDate>Tue, 18 Apr 2017 23:19:36 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>split a string without split()</title>
+        <description>&lt;p&gt;Given the input string &lt;code class=&quot;highlighter-rouge&quot;&gt;[a]text here[/a][b]more text here[/b]&lt;/code&gt; the 
+goal is to split it up into parts&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[a]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;text here&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[/a]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[b]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;more text here&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[/b]&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;It seems to be common enough that people think of &lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt; type
+functions when faced with this kind of task. Normally with such
+functions what you split on (the &lt;em&gt;delimiter&lt;/em&gt;) is removed
+and not present in the output.&lt;/p&gt;
+
+&lt;p&gt;What you can do however is to &lt;em&gt;“match”&lt;/em&gt; the parts that you
+do want. The sample string we’ve been given seems to be some &lt;em&gt;“tag-based”&lt;/em&gt; 
+data and they were trying to do this using Java.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;MatcherExample.java&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.util.*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; 
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.util.regex.*&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MatcherExample&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;[a]text here[/a][b]more text here[/b]&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Pattern&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;pattern&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Pattern&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;compile&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;\\[[^]]+]|.+?(?=\\[[^]]+])&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ArrayList&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;Matcher&lt;/span&gt;   &lt;span class=&quot;n&quot;&gt;matcher&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pattern&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;matcher&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;);&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matcher&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;())&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;matches&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matcher&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;matcher&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;());&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So the goal was to end up with an &lt;code class=&quot;highlighter-rouge&quot;&gt;ArrayList&lt;/code&gt; containing all the
+individual parts. To do this we’re using regex. The actual regex
+we’re using is &lt;code class=&quot;highlighter-rouge&quot;&gt;\[[^]]+]|.+?(?=\[[^]]+])&lt;/code&gt; the backslashes need to
+be escaped because we’re inside double quotes i.e. a &lt;em&gt;String&lt;/em&gt;.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\[&lt;/code&gt; matches a literal [&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[^]]+&lt;/code&gt; matches a sequence of &lt;em&gt;1 or more&lt;/em&gt; characters that are not &lt;code class=&quot;highlighter-rouge&quot;&gt;]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;|&lt;/code&gt; means &lt;em&gt;“or”&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.+?&lt;/code&gt; matches a sequence of &lt;em&gt;1 or more&lt;/em&gt; characters (non-greedy)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(?=)&lt;/code&gt; is a &lt;em&gt;positive lookahead assertion&lt;/em&gt;. It’s like saying &lt;em&gt;“what’s contained
+in here must follow next”&lt;/em&gt;. It does not consume (or capture) any characters.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;What we have contained in the assertion is the same as the first part of our
+pattern which matches the tag.&lt;/p&gt;
+
+&lt;p&gt;So this means we match a &lt;em&gt;“tag”&lt;/em&gt; or &lt;em&gt;“anything” that is followed by a “tag”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Another pattern which works for the sample input is &lt;code class=&quot;highlighter-rouge&quot;&gt;[^][]+|\[[^]]+]&lt;/code&gt; which
+would match a sequence of &lt;em&gt;1 or more&lt;/em&gt; characters that are neither &lt;code class=&quot;highlighter-rouge&quot;&gt;]&lt;/code&gt; nor &lt;code class=&quot;highlighter-rouge&quot;&gt;[&lt;/code&gt;
+i.e. stuff outside a “tag” or else match a “tag”&lt;/p&gt;
+
+&lt;p&gt;This assumes data not inside a tag cannot contain &lt;code class=&quot;highlighter-rouge&quot;&gt;[&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;]&lt;/code&gt; but the first 
+pattern will break if the &lt;em&gt;“outside”&lt;/em&gt; data contains a &lt;code class=&quot;highlighter-rouge&quot;&gt;[&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;This is why parsing &lt;em&gt;“tag-based”&lt;/em&gt; data with regular expressions is somewhat 
+discouraged: &lt;em&gt;“it can get painful fast”&lt;/em&gt; &lt;small&gt;(depending on your 
+requirements)&lt;/small&gt;&lt;/p&gt;
+
+&lt;p&gt;So to get all the matches we must create a &lt;code class=&quot;highlighter-rouge&quot;&gt;Matcher&lt;/code&gt; object and loop over
+the results of the &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; method. We’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;group()&lt;/code&gt; to get the 
+&lt;em&gt;“whole match”&lt;/em&gt;. You can use &lt;code class=&quot;highlighter-rouge&quot;&gt;group(n)&lt;/code&gt; to get the &lt;em&gt;n’th&lt;/em&gt; capture group.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;java MatcherExample
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;a]
+text here
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/a]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;b]
+more text here
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/b]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;php&quot;&gt;php&lt;/h2&gt;
+
+&lt;p&gt;This is a common enough question that we’ll show some examples in other languages.&lt;/p&gt;
+
+&lt;p&gt;First we have &lt;code class=&quot;highlighter-rouge&quot;&gt;preg_match_all()&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;PHP&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;php -r &lt;span class=&quot;s1&quot;&gt;'preg_match_all(&quot;/\[[^]]+]|.+?(?=\[[^]]+])/&quot;, 
+    &quot;[a]text here[/a][b]more text here[/b]&quot;, $matches); var_export($matches);'&lt;/span&gt;
+array &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+  0 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt;
+  array &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+    0 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&quot;s1&quot;&gt;'[a]'&lt;/span&gt;,
+    1 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&quot;s1&quot;&gt;'text here'&lt;/span&gt;,
+    2 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&quot;s1&quot;&gt;'[/a]'&lt;/span&gt;,
+    3 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&quot;s1&quot;&gt;'[b]'&lt;/span&gt;,
+    4 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&quot;s1&quot;&gt;'more text here'&lt;/span&gt;,
+    5 &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&amp;gt; &lt;span class=&quot;s1&quot;&gt;'[/b]'&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;,
+&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;perl&quot;&gt;perl&lt;/h2&gt;
+
+&lt;p&gt;When needing to &lt;em&gt;“find all matches of a pattern”&lt;/em&gt; on the command line &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; 
+is a common choice.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'[a]text here[/a][b]more text here[/b]'&lt;/span&gt; | perl -nle &lt;span class=&quot;s1&quot;&gt;'print for /\[[^]]+]|.+?(?=\[[^]]+])/g'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;a]
+text here
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/a]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;b]
+more text here
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/b]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It can read all the data in at once &lt;small&gt;(&lt;em&gt;“slurp&lt;/em&gt;”)&lt;/small&gt; using &lt;code class=&quot;highlighter-rouge&quot;&gt;-0777&lt;/code&gt; 
+which allows to perform multiline regex operations.&lt;/p&gt;
+
+&lt;h2 id=&quot;grep&quot;&gt;grep&lt;/h2&gt;
+
+&lt;p&gt;If your &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-P&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;-o&lt;/code&gt; like GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; for does you can replicate
+the above &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; command using:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'[a]text here[/a][b]more text here[/b]'&lt;/span&gt; | grep -P -o &lt;span class=&quot;s1&quot;&gt;'\[[^]]+]|.+?(?=\[[^]]+])'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;a]
+text here
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/a]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;b]
+more text here
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/b]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;python&quot;&gt;python&lt;/h2&gt;
+
+&lt;p&gt;Usually though, I end up using an interactive &lt;code class=&quot;highlighter-rouge&quot;&gt;python&lt;/code&gt; session for debugging regex.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'[a]text here[/a][b]more text here[/b]'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;[[^]]+]|.+?(?=&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;[[^]]+])'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'[a]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'text here'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'[/a]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'[b]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'more text here'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'[/b]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
+
+&lt;p&gt;So there you have it. When wanting to &lt;em&gt;split&lt;/em&gt; up a string using &lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt; may not always be 
+what you’re looking for. Similarly when wanting to remove certain parts of a string it
+can sometimes be simpler to instead match / extract the parts that you want to keep.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 18 Apr 2017 19:41:51 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/04/18/split-a-string-without-split/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/18/split-a-string-without-split/</guid>
+        
+        <category>java</category>
+        
+        <category>perl</category>
+        
+        <category>grep</category>
+        
+        <category>php</category>
+        
+        <category>python</category>
+        
+        <category>regex</category>
+        
+        
+      </item>
     
       <item>
         <title>bash: add line from file1 to end of lines in file2</title>
@@ -645,7 +829,7 @@ loop.&lt;/p&gt;
 &lt;p&gt;Otherwise we have a valid tag and we add or merge as needed just as
 we did in the first version.&lt;/p&gt;
 
-&lt;h2 id=&quot;summary&quot;&gt;summary&lt;/h2&gt;
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
 
 &lt;p&gt;If you need to parse &lt;em&gt;“huge”&lt;/em&gt; XML files that cannot fit into
 memory one option is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;iterparse()&lt;/code&gt; from &lt;code class=&quot;highlighter-rouge&quot;&gt;xml.etree.ElementTree&lt;/code&gt; 
@@ -1228,7 +1412,7 @@ total 0K
 
 &lt;p&gt;You could utilize &lt;code class=&quot;highlighter-rouge&quot;&gt;os.walk()&lt;/code&gt; if you needed a recursive solution.&lt;/p&gt;
 
-&lt;h2 id=&quot;summary&quot;&gt;summary&lt;/h2&gt;
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
 
 &lt;p&gt;Yes, you can to parse &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt;. Yes, there are edge cases where it can fail.&lt;br /&gt;
 If these edge cases do not apply to you however, it can be the “simplest”
@@ -2624,136 +2808,6 @@ output filename must differ from the input filename.&lt;/p&gt;
         <category>regex</category>
         
         <category>perl</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>BeautifulSoup: find_previous()</title>
-        <description>&lt;p&gt;Given the following sample html we want to create a list of stories
-where each story is a dict with the keys &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;content&lt;/code&gt; 
-using &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt;:&lt;/p&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;head&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;title&amp;gt;&lt;/span&gt;Newssite&lt;span class=&quot;nt&quot;&gt;&amp;lt;/title&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/head&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;body&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h1&amp;gt;&lt;/span&gt;This is news story 1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h1&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h3&amp;gt;&lt;/span&gt;28.01 2017&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h3&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-      This is a news story
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h1&amp;gt;&lt;/span&gt;This is news story 2&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h1&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;h3&amp;gt;&lt;/span&gt;29.01 2017&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h3&amp;gt;&lt;/span&gt;
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-    This is another news story
-    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/body&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We could find each &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; tag move forwards however as this is sample HTML
-we’ve been given it is possible there may be other &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; tags that are not
-story titles.&lt;/p&gt;
-
-&lt;p&gt;In that case it seems like the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p class=&quot;content&quot;&amp;gt;&lt;/code&gt; tags would be a better
-choice. We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;soup.find_all('p', {'class': 'content'})&lt;/code&gt; to isolate those
-or we can use the shorthand syntax &lt;code class=&quot;highlighter-rouge&quot;&gt;soup('p', 'class')&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;The default method if none is given is &lt;code class=&quot;highlighter-rouge&quot;&gt;find_all()&lt;/code&gt; and if a 2nd argument is
-given to either find method it is matched against the class attribute.&lt;/p&gt;
-
-&lt;p&gt;If you prefer to work with CSS selectors you could also use &lt;code class=&quot;highlighter-rouge&quot;&gt;soup.select('p.content')&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;So let’s take a look at some code:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;list-of-stories.py&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;html&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'''
-&amp;lt;html&amp;gt;
-  &amp;lt;head&amp;gt;
-    &amp;lt;title&amp;gt;Newssite&amp;lt;/title&amp;gt;
-  &amp;lt;/head&amp;gt;
-  &amp;lt;body&amp;gt;
-    &amp;lt;h1&amp;gt;This is news story 1&amp;lt;/h1&amp;gt;
-    &amp;lt;h3&amp;gt;28.01 2017&amp;lt;/h3&amp;gt;
-    &amp;lt;p class=&quot;content&quot;&amp;gt;
-      This is a news story
-    &amp;lt;/p&amp;gt;
-    &amp;lt;h1&amp;gt;This is news story 2&amp;lt;/h1&amp;gt;
-    &amp;lt;h3&amp;gt;29.01 2017&amp;lt;/h3&amp;gt;
-    &amp;lt;p class=&quot;content&quot;&amp;gt;
-    This is another news story
-    &amp;lt;/p&amp;gt;
-  &amp;lt;/body&amp;gt;
-&amp;lt;/html&amp;gt;
-'''&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;html&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;stories&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;nb&quot;&gt;dict&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;title&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_previous&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;date&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_previous&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h3'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;content&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; 
-    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'content'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;stories&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The declaration of &lt;code class=&quot;highlighter-rouge&quot;&gt;stories&lt;/code&gt; make look a little odd it’s a &lt;em&gt;dict comprehension&lt;/em&gt;
-inside a &lt;em&gt;list comprehension&lt;/em&gt;. It may be more common to see it written as:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;stories&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'content'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;story&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;'title'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_previous&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;'date'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_previous&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h3'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;'content'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;stories&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;story&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So we find each &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p class=&quot;content&quot;&amp;gt;&lt;/code&gt; tag and from there we search backwards
-using &lt;code class=&quot;highlighter-rouge&quot;&gt;find_previous()&lt;/code&gt; for the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; title tag and the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; date tag.&lt;/p&gt;
-
-&lt;p&gt;This is what the output looks like:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python list-of-stories.py 
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;content&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;This is a news story&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;date&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;28.01 2017&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;title&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;This is news story 1&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;content&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;This is another news story&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;date&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;29.01 2017&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;title&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;This is news story 2&quot;&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;json&lt;/code&gt; module was only used to &lt;em&gt;“pretty-print”&lt;/em&gt; the resulting list
-of dicts.&lt;/p&gt;
-</description>
-        <pubDate>Sat, 08 Apr 2017 07:59:00 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/08/beautifulsoup-find_previous/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/08/beautifulsoup-find_previous/</guid>
-        
-        <category>python</category>
-        
-        <category>beautifulsoup</category>
         
         
       </item>

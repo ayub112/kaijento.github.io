@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/18/split-a-string-without-split/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>split a string without split() | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/18/split-a-string-without-split/">split a string without split()</a></h1>
+  <p class="text-muted">18 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/java/">java</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/grep/">grep</a>
+  
+    
+  <a href="/categories/php/">php</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given the input string <code class="highlighter-rouge">[a]text here[/a][b]more text here[/b]</code> the 
+goal is to split it up into parts</p>
+
+<ul>
+  <li><code class="highlighter-rouge">[a]</code></li>
+  <li><code class="highlighter-rouge">text here</code></li>
+  <li><code class="highlighter-rouge">[/a]</code></li>
+  <li><code class="highlighter-rouge">[b]</code></li>
+  <li><code class="highlighter-rouge">more text here</code></li>
+  <li><code class="highlighter-rouge">[/b]</code></li>
+</ul>
+
+<p>It seems to be common enough that people think of <code class="highlighter-rouge">split()</code> type
+functions when faced with this kind of task. Normally with such
+functions what you split on (the <em>delimiter</em>) is removed
+and not present in the output.</p>
+
+<p>What you can do however is to <em>“match”</em> the parts that you
+do want. The sample string we’ve been given seems to be some <em>“tag-based”</em> 
+data and they were trying to do this using Java.</p>
+
+<p><code class="highlighter-rouge">MatcherExample.java</code></p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span> 
+<span class="kn">import</span> <span class="nn">java.util.regex.*</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">MatcherExample</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span> <span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="n">String</span>    <span class="n">input</span>   <span class="o">=</span> <span class="s">"[a]text here[/a][b]more text here[/b]"</span><span class="o">;</span>
+        <span class="n">Pattern</span>   <span class="n">pattern</span> <span class="o">=</span> <span class="n">Pattern</span><span class="o">.</span><span class="na">compile</span><span class="o">(</span><span class="s">"\\[[^]]+]|.+?(?=\\[[^]]+])"</span><span class="o">);</span>
+
+        <span class="n">ArrayList</span> <span class="n">matches</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">();</span>
+        <span class="n">Matcher</span>   <span class="n">matcher</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="na">matcher</span><span class="o">(</span><span class="n">input</span><span class="o">);</span>
+
+        <span class="k">while</span> <span class="o">(</span><span class="n">matcher</span><span class="o">.</span><span class="na">find</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">matches</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">matcher</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">matcher</span><span class="o">.</span><span class="na">group</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>So the goal was to end up with an <code class="highlighter-rouge">ArrayList</code> containing all the
+individual parts. To do this we’re using regex. The actual regex
+we’re using is <code class="highlighter-rouge">\[[^]]+]|.+?(?=\[[^]]+])</code> the backslashes need to
+be escaped because we’re inside double quotes i.e. a <em>String</em>.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">\[</code> matches a literal [</li>
+  <li><code class="highlighter-rouge">[^]]+</code> matches a sequence of <em>1 or more</em> characters that are not <code class="highlighter-rouge">]</code></li>
+  <li><code class="highlighter-rouge">|</code> means <em>“or”</em></li>
+  <li><code class="highlighter-rouge">.+?</code> matches a sequence of <em>1 or more</em> characters (non-greedy)</li>
+  <li><code class="highlighter-rouge">(?=)</code> is a <em>positive lookahead assertion</em>. It’s like saying <em>“what’s contained
+in here must follow next”</em>. It does not consume (or capture) any characters.</li>
+</ul>
+
+<p>What we have contained in the assertion is the same as the first part of our
+pattern which matches the tag.</p>
+
+<p>So this means we match a <em>“tag”</em> or <em>“anything” that is followed by a “tag”</em>.</p>
+
+<p>Another pattern which works for the sample input is <code class="highlighter-rouge">[^][]+|\[[^]]+]</code> which
+would match a sequence of <em>1 or more</em> characters that are neither <code class="highlighter-rouge">]</code> nor <code class="highlighter-rouge">[</code>
+i.e. stuff outside a “tag” or else match a “tag”</p>
+
+<p>This assumes data not inside a tag cannot contain <code class="highlighter-rouge">[</code> or <code class="highlighter-rouge">]</code> but the first 
+pattern will break if the <em>“outside”</em> data contains a <code class="highlighter-rouge">[</code>.</p>
+
+<p>This is why parsing <em>“tag-based”</em> data with regular expressions is somewhat 
+discouraged: <em>“it can get painful fast”</em> <small>(depending on your 
+requirements)</small></p>
+
+<p>So to get all the matches we must create a <code class="highlighter-rouge">Matcher</code> object and loop over
+the results of the <code class="highlighter-rouge">find()</code> method. We’re using <code class="highlighter-rouge">group()</code> to get the 
+<em>“whole match”</em>. You can use <code class="highlighter-rouge">group(n)</code> to get the <em>n’th</em> capture group.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>java MatcherExample
+<span class="o">[</span>a]
+text here
+<span class="o">[</span>/a]
+<span class="o">[</span>b]
+more text here
+<span class="o">[</span>/b]
+</code></pre>
+</div>
+
+<a name="php"></a>
+<h2 class="section-header">
+  <span id="php"></span>
+  <a class="anchor" href="#php">php</a>
+</h2>
+
+<p>This is a common enough question that we’ll show some examples in other languages.</p>
+
+<p>First we have <code class="highlighter-rouge">preg_match_all()</code> for <code class="highlighter-rouge">PHP</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>php -r <span class="s1">'preg_match_all("/\[[^]]+]|.+?(?=\[[^]]+])/", 
+    "[a]text here[/a][b]more text here[/b]", $matches); var_export($matches);'</span>
+array <span class="o">(</span>
+  0 <span class="o">=</span>&gt;
+  array <span class="o">(</span>
+    0 <span class="o">=</span>&gt; <span class="s1">'[a]'</span>,
+    1 <span class="o">=</span>&gt; <span class="s1">'text here'</span>,
+    2 <span class="o">=</span>&gt; <span class="s1">'[/a]'</span>,
+    3 <span class="o">=</span>&gt; <span class="s1">'[b]'</span>,
+    4 <span class="o">=</span>&gt; <span class="s1">'more text here'</span>,
+    5 <span class="o">=</span>&gt; <span class="s1">'[/b]'</span>,
+  <span class="o">)</span>,
+<span class="o">)</span>
+</code></pre>
+</div>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">perl</a>
+</h2>
+
+<p>When needing to <em>“find all matches of a pattern”</em> on the command line <code class="highlighter-rouge">perl</code> 
+is a common choice.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[a]text here[/a][b]more text here[/b]'</span> | perl -nle <span class="s1">'print for /\[[^]]+]|.+?(?=\[[^]]+])/g'</span>
+<span class="o">[</span>a]
+text here
+<span class="o">[</span>/a]
+<span class="o">[</span>b]
+more text here
+<span class="o">[</span>/b]
+</code></pre>
+</div>
+
+<p>It can read all the data in at once <small>(<em>“slurp</em>”)</small> using <code class="highlighter-rouge">-0777</code> 
+which allows to perform multiline regex operations.</p>
+
+<a name="grep"></a>
+<h2 class="section-header">
+  <span id="grep"></span>
+  <a class="anchor" href="#grep">grep</a>
+</h2>
+
+<p>If your <code class="highlighter-rouge">grep</code> has <code class="highlighter-rouge">-P</code> and <code class="highlighter-rouge">-o</code> like GNU <code class="highlighter-rouge">grep</code> for does you can replicate
+the above <code class="highlighter-rouge">perl</code> command using:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[a]text here[/a][b]more text here[/b]'</span> | grep -P -o <span class="s1">'\[[^]]+]|.+?(?=\[[^]]+])'</span>
+<span class="o">[</span>a]
+text here
+<span class="o">[</span>/a]
+<span class="o">[</span>b]
+more text here
+<span class="o">[</span>/b]
+</code></pre>
+</div>
+
+<a name="python"></a>
+<h2 class="section-header">
+  <span id="python"></span>
+  <a class="anchor" href="#python">python</a>
+</h2>
+
+<p>Usually though, I end up using an interactive <code class="highlighter-rouge">python</code> session for debugging regex.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="s">'[a]text here[/a][b]more text here[/b]'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">[[^]]+]|.+?(?=</span><span class="err">\</span><span class="s">[[^]]+])'</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'[a]'</span><span class="p">,</span> <span class="s">'text here'</span><span class="p">,</span> <span class="s">'[/a]'</span><span class="p">,</span> <span class="s">'[b]'</span><span class="p">,</span> <span class="s">'more text here'</span><span class="p">,</span> <span class="s">'[/b]'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>So there you have it. When wanting to <em>split</em> up a string using <code class="highlighter-rouge">split()</code> may not always be 
+what you’re looking for. Similarly when wanting to remove certain parts of a string it
+can sometimes be simpler to instead match / extract the parts that you want to keep.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (34)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/18/bash-add-line-from-file/">bash: add line from file1 to end of lines in file2</a></h2>
+          <p class="preview"><em>I have file1 that contains a single line how do I add this
+line to the end of all lines in file2?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
