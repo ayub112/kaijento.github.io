@@ -6376,6 +6376,10 @@ body {
   font-size: 16px;
   line-height: 1.4em; }
 
+table {
+  font-family: Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Consolas,Courier New,monospace,sans-serif;
+  font-size: 14px; }
+
 code,
 kbd,
 pre,
