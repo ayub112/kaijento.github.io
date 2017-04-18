@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 09:47:28 +0100</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 09:47:28 +0100</lastBuildDate>
+    <pubDate>Tue, 18 Apr 2017 13:15:25 +0100</pubDate>
+    <lastBuildDate>Tue, 18 Apr 2017 13:15:25 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -682,6 +682,10 @@ process with a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/co
 ‘./e&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;f’ -&amp;gt; ‘./04 e&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;f’
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
+
+&lt;p&gt;You may notice that we have &lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt; in the output here. That is because we get the 
+full path back from &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; so technically we could omit the &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; and it would
+work as expected with filenames with leading dashes.&lt;/p&gt;
 
 &lt;p&gt;The result:&lt;/p&gt;
 

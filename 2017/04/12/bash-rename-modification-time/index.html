@@ -424,6 +424,10 @@ process with a <code class="highlighter-rouge">while read</code> loop.</p>
 </code></pre>
 </div>
 
+<p>You may notice that we have <code class="highlighter-rouge">./</code> in the output here. That is because we get the 
+full path back from <code class="highlighter-rouge">find</code> so technically we could omit the <code class="highlighter-rouge">--</code> and it would
+work as expected with filenames with leading dashes.</p>
+
 <p>The result:</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -lQ
