@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 19:00:17 +0100</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 19:00:17 +0100</lastBuildDate>
+    <pubDate>Tue, 18 Apr 2017 19:06:12 +0100</pubDate>
+    <lastBuildDate>Tue, 18 Apr 2017 19:06:12 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -96,7 +96,8 @@ use &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt;&lt;/p&gt;
 the original file e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;perl -pi -e '...'&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;We’re shelling out to &lt;code class=&quot;highlighter-rouge&quot;&gt;cat&lt;/code&gt; here as it’s less code. You could &lt;code class=&quot;highlighter-rouge&quot;&gt;open&lt;/code&gt;
-the file without shelling out if you wished.&lt;/p&gt;
+the file without shelling out if you wished. &lt;code class=&quot;highlighter-rouge&quot;&gt;chomp()&lt;/code&gt; removes
+the trailing newline.&lt;/p&gt;
 
 &lt;p&gt;Recent versions of GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; have &lt;code class=&quot;highlighter-rouge&quot;&gt;-i inplace&lt;/code&gt; which can also overwrite 
 the original file however you would have to modify the command as we’re

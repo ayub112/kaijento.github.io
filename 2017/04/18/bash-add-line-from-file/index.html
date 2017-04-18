@@ -151,7 +151,8 @@ use <code class="highlighter-rouge">perl</code></p>
 the original file e.g. <code class="highlighter-rouge">perl -pi -e '...'</code></p>
 
 <p>We’re shelling out to <code class="highlighter-rouge">cat</code> here as it’s less code. You could <code class="highlighter-rouge">open</code>
-the file without shelling out if you wished.</p>
+the file without shelling out if you wished. <code class="highlighter-rouge">chomp()</code> removes
+the trailing newline.</p>
 
 <p>Recent versions of GNU <code class="highlighter-rouge">awk</code> have <code class="highlighter-rouge">-i inplace</code> which can also overwrite 
 the original file however you would have to modify the command as we’re
