@@ -5,9 +5,319 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 18 Apr 2017 23:19:36 +0100</pubDate>
-    <lastBuildDate>Tue, 18 Apr 2017 23:19:36 +0100</lastBuildDate>
+    <pubDate>Wed, 19 Apr 2017 10:13:42 +0100</pubDate>
+    <lastBuildDate>Wed, 19 Apr 2017 10:13:42 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>JSON parsing: Counting</title>
+        <description>&lt;p&gt;The goal is to loop through each object in a list
+of JSON objects and count produce a single object
+as the result containing the counts of all &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt;
+keys that have a &lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt; value. In the final object 
+the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt; string should be removed.&lt;/p&gt;
+
+&lt;p&gt;Meaning for the following &lt;code class=&quot;highlighter-rouge&quot;&gt;input.json&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;   
+
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;   
+        &lt;span class=&quot;s2&quot;&gt;&quot;detector&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_hipchat&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_pagerduty&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_slack&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_victorops&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_webhook&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;   
+        &lt;span class=&quot;s2&quot;&gt;&quot;detector&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_hipchat&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_pagerduty&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_slack&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_victorops&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;has_webhook&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s2&quot;&gt;&quot;url&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The desired output would be:&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;email&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;slack&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;python&quot;&gt;Python&lt;/h2&gt;
+
+&lt;p&gt;We’re working on a Linux command line so we will start with a solution
+using Python.&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python count-has.py
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;email&quot;&lt;/span&gt;: 2, 
+    &lt;span class=&quot;s2&quot;&gt;&quot;slack&quot;&lt;/span&gt;: 1
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here is the code we ran.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;count-has.py&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;collections&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'has_'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When you need to count things in Python you could use a &lt;code class=&quot;highlighter-rouge&quot;&gt;dict&lt;/code&gt; or a &lt;code class=&quot;highlighter-rouge&quot;&gt;collections.defaultdict&lt;/code&gt;
+however there is a &lt;code class=&quot;highlighter-rouge&quot;&gt;collections.Counter&lt;/code&gt; object which simplifies things further.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;collections&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foobar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'o'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'r'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'b'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'f'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'baz'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'baz'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In our code we’re passing &lt;code class=&quot;highlighter-rouge&quot;&gt;Counter()&lt;/code&gt; a &lt;em&gt;generator statement&lt;/em&gt; which may
+look odd if you’ve never seen that or a &lt;em&gt;list comprehension&lt;/em&gt; before.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'has_'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;generator&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;genexpr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f6506938500&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'has_'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'email'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'slack'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'email'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'has_'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;u'email'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'slack'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;u'email'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Let’s rewrite it using regular &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loops.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;c&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;d&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'has_'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;v&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;c&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;k&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Let’s explain the variable names:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;j&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;json&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;c&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;count&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;d&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;dict&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;k&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;v&lt;/code&gt; for &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As we’ve split it out into regular &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loops we may as well choose some descriptive
+variable names.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Counter&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;loads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;item&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;items&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'has_'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;update()&lt;/code&gt; adds a new item to a &lt;code class=&quot;highlighter-rouge&quot;&gt;Counter&lt;/code&gt; object. The reason we need to wrap &lt;code class=&quot;highlighter-rouge&quot;&gt;key[4:]&lt;/code&gt;
+in a list is because if you pass a string to a &lt;code class=&quot;highlighter-rouge&quot;&gt;Counter&lt;/code&gt; it will split it up into
+characters and count them as with our &lt;code class=&quot;highlighter-rouge&quot;&gt;Counter('foobar')&lt;/code&gt; example.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;key[4:]&lt;/code&gt; here is called &lt;em&gt;slicing&lt;/em&gt;. We know &lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt; starts with &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt; so if we get the
+&lt;em&gt;5th&lt;/em&gt; character to the end we will have removed &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt;. We can omit the end index
+and Python will go to the end for us.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'has_foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As well as &lt;code class=&quot;highlighter-rouge&quot;&gt;if key.startswith('has_')&lt;/code&gt; we have  &lt;code class=&quot;highlighter-rouge&quot;&gt;and value&lt;/code&gt; to test that &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; is &lt;em&gt;“truthy”&lt;/em&gt;.
+&lt;code class=&quot;highlighter-rouge&quot;&gt;if value&lt;/code&gt; is like saying &lt;code class=&quot;highlighter-rouge&quot;&gt;if value is True&lt;/code&gt; however you don’t need the &lt;code class=&quot;highlighter-rouge&quot;&gt;is True&lt;/code&gt; as it is
+implied.&lt;/p&gt;
+
+&lt;h2 id=&quot;jq&quot;&gt;jq&lt;/h2&gt;
+
+&lt;p&gt;Another option for parsing JSON from &lt;em&gt;“within bash”&lt;/em&gt; is to use the excellent &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; tool.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(to_entries[] | select(.key[:4] == &quot;has_&quot; and .value)) | group_by(.key) | map({(.[0].key[4:]): length}) | add'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;email&quot;&lt;/span&gt;: 2,
+  &lt;span class=&quot;s2&quot;&gt;&quot;slack&quot;&lt;/span&gt;: 1
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;A good way to help understand &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; commands is to break each component down
+and run them separately to visualize what’s happening.&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(to_entries[])'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;detector&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;&amp;lt;censored&amp;gt;&quot;&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_hipchat&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;false&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;...]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;map(to_entries[])&lt;/code&gt; is equivalent to &lt;code class=&quot;highlighter-rouge&quot;&gt;.[] | to_entries[]&lt;/code&gt; so it’s a way to loop
+over each &lt;em&gt;key, value&lt;/em&gt; pair of each object.&lt;/p&gt;
+
+&lt;p&gt;From there we use &lt;code class=&quot;highlighter-rouge&quot;&gt;select(.key[:4] == &quot;has_&quot; and .value)&lt;/code&gt; to &lt;em&gt;select&lt;/em&gt; ones that
+start with &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt; and have a &lt;em&gt;“truthy”&lt;/em&gt; value. There is a &lt;code class=&quot;highlighter-rouge&quot;&gt;startswith&lt;/code&gt; function
+but we can also use &lt;em&gt;“slicing”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(to_entries[] | select(.key[:4] == &quot;has_&quot; and .value))'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_slack&quot;&lt;/span&gt;,
+    &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So we have a &lt;em&gt;list&lt;/em&gt; of 3 objects. What we need to do is to &lt;em&gt;group&lt;/em&gt; the objects
+together based on their &lt;em&gt;key&lt;/em&gt;. For that we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;group_by(.key)&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(to_entries[] | select(.key[:4] == &quot;has_&quot; and .value)) | group_by(.key)'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_email&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;key&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;has_slack&quot;&lt;/span&gt;,
+      &lt;span class=&quot;s2&quot;&gt;&quot;value&quot;&lt;/span&gt;: &lt;span class=&quot;nb&quot;&gt;true&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now we have a &lt;em&gt;list of lists&lt;/em&gt; so what we need to do is:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;extract their &lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt; whilst removing &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;get their length&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(to_entries[] | select(.key[:4] == &quot;has_&quot; and .value)) | group_by(.key) | map({(.[0].key[4:]): length})'&lt;/span&gt; input.json
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;email&quot;&lt;/span&gt;: 2
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;slack&quot;&lt;/span&gt;: 1
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Because we have a &lt;em&gt;list of lists&lt;/em&gt; we use &lt;code class=&quot;highlighter-rouge&quot;&gt;map()&lt;/code&gt; to iterate over each &lt;em&gt;sublist&lt;/em&gt;. 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;.[0].key&lt;/code&gt; extracts &lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt; from the first item in each &lt;em&gt;sublist&lt;/em&gt;. We know they 
+must have at least 1 element so we can just index it directly with &lt;code class=&quot;highlighter-rouge&quot;&gt;.[0]&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[4:]&lt;/code&gt; gives us the key without the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;In order to use the result of an expression such as &lt;code class=&quot;highlighter-rouge&quot;&gt;.[0].key[4:]&lt;/code&gt; as the &lt;em&gt;key&lt;/em&gt; 
+for an object we need to wrap it with &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; to prevent &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; from getting confused.&lt;/p&gt;
+
+&lt;p&gt;So we extract the name for the &lt;em&gt;key&lt;/em&gt; in our new object and the value is the 
+result of the &lt;code class=&quot;highlighter-rouge&quot;&gt;length&lt;/code&gt; function which will give us the &lt;em&gt;count&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'[1,2,3]'&lt;/span&gt; | jq length
+3
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We still have a list of multiple objects so we need the final call to &lt;code class=&quot;highlighter-rouge&quot;&gt;add&lt;/code&gt; to flatten
+them down into a single object.&lt;/p&gt;
+
+&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'[{&quot;name&quot;: &quot;me&quot;},{&quot;age&quot;: &quot;539&quot;}]'&lt;/span&gt; | jq 
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;me&quot;&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
+  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;539&quot;&lt;/span&gt;
+  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'[{&quot;name&quot;: &quot;me&quot;},{&quot;age&quot;: &quot;539&quot;}]'&lt;/span&gt; | jq add
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;me&quot;&lt;/span&gt;,
+  &lt;span class=&quot;s2&quot;&gt;&quot;age&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;539&quot;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
+
+&lt;p&gt;For parsing JSON both Python with its &lt;code class=&quot;highlighter-rouge&quot;&gt;json&lt;/code&gt; module and &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; are excellent options. 
+Most languages will come with a JSON parser though, so feel free to use &lt;em&gt;&amp;lt;insert your
+favourite language here&amp;gt;&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;“H8rz gon h8”&lt;/em&gt;&lt;/p&gt;
+</description>
+        <pubDate>Wed, 19 Apr 2017 08:28:53 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/04/19/json-parsing-counting/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/19/json-parsing-counting/</guid>
+        
+        <category>bash</category>
+        
+        <category>jq</category>
+        
+        <category>python</category>
+        
+        <category>json</category>
+        
+        <category>counter</category>
+        
+        
+      </item>
     
       <item>
         <title>split a string without split()</title>
@@ -2594,220 +2904,6 @@ could be changed if needed.&lt;/p&gt;
         <category>python</category>
         
         <category>regex</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Python: fixing broken &quot;CSV&quot; data</title>
-        <description>&lt;p&gt;We are given the following “CSV” data which we are asked
-to “fix” using Python:&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;not-quite.csv&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;10AT&amp;amp;T$146,801
-11General Electric$140,389
-12AmerisourceBergen$135,962
-13Verizon$131,620
-14Chevron$131,118
-15Costco$116,199
-16Fannie Mae$110,359
-17Kroger$109,830
-18Amazon.com$107,006
-19Walgreens Boots Alliance$103,444
-20HP$103,355
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;As it turns out it’s not really CSV data at all as the columns are all 
-merged into one. The data looks like it came from the 
-&lt;a href=&quot;http://beta.fortune.com/fortune500/list&quot;&gt;Fortune 500 list&lt;/a&gt;
-albeit “incorrectly”.&lt;/p&gt;
-
-&lt;p&gt;So what do we know? We know the rank is going to be the first sequence 
-of digits on the line.  The name of the company will then be everything 
-up to but not including the dollar sign.  The revenue will be everything 
-after the dollar sign from which we want to remove the comma.&lt;/p&gt;
-
-&lt;h2 id=&quot;research&quot;&gt;re.search()&lt;/h2&gt;
-
-&lt;p&gt;This sounds like a job for a regular expression.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;not-quite-csv.py&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;fileinput&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fileinput&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;revenue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'(&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;d+)(.+)&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;$(.+)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;groups&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;revenue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;revenue&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;','&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;','&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;rank&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;revenue&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;fileinput&lt;/code&gt; module is a simple way to write a filter-like program that
-processes input line by line. It handles reading data from filenames passed
-as arguments and data given on stdin. It can also be used to overwrite
-files with the new data like how the &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; option works on &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; and some
-versions of &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;So for the regex we have &lt;code class=&quot;highlighter-rouge&quot;&gt;(\d+)&lt;/code&gt; which matches and captures 
-&lt;em&gt;1 or more digits&lt;/em&gt; i.e. the &lt;em&gt;rank number&lt;/em&gt;. &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; is used to
-create a capture group. We could have used &lt;code class=&quot;highlighter-rouge&quot;&gt;^&lt;/code&gt; (which matches the start
-of the string) in our pattern but all of the lines we’re working with
-start with digits so it’s not needed.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(.+)\$&lt;/code&gt; matches and captures everything up to the occurrence of a dollar sign. &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt;
-matches the end of the string in regex so it needs to be escaped to match literally.&lt;/p&gt;
-
-&lt;p&gt;Finally &lt;code class=&quot;highlighter-rouge&quot;&gt;(.+)&lt;/code&gt; captures everything else on the line i.e. the revenue amount.&lt;/p&gt;
-
-&lt;p&gt;We then remove any commas from the revenue amount with &lt;code class=&quot;highlighter-rouge&quot;&gt;.replace(',', '')&lt;/code&gt; and join
-the values back using comma as the delimiter.&lt;/p&gt;
-
-&lt;p&gt;Here is a sample run:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python not-quite-csv.py not-quite.csv
-10,AT&amp;amp;T,146801
-11,General Electric,140389
-12,AmerisourceBergen,135962
-13,Verizon,131620
-14,Chevron,131118
-15,Costco,116199
-16,Fannie Mae,110359
-17,Kroger,109830
-18,Amazon.com,107006
-19,Walgreens Boots Alliance,103444
-20,HP,103355
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;','.join()&lt;/code&gt; we could use the &lt;code class=&quot;highlighter-rouge&quot;&gt;csv&lt;/code&gt; module which would handle things
-like automatic quoting of fields that contain the delimiter but the sample data
-we were given was “simple” meaning that it was not possible for the company
-names to contain a comma.&lt;/p&gt;
-
-&lt;h2 id=&quot;perl&quot;&gt;perl&lt;/h2&gt;
-
-&lt;p&gt;If you do not have to use Python specifically you may also consider using
-&lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; to solve this problem:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -pe &lt;span class=&quot;s1&quot;&gt;'s/(\d+)(.+)\$(.+)/&quot;$1,$2,&quot;.$3=~s\/,\/\/gr/e'&lt;/span&gt; not-quite.csv 
-10,AT&amp;amp;T,146801
-11,General Electric,140389
-12,AmerisourceBergen,135962
-13,Verizon,131620
-14,Chevron,131118
-15,Costco,116199
-16,Fannie Mae,110359
-17,Kroger,109830
-18,Amazon.com,107006
-19,Walgreens Boots Alliance,103444
-20,HP,103355
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-p&lt;/code&gt; option adds a loop like the &lt;code class=&quot;highlighter-rouge&quot;&gt;for line in fileinput.input()&lt;/code&gt; loop
-from the Python example. The &lt;code class=&quot;highlighter-rouge&quot;&gt;s///&lt;/code&gt; command is the same as &lt;code class=&quot;highlighter-rouge&quot;&gt;re.sub()&lt;/code&gt; it
-takes a pattern and a replacement. The pattern here is the same as we used
-in the Python code so it needs no explanation.&lt;/p&gt;
-
-&lt;p&gt;So we’re using the &lt;code class=&quot;highlighter-rouge&quot;&gt;e&lt;/code&gt; modifier on the &lt;code class=&quot;highlighter-rouge&quot;&gt;s&lt;/code&gt; command i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;s///e&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;e&lt;/code&gt;
-modifier evaluates the replacement part as perl code.&lt;/p&gt;
-
-&lt;p&gt;In the replacement &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;$1,$2,&quot;&lt;/code&gt; is just creating a string of the first 2 
-capture groups followed by commas.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; is the string concatenation operator like &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;foo&quot; + &quot;bar&quot;&lt;/code&gt; in Python.
-To the string we are adding &lt;code class=&quot;highlighter-rouge&quot;&gt;$3=~s\/,\/\/gr&lt;/code&gt; which is actually another 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;s///&lt;/code&gt; command embedded inside. This is why the &lt;code class=&quot;highlighter-rouge&quot;&gt;/&lt;/code&gt; are escaped although
-we could have chosen a different delimiter e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;s|,||gr&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;This removes all commas from &lt;code class=&quot;highlighter-rouge&quot;&gt;$3&lt;/code&gt; which is the revenue amount. Without
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;g&lt;/code&gt; modifier it would just remove the first similar to 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;.replace(',', '', 1)&lt;/code&gt; in Python.&lt;/p&gt;
-
-&lt;p&gt;By default the &lt;code class=&quot;highlighter-rouge&quot;&gt;s///&lt;/code&gt; command does not return the modified string. In 
-order to do that you must use the &lt;code class=&quot;highlighter-rouge&quot;&gt;r&lt;/code&gt; modifier.&lt;/p&gt;
-
-&lt;p&gt;So this means the final string we have in our replacement is 
-&lt;em&gt;“rank,name,revenue with commas removed”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;a-different-approach&quot;&gt;a different approach&lt;/h2&gt;
-
-&lt;p&gt;If we take another look at an input line can we see another way to
-achieve the intended output?&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;10AT&amp;amp;T$146,801
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;If we removed the last comma in the string replace the &lt;code class=&quot;highlighter-rouge&quot;&gt;$&lt;/code&gt;
-with a comma and added a comma after the rank number we would
-get the current expected output:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -pe &lt;span class=&quot;s1&quot;&gt;'s/.+\K,//; s/\$/,/; s/\d+\K/,/'&lt;/span&gt; not-quite.csv 
-10,AT&amp;amp;T,146801
-11,General Electric,140389
-12,AmerisourceBergen,135962
-13,Verizon,131620
-14,Chevron,131118
-15,Costco,116199
-16,Fannie Mae,110359
-17,Kroger,109830
-18,Amazon.com,107006
-19,Walgreens Boots Alliance,103444
-20,HP,103355
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;s/.+\K,//&lt;/code&gt; removes the last comma in the string. Using capture 
-groups you could write it as &lt;code class=&quot;highlighter-rouge&quot;&gt;s/(.+),/$1/&lt;/code&gt; which may look more 
-familiar.&lt;/p&gt;
-
-&lt;p&gt;Anything to the left of &lt;code class=&quot;highlighter-rouge&quot;&gt;\K&lt;/code&gt; is not included in the match which 
-can be useful in simplifying patterns.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;s/\$/,/&lt;/code&gt; replaces dollar sign with a comma. We could be more strict
-and use the &lt;code class=&quot;highlighter-rouge&quot;&gt;.+\K\$&lt;/code&gt; approach to stipulate it’s the last dollar sign
-but there are no other instances of it in our data.&lt;/p&gt;
-
-&lt;p&gt;Finally &lt;code class=&quot;highlighter-rouge&quot;&gt;s/\d+\K/,/&lt;/code&gt; adds a comma after the first sequence of 
-digits.&lt;/p&gt;
-
-&lt;p&gt;This approach makes assumptions about the data as it only strips
-the last comma. If the revenue amount was larger and contained 
-multiple commas it would break. It does work for the data we were
-given and serves as an example approaching the problem from a 
-different perspective.&lt;/p&gt;
-
-&lt;h2 id=&quot;redirection&quot;&gt;redirection&lt;/h2&gt;
-
-&lt;p&gt;None of these approaches modify the input file. I find it’s usually
-simpler to just use shell redirection to output the result to a new file
-e.g.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -pe &lt;span class=&quot;s1&quot;&gt;'s/.+\K,//; s/\$/,/; s/\d+\K/,/'&lt;/span&gt; not-quite.csv &amp;gt; fortune500.csv
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Do note that redirections are set up before command execution so the
-output filename must differ from the input filename.&lt;/p&gt;
-
-&lt;p&gt;You could however use perl’s &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; option and pass &lt;code class=&quot;highlighter-rouge&quot;&gt;inplace=True&lt;/code&gt; to 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;fileinput.input()&lt;/code&gt; in the Python example if you wished to do so.&lt;/p&gt;
-
-</description>
-        <pubDate>Sun, 09 Apr 2017 06:00:43 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/09/python-fixing-broken-csv-data/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/09/python-fixing-broken-csv-data/</guid>
-        
-        <category>python</category>
-        
-        <category>csv</category>
-        
-        <category>regex</category>
-        
-        <category>perl</category>
         
         
       </item>

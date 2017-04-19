@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/19/json-parsing-counting/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>JSON parsing: Counting | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/19/json-parsing-counting/">JSON parsing: Counting</a></h1>
+  <p class="text-muted">19 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/jq/">jq</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/counter/">counter</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is to loop through each object in a list
+of JSON objects and count produce a single object
+as the result containing the counts of all <code class="highlighter-rouge">has_</code>
+keys that have a <code class="highlighter-rouge">true</code> value. In the final object 
+the leading <code class="highlighter-rouge">has_</code> string should be removed.</p>
+
+<p>Meaning for the following <code class="highlighter-rouge">input.json</code></p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">[</span>   
+
+    <span class="p">{</span>   
+        <span class="s2">"detector"</span><span class="p">:</span> <span class="s2">"&lt;censored&gt;"</span><span class="p">,</span>
+        <span class="s2">"has_email"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">"has_hipchat"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_pagerduty"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_slack"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_victorops"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_webhook"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"&lt;censored&gt;"</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"&lt;censored&gt;"</span>
+    <span class="p">},</span>
+    <span class="p">{</span>   
+        <span class="s2">"detector"</span><span class="p">:</span> <span class="s2">"&lt;censored&gt;"</span><span class="p">,</span>
+        <span class="s2">"has_email"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">"has_hipchat"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_pagerduty"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_slack"</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="s2">"has_victorops"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"has_webhook"</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="s2">"id"</span><span class="p">:</span> <span class="s2">"&lt;censored&gt;"</span><span class="p">,</span>
+        <span class="s2">"url"</span><span class="p">:</span> <span class="s2">"&lt;censored&gt;"</span>
+    <span class="p">}</span>
+
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<p>The desired output would be:</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+  <span class="s2">"email"</span><span class="err">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">"slack"</span><span class="err">:</span> <span class="mi">1</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<a name="python"></a>
+<h2 class="section-header">
+  <span id="python"></span>
+  <a class="anchor" href="#python">Python</a>
+</h2>
+
+<p>We’re working on a Linux command line so we will start with a solution
+using Python.</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python count-has.py
+<span class="o">{</span>
+    <span class="s2">"email"</span>: 2, 
+    <span class="s2">"slack"</span>: 1
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Here is the code we ran.</p>
+
+<p><code class="highlighter-rouge">count-has.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span>   <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'input.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>When you need to count things in Python you could use a <code class="highlighter-rouge">dict</code> or a <code class="highlighter-rouge">collections.defaultdict</code>
+however there is a <code class="highlighter-rouge">collections.Counter</code> object which simplifies things further.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Counter</span><span class="p">(</span><span class="s">'foobar'</span><span class="p">)</span>
+<span class="n">Counter</span><span class="p">({</span><span class="s">'o'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">'a'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'r'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'b'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'f'</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">Counter</span><span class="p">([</span><span class="s">'foo'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">,</span> <span class="s">'baz'</span><span class="p">])</span>
+<span class="n">Counter</span><span class="p">({</span><span class="s">'bar'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">'baz'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'foo'</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+</code></pre>
+</div>
+
+<p>In our code we’re passing <code class="highlighter-rouge">Counter()</code> a <em>generator statement</em> which may
+look odd if you’ve never seen that or a <em>list comprehension</em> before.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="o">&lt;</span><span class="n">generator</span> <span class="nb">object</span> <span class="o">&lt;</span><span class="n">genexpr</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x7f6506938500</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="s">u'email'</span><span class="p">,</span> <span class="s">u'slack'</span><span class="p">,</span> <span class="s">u'email'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span> <span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span> <span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span><span class="s">u'email'</span><span class="p">,</span> <span class="s">u'slack'</span><span class="p">,</span> <span class="s">u'email'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Let’s rewrite it using regular <code class="highlighter-rouge">for</code> loops.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]])</span>
+</code></pre>
+</div>
+
+<p>Let’s explain the variable names:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">j</code> for <code class="highlighter-rouge">json</code></li>
+  <li><code class="highlighter-rouge">c</code> for <code class="highlighter-rouge">count</code></li>
+  <li><code class="highlighter-rouge">d</code> for <code class="highlighter-rouge">dict</code></li>
+  <li><code class="highlighter-rouge">k</code> for <code class="highlighter-rouge">key</code></li>
+  <li><code class="highlighter-rouge">v</code> for <code class="highlighter-rouge">value</code></li>
+</ul>
+
+<p>As we’ve split it out into regular <code class="highlighter-rouge">for</code> loops we may as well choose some descriptive
+variable names.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">count</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">4</span><span class="p">:]])</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">update()</code> adds a new item to a <code class="highlighter-rouge">Counter</code> object. The reason we need to wrap <code class="highlighter-rouge">key[4:]</code>
+in a list is because if you pass a string to a <code class="highlighter-rouge">Counter</code> it will split it up into
+characters and count them as with our <code class="highlighter-rouge">Counter('foobar')</code> example.</p>
+
+<p><code class="highlighter-rouge">key[4:]</code> here is called <em>slicing</em>. We know <code class="highlighter-rouge">key</code> starts with <code class="highlighter-rouge">has_</code> so if we get the
+<em>5th</em> character to the end we will have removed <code class="highlighter-rouge">has_</code>. We can omit the end index
+and Python will go to the end for us.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'has_foo'</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
+<span class="s">'foo'</span>
+</code></pre>
+</div>
+
+<p>As well as <code class="highlighter-rouge">if key.startswith('has_')</code> we have  <code class="highlighter-rouge">and value</code> to test that <code class="highlighter-rouge">value</code> is <em>“truthy”</em>.
+<code class="highlighter-rouge">if value</code> is like saying <code class="highlighter-rouge">if value is True</code> however you don’t need the <code class="highlighter-rouge">is True</code> as it is
+implied.</p>
+
+<a name="jq"></a>
+<h2 class="section-header">
+  <span id="jq"></span>
+  <a class="anchor" href="#jq">jq</a>
+</h2>
+
+<p>Another option for parsing JSON from <em>“within bash”</em> is to use the excellent <code class="highlighter-rouge">jq</code> tool.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key) | map({(.[0].key[4:]): length}) | add'</span> input.json
+<span class="o">{</span>
+  <span class="s2">"email"</span>: 2,
+  <span class="s2">"slack"</span>: 1
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>A good way to help understand <code class="highlighter-rouge">jq</code> commands is to break each component down
+and run them separately to visualize what’s happening.</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[])'</span> input.json
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"key"</span>: <span class="s2">"detector"</span>,
+    <span class="s2">"value"</span>: <span class="s2">"&lt;censored&gt;"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
+    <span class="s2">"value"</span>: <span class="nb">true</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key"</span>: <span class="s2">"has_hipchat"</span>,
+    <span class="s2">"value"</span>: <span class="nb">false</span>
+  <span class="o">}</span>,
+<span class="o">[</span>...]
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">map(to_entries[])</code> is equivalent to <code class="highlighter-rouge">.[] | to_entries[]</code> so it’s a way to loop
+over each <em>key, value</em> pair of each object.</p>
+
+<p>From there we use <code class="highlighter-rouge">select(.key[:4] == "has_" and .value)</code> to <em>select</em> ones that
+start with <code class="highlighter-rouge">has_</code> and have a <em>“truthy”</em> value. There is a <code class="highlighter-rouge">startswith</code> function
+but we can also use <em>“slicing”</em>.</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value))'</span> input.json
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
+    <span class="s2">"value"</span>: <span class="nb">true</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
+    <span class="s2">"value"</span>: <span class="nb">true</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"key"</span>: <span class="s2">"has_slack"</span>,
+    <span class="s2">"value"</span>: <span class="nb">true</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p>So we have a <em>list</em> of 3 objects. What we need to do is to <em>group</em> the objects
+together based on their <em>key</em>. For that we can use <code class="highlighter-rouge">group_by(.key)</code></p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key)'</span> input.json
+<span class="o">[</span>
+  <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
+      <span class="s2">"value"</span>: <span class="nb">true</span>
+    <span class="o">}</span>,
+    <span class="o">{</span>
+      <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
+      <span class="s2">"value"</span>: <span class="nb">true</span>
+    <span class="o">}</span>
+  <span class="o">]</span>,
+  <span class="o">[</span>
+    <span class="o">{</span>
+      <span class="s2">"key"</span>: <span class="s2">"has_slack"</span>,
+      <span class="s2">"value"</span>: <span class="nb">true</span>
+    <span class="o">}</span>
+  <span class="o">]</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p>Now we have a <em>list of lists</em> so what we need to do is:</p>
+
+<ul>
+  <li>extract their <code class="highlighter-rouge">key</code> whilst removing <code class="highlighter-rouge">has_</code></li>
+  <li>get their length</li>
+</ul>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key) | map({(.[0].key[4:]): length})'</span> input.json
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"email"</span>: 2
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"slack"</span>: 1
+  <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p>Because we have a <em>list of lists</em> we use <code class="highlighter-rouge">map()</code> to iterate over each <em>sublist</em>. 
+<code class="highlighter-rouge">.[0].key</code> extracts <code class="highlighter-rouge">key</code> from the first item in each <em>sublist</em>. We know they 
+must have at least 1 element so we can just index it directly with <code class="highlighter-rouge">.[0]</code></p>
+
+<p><code class="highlighter-rouge">[4:]</code> gives us the key without the leading <code class="highlighter-rouge">has_</code></p>
+
+<p>In order to use the result of an expression such as <code class="highlighter-rouge">.[0].key[4:]</code> as the <em>key</em> 
+for an object we need to wrap it with <code class="highlighter-rouge">()</code> to prevent <code class="highlighter-rouge">jq</code> from getting confused.</p>
+
+<p>So we extract the name for the <em>key</em> in our new object and the value is the 
+result of the <code class="highlighter-rouge">length</code> function which will give us the <em>count</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[1,2,3]'</span> | jq length
+3
+</code></pre>
+</div>
+
+<p>We still have a list of multiple objects so we need the final call to <code class="highlighter-rouge">add</code> to flatten
+them down into a single object.</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[{"name": "me"},{"age": "539"}]'</span> | jq 
+<span class="o">[</span>
+  <span class="o">{</span>
+    <span class="s2">"name"</span>: <span class="s2">"me"</span>
+  <span class="o">}</span>,
+  <span class="o">{</span>
+    <span class="s2">"age"</span>: <span class="s2">"539"</span>
+  <span class="o">}</span>
+<span class="o">]</span>
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[{"name": "me"},{"age": "539"}]'</span> | jq add
+<span class="o">{</span>
+  <span class="s2">"name"</span>: <span class="s2">"me"</span>,
+  <span class="s2">"age"</span>: <span class="s2">"539"</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>For parsing JSON both Python with its <code class="highlighter-rouge">json</code> module and <code class="highlighter-rouge">jq</code> are excellent options. 
+Most languages will come with a JSON parser though, so feel free to use <em>&lt;insert your
+favourite language here&gt;</em></p>
+
+<p><em>“H8rz gon h8”</em></p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (35)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/18/split-a-string-without-split/">split a string without split()</a></h2>
+          <p class="preview">Given the input string <code class="highlighter-rouge">[a]text here[/a][b]more text here[/b]</code> the 
+goal is to split it up into parts</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
