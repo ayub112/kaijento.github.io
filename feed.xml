@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 19 Apr 2017 10:13:42 +0100</pubDate>
-    <lastBuildDate>Wed, 19 Apr 2017 10:13:42 +0100</lastBuildDate>
+    <pubDate>Wed, 19 Apr 2017 23:55:10 +0100</pubDate>
+    <lastBuildDate>Wed, 19 Apr 2017 23:55:10 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -188,8 +188,8 @@ and run them separately to visualize what’s happening.&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;map(to_entries[])&lt;/code&gt; is equivalent to &lt;code class=&quot;highlighter-rouge&quot;&gt;.[] | to_entries[]&lt;/code&gt; so it’s a way to loop
-over each &lt;em&gt;key, value&lt;/em&gt; pair of each object.&lt;/p&gt;
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;map(to_entries[])&lt;/code&gt; is equivalent to &lt;code class=&quot;highlighter-rouge&quot;&gt;[ .[] | to_entries[] ]&lt;/code&gt; so it’s a way to loop
+over each &lt;em&gt;key, value&lt;/em&gt; pair of each object and return a &lt;em&gt;“list”&lt;/em&gt;.&lt;/p&gt;
 
 &lt;p&gt;From there we use &lt;code class=&quot;highlighter-rouge&quot;&gt;select(.key[:4] == &quot;has_&quot; and .value)&lt;/code&gt; to &lt;em&gt;select&lt;/em&gt; ones that
 start with &lt;code class=&quot;highlighter-rouge&quot;&gt;has_&lt;/code&gt; and have a &lt;em&gt;“truthy”&lt;/em&gt; value. There is a &lt;code class=&quot;highlighter-rouge&quot;&gt;startswith&lt;/code&gt; function

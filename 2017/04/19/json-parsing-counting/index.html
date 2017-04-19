@@ -257,8 +257,8 @@ and run them separately to visualize what’s happening.</p>
 </code></pre>
 </div>
 
-<p><code class="highlighter-rouge">map(to_entries[])</code> is equivalent to <code class="highlighter-rouge">.[] | to_entries[]</code> so it’s a way to loop
-over each <em>key, value</em> pair of each object.</p>
+<p><code class="highlighter-rouge">map(to_entries[])</code> is equivalent to <code class="highlighter-rouge">[ .[] | to_entries[] ]</code> so it’s a way to loop
+over each <em>key, value</em> pair of each object and return a <em>“list”</em>.</p>
 
 <p>From there we use <code class="highlighter-rouge">select(.key[:4] == "has_" and .value)</code> to <em>select</em> ones that
 start with <code class="highlighter-rouge">has_</code> and have a <em>“truthy”</em> value. There is a <code class="highlighter-rouge">startswith</code> function
