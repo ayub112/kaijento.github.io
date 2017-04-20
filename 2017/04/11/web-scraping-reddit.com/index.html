@@ -120,7 +120,7 @@ of dicts and lists.</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">])</span>
 <span class="o">&lt;</span><span class="nb">type</span> <span class="s">'dict'</span><span class="o">&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-<span class="p">[</span><span class="s">u'modhash'</span><span class="p">,</span> <span class="s">u'children'</span><span class="p">,</span> <span class="s">u'after'</span><span class="p">,</span> <span class="s">u'before'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'modhash'</span><span class="p">,</span> <span class="s">'children'</span><span class="p">,</span> <span class="s">'after'</span><span class="p">,</span> <span class="s">'before'</span><span class="p">]</span>
 </code></pre>
 </div>
 
@@ -134,7 +134,7 @@ make sense to write it out to a file (<code class="highlighter-rouge">json.dump(
 the <code class="highlighter-rouge">['data']['children']</code> list. <code class="highlighter-rouge">['data']</code> also holds some other information.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'after'</span><span class="p">]</span>
-<span class="s">u't3_64o6gh'</span>
+<span class="s">'t3_64o6gh'</span>
 </code></pre>
 </div>
 
@@ -145,7 +145,7 @@ page we can pass <code class="highlighter-rouge">after=t3_64o6gh</code> as a GET
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">next_page_url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s">'?&amp;after='</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'after'</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">next_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page2_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">next_page</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
-<span class="s">u'https://www.reddit.com/r/learnpython/comments/64o5yx/help_breakdown_list_comprehension_example/'</span>
+<span class="s">'https://www.reddit.com/r/learnpython/comments/64o5yx/help_breakdown_list_comprehension_example/'</span>
 </code></pre>
 </div>
 
@@ -181,9 +181,9 @@ page we can pass <code class="highlighter-rouge">after=t3_64o6gh</code> as a GET
 <code class="highlighter-rouge">selftext</code>, <code class="highlighter-rouge">title</code> and <code class="highlighter-rouge">url</code></p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
-<span class="s">u'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
+<span class="s">'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'title'</span><span class="p">]</span>
-<span class="s">u'Efficiency of an algorithm'</span>
+<span class="s">'Efficiency of an algorithm'</span>
 </code></pre>
 </div>
 
@@ -192,7 +192,7 @@ instead done:</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">]</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span> <span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
-<span class="s">u'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
+<span class="s">'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
 </code></pre>
 </div>
 
@@ -209,31 +209,31 @@ instead done:</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]:</span>
 <span class="o">...</span>     <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
 <span class="o">...</span> 
-<span class="s">u'https://youtu.be/nJRf-fJNdJ4'</span>
-<span class="s">u'https://i.redd.it/jmctfmktixqy.jpg'</span>
-<span class="s">u'http://imgur.com/gallery/k5UvK'</span>
-<span class="s">u'https://i.redd.it/q0ybf3nlixqy.jpg'</span>
-<span class="s">u'http://i.imgur.com/JoF5FNd.jpg'</span>
-<span class="s">u'http://i.imgur.com/NI5GuJf.gifv'</span>
-<span class="s">u'http://i.imgur.com/UHg5RbU.jpg'</span>
-<span class="s">u'https://i.redd.it/5jwksp64hxqy.jpg'</span>
-<span class="s">u'http://i.imgur.com/Bninome.gifv'</span>
-<span class="s">u'http://i.imgur.com/gs8rRg4.jpg'</span>
-<span class="s">u'https://i.redd.it/m6xpbtuogxqy.jpg'</span>
-<span class="s">u'https://i.redd.it/gwenjc8dgxqy.jpg'</span>
-<span class="s">u'http://i.imgur.com/zLmZJTc.gifv'</span>
-<span class="s">u'http://i.imgur.com/7ihgzyx.gifv'</span>
-<span class="s">u'http://imgur.com/gallery/jjr6C'</span>
-<span class="s">u'http://imgur.com/AkdxXuT.gifv'</span>
-<span class="s">u'https://gfycat.com/UnpleasantBothJunco'</span>
-<span class="s">u'https://i.redd.it/hk9y3kb8fxqy.jpg'</span>
-<span class="s">u'http://imgur.com/ADLfEwY'</span>
-<span class="s">u'https://i.redd.it/wfn3t1b5fxqy.jpg'</span>
-<span class="s">u'https://i.redd.it/wa44h0zaexqy.jpg'</span>
-<span class="s">u'https://i.redd.it/viy7gp1cexqy.jpg'</span>
-<span class="s">u'https://i.redd.it/a1nw9bcydxqy.png'</span>
-<span class="s">u'https://i.redd.it/wmbn7lf2owqy.jpg'</span>
-<span class="s">u'https://i.redd.it/yestv4i5dxqy.jpg'</span>
+<span class="s">'https://youtu.be/nJRf-fJNdJ4'</span>
+<span class="s">'https://i.redd.it/jmctfmktixqy.jpg'</span>
+<span class="s">'http://imgur.com/gallery/k5UvK'</span>
+<span class="s">'https://i.redd.it/q0ybf3nlixqy.jpg'</span>
+<span class="s">'http://i.imgur.com/JoF5FNd.jpg'</span>
+<span class="s">'http://i.imgur.com/NI5GuJf.gifv'</span>
+<span class="s">'http://i.imgur.com/UHg5RbU.jpg'</span>
+<span class="s">'https://i.redd.it/5jwksp64hxqy.jpg'</span>
+<span class="s">'http://i.imgur.com/Bninome.gifv'</span>
+<span class="s">'http://i.imgur.com/gs8rRg4.jpg'</span>
+<span class="s">'https://i.redd.it/m6xpbtuogxqy.jpg'</span>
+<span class="s">'https://i.redd.it/gwenjc8dgxqy.jpg'</span>
+<span class="s">'http://i.imgur.com/zLmZJTc.gifv'</span>
+<span class="s">'http://i.imgur.com/7ihgzyx.gifv'</span>
+<span class="s">'http://imgur.com/gallery/jjr6C'</span>
+<span class="s">'http://imgur.com/AkdxXuT.gifv'</span>
+<span class="s">'https://gfycat.com/UnpleasantBothJunco'</span>
+<span class="s">'https://i.redd.it/hk9y3kb8fxqy.jpg'</span>
+<span class="s">'http://imgur.com/ADLfEwY'</span>
+<span class="s">'https://i.redd.it/wfn3t1b5fxqy.jpg'</span>
+<span class="s">'https://i.redd.it/wa44h0zaexqy.jpg'</span>
+<span class="s">'https://i.redd.it/viy7gp1cexqy.jpg'</span>
+<span class="s">'https://i.redd.it/a1nw9bcydxqy.png'</span>
+<span class="s">'https://i.redd.it/wmbn7lf2owqy.jpg'</span>
+<span class="s">'https://i.redd.it/yestv4i5dxqy.jpg'</span>
 </code></pre>
 </div>
 
@@ -255,31 +255,31 @@ common request with the image dedicated subreddits.</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">div</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'div.thing'</span><span class="p">):</span>
 <span class="o">...</span>     <span class="n">div</span><span class="p">[</span><span class="s">'data-url'</span><span class="p">]</span>
 <span class="o">...</span> 
-<span class="s">u'https://youtu.be/nJRf-fJNdJ4'</span>
-<span class="s">u'https://i.redd.it/jmctfmktixqy.jpg'</span>
-<span class="s">u'http://imgur.com/gallery/k5UvK'</span>
-<span class="s">u'https://i.redd.it/q0ybf3nlixqy.jpg'</span>
-<span class="s">u'http://i.imgur.com/JoF5FNd.jpg'</span>
-<span class="s">u'http://i.imgur.com/NI5GuJf.gifv'</span>
-<span class="s">u'http://i.imgur.com/UHg5RbU.jpg'</span>
-<span class="s">u'https://i.redd.it/5jwksp64hxqy.jpg'</span>
-<span class="s">u'http://i.imgur.com/Bninome.gifv'</span>
-<span class="s">u'http://i.imgur.com/gs8rRg4.jpg'</span>
-<span class="s">u'https://i.redd.it/m6xpbtuogxqy.jpg'</span>
-<span class="s">u'https://i.redd.it/gwenjc8dgxqy.jpg'</span>
-<span class="s">u'http://i.imgur.com/zLmZJTc.gifv'</span>
-<span class="s">u'http://i.imgur.com/7ihgzyx.gifv'</span>
-<span class="s">u'http://imgur.com/gallery/jjr6C'</span>
-<span class="s">u'http://imgur.com/AkdxXuT.gifv'</span>
-<span class="s">u'https://gfycat.com/UnpleasantBothJunco'</span>
-<span class="s">u'https://i.redd.it/hk9y3kb8fxqy.jpg'</span>
-<span class="s">u'http://imgur.com/ADLfEwY'</span>
-<span class="s">u'https://i.redd.it/wfn3t1b5fxqy.jpg'</span>
-<span class="s">u'https://i.redd.it/wa44h0zaexqy.jpg'</span>
-<span class="s">u'https://i.redd.it/viy7gp1cexqy.jpg'</span>
-<span class="s">u'https://i.redd.it/a1nw9bcydxqy.png'</span>
-<span class="s">u'https://i.redd.it/wmbn7lf2owqy.jpg'</span>
-<span class="s">u'https://i.redd.it/yestv4i5dxqy.jpg'</span>
+<span class="s">'https://youtu.be/nJRf-fJNdJ4'</span>
+<span class="s">'https://i.redd.it/jmctfmktixqy.jpg'</span>
+<span class="s">'http://imgur.com/gallery/k5UvK'</span>
+<span class="s">'https://i.redd.it/q0ybf3nlixqy.jpg'</span>
+<span class="s">'http://i.imgur.com/JoF5FNd.jpg'</span>
+<span class="s">'http://i.imgur.com/NI5GuJf.gifv'</span>
+<span class="s">'http://i.imgur.com/UHg5RbU.jpg'</span>
+<span class="s">'https://i.redd.it/5jwksp64hxqy.jpg'</span>
+<span class="s">'http://i.imgur.com/Bninome.gifv'</span>
+<span class="s">'http://i.imgur.com/gs8rRg4.jpg'</span>
+<span class="s">'https://i.redd.it/m6xpbtuogxqy.jpg'</span>
+<span class="s">'https://i.redd.it/gwenjc8dgxqy.jpg'</span>
+<span class="s">'http://i.imgur.com/zLmZJTc.gifv'</span>
+<span class="s">'http://i.imgur.com/7ihgzyx.gifv'</span>
+<span class="s">'http://imgur.com/gallery/jjr6C'</span>
+<span class="s">'http://imgur.com/AkdxXuT.gifv'</span>
+<span class="s">'https://gfycat.com/UnpleasantBothJunco'</span>
+<span class="s">'https://i.redd.it/hk9y3kb8fxqy.jpg'</span>
+<span class="s">'http://imgur.com/ADLfEwY'</span>
+<span class="s">'https://i.redd.it/wfn3t1b5fxqy.jpg'</span>
+<span class="s">'https://i.redd.it/wa44h0zaexqy.jpg'</span>
+<span class="s">'https://i.redd.it/viy7gp1cexqy.jpg'</span>
+<span class="s">'https://i.redd.it/a1nw9bcydxqy.png'</span>
+<span class="s">'https://i.redd.it/wmbn7lf2owqy.jpg'</span>
+<span class="s">'https://i.redd.it/yestv4i5dxqy.jpg'</span>
 </code></pre>
 </div>
 

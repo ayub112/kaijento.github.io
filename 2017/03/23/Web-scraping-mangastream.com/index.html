@@ -120,9 +120,9 @@ our requests without having to pass them manually each time e.g. <code class="hi
 <span class="o">&gt;&gt;&gt;</span> <span class="n">img</span>
 <span class="o">&lt;</span><span class="n">img</span> <span class="nb">id</span><span class="o">=</span><span class="s">"manga-page"</span> <span class="n">src</span><span class="o">=</span><span class="s">"http://img.mangastream.com/cdn/manga/138/3997/01.png"</span><span class="o">/&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">img</span><span class="o">.</span><span class="n">attrs</span>
-<span class="p">{</span><span class="s">u'src'</span><span class="p">:</span> <span class="s">u'http://img.mangastream.com/cdn/manga/138/3997/01.png'</span><span class="p">,</span> <span class="s">u'id'</span><span class="p">:</span> <span class="s">u'manga-page'</span><span class="p">}</span>
+<span class="p">{</span><span class="s">'src'</span><span class="p">:</span> <span class="s">'http://img.mangastream.com/cdn/manga/138/3997/01.png'</span><span class="p">,</span> <span class="s">'id'</span><span class="p">:</span> <span class="s">'manga-page'</span><span class="p">}</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span>
-<span class="s">u'http://img.mangastream.com/cdn/manga/138/3997/01.png'</span>
+<span class="s">'http://img.mangastream.com/cdn/manga/138/3997/01.png'</span>
 </code></pre>
 </div>
 
@@ -367,13 +367,13 @@ for an <strong>exact</strong> match) or you can also pass an <code class="highli
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.btn-reader-page a'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"http://mangastream.com/r/demons_plan/010/3997/20"</span><span class="o">&gt;</span><span class="n">Last</span> <span class="n">Page</span> <span class="p">(</span><span class="mi">20</span><span class="p">)</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.btn-reader-page a'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
-<span class="s">u'Last Page (20)'</span>
+<span class="s">'Last Page (20)'</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.btn-reader-page a'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">'href'</span><span class="p">]</span>
-<span class="s">u'http://mangastream.com/r/demons_plan/010/3997/20'</span>
+<span class="s">'http://mangastream.com/r/demons_plan/010/3997/20'</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.btn-reader-page a'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">'href'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)</span>
-<span class="p">[</span><span class="s">u'http:'</span><span class="p">,</span> <span class="s">u''</span><span class="p">,</span> <span class="s">u'mangastream.com'</span><span class="p">,</span> <span class="s">u'r'</span><span class="p">,</span> <span class="s">u'demons_plan'</span><span class="p">,</span> <span class="s">u'010'</span><span class="p">,</span> <span class="s">u'3997'</span><span class="p">,</span> <span class="s">u'20'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'http:'</span><span class="p">,</span> <span class="s">''</span><span class="p">,</span> <span class="s">'mangastream.com'</span><span class="p">,</span> <span class="s">'r'</span><span class="p">,</span> <span class="s">'demons_plan'</span><span class="p">,</span> <span class="s">'010'</span><span class="p">,</span> <span class="s">'3997'</span><span class="p">,</span> <span class="s">'20'</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.btn-reader-page a'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">'href'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-<span class="s">u'20'</span>
+<span class="s">'20'</span>
 </code></pre>
 </div>
 

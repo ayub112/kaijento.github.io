@@ -342,17 +342,17 @@ use <code class="highlighter-rouge">re.sub()</code> to put all of the text back 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">:</span>
 <span class="o">...</span>     <span class="n">expense</span>
 <span class="o">...</span> 
-<span class="p">[</span><span class="s">u'Description'</span><span class="p">,</span> <span class="s">u'Extended Price'</span><span class="p">,</span> <span class="s">u'Sales Tax'</span><span class="p">,</span> <span class="s">u'Price Including Sales Tax'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Food &amp; Beverage'</span><span class="p">,</span> <span class="s">u'2614.61'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'2614.61'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Packaging'</span><span class="p">,</span> <span class="s">u'490.71'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'490.71'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Merchandise'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Cleaning'</span><span class="p">,</span> <span class="s">u'120.93'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'120.93'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Smallwares'</span><span class="p">,</span> <span class="s">u'5.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'5.00'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Office Supplies'</span><span class="p">,</span> <span class="s">u'13.45'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'13.45'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Total'</span><span class="p">,</span> <span class="s">u'3244.70'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'3244.70'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Fuel Surcharge'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">,</span> <span class="s">u'0.00'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'GST/HST/VAT'</span><span class="p">,</span> <span class="s">u'85.26'</span><span class="p">]</span>
-<span class="p">[</span><span class="s">u'Grand Total'</span><span class="p">,</span> <span class="s">u'3329.96'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Description'</span><span class="p">,</span> <span class="s">'Extended Price'</span><span class="p">,</span> <span class="s">'Sales Tax'</span><span class="p">,</span> <span class="s">'Price Including Sales Tax'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Food &amp; Beverage'</span><span class="p">,</span> <span class="s">'2614.61'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'2614.61'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Packaging'</span><span class="p">,</span> <span class="s">'490.71'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'490.71'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Merchandise'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Cleaning'</span><span class="p">,</span> <span class="s">'120.93'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'120.93'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Smallwares'</span><span class="p">,</span> <span class="s">'5.00'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'5.00'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Office Supplies'</span><span class="p">,</span> <span class="s">'13.45'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'13.45'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Total'</span><span class="p">,</span> <span class="s">'3244.70'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'3244.70'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Fuel Surcharge'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">,</span> <span class="s">'0.00'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'GST/HST/VAT'</span><span class="p">,</span> <span class="s">'85.26'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Grand Total'</span><span class="p">,</span> <span class="s">'3329.96'</span><span class="p">]</span>
 </code></pre>
 </div>
 
