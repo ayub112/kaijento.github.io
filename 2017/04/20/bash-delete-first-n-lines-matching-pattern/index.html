@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/20/bash-delete-first-n-lines-matching-pattern/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: delete first N lines matching pattern | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/20/bash-delete-first-n-lines-matching-pattern/">bash: delete first N lines matching pattern</a></h1>
+  <p class="text-muted">20 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/awk/">awk</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>How do I delete the first N lines from a file that match
+a pattern?</em></p>
+
+<p>Some sample data to work on.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat lines
+line1
+line2 foo
+line3
+line4 foo
+line5 foo
+line6
+line7 moo
+</code></pre>
+</div>
+
+<p>For example let’s say <code class="highlighter-rouge">N = 2</code> that means we should remove
+lines <code class="highlighter-rouge">2</code> and <code class="highlighter-rouge">4</code> from our sample data.</p>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">perl</a>
+</h2>
+
+<p>According to <em>the “internet”</em> it’s <em>“so unreadable 
+and cryptic that people look at code they’ve previously 
+written and have no idea what it does anymore!!! It’s also
+ded!!! LOL!!!”</em></p>
+
+<p>But anyways, this seems like a simple task for <code class="highlighter-rouge">perl</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -ne <span class="s1">'print unless /foo/ and $count++ &lt; 2'</span> lines
+line1
+line3
+line5 foo
+line6
+line7 moo
+</code></pre>
+</div>
+
+<p>We can use <code class="highlighter-rouge">-ni -e</code> to overwrite the original file instead
+of printing to stdout.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -ni -e <span class="s1">'print unless /foo/ and $count++ &lt; 2'</span> lines
+<span class="gp">$ </span>cat lines
+line1
+line3
+line5 foo
+line6
+line7 moo
+</code></pre>
+</div>
+
+<a name="awk"></a>
+<h2 class="section-header">
+  <span id="awk"></span>
+  <a class="anchor" href="#awk">awk</a>
+</h2>
+
+<p>Another possible solution is using <code class="highlighter-rouge">awk</code>. We can use the <code class="highlighter-rouge">next</code>
+command to skip to the next <em>“line”</em> <small>(note: actually <em>record</em>
+but the default <em>record</em> separator is <code class="highlighter-rouge">\n</code>)</small></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>awk <span class="s1">'/foo/ &amp;&amp; count++ &lt; 2 { next } { print }'</span> lines
+line1
+line3
+line5 foo
+line6
+line7 moo
+</code></pre>
+</div>
+
+<p>GNU <code class="highlighter-rouge">awk</code> 4.1.0 added <code class="highlighter-rouge">-i inplace</code> which emulates Perl’s
+<code class="highlighter-rouge">-i</code> <em>“switch”</em> although one could just use shell 
+redirection and <code class="highlighter-rouge">mv</code> to get the same end result e.g.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>awk <span class="s1">'...'</span> lines &gt; tmpfile <span class="o">&amp;&amp;</span> mv tmpfile lines
+</code></pre>
+</div>
+
+<a name="bash"></a>
+<h2 class="section-header">
+  <span id="bash"></span>
+  <a class="anchor" href="#bash">bash</a>
+</h2>
+
+<p>It is also possible to do it in <em>plain bash</em> using a <code class="highlighter-rouge">while read</code> loop combined with 
+<code class="highlighter-rouge">[[</code> and <code class="highlighter-rouge">=~</code> for regex testing. We can use <code class="highlighter-rouge">continue</code> to skip to the next loop iteration.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">while </span><span class="nv">IFS</span><span class="o">=</span> <span class="nb">read</span> -r line; <span class="k">do</span> <span class="o">[[</span> <span class="nv">$line</span> <span class="o">=</span>~ <span class="s1">'foo'</span> <span class="o">&amp;&amp;</span> count++ -lt 2 <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="k">continue</span>; <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>; <span class="k">done</span> &lt; lines
+line1
+line3
+line5 foo
+line6
+line7 moo
+</code></pre>
+</div>
+
+<p>Yes, <code class="highlighter-rouge">foo</code> is just a plain string and we could use <code class="highlighter-rouge">$line = *foo*</code> instead
+but we’re assuming that <em>pattern</em> means a regular expression.</p>
+
+<p>You would also need to add redirection to a temporary file
+and <code class="highlighter-rouge">mv</code> to overwrite the file as shown in the <code class="highlighter-rouge">awk</code> examples.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (39)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/20/bash-reformatting-dates-in-file/">bash: reformatting dates in a logfile</a></h2>
+          <p class="preview"><em>I have a file where each line starts with a date string: 
+dayname monthname day year. I need to reformat it into Y-m-d format. 
+Pls Halp.</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

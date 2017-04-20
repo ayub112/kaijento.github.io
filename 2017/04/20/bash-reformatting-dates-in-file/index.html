@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/20/bash-reformatting-dates-in-file/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: reformatting dates in a logfile | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/20/bash-reformatting-dates-in-file/">bash: reformatting dates in a logfile</a></h1>
+  <p class="text-muted">20 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+    
+  <a href="/categories/date/">date</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>I have a file where each line starts with a date string: 
+dayname monthname day year. I need to reformat it into Y-m-d format. 
+Pls Halp.</em></p>
+
+<p>The sample input we’re given is:</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Sat Aug 2 2015, value, value, value
+Mon Aug 4 2015, value, value, value
+Wed Aug 6 2015, value, value, value
+</code></pre>
+</div>
+
+<p>We can use the <code class="highlighter-rouge">date</code> command to reformat date strings. GNU <code class="highlighter-rouge">date</code>
+allows us to specify a date via the <code class="highlighter-rouge">-d</code> option and we can supply
+a format string for the output date using <code class="highlighter-rouge">+FORMAT</code></p>
+
+<p><code class="highlighter-rouge">%F</code> is equivalent to <code class="highlighter-rouge">%Y-%m-%d</code></p>
+
+<p>You can see a full list of the format strings 
+<a href="https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html#date-invocation">in the manual</a>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">declare</span> -p date
+<span class="nb">declare</span> -- <span class="nv">date</span><span class="o">=</span><span class="s2">"Sat Aug 2 2015"</span>
+<span class="gp">$ </span>date -d <span class="s2">"</span><span class="nv">$date</span><span class="s2">"</span> +%F
+2015-08-02
+</code></pre>
+</div>
+
+<p>If you do not have access to GNU <code class="highlighter-rouge">date</code> e.g. you’re on OSX 
+(or MacOS or whatever it’s called these days) chances are 
+you have BSD <code class="highlighter-rouge">date</code> which has the <code class="highlighter-rouge">-f</code> option for reading in dates of 
+a certain format.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>date -j -f <span class="s2">"%a %b %d %Y"</span> <span class="s2">"</span><span class="nv">$date</span><span class="s2">"</span> +%F
+2015-08-02
+</code></pre>
+</div>
+
+<p>We can combine the use of <code class="highlighter-rouge">date</code> with a <code class="highlighter-rouge">while read</code> loop to read the
+input file line by line.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat logfile.log
+Sat Aug 2 2015, value, value, value
+Mon Aug 4 2015, value, value, value
+Wed Aug 6 2015, value, value, value
+<span class="gp">$ </span><span class="k">while </span><span class="nv">IFS</span><span class="o">=</span>, <span class="nb">read</span> -r date rest; <span class="k">do </span><span class="nv">date</span><span class="o">=</span><span class="sb">`</span>date -d <span class="s2">"</span><span class="nv">$date</span><span class="s2">"</span> +%F<span class="sb">`</span>; <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$date</span><span class="s2">,</span><span class="nv">$rest</span><span class="s2">"</span>; <span class="k">done</span> &lt; logfile.log
+2015-08-02, value, value, value
+2015-08-04, value, value, value
+2015-08-06, value, value, value
+</code></pre>
+</div>
+
+<p>We’re setting <code class="highlighter-rouge">IFS=,</code> to allow read to separate <em>“words”</em> by a comma.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">IFS</span><span class="o">=</span>, <span class="nb">read</span> -r date rest <span class="o">&lt;&lt;&lt;</span> <span class="s1">'Sat Aug 2 2015, value, value, value'</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p date rest
+<span class="nb">declare</span> -- <span class="nv">date</span><span class="o">=</span><span class="s2">"Sat Aug 2 2015"</span>
+<span class="nb">declare</span> -- <span class="nv">rest</span><span class="o">=</span><span class="s2">" value, value, value"</span>
+</code></pre>
+</div>
+
+<p>As we only supply 2 variable names to <code class="highlighter-rouge">read</code> it automatically fills the
+second one with the <em>“rest”</em> of the data on the line.</p>
+
+<p>If we added another variable we would get the first <em>“value”</em></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">IFS</span><span class="o">=</span>, <span class="nb">read</span> -r date first_value rest <span class="o">&lt;&lt;&lt;</span> <span class="s1">'Sat Aug 2 2015, value-a, value-b, value-c'</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p date first_value rest
+<span class="nb">declare</span> -- <span class="nv">date</span><span class="o">=</span><span class="s2">"Sat Aug 2 2015"</span>
+<span class="nb">declare</span> -- <span class="nv">first_value</span><span class="o">=</span><span class="s2">" value-a"</span>
+<span class="nb">declare</span> -- <span class="nv">rest</span><span class="o">=</span><span class="s2">" value-b, value-c"</span>
+</code></pre>
+</div>
+
+<p>This approach does not modify the input file. To do so we could redirect the output
+of the <code class="highlighter-rouge">while</code> loop to a temporary file and then use <code class="highlighter-rouge">mv</code> to overwrite the original
+file.</p>
+
+<p>This is somewhat messy and if the file is in anyway large executing <code class="highlighter-rouge">date</code>
+for each line will probably not be the quickest thing in the world.</p>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">perl</a>
+</h2>
+
+<p>Another option is to instead use <code class="highlighter-rouge">Perl</code> with its <code class="highlighter-rouge">Time::Piece</code> module for parsing / reformatting 
+dates.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -MTime::Piece -pe <span class="s1">'s/([^,]+)/Time::Piece-&gt;strptime($1, "%a %b %d %Y")-&gt;strftime("%Y-%m-%d")/e'</span> logfile.log
+2015-08-02, value, value, value
+2015-08-04, value, value, value
+2015-08-06, value, value, value
+</code></pre>
+</div>
+
+<p>This does not modify the input file.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat logfile.log
+Sat Aug 2 2015, value, value, value
+Mon Aug 4 2015, value, value, value
+Wed Aug 6 2015, value, value, value
+</code></pre>
+</div>
+
+<p>To do so we can use the <code class="highlighter-rouge">-i</code> <em>“switch”</em>. The <code class="highlighter-rouge">-i</code> <em>“switch”</em> takes an optional argument though:
+a SUFFIX if you want it to create a backup file for you. This means that we cannot
+cannot write <code class="highlighter-rouge">-pie</code> but must use <code class="highlighter-rouge">-pi -e</code> instead.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -MTime::Piece -pi -e <span class="s1">'s/([^,]+)/Time::Piece-&gt;strptime($1, "%a %b %d %Y")-&gt;strftime("%Y-%m-%d")/e'</span> logfile.log
+<span class="gp">$ </span>cat logfile.log
+2015-08-02, value, value, value
+2015-08-04, value, value, value
+2015-08-06, value, value, value
+</code></pre>
+</div>
+
+<p>Because we know that each line starts with the date string, matching up to but not including
+the first comma on the line will match only the date.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">([^,]+)</code> matches and captures a sequence of 1 or more characters that is not <code class="highlighter-rouge">,</code> i.e. the date</li>
+  <li>the <code class="highlighter-rouge">e</code> modifer on the <code class="highlighter-rouge">s/pattern/replacement/</code> command evaluates the replacement as Perl code</li>
+</ul>
+
+<p>So on the first line of our logfile <code class="highlighter-rouge">Time::Piece-&gt;strptime($1, "%a %b %d %Y")</code> turns into
+<code class="highlighter-rouge">Time::Piece-&gt;strptime("Sat Aug 2 2015", "%a %b %d %Y")</code> as <code class="highlighter-rouge">$1</code> is the content of the first
+capture group i.e. the date.</p>
+
+<p>This creates a <code class="highlighter-rouge">Time::Piece</code> object from our parsed date which we then reformat using the 
+<code class="highlighter-rouge">strftime()</code> method giving us the desired output format.</p>
+
+<p>The <code class="highlighter-rouge">-M</code> switch is for loading modules it’s like doing a <code class="highlighter-rouge">use</code> inside your Perl code.</p>
+
+<p>So <code class="highlighter-rouge">perl -pe 's///'</code> is essentially a replacement for <code class="highlighter-rouge">sed</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -MO<span class="o">=</span>Deparse -pe <span class="s1">'s/foo/bar/'</span>
+LINE: <span class="k">while</span> <span class="o">(</span>defined<span class="o">(</span><span class="nv">$_</span> <span class="o">=</span> &lt;ARGV&gt;<span class="o">))</span> <span class="o">{</span>
+    s/foo/bar/;
+<span class="o">}</span>
+<span class="k">continue</span> <span class="o">{</span>
+    die <span class="s2">"-p destination: </span><span class="nv">$!</span><span class="se">\n</span><span class="s2">"</span> unless print <span class="nv">$_</span>;
+<span class="o">}</span>
+-e syntax OK
+</code></pre>
+</div>
+
+<ul>
+  <li><code class="highlighter-rouge">-p</code> adds a while read line loop with an implicit <code class="highlighter-rouge">print</code></li>
+  <li><code class="highlighter-rouge">-n</code> does the same without the <code class="highlighter-rouge">print</code></li>
+</ul>
+
+<p>If you find sed’s Basic or Extended Regular Expressions annoying this is a
+good replacement. It also gives you access to multiline searching / replacing
+with the <code class="highlighter-rouge">-0777</code> switch.</p>
+
+<p>You can view the documentation for the switches using the <code class="highlighter-rouge">perldoc perlrun</code> command or
+you can try viewing it on <a href="https://metacpan.org/pod/perlrun">metacpan.org</a>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (39)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/20/json-parsing-parent-child-transform/">JSON parsing: parent / child transformation</a></h2>
+          <p class="preview">Given the following JSON structure</p>
+
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/20/bash-delete-first-n-lines-matching-pattern/">bash: delete first N lines matching pattern</a></h2>
+          <p class="preview"><em>How do I delete the first N lines from a file that match
+a pattern?</em></p>
+
+
+        </div>
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

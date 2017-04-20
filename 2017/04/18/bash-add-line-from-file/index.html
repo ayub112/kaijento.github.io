@@ -82,7 +82,13 @@ line to the end of all lines in file2?</em></p>
 </code></pre>
 </div>
 
-<p>We could use a <code class="highlighter-rouge">while read</code> loop:</p>
+<a name="bash"></a>
+<h2 class="section-header">
+  <span id="bash"></span>
+  <a class="anchor" href="#bash">bash</a>
+</h2>
+
+<p>To do it in <em>“plain bash”</em> we could use a <code class="highlighter-rouge">while read</code> loop:</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="o">(</span> <span class="nv">IFS</span><span class="o">=</span>; <span class="nb">read</span> -r line1 &lt; file1; <span class="k">while </span><span class="nb">read</span> -r line; <span class="k">do </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$line$line1</span><span class="s2">"</span>; <span class="k">done</span> &lt; file2 <span class="o">)</span>
 1    line from file1
@@ -105,6 +111,12 @@ trailing whitespace.</p>
 <span class="nb">declare</span> -- <span class="nv">line1</span><span class="o">=</span><span class="s2">"    line from file1"</span>
 </code></pre>
 </div>
+
+<a name="awk"></a>
+<h2 class="section-header">
+  <span id="awk"></span>
+  <a class="anchor" href="#awk">awk</a>
+</h2>
 
 <p>Another approach could be to use <code class="highlighter-rouge">awk</code>:</p>
 
@@ -134,6 +146,12 @@ for us. It’s as if we did <code class="highlighter-rouge">printf("%s%s\n", $0,
 5    line from file1
 </code></pre>
 </div>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">perl</a>
+</h2>
 
 <p>If we wanted to modify <code class="highlighter-rouge">file2</code> with the updated changes we could
 use <code class="highlighter-rouge">perl</code></p>
@@ -167,7 +185,7 @@ passing it 2 filenames as arguments.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (35)</a>
+            <a href="/archive">View Archive (39)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/04/18/bash-mv-all-except/">bash: mv all except ...</a></h2>
           <p class="preview"><em>I have the directory structure <code class="highlighter-rouge">A/B</code> how do I <code class="highlighter-rouge">mv</code> everything

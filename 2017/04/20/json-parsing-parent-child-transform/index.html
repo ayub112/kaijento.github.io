@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/20/json-parsing-parent-child-transform/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>JSON parsing: parent / child transformation | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/20/json-parsing-parent-child-transform/">JSON parsing: parent / child transformation</a></h1>
+  <p class="text-muted">20 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/defaultdict/">defaultdict</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given the following JSON structure</p>
+
+<p><code class="highlighter-rouge">before.json</code></p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"tag"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Fruit"</span>
+            <span class="p">},</span> 
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Apple"</span>
+            <span class="p">}</span>
+        <span class="p">],</span> 
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Random"</span>
+    <span class="p">},</span> 
+    <span class="p">{</span>
+        <span class="s2">"tag"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Fruit"</span>
+            <span class="p">},</span> 
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Apple"</span>
+            <span class="p">}</span>
+        <span class="p">],</span> 
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Other"</span>
+    <span class="p">},</span> 
+    <span class="p">{</span>
+        <span class="s2">"tag"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Food"</span>
+            <span class="p">}</span>
+        <span class="p">],</span> 
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"Words"</span>
+    <span class="p">},</span> 
+    <span class="p">{</span>
+        <span class="s2">"tag"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Food"</span>
+            <span class="p">},</span> 
+            <span class="p">{</span>
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Apple"</span>
+            <span class="p">}</span>
+        <span class="p">],</span> 
+        <span class="s2">"title"</span><span class="p">:</span> <span class="s2">"That"</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<p>We are to transform / restructure it to create the desired output</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Fruit"</span><span class="p">,</span> 
+        <span class="s2">"tag_child"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Apple"</span><span class="p">,</span> 
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="p">}</span>
+        <span class="p">],</span> 
+        <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">},</span> 
+    <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"NoLevel_1"</span><span class="p">,</span> 
+        <span class="s2">"tag_child"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Food"</span><span class="p">,</span> 
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="p">},</span> 
+            <span class="p">{</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Apple"</span><span class="p">,</span> 
+                <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">2</span>
+            <span class="p">}</span>
+        <span class="p">],</span> 
+        <span class="s2">"taglevel"</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<p>The critera for the transformation are as follows:</p>
+
+<ul>
+  <li>
+    <p>if any of the <code class="highlighter-rouge">tag</code> entries contain a <code class="highlighter-rouge">taglevel</code> of <code class="highlighter-rouge">1</code> this <code class="highlighter-rouge">name</code>
+will be the <em>parent</em> and all other tag entries (which will have 
+<code class="highlighter-rouge">taglevel</code> of <code class="highlighter-rouge">2</code> or greater) will be <em>children</em></p>
+  </li>
+  <li>
+    <p>if there are no <code class="highlighter-rouge">taglevel</code> entries of <code class="highlighter-rouge">1</code> then all tag entries
+are to be children of the <code class="highlighter-rouge">NoLevel1</code> <em>parent</em></p>
+  </li>
+  <li>
+    <p>there are to be no duplicate children</p>
+  </li>
+</ul>
+
+<p>We will start with the output:</p>
+
+<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python transform-json.py
+<span class="o">[</span>
+    <span class="o">{</span>
+        <span class="s2">"name"</span>: <span class="s2">"NoLevel_1"</span>, 
+        <span class="s2">"tag_child"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"name"</span>: <span class="s2">"Food"</span>, 
+                <span class="s2">"taglevel"</span>: 2
+            <span class="o">}</span>, 
+            <span class="o">{</span>
+                <span class="s2">"name"</span>: <span class="s2">"Apple"</span>, 
+                <span class="s2">"taglevel"</span>: 2
+            <span class="o">}</span>
+        <span class="o">]</span>, 
+        <span class="s2">"taglevel"</span>: 1
+    <span class="o">}</span>, 
+    <span class="o">{</span>
+        <span class="s2">"name"</span>: <span class="s2">"Fruit"</span>, 
+        <span class="s2">"tag_child"</span>: <span class="o">[</span>
+            <span class="o">{</span>
+                <span class="s2">"name"</span>: <span class="s2">"Apple"</span>, 
+                <span class="s2">"taglevel"</span>: 2
+            <span class="o">}</span>
+        <span class="o">]</span>, 
+        <span class="s2">"taglevel"</span>: 1
+    <span class="o">}</span>
+<span class="o">]</span>
+</code></pre>
+</div>
+
+<p>Here is the code used to generate it:</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span>   <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'before.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+    <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">json_data</span><span class="p">:</span>
+        <span class="n">parent</span>   <span class="o">=</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'NoLevel_1'</span><span class="p">}</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">item</span><span class="p">[</span><span class="s">'tag'</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">tag</span><span class="p">[</span><span class="s">'taglevel'</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">parent</span> <span class="o">=</span> <span class="n">tag</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tag</span><span class="p">[</span><span class="s">'taglevel'</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]))</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">parent</span><span class="p">[</span><span class="s">'name'</span><span class="p">]]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">children</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[</span> 
+        <span class="p">{</span>
+            <span class="s">'name'</span><span class="p">:</span> <span class="n">parent</span><span class="p">,</span> 
+            <span class="s">'tag_child'</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s">'taglevel'</span><span class="p">:</span> <span class="n">taglevel</span><span class="p">}</span> <span class="k">for</span> <span class="n">taglevel</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tags</span>
+            <span class="p">],</span>
+            <span class="s">'taglevel'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
+        <span class="p">}</span> <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">]</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<a name="collectionsdefaultdict"></a>
+<h2 class="section-header">
+  <span id="collectionsdefaultdict"></span>
+  <a class="anchor" href="#collectionsdefaultdict">collections.defaultdict</a>
+</h2>
+
+<p>We’re using a <a href="https://docs.python.org/3/library/collections.html?highlight=ordereddict#collections.defaultdict">defaultdict</a> 
+here. If you’ve not encountered this before it’s like a regular <code class="highlighter-rouge">dict</code> except
+that it can simplify the creation of nested structures.</p>
+
+<p>For example, let’s say you were processing some lines of data that contained
+student names and their grade. You wanted to create a <code class="highlighter-rouge">dict</code> that had each
+student name as the key and a <code class="highlighter-rouge">list</code> of their results as the value.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">test_results</span> <span class="o">=</span> <span class="s">'Bob: 65</span><span class="se">\n</span><span class="s">Alice: 75</span><span class="se">\n</span><span class="s">Bob: 72</span><span class="se">\n</span><span class="s">Alice: 74'</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">grades</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">test_results</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+<span class="o">...</span>     <span class="n">name</span><span class="p">,</span> <span class="n">grade</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">': '</span><span class="p">)</span>
+<span class="o">...</span>     <span class="n">grades</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grade</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">grades</span>
+<span class="n">defaultdict</span><span class="p">(</span><span class="o">&lt;</span><span class="nb">type</span> <span class="s">'list'</span><span class="o">&gt;</span><span class="p">,</span> <span class="p">{</span><span class="s">'Bob'</span><span class="p">:</span> <span class="p">[</span><span class="s">'65'</span><span class="p">,</span> <span class="s">'72'</span><span class="p">],</span> <span class="s">'Alice'</span><span class="p">:</span> <span class="p">[</span><span class="s">'75'</span><span class="p">,</span> <span class="s">'74'</span><span class="p">]})</span>
+</code></pre>
+</div>
+
+<p>If we were to use a regular <code class="highlighter-rouge">dict</code> we would need to check if the name
+was in the dict already if not create it e.g.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grades</span><span class="p">:</span>
+    <span class="n">grades</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">grade</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">grades</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grade</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Another use could be for counting with <code class="highlighter-rouge">defaultdict(int)</code> however <code class="highlighter-rouge">collections.Counter</code>
+takes care of most counting needs.</p>
+
+<a name="set-vs-list"></a>
+<h2 class="section-header">
+  <span id="set-vs-list"></span>
+  <a class="anchor" href="#set-vs-list">set vs. list</a>
+</h2>
+
+<p>We’re using a <code class="highlighter-rouge">defaultdict(set)</code> the reason being that sets cannot contain duplicates.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">set</span><span class="o">([</span><span class="s1">'bob'</span>, <span class="s1">'alice'</span>, <span class="s1">'bob'</span>, <span class="s1">'bob'</span><span class="o">])</span>
+<span class="nb">set</span><span class="o">([</span><span class="s1">'bob'</span>, <span class="s1">'alice'</span><span class="o">])</span>
+<span class="gp">&gt;&gt;&gt; </span>names <span class="o">=</span> <span class="nb">set</span><span class="o">()</span>
+<span class="gp">&gt;&gt;&gt; </span>names.add<span class="o">(</span><span class="s1">'bob'</span><span class="o">)</span>
+<span class="gp">&gt;&gt;&gt; </span>names
+<span class="nb">set</span><span class="o">([</span><span class="s1">'bob'</span><span class="o">])</span>
+<span class="gp">&gt;&gt;&gt; </span>names.add<span class="o">(</span><span class="s1">'bob'</span><span class="o">)</span>
+<span class="gp">&gt;&gt;&gt; </span>names
+<span class="nb">set</span><span class="o">([</span><span class="s1">'bob'</span><span class="o">])</span>
+</code></pre>
+</div>
+
+<p>To add a single item to a <code class="highlighter-rouge">set</code> we can use <code class="highlighter-rouge">.add()</code> although to add multiple
+items we need to use <code class="highlighter-rouge">.update()</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">&gt;&gt;&gt; </span>names.add<span class="o">([</span><span class="s1">'bob'</span>, <span class="s1">'alice'</span><span class="o">])</span>
+Traceback <span class="o">(</span>most recent call last<span class="o">)</span>:
+  File <span class="s2">"&lt;stdin&gt;"</span>, line 1, <span class="k">in</span> &lt;module&gt;
+TypeError: unhashable <span class="nb">type</span>: <span class="s1">'list'</span>
+<span class="gp">&gt;&gt;&gt; </span>names.update<span class="o">([</span><span class="s1">'bob'</span>, <span class="s1">'alice'</span><span class="o">])</span>
+<span class="gp">&gt;&gt;&gt; </span>names
+<span class="nb">set</span><span class="o">([</span><span class="s1">'bob'</span>, <span class="s1">'alice'</span><span class="o">])</span>
+</code></pre>
+</div>
+
+<p>So back to our code.</p>
+
+<p>In the <code class="highlighter-rouge">for</code> loop we loop through each of the <code class="highlighter-rouge">tag</code> lists inside
+each object. We set a default value for <code class="highlighter-rouge">parent</code> in the event that
+it is not present.</p>
+
+<p>If we find the correct <code class="highlighter-rouge">taglevel</code> set the <code class="highlighter-rouge">parent</code> accordingly else we</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">tag</span><span class="p">[</span><span class="s">'taglevel'</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]))</span>
+</code></pre>
+</div>
+
+<p>So with <code class="highlighter-rouge">children</code> we’re creating a list of <code class="highlighter-rouge">tuple</code> pairs 
+that contain the <code class="highlighter-rouge">taglevel</code> and <code class="highlighter-rouge">name</code> values. The reason 
+for this is that a <code class="highlighter-rouge">dict</code> is not <code class="highlighter-rouge">hashable</code> thus meaning
+it cannot be an element of a <code class="highlighter-rouge">set</code>.</p>
+
+<p>So in the case of</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+    <span class="s">"tag"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s">"taglevel"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> 
+            <span class="s">"name"</span><span class="p">:</span> <span class="s">"Food"</span>
+        <span class="p">}</span>
+    <span class="p">],</span> 
+    <span class="s">"title"</span><span class="p">:</span> <span class="s">"Words"</span>
+<span class="p">},</span> 
+</code></pre>
+</div>
+
+<p>We’re would have</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">parent</span>   <span class="o">=</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'NoLevel_1'</span><span class="p">}</span>
+<span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Fruit'</span><span class="p">)</span> <span class="p">]</span>
+</code></pre>
+</div>
+
+<p>We then use <code class="highlighter-rouge">result[parent['name']].update(children)</code> to <em>“add”</em>
+the list of children to the <code class="highlighter-rouge">set</code> in <code class="highlighter-rouge">result</code> that is pointed to 
+by the key <code class="highlighter-rouge">parent['name']</code> i.e. <code class="highlighter-rouge">NoLevel_1</code> in this instance.</p>
+
+<p>If we print out <code class="highlighter-rouge">result</code> after the <code class="highlighter-rouge">for</code> loop it looks like</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">defaultdict</span><span class="p">(</span><span class="o">&lt;</span><span class="nb">type</span> <span class="s">'set'</span><span class="o">&gt;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">'NoLevel_1'</span><span class="p">:</span> <span class="nb">set</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Food'</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Apple'</span><span class="p">)]),</span> 
+    <span class="s">'Fruit'</span><span class="p">:</span>     <span class="nb">set</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Apple'</span><span class="p">)])</span>
+<span class="p">})</span>
+</code></pre>
+</div>
+
+<p>If we changed it to <code class="highlighter-rouge">defaultdict(list)</code> and changed the <code class="highlighter-rouge">.update()</code> call to <code class="highlighter-rouge">.append()</code> 
+we’d get similar output but we’d have our duplicates, hence the use of 
+<code class="highlighter-rouge">set</code> over <code class="highlighter-rouge">list</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">defaultdict</span><span class="p">(</span><span class="o">&lt;</span><span class="nb">type</span> <span class="s">'list'</span><span class="o">&gt;</span><span class="p">,</span> <span class="p">{</span>
+    <span class="s">'NoLevel_1'</span><span class="p">:</span> <span class="p">[[(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Food'</span><span class="p">)],</span>  <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Food'</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Apple'</span><span class="p">)]],</span> 
+    <span class="s">'Fruit'</span><span class="p">:</span>     <span class="p">[[(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Apple'</span><span class="p">)],</span> <span class="p">[(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Apple'</span><span class="p">)]]</span>
+<span class="p">})</span>
+</code></pre>
+</div>
+
+<a name="comprehending-comprehensions"></a>
+<h2 class="section-header">
+  <span id="comprehending-comprehensions"></span>
+  <a class="anchor" href="#comprehending-comprehensions">comprehending comprehensions</a>
+</h2>
+
+<p>So when <code class="highlighter-rouge">for</code> loop is done we are left with the <code class="highlighter-rouge">defaultdict</code> which
+we must then transform into the final output.</p>
+
+<p>We’ve performed the transformation using some <em>comprehensions</em>.</p>
+
+<p>We could have done it without them by creating a new list
+and using <code class="highlighter-rouge">.append()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">final_result</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">'name'</span><span class="p">:</span>     <span class="n">parent</span><span class="p">,</span>
+        <span class="s">'taglevel'</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="p">}</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">taglevel</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+        <span class="n">child</span> <span class="o">=</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s">'taglevel'</span><span class="p">:</span> <span class="n">taglevel</span><span class="p">}</span>
+        <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+    <span class="n">item</span><span class="p">[</span><span class="s">'tag_child'</span><span class="p">]</span> <span class="o">=</span> <span class="n">children</span>
+    <span class="n">final_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>I find the <em>comprehension</em> version prettier.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="p">[</span> 
+    <span class="p">{</span>
+        <span class="s">'name'</span><span class="p">:</span> <span class="n">parent</span><span class="p">,</span> 
+        <span class="s">'tag_child'</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s">'taglevel'</span><span class="p">:</span> <span class="n">taglevel</span><span class="p">}</span> <span class="k">for</span> <span class="n">taglevel</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">tags</span>
+        <span class="p">],</span>
+        <span class="s">'taglevel'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
+    <span class="p">}</span> <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Feel free to use whichever style you prefer.</p>
+
+<p><em>“H8rz gon h8”</em></p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (39)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/20/json-parsing-number-contain-digit/">JSON parsing: Does a number contain a certain digit?</a></h2>
+          <p class="preview"><em>I have a list of JSON objects that contain <code class="highlighter-rouge">name</code> and <code class="highlighter-rouge">id</code> 
+entries. I would like to filter out all entries that contain
+a certain digit in their <code class="highlighter-rouge">id</code> e.g. <code class="highlighter-rouge">1</code></em></p>
+
+
+        </div>
+      
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/20/bash-reformatting-dates-in-file/">bash: reformatting dates in a logfile</a></h2>
+          <p class="preview"><em>I have a file where each line starts with a date string: 
+dayname monthname day year. I need to reformat it into Y-m-d format. 
+Pls Halp.</em></p>
+
+
+        </div>
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
