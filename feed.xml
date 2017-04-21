@@ -5,9 +5,262 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 20 Apr 2017 20:45:03 +0100</pubDate>
-    <lastBuildDate>Thu, 20 Apr 2017 20:45:03 +0100</lastBuildDate>
+    <pubDate>Fri, 21 Apr 2017 08:31:17 +0100</pubDate>
+    <lastBuildDate>Fri, 21 Apr 2017 08:31:17 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>XML Parsing: Python, XPath, logical AND</title>
+        <description>&lt;p&gt;&lt;em&gt;Given the following XML data we need to locate all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags
+whose &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag is equal to the value &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; &lt;strong&gt;and&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;b&amp;gt;&lt;/code&gt; tag is 
+equal to the value &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; and return their &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;id&amp;gt;&lt;/code&gt; using Python.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;records.xml&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-xml highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;records&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;record&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;1&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&amp;gt;&lt;/span&gt;A&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;b&amp;gt;&lt;/span&gt;B&lt;span class=&quot;nt&quot;&gt;&amp;lt;/b&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/record&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;record&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;2&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&amp;gt;&lt;/span&gt;A&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/record&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;record&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;3&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;b&amp;gt;&lt;/span&gt;B&lt;span class=&quot;nt&quot;&gt;&amp;lt;/b&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/record&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;record&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;id&amp;gt;&lt;/span&gt;4&lt;span class=&quot;nt&quot;&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&amp;gt;&lt;/span&gt;A&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+        &lt;span class=&quot;nt&quot;&gt;&amp;lt;b&amp;gt;&lt;/span&gt;B&lt;span class=&quot;nt&quot;&gt;&amp;lt;/b&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;/record&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/records&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;From this sample XML we would expect the result to be &lt;code class=&quot;highlighter-rouge&quot;&gt;[1, 4]&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;xmletreeelementtree&quot;&gt;xml.etree.ElementTree&lt;/h2&gt;
+
+&lt;p&gt;Python comes with the &lt;a href=&quot;https://docs.python.org/3/library/xml.etree.elementtree.html#tutorial&quot;&gt;xml.etree.ElementTree&lt;/a&gt;
+parser for parsing XML.&lt;/p&gt;
+
+&lt;p&gt;The most basic form of processing is to iterate
+from the root element.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;xml.etree.ElementTree&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;ET&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ET&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'records.xml'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getroot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f9eddd68a50&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f9eddd68b50&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f9eddd68c10&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f9eddd68cd0&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;child&lt;/code&gt; will be each &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tag we could use &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt;
+to see if there is an &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag inside.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getroot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf536186d8&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf53618818&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf536189f8&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To get the content we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;.text&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getroot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;s&quot;&gt;'A'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'A'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&amp;lt;stdin&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;AttributeError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'NoneType'&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;has&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;no&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;attribute&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'text'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Not all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags contain an &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag meaning we 
+would have to test that &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; found something or use 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;try&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;catch&lt;/code&gt; the &lt;code class=&quot;highlighter-rouge&quot;&gt;Exception&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getroot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;():&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'b'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;b&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;n&quot;&gt;child&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'4'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In older versions we could have used &lt;code class=&quot;highlighter-rouge&quot;&gt;if a and b&lt;/code&gt; but now you
+must explicity test for &lt;code class=&quot;highlighter-rouge&quot;&gt;is not None&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;Shirley&lt;/em&gt; there is a better way?&lt;/p&gt;
+
+&lt;h2 id=&quot;xpath&quot;&gt;XPath&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;xml.etree.ElementTree&lt;/code&gt; provides us with &lt;a href=&quot;https://docs.python.org/3/library/xml.etree.elementtree.html#xpath-support&quot;&gt;limited XPath support&lt;/a&gt;
+which can simplify the task.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf53683e08&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf53618778&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Using &lt;code class=&quot;highlighter-rouge&quot;&gt;record&lt;/code&gt; here is like using the path &lt;code class=&quot;highlighter-rouge&quot;&gt;./record&lt;/code&gt; it will only search 
+the child tags it will not descend further down.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; doc.getroot().tag
+'records'
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So because we’re at &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;records&amp;gt;&lt;/code&gt; we can see the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags as they
+are direct children whereas we cannot see the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;id&amp;gt;&lt;/code&gt; tags as they are
+inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags i.e they are grandchildren.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To descend all the way down we can use the double slash &lt;code class=&quot;highlighter-rouge&quot;&gt;.//&lt;/code&gt; instead 
+of &lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf53618688&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf536187c8&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If we look at the &lt;a href=&quot;https://docs.python.org/3/library/xml.etree.elementtree.html#supported-xpath-syntax&quot;&gt;list of supported XPath syntax&lt;/a&gt;
+we can see&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[tag='text']&lt;/code&gt;
+Selects all elements that have a child named &lt;em&gt;tag&lt;/em&gt; whose complete text content, including descendants, equals the given &lt;em&gt;text&lt;/em&gt;.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This sounds like it’s what we’re trying to do.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'2'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'4'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Technically we can omit the &lt;code class=&quot;highlighter-rouge&quot;&gt;.//&lt;/code&gt; here as the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags are direct children
+as we previously discussed but that may not be the case in other examples so 
+we will use &lt;code class=&quot;highlighter-rouge&quot;&gt;.//&lt;/code&gt; to avoid any possible confusion.&lt;/p&gt;
+
+&lt;p&gt;Also note that you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; if you don’t want to name or you don’t know the name
+of the tag you’re trying to target.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//*[a=&quot;A&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;and&quot;&gt;and&lt;/h2&gt;
+
+&lt;p&gt;Okay so that allows us to match on 1 tag how do we match our 2nd condition? i.e.
+how do we say &lt;code class=&quot;highlighter-rouge&quot;&gt;[tag1='text1' and tag2='text2']&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;Well, we could try just that:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot; and b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;SyntaxError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;invalid&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;predicate&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is a valid XPath expression it’s just that &lt;code class=&quot;highlighter-rouge&quot;&gt;xml.etree.ElementTree&lt;/code&gt;
+doesn’t parse it as valid with its &lt;em&gt;“limited”&lt;/em&gt; support.&lt;/p&gt;
+
+&lt;p&gt;If you wanted &lt;em&gt;“better”&lt;/em&gt; XPath support you could use &lt;code class=&quot;highlighter-rouge&quot;&gt;lxml.etree&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;lxml.etree&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;lxml&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;etree&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'records.xml'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;xpath&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'*[a=&quot;A&quot; and b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f2b9da01fc8&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7f2b9da01f38&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It is possible to do it without &lt;code class=&quot;highlighter-rouge&quot;&gt;and&lt;/code&gt; though.&lt;/p&gt;
+
+&lt;p&gt;If you chain multiple &lt;em&gt;“tests”&lt;/em&gt; together it’s as if there is an implicit
+&lt;em&gt;“logical AND”&lt;/em&gt; applied to them:&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;][b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;And finally let’s get each &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;][b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'4'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We could create a list and &lt;code class=&quot;highlighter-rouge&quot;&gt;.append()&lt;/code&gt; each &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; or we could use a &lt;em&gt;list comprehension&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;][b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'4'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;iterfind&quot;&gt;iterfind()&lt;/h2&gt;
+
+&lt;p&gt;Whereas &lt;code class=&quot;highlighter-rouge&quot;&gt;findall()&lt;/code&gt; returns a list &lt;code class=&quot;highlighter-rouge&quot;&gt;iterfind()&lt;/code&gt; returns a &lt;em&gt;generator&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;iterfind&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;][b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;generator&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;object&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;select&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;at&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0x7fbf535e68b8&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;iterfind&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.//record[a=&quot;A&quot;][b=&quot;B&quot;]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'4'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So depending on what you’re doing you may wish to replace &lt;code class=&quot;highlighter-rouge&quot;&gt;findall()&lt;/code&gt; calls with &lt;code class=&quot;highlighter-rouge&quot;&gt;iterfind()&lt;/code&gt;
+ones.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 21 Apr 2017 05:43:20 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/04/21/xml-parsing-python-xpath-logical-and/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/04/21/xml-parsing-python-xpath-logical-and/</guid>
+        
+        <category>python</category>
+        
+        <category>xml</category>
+        
+        <category>lxml</category>
+        
+        <category>elementtree</category>
+        
+        <category>xpath</category>
+        
+        
+      </item>
     
       <item>
         <title>bash: delete first N lines matching pattern</title>
@@ -1994,587 +2247,6 @@ available &lt;a href=&quot;https://github.com/kaijento/code/tree/master/xmlparsi
         <category>dictwriter</category>
         
         <category>xmltocsv</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>bash: rename files based on modification time</title>
-        <description>&lt;p&gt;&lt;em&gt;I have a directory full of files. I would like to prefix
-each filename with an ascending count starting from the oldest.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;before&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -l
-total 0K
--rw------- 1 user group 0 Apr 12 05:44 a
--rw------- 1 user group 0 Apr 12 04:45 b
--rw------- 1 user group 0 Apr 12 03:45 c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;after&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 03:45 &lt;span class=&quot;s2&quot;&gt;&quot;01 c&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 04:45 &lt;span class=&quot;s2&quot;&gt;&quot;02 b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 05:44 &lt;span class=&quot;s2&quot;&gt;&quot;03 a&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Generally when talking about the age of files on &lt;em&gt;“*nix”&lt;/em&gt;
-the last modification time or &lt;code class=&quot;highlighter-rouge&quot;&gt;mtime&lt;/code&gt; is used as the presence of 
-“creation time” is filesystem specific and may not exist.&lt;/p&gt;
-
-&lt;p&gt;We’re using Linux here which means we have access to
-GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt; which has &lt;code class=&quot;highlighter-rouge&quot;&gt;-Q&lt;/code&gt; to quote the filename. This 
-can be useful for highlighting the filename portion of 
-the ouput when using &lt;code class=&quot;highlighter-rouge&quot;&gt;-l&lt;/code&gt; as shown above.&lt;/p&gt;
-
-&lt;p&gt;So let’s create some test files.&lt;/p&gt;
-
-&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-d&lt;/code&gt; which can simplify creating dates 
-in the past (or future).&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch -t &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;date +%m%d%H%M -d &lt;span class=&quot;s1&quot;&gt;'1 hour ago'&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt; c
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch -t &lt;span class=&quot;k&quot;&gt;$(&lt;/span&gt;date +%m%d%H%M -d &lt;span class=&quot;s1&quot;&gt;'2 hour ago'&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;)&lt;/span&gt; b
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch a
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -l
-total 0K
--rw------- 1 user group 0 Apr 12 07:31 a
--rw------- 1 user group 0 Apr 12 05:31 b
--rw------- 1 user group 0 Apr 12 06:31 c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;$()&lt;/code&gt; here is called &lt;em&gt;Command Substitution&lt;/em&gt;.
-It is used for capturing the output of a command. You may 
-also see it written using backticks (&lt;em&gt;“backquotes”&lt;/em&gt;) 
-e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;`date +%m%d%H%M -d '1 hour ago'`&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;The backtick form is considered &lt;em&gt;old-style&lt;/em&gt; and there
-are some slight differences with regards to backslash handling.&lt;/p&gt;
-
-&lt;p&gt;You will of course read on &lt;em&gt;“the internet”&lt;/em&gt; that you are
-&lt;em&gt;“never”&lt;/em&gt; to use the old-style but some people find it 
-&lt;em&gt;“prettier”&lt;/em&gt; and easier to type.&lt;/p&gt;
-
-&lt;h2 id=&quot;ls&quot;&gt;ls&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt; has the &lt;code class=&quot;highlighter-rouge&quot;&gt;-t&lt;/code&gt; option which will sort by modification time.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lt 
-total 0K
--rw------- 1 user group 0 Apr 12 07:31 a
--rw------- 1 user group 0 Apr 12 06:31 c
--rw------- 1 user group 0 Apr 12 05:31 b
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt; you can reverse the sort order.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -ltr 
-total 0K
--rw------- 1 user group 0 Apr 12 05:31 b
--rw------- 1 user group 0 Apr 12 06:31 c
--rw------- 1 user group 0 Apr 12 07:31 a
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;According to &lt;em&gt;“the internet”&lt;/em&gt; you’re &lt;em&gt;“never”&lt;/em&gt;
-supposed to parse &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt; but &lt;em&gt;“h8rz gonna h8”&lt;/em&gt; as they say.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;i++; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘b’ -&amp;gt; ‘1 b’
-‘c’ -&amp;gt; ‘2 c’
-‘a’ -&amp;gt; ‘3 a’
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Check the results:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 05:31 &lt;span class=&quot;s2&quot;&gt;&quot;1 b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 06:31 &lt;span class=&quot;s2&quot;&gt;&quot;2 c&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 07:31 &lt;span class=&quot;s2&quot;&gt;&quot;3 a&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;double-dash&quot;&gt;double dash&lt;/h2&gt;
-
-&lt;p&gt;Instead of the filename &lt;code class=&quot;highlighter-rouge&quot;&gt;b&lt;/code&gt; we will use &lt;code class=&quot;highlighter-rouge&quot;&gt;-b&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch -b
-touch: invalid option -- &lt;span class=&quot;s1&quot;&gt;'b'&lt;/span&gt;
-Try &lt;span class=&quot;s1&quot;&gt;'touch --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The problem is that &lt;code class=&quot;highlighter-rouge&quot;&gt;-b&lt;/code&gt; is being parsed by &lt;code class=&quot;highlighter-rouge&quot;&gt;touch&lt;/code&gt; as an argument
-due to the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;-&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;There are 2 options, we can can give the full path e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;./-b&lt;/code&gt; or we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-- -b&lt;/code&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;A  &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; signals the end of options and disables further option processing.&lt;br /&gt;
-Any arguments after the &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; are treated as filenames and arguments.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lt 
-total 0K
--rw------- 1 user group 0 Apr 12 07:31 a
--rw------- 1 user group 0 Apr 12 06:31 c
--rw------- 1 user group 0 Apr 12 05:31 -b
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Does our loop still work?&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;i++; mv -v &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘c’ -&amp;gt; ‘1 c’
-‘a’ -&amp;gt; ‘2 a’
-mv: missing destination file operand after ‘3 -b’
-Try &lt;span class=&quot;s1&quot;&gt;'mv --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So as with the &lt;code class=&quot;highlighter-rouge&quot;&gt;touch&lt;/code&gt; example above &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; is interpreting &lt;code class=&quot;highlighter-rouge&quot;&gt;-b&lt;/code&gt; as an option
-thus breaking the command.&lt;/p&gt;
-
-&lt;p&gt;We could use add &lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt; in but we will choose the &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; option instead.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;f &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;let &lt;/span&gt;i++; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$i&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt; &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$f&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘-b’ -&amp;gt; ‘1 -b’
-‘c’ -&amp;gt; ‘2 c’
-‘a’ -&amp;gt; ‘3 a’
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We’re explicitly setting &lt;code class=&quot;highlighter-rouge&quot;&gt;i=0&lt;/code&gt; here because the previous example was executed
-in the same bash instance so &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; had a value of &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;. We will set &lt;code class=&quot;highlighter-rouge&quot;&gt;i=0&lt;/code&gt; for
-the remaining examples.&lt;/p&gt;
-
-&lt;h2 id=&quot;math-in-bash&quot;&gt;math in bash&lt;/h2&gt;
-
-&lt;p&gt;There are various ways to perform arithmetic in bash. 
-Instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;let i++&lt;/code&gt; we could have used &lt;code class=&quot;highlighter-rouge&quot;&gt;((i++))&lt;/code&gt;. There is also
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;$(())&lt;/code&gt; form which will return the result meaning we could
-inline the incrementation into the &lt;code class=&quot;highlighter-rouge&quot;&gt;dest&lt;/code&gt; filename e.g. 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;mv -v -- &quot;$f&quot; &quot;$((++i)) $f&quot;&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;With inlining we need to change the increment from postfix to prefix 
-otherwise we would start at &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;0 b&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;1 c&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;2 a&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;We did not explicitly initialize &lt;code class=&quot;highlighter-rouge&quot;&gt;i&lt;/code&gt; in the first example as it wasn’t needed.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p i
--bash: &lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt;: i: not found
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;o&quot;&gt;((&lt;/span&gt;i++&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p i
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;printf-padding&quot;&gt;printf padding&lt;/h2&gt;
-
-&lt;p&gt;The requirements stated that numbers 1-9 should be padded with a leading 0. We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;printf&lt;/code&gt;
-to achieve that.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'%02d\n'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt;
-01
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;bash’s &lt;code class=&quot;highlighter-rouge&quot;&gt;printf&lt;/code&gt; was given &lt;code class=&quot;highlighter-rouge&quot;&gt;-v&lt;/code&gt; which allows you to store the output into a 
-variable instead of printing it out.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new %02d &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p new
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;01&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You could of course use &lt;em&gt;Command Substitution&lt;/em&gt; if your version did not
-support &lt;code class=&quot;highlighter-rouge&quot;&gt;-v&lt;/code&gt;. Let’s try again with &lt;code class=&quot;highlighter-rouge&quot;&gt;printf&lt;/code&gt;:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘-b’ -&amp;gt; ‘01 -b’
-‘c’  -&amp;gt; ‘02 c’
-‘a’  -&amp;gt; ‘03 a’
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;to-parse-or-not-to-parse&quot;&gt;to parse or not to parse&lt;/h2&gt;
-
-&lt;p&gt;&lt;em&gt;But OMG it sez on d internet nevar parse &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt; !!! lmao wut r u doin u t0t4l n00bz0r3!!!!&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The problem with parsing &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt; this way is that it cannot handle 
-all possible filenames, one example being filenames that contain spaces.&lt;/p&gt;
-
-&lt;p&gt;Enter the spaces.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 07:31 &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 05:31 &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 06:31 &lt;span class=&quot;s2&quot;&gt;&quot;c d&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Enter the errors.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;old &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;ls -tr&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘b’ -&amp;gt; ‘01 b’
-mv: cannot stat ‘c’: No such file or directory
-mv: cannot stat ‘d’: No such file or directory
-‘a’ -&amp;gt; ‘04 a’
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The problem here is that &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; iterates over “words”&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;help &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for
-  for&lt;/span&gt;: &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;NAME &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;WORDS ... &lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; ; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;COMMANDS; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;And because we have a filename that contains a space we end up with &lt;code class=&quot;highlighter-rouge&quot;&gt;4&lt;/code&gt;
-“words” for the &lt;code class=&quot;highlighter-rouge&quot;&gt;3&lt;/code&gt; filenames.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -tr
-b  c d  a
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;To fix this we could change the &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop to a &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; loop and treat 
-each filename as a “line” instead of a “word”&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; ls -tr | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r old; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘b’   -&amp;gt; ‘01 b’
-‘c d’ -&amp;gt; ‘02 c d’
-‘a’   -&amp;gt; ‘03 a’
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This approach will break though if any filename contains a newline character.
-Yes, filenames can contain newlines. No, I’ve never had a filename with a
-newline in it.&lt;/p&gt;
-
-&lt;p&gt;We can create such a filename using &lt;code class=&quot;highlighter-rouge&quot;&gt;touch $'e\nf'&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 07:31 &lt;span class=&quot;s2&quot;&gt;&quot;a&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 05:31 &lt;span class=&quot;s2&quot;&gt;&quot;b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 06:31 &lt;span class=&quot;s2&quot;&gt;&quot;c d&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 21:46 &lt;span class=&quot;s2&quot;&gt;&quot;e&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;f&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;From the &lt;a href=&quot;https://www.gnu.org/software/bash/manual/bashref.html#ANSI_002dC-Quoting&quot;&gt;manual&lt;/a&gt;:&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;Words of the form &lt;code class=&quot;highlighter-rouge&quot;&gt;$'string'&lt;/code&gt; are treated specially.&lt;br /&gt;
-The word expands to string, with backslash-escaped characters 
-replaced as specified¬ by the ANSI C standard.
-The expanded result is single-quoted, as if the dollar sign had not been present.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;Similar to the extra “word” problem with &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; we now have an 
-extra “line” with &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; as &lt;code class=&quot;highlighter-rouge&quot;&gt;e&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;f&lt;/code&gt; are treated as separate
-filenames.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; ls -tr | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r old; &lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%02d %s'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘b’   -&amp;gt; ‘01 b’
-‘c d’ -&amp;gt; ‘02 c d’
-‘a’   -&amp;gt; ‘03 a’
-mv: cannot stat ‘e’: No such file or directory
-mv: cannot stat ‘f’: No such file or directory
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;One possible solution to this problem is to use the 
-&lt;em&gt;null-byte&lt;/em&gt; to delimit entries as opposed to 
-spaces or newlines and that means ditching the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;find&quot;&gt;find&lt;/h2&gt;
-
-&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-printf&lt;/code&gt; which takes a format string to print out
-all kinds of stats (similar to the &lt;code class=&quot;highlighter-rouge&quot;&gt;stat(1)&lt;/code&gt; command) such as
-&lt;code class=&quot;highlighter-rouge&quot;&gt;%t&lt;/code&gt; for the last modification time. GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;sort&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-z&lt;/code&gt; which 
-allows it to process null-delimited records.&lt;/p&gt;
-
-&lt;p&gt;This allows us to build a list of null-delimited filenames and sort 
-them according to their last modification time which we can then 
-process with a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;0; find -mindepth 1 -printf &lt;span class=&quot;s1&quot;&gt;'%T@ %p\0'&lt;/span&gt; | sort -z -k1,1n | 
-&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r -d &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt; _ old
-&lt;span class=&quot;k&quot;&gt;do 
-    &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;dirname&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%/*&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;/
-    &lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; -v new &lt;span class=&quot;s1&quot;&gt;'%s%02d %s'&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$dirname&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;$((&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;++&lt;/span&gt;i&lt;span class=&quot;k&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;##*/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-    mv -v -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$old&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$new&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-‘./b’    -&amp;gt; ‘./01 b’
-‘./c d’  -&amp;gt; ‘./02 c d’
-‘./a’    -&amp;gt; ‘./03 a’
-‘./e&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;f’ -&amp;gt; ‘./04 e&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;f’
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You may notice that we have &lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt; in the output here. That is because we get the 
-full path back from &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; so technically we could omit the &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; and it would
-work as expected with filenames with leading dashes.&lt;/p&gt;
-
-&lt;p&gt;The result:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 05:31 &lt;span class=&quot;s2&quot;&gt;&quot;01 b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 06:31 &lt;span class=&quot;s2&quot;&gt;&quot;02 c d&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 07:31 &lt;span class=&quot;s2&quot;&gt;&quot;03 a&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 21:46 &lt;span class=&quot;s2&quot;&gt;&quot;04 e&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;f&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-mindepth 1&lt;/code&gt; prevents the directory from appearing
-in the results.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find
-.
-./b
-./c d
-./a
-./e?f
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -mindepth 1
-./b
-./c d
-./a
-./e?f
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;As mentioned &lt;code class=&quot;highlighter-rouge&quot;&gt;%t&lt;/code&gt; prints the last modification time. Using
-&lt;code class=&quot;highlighter-rouge&quot;&gt;%T&lt;/code&gt; also prints it but allows you to customize the format. 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;@&lt;/code&gt; is used to set the format to &lt;em&gt;epoch time&lt;/em&gt; i.e.
-to print it out as seconds since the epoch.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -mindepth 1 -printf &lt;span class=&quot;s1&quot;&gt;'%t\n'&lt;/span&gt;
-Wed Apr 12 05:31:00.0000000000 2017
-Wed Apr 12 06:31:00.0000000000 2017
-Wed Apr 12 07:31:17.0508221217 2017
-Wed Apr 12 21:46:53.0661150219 2017
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -mindepth 1 -printf &lt;span class=&quot;s1&quot;&gt;'%T@\n'&lt;/span&gt;
-1491971460.0000000000
-1491975060.0000000000
-1491978677.5082212170
-1492030013.6611502190
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;%p&lt;/code&gt; is the path of the item found and we used &lt;code class=&quot;highlighter-rouge&quot;&gt;\0&lt;/code&gt; to delimit
-the record with the null-byte.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -mindepth 1 -printf &lt;span class=&quot;s1&quot;&gt;'%T@\0'&lt;/span&gt; | cat -vet
-1491971460.0000000000^@1491975060.0000000000^@1491978677.5082212170^@1492030013.6611502190^@&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;^@&lt;/code&gt; here is a visual representation of the null-byte.&lt;/p&gt;
-
-&lt;p&gt;A full list of the &lt;code class=&quot;highlighter-rouge&quot;&gt;-printf&lt;/code&gt; format directives can be found 
-&lt;a href=&quot;https://www.gnu.org/software/findutils/manual/html_node/find_html/Format-Directives.html#Format-Directives&quot;&gt;in the manual&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;The requirements we were given stated that we had a flat directory that
-only contained files and they were all to be renamed. A solution using
-&lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; would allow for recurision and one could also utilize the filtering
-capabilities of &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; if needed e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;-name&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;-type&lt;/code&gt;, etc.&lt;/p&gt;
-
-&lt;p&gt;The results of the &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; command are piped to &lt;code class=&quot;highlighter-rouge&quot;&gt;sort -z -k1,1n&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-z&lt;/code&gt; tells &lt;code class=&quot;highlighter-rouge&quot;&gt;sort&lt;/code&gt; to expect null-delimited records as opposed to newline. 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;-k1,1n&lt;/code&gt; is to sort on the first “field” where &lt;code class=&quot;highlighter-rouge&quot;&gt;n&lt;/code&gt; means to sort
-numerically.&lt;/p&gt;
-
-&lt;p&gt;The sorted results are then fed to &lt;code class=&quot;highlighter-rouge&quot;&gt;while read -r -d '' _ old&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt; has to do with backslash handing, you pretty much always 
-want to use &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-d ''&lt;/code&gt; sets the delimiter to null rather than a newline.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;_&lt;/code&gt; is just a placeholder variable name, we could have instead 
-used &lt;code class=&quot;highlighter-rouge&quot;&gt;read -r -d '' time old&lt;/code&gt;. Using &lt;code class=&quot;highlighter-rouge&quot;&gt;_&lt;/code&gt; is a naming convention
-if you have to set a variable but don’t need to use it.&lt;/p&gt;
-
-&lt;p&gt;Because &lt;code class=&quot;highlighter-rouge&quot;&gt;%p&lt;/code&gt; from the &lt;code class=&quot;highlighter-rouge&quot;&gt;-printf&lt;/code&gt; gives the full path to the file 
-we need to break it up into the &lt;code class=&quot;highlighter-rouge&quot;&gt;directory&lt;/code&gt; component and &lt;code class=&quot;highlighter-rouge&quot;&gt;filename&lt;/code&gt;
-component as to only add the prefix to the filename.&lt;/p&gt;
-
-&lt;p&gt;That is what we’re doing with &lt;code class=&quot;highlighter-rouge&quot;&gt;dirname=${old%/*}/&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;${old##*/}&lt;/code&gt;
-which is called &lt;em&gt;Parameter Expansion&lt;/em&gt; and they’re essentially
-doing the same as the &lt;code class=&quot;highlighter-rouge&quot;&gt;dirname&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;basename&lt;/code&gt; commands.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/foo/bar/baz/file.ext
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;%/*&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-/foo/bar/baz
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;${&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;old&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;##*/&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;
-file.ext
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;If you didn’t have access to GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;sort&lt;/code&gt; you would probably
-have to reach for &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;python&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;ruby&lt;/code&gt; or whichever language
-you like to use.&lt;/p&gt;
-
-&lt;h2 id=&quot;perl&quot;&gt;perl&lt;/h2&gt;
-
-&lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;perl&lt;/code&gt; you could use something like:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -e &lt;span class=&quot;s1&quot;&gt;'system &quot;echo&quot;, &quot;mv&quot;, &quot;-v&quot;, &quot;--&quot;, $_, sprintf &quot;%02d %s&quot;, ++$i, $_ 
-    for sort { (stat $a)[9] &amp;lt;=&amp;gt; (stat $b)[9] } &amp;lt;*&amp;gt;'&lt;/span&gt;
-mv -v -- b 01 b
-mv -v -- c d 02 c d
-mv -v -- a 03 a
-mv -v -- e
-f 04 e
-f
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We use &lt;code class=&quot;highlighter-rouge&quot;&gt;sprintf&lt;/code&gt; to do the zero-padding and gives us back a string.
-&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;*&amp;gt;&lt;/code&gt; here is doing the same as &lt;code class=&quot;highlighter-rouge&quot;&gt;glob &quot;*&quot;&lt;/code&gt; which as the name 
-suggests mimics the behaviour of the shell glob &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;These filenames are passed to the &lt;code class=&quot;highlighter-rouge&quot;&gt;sort&lt;/code&gt; block which sorts 
-based on the 10th element of the &lt;code class=&quot;highlighter-rouge&quot;&gt;stat&lt;/code&gt; function which is 
-the last modification time.&lt;/p&gt;
-
-&lt;p&gt;Written out in “full-form” it could look like:&lt;/p&gt;
-
-&lt;div class=&quot;language-perl highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;@files&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sort&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;glob&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;*&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;my&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;@files&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;nb&quot;&gt;system&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;echo&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;mv&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;-v&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;--&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;$_&lt;/code&gt; in our one-liner is called the &lt;em&gt;Default Variable&lt;/em&gt;.
-If you don’t supply a variable name to the &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop &lt;code class=&quot;highlighter-rouge&quot;&gt;$_&lt;/code&gt; will
-be used. So &lt;code class=&quot;highlighter-rouge&quot;&gt;$_&lt;/code&gt; will contain the filename on each iteration of
-the loop.&lt;/p&gt;
-
-&lt;p&gt;We’re only executing &lt;code class=&quot;highlighter-rouge&quot;&gt;echo&lt;/code&gt; to see how the generated command will
-look. It looks okay so we can remove it to run &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; instead.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -e &lt;span class=&quot;s1&quot;&gt;'system &quot;mv&quot;, &quot;-v&quot;, &quot;--&quot;, $_, sprintf &quot;%02d %s&quot;, ++$i, $_ 
-    for sort { (stat $a)[9] &amp;lt;=&amp;gt; (stat $b)[9] } &amp;lt;*&amp;gt;'&lt;/span&gt;
-‘b’    -&amp;gt; ‘01 b’
-‘c d’  -&amp;gt; ‘02 c d’
-‘a’    -&amp;gt; ‘03 a’
-‘e&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;f’ -&amp;gt; ‘04 e&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;f’
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 05:31 &lt;span class=&quot;s2&quot;&gt;&quot;01 b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 06:31 &lt;span class=&quot;s2&quot;&gt;&quot;02 c d&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 07:31 &lt;span class=&quot;s2&quot;&gt;&quot;03 a&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 21:46 &lt;span class=&quot;s2&quot;&gt;&quot;04 e&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;f&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You could use Perl’s &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; if you needed to filter the filenames
-generated from the &lt;code class=&quot;highlighter-rouge&quot;&gt;glob&lt;/code&gt; e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;grep { -f } &amp;lt;*&amp;gt;&lt;/code&gt; to match only 
-&lt;em&gt;“plain files”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;You could also use the &lt;code class=&quot;highlighter-rouge&quot;&gt;File::Find&lt;/code&gt; module to implement a 
-recursive solution if needed.&lt;/p&gt;
-
-&lt;h2 id=&quot;python&quot;&gt;python&lt;/h2&gt;
-
-&lt;p&gt;It’s also possible to produce a Python &lt;em&gt;“one-liner”&lt;/em&gt; to
-do rougly the same thing.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -c &lt;span class=&quot;s1&quot;&gt;'import os, subprocess; [
-    subprocess.call((&quot;echo&quot;, &quot;mv&quot;, &quot;-v&quot;, &quot;--&quot;, f, &quot;%02d %s&quot; % (i, f))) 
-      for i, f in enumerate(sorted(os.listdir(&quot;.&quot;), key=os.path.getmtime), start=1)]'&lt;/span&gt;
-mv -v -- b 01 b
-mv -v -- c d 02 c d
-mv -v -- a 03 a
-mv -v -- e
-f 04 e
-f
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You can of course just write it “normally” which could look something like:&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;subprocess&lt;/span&gt;
-    
-&lt;span class=&quot;n&quot;&gt;filenames&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sorted&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;listdir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;path&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;getmtime&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;filename&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;enumerate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;filenames&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;subprocess&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;call&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;sorted()&lt;/code&gt; can take a &lt;em&gt;“callback”&lt;/em&gt; (the name of a function to call or
-an &lt;em&gt;“inlined”&lt;/em&gt; function created with &lt;code class=&quot;highlighter-rouge&quot;&gt;lambda&lt;/code&gt;) via the &lt;code class=&quot;highlighter-rouge&quot;&gt;key&lt;/code&gt; argument.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;enumerate()&lt;/code&gt; takes an iterable and gives us the &lt;code class=&quot;highlighter-rouge&quot;&gt;index&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;item&lt;/code&gt; per iteration.
-It defaults to &lt;code class=&quot;highlighter-rouge&quot;&gt;start&lt;/code&gt; at &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; so we change that to &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;enumerate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'one'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'two'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'three'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'one'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'two'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'three'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;enumerate&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;([&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'one'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'two'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'three'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'one'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'two'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;),&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'three'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;As we’re importing the &lt;code class=&quot;highlighter-rouge&quot;&gt;os&lt;/code&gt; module we can replace our &lt;code class=&quot;highlighter-rouge&quot;&gt;subprocess.call()&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt;
-with &lt;code class=&quot;highlighter-rouge&quot;&gt;os.rename()&lt;/code&gt;. We lose the verbose output from &lt;code class=&quot;highlighter-rouge&quot;&gt;mv -v&lt;/code&gt; though.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -c &lt;span class=&quot;s1&quot;&gt;'import os; [ os.rename(f, &quot;%02d %s&quot; % (i, f))
-    for i, f in enumerate(sorted(os.listdir(&quot;.&quot;), key=os.path.getmtime), start=1)]'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -lQ
-total 0K
--rw------- 1 user group 0 Apr 12 05:31 &lt;span class=&quot;s2&quot;&gt;&quot;01 b&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 06:31 &lt;span class=&quot;s2&quot;&gt;&quot;02 c d&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 07:31 &lt;span class=&quot;s2&quot;&gt;&quot;03 a&quot;&lt;/span&gt;
--rw------- 1 user group 0 Apr 12 21:46 &lt;span class=&quot;s2&quot;&gt;&quot;04 e&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;f&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You could utilize &lt;code class=&quot;highlighter-rouge&quot;&gt;os.walk()&lt;/code&gt; if you needed a recursive solution.&lt;/p&gt;
-
-&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
-
-&lt;p&gt;Yes, you can to parse &lt;code class=&quot;highlighter-rouge&quot;&gt;ls&lt;/code&gt;. Yes, there are edge cases where it can fail.&lt;br /&gt;
-If these edge cases do not apply to you however, it can be the “simplest”
-approach.&lt;/p&gt;
-
-&lt;p&gt;Be aware of the edge cases and choose the appropriate approach for your 
-specific needs.&lt;/p&gt;
-</description>
-        <pubDate>Wed, 12 Apr 2017 07:17:57 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/12/bash-rename-modification-time/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/12/bash-rename-modification-time/</guid>
-        
-        <category>bash</category>
-        
-        <category>find</category>
-        
-        <category>rename</category>
-        
-        <category>perl</category>
-        
-        <category>python</category>
-        
-        <category>linux</category>
         
         
       </item>
