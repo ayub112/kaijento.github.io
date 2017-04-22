@@ -75,6 +75,8 @@ and convert it to CSV using Python.</p>
 
 <p><img src="/img/1490852842-gdp-sector.png" alt="" /></p>
 
+<p>We could call this an example of <em>“scraping a wikipedia table”</em>.</p>
+
 <p>We’ll use <code class="highlighter-rouge">requests</code> for the fetching and <code class="highlighter-rouge">BeautifulSoup</code> for the parsing:</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
@@ -268,7 +270,12 @@ or the shorthand syntax of <code class="highlighter-rouge">soup(['span', 'sup'])
 <span class="o">...</span>         <span class="n">tag</span><span class="o">.</span><span class="n">decompose</span><span class="p">()</span>
 <span class="o">...</span>     <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span> <span class="p">])</span>
 <span class="o">...</span> 
-<span class="mi">1</span><span class="p">,</span><span class="n">United</span> <span class="n">States</span><span class="p">,</span><span class="s">"17,946,996"</span><span class="p">,</span><span class="mf">1.12</span><span class="o">%</span><span class="p">,</span><span class="mf">19.1</span><span class="o">%</span><span class="p">,</span><span class="mf">79.7</span><span class="o">%</span><span class="p">,</span><span class="s">"215,364"</span><span class="p">,</span><span class="s">"3,427,876"</span><span class="p">,</span><span class="s">"14,303,756"</span>
+</code></pre>
+</div>
+
+<p>Which gives us output that looks like</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="mi">1</span><span class="p">,</span><span class="n">United</span> <span class="n">States</span><span class="p">,</span><span class="s">"17,946,996"</span><span class="p">,</span><span class="mf">1.12</span><span class="o">%</span><span class="p">,</span><span class="mf">19.1</span><span class="o">%</span><span class="p">,</span><span class="mf">79.7</span><span class="o">%</span><span class="p">,</span><span class="s">"215,364"</span><span class="p">,</span><span class="s">"3,427,876"</span><span class="p">,</span><span class="s">"14,303,756"</span>
 <span class="mi">2</span><span class="p">,</span><span class="n">China</span><span class="p">,</span><span class="s">"11,007,721"</span><span class="p">,</span><span class="mf">9.0</span><span class="o">%</span><span class="p">,</span><span class="mf">40.5</span><span class="o">%</span><span class="p">,</span><span class="mf">50.5</span><span class="o">%</span><span class="p">,</span><span class="s">"990,695"</span><span class="p">,</span><span class="s">"4,458,127"</span><span class="p">,</span><span class="s">"5,558,899"</span>
 <span class="mi">3</span><span class="p">,</span><span class="n">Japan</span><span class="p">,</span><span class="s">"4,730,300"</span><span class="p">,</span><span class="mf">1.2</span><span class="o">%</span><span class="p">,</span><span class="mf">27.5</span><span class="o">%</span><span class="p">,</span><span class="mf">71.4</span><span class="o">%</span><span class="p">,</span><span class="s">"56,764"</span><span class="p">,</span><span class="s">"1,300,833"</span><span class="p">,</span><span class="s">"3,377,434"</span>
 <span class="mi">4</span><span class="p">,</span><span class="n">Germany</span><span class="p">,</span><span class="s">"3,494,900"</span><span class="p">,</span><span class="mf">0.8</span><span class="o">%</span><span class="p">,</span><span class="mf">28.1</span><span class="o">%</span><span class="p">,</span><span class="mf">71.1</span><span class="o">%</span><span class="p">,</span><span class="s">"27,959"</span><span class="p">,</span><span class="s">"982,067"</span><span class="p">,</span><span class="s">"2,484,874"</span>
