@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/22/bash-find-files-with-string-a-but-not-string-b/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: find files that contain string A but not string B | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/22/bash-find-files-with-string-a-but-not-string-b/">bash: find files that contain string A but not string B</a></h1>
+  <p class="text-muted">22 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/find/">find</a>
+  
+    
+  <a href="/categories/grep/">grep</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+    
+  <a href="/categories/awk/">awk</a>
+  
+    
+  <a href="/categories/glob/">glob</a>
+  
+    
+  <a href="/categories/linux/">linux</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>How do I find all files that contain string <code class="highlighter-rouge">A</code> but do
+NOT contain string <code class="highlighter-rouge">B</code> on linux using bash?</em></p>
+
+<p>The original question asked about <em>“strings”</em> but the tools
+we’ll be using support regular expressions so we will essentially
+be answering:</p>
+
+<p><em>How do I find all files that match pattern <code class="highlighter-rouge">A</code> but don’t
+match pattern <code class="highlighter-rouge">B</code>?</em></p>
+
+<p>If you’d just like a possible solution:</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>find . -type f -exec grep -q foo <span class="o">{}</span> <span class="se">\;</span> -not -exec grep -q bar <span class="o">{}</span> <span class="se">\;</span> -print
+</code></pre>
+</div>
+
+<ul>
+  <li>
+    <p><code class="highlighter-rouge">.</code> here refers to the current directory you can pass multiple directories
+to start the search from if you wish e.g. <code class="highlighter-rouge">find /tmp /sys</code></p>
+  </li>
+  <li>
+    <p>GNU <code class="highlighter-rouge">find</code> allows you to omit any start directories and will default to <code class="highlighter-rouge">.</code></p>
+  </li>
+</ul>
+
+<p>There are many ways to solve this problem, what follows is a discussion
+on the above example along with some others.</p>
+
+<p>Create some test files.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>ls -l
+total 16K
+-rw------- 1 user group  4 Apr 22 08:01 a
+-rw------- 1 user group  7 Apr 22 08:01 b
+-rw------- 1 user group  4 Apr 22 08:01 c
+-rw------- 1 user group 24 Apr 22 08:01 d
+-rw------- 1 user group 24 Apr 22 08:01 e
+</code></pre>
+</div>
+
+<p>Their contents.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat a
+foo
+<span class="gp">$ </span>cat b
+foobar
+<span class="gp">$ </span>cat c 
+foo
+<span class="gp">$ </span>cat d
+blahblahfoo
+barblahblah
+<span class="gp">$ </span>cat e 
+lol
+</code></pre>
+</div>
+
+<p>So we want to find all files that contain <code class="highlighter-rouge">foo</code> but at the same time
+do not contain <code class="highlighter-rouge">bar</code> which would be files <code class="highlighter-rouge">a</code> and <code class="highlighter-rouge">c</code> in our sample data.</p>
+
+<p>We can use <code class="highlighter-rouge">grep</code> to find lines that match a pattern. We can use the
+<code class="highlighter-rouge">-q</code> option which will <em>Exit immediately with zero status if any match is found</em>.</p>
+
+<p>Combined with the shell’s <code class="highlighter-rouge">&amp;&amp;</code> and <code class="highlighter-rouge">||</code> constructs we could say something
+like  <code class="highlighter-rouge">grep -q foo &amp;&amp; grep -q bar || print filename</code></p>
+
+<p><code class="highlighter-rouge">command1 &amp;&amp; command2</code> will only execute <code class="highlighter-rouge">command2</code> if <code class="highlighter-rouge">command1</code> exits
+<em>successfully</em> <small>(i.e. an exit code of <code class="highlighter-rouge">0</code>)</small> whereas 
+<code class="highlighter-rouge">command1 || command2</code> will only execute it if <code class="highlighter-rouge">command1</code> exits with a
+<em>non-zero</em> status.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> ./<span class="k">*</span>; <span class="k">do </span>grep -q foo <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> grep -q bar <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>; <span class="k">done</span>
+./a
+./c
+./e
+</code></pre>
+</div>
+
+<p>Is that an <code class="highlighter-rouge">./e</code> I see before me?! WAT?!</p>
+
+<p>The problem is if the first <code class="highlighter-rouge">grep</code> fails i.e. when the file does not contain <code class="highlighter-rouge">foo</code>
+it’s executing the <code class="highlighter-rouge">||</code>. We need the <code class="highlighter-rouge">grep -q bar || echo</code> treated as a single <em>“group”</em>.</p>
+
+<p>One option is to use <code class="highlighter-rouge">()</code> to group them together in their own explicit subshell.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> ./<span class="k">*</span>; <span class="k">do </span>grep -q foo <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> <span class="o">(</span> grep -q bar <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">)</span> <span class="k">done</span>
+./a
+./c
+</code></pre>
+</div>
+
+<p>We could have also used <code class="highlighter-rouge"><span class="p">{}</span></code> which is for grouping commands. Do note though that <code class="highlighter-rouge">}</code> needs
+the <code class="highlighter-rouge">;</code> before it (or a newline).</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> ./<span class="k">*</span>; <span class="k">do </span>grep -q foo <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> <span class="o">{</span> grep -q bar <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>; <span class="o">}</span> <span class="k">done</span>
+./a
+./c
+</code></pre>
+</div>
+
+<a name="-vs-"></a>
+<h2 class="section-header">
+  <span id="-vs-"></span>
+  <a class="anchor" href="#-vs-">* vs ./*</a>
+</h2>
+
+<p>So you will have probably seen <code class="highlighter-rouge">for file in *</code> before but why are we using <code class="highlighter-rouge">./*</code> here instead?</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="k">*</span>
+a b c d e
+<span class="gp">$ </span><span class="nb">echo</span> ./<span class="k">*</span>
+./a ./b ./c ./d ./e
+</code></pre>
+</div>
+
+<p>It’s because of filenames with a leading dash <code class="highlighter-rouge">-</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>touch ./-HELLO
+<span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>; <span class="k">do </span>ls <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>; <span class="k">done
+</span>ls: invalid option -- <span class="s1">'E'</span>
+Try <span class="s1">'ls --help'</span> <span class="k">for </span>more information.
+</code></pre>
+</div>
+
+<p>Let’s use <code class="highlighter-rouge">set -x</code> to enable some <em>“debugging output”</em> <small>(use <code class="highlighter-rouge">set +x</code>
+to disable it)</small></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">set</span> -x
+<span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>; <span class="k">do </span>ls <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>; <span class="k">done</span>
++ <span class="k">for </span>file <span class="k">in</span> <span class="s1">'*'</span>
++ ls -HELLO
+ls: invalid option -- <span class="s1">'E'</span>
+Try <span class="s1">'ls --help'</span> <span class="k">for </span>more information.
+</code></pre>
+</div>
+
+<p>So because of the <code class="highlighter-rouge">-</code> each letter of the filename is being interpreted
+as a command-line option. If we give a full path to the file e.g. <code class="highlighter-rouge">./-HELLO</code>
+this will not be an issue. Another option is to use <code class="highlighter-rouge">--</code> to indicate the
+end of command-line options</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> <span class="k">*</span>; <span class="k">do </span>ls -- <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>; <span class="k">done</span>
+-HELLO
+</code></pre>
+</div>
+
+<p>Also note that <em>“hidden”</em> entries are not matched by default by <code class="highlighter-rouge">*</code>. We 
+would need to use <code class="highlighter-rouge">shopt -s dotglob</code> to allow <code class="highlighter-rouge">*</code> to match names with a 
+leading <code class="highlighter-rouge">.</code> if desired.</p>
+
+<a name="search-recursively"></a>
+<h2 class="section-header">
+  <span id="search-recursively"></span>
+  <a class="anchor" href="#search-recursively">search recursively</a>
+</h2>
+
+<p>What happens if we need a <em>“recursive”</em> solution? Well <code class="highlighter-rouge">bash</code> 4 brought us
+<code class="highlighter-rouge">globstar</code> which allows for <em>recursive globbing</em>. It needs to be enabled
+using <code class="highlighter-rouge">shopt -s</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">shopt</span> -s globstar
+<span class="gp">$ </span>mkdir -p h/i/j/k/l/
+<span class="gp">$ </span>touch h/i/j/k/l/m
+<span class="gp">$ </span><span class="nb">echo</span> ./<span class="k">**</span>/
+./ ./f/ ./h/ ./h/i/ ./h/i/j/ ./h/i/j/k/ ./h/i/j/k/l/
+<span class="gp">$ </span><span class="nb">echo</span> ./<span class="k">**</span>/<span class="k">*</span>
+./a ./b ./c ./d ./e ./f ./f/g ./h ./h/i ./h/i/j ./h/i/j/k ./h/i/j/k/l ./h/i/j/k/l/m
+</code></pre>
+</div>
+
+<p>With globstar enabled <code class="highlighter-rouge">**/</code> will match all directories and subdirectories <small>(the <code class="highlighter-rouge">./</code>
+is here due to the <em>leading dash</em> issue mentioned earlier)</small>. We then have the
+extra <code class="highlighter-rouge">*</code> on the end to match the contents of each directory and subdirectory. <small>
+(possibly not all contents though. see <code class="highlighter-rouge">dotglob</code>)</small></p>
+
+<p>Let’s try it with our greps.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>mkdir f
+<span class="gp">$ </span><span class="nb">echo </span>foo &gt; f/g
+<span class="gp">$ </span><span class="nb">shopt</span> -s globstar
+<span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span>; <span class="k">do </span>grep -q foo <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">&amp;&amp;</span> <span class="o">(</span> grep -q bar <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">)</span> <span class="k">done</span>
+./a
+./c
+grep: ./f: Is a directory
+./f/g
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">grep</code> spits out some warnings though because we ran it on <code class="highlighter-rouge">./f</code> which is not a file.
+This is just a warning and doesn’t prevent the command from working so we could just
+discard it by using <code class="highlighter-rouge">2&gt;/dev/null</code> on the first <code class="highlighter-rouge">grep</code> command.</p>
+
+<p>Another option is to use bash’s
+<a href="https://www.gnu.org/software/bash/manual/html_node/Bash-Conditional-Expressions.html#Bash-Conditional-Expressions">Conditional Expressions</a>
+to filter out only <em>“regular”</em> files. e.g.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="k">for </span>file <span class="k">in</span> ./<span class="k">**</span>/<span class="k">*</span>; <span class="k">do</span> <span class="o">[[</span> -f <span class="nv">$file</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> grep ... <span class="o">&amp;&amp;</span> <span class="o">(</span> grep ... <span class="o">||</span> <span class="nb">echo</span> <span class="o">)</span> <span class="k">done</span>
+</code></pre>
+</div>
+
+<p>At this stage though we’re basically emulating <code class="highlighter-rouge">find</code> in <code class="highlighter-rouge">bash</code> when
+we could just use it directly instead.</p>
+
+<a name="find"></a>
+<h2 class="section-header">
+  <span id="find"></span>
+  <a class="anchor" href="#find">find</a>
+</h2>
+
+<p>This is the command given at the beginning of the article.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -type f -exec grep -q foo <span class="o">{}</span> <span class="se">\;</span> -not -exec grep -q bar <span class="o">{}</span> <span class="se">\;</span> -print
+./a
+./c
+./f/g
+</code></pre>
+</div>
+
+<p>There is an implicit <code class="highlighter-rouge">-and</code> between <code class="highlighter-rouge">find</code> <em>“expressions”</em> so if we took
+the last two expressions we would have</p>
+
+<p><code class="highlighter-rouge">-exec grep -q bar {} \; -and -print</code></p>
+
+<p>This would print the filename if the <code class="highlighter-rouge">grep -q bar</code> was successful. We want the 
+opposite behaviour though which is why <code class="highlighter-rouge">-not</code> is there.</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">-not expression</code>
+This is the unary NOT operator.  It evaluates to true if the expression is false.</p>
+</blockquote>
+
+<p>So with <code class="highlighter-rouge">-not -exec grep ... -print</code> we only print the filename if the second
+<code class="highlighter-rouge">grep</code> failed i.e. it did not contain <code class="highlighter-rouge">bar</code>. Due to the implicit ands the previous 
+expressions must have all succeeded to reach <code class="highlighter-rouge">-not</code> i.e. it must be <code class="highlighter-rouge">-type f</code> and
+the first <code class="highlighter-rouge">-exec grep</code> matched.</p>
+
+<p>So this works and to me is the <em>“simplest”</em> solution. It does however call <code class="highlighter-rouge">grep</code>
+at least once (and possibly twice) for every file. Can we be more <em>“efficient”</em>
+or as they say on the internet:</p>
+
+<p><em>“CAN WE GO FASTAAR LULZ?!!1”</em></p>
+
+<a name="grep--l"></a>
+<h2 class="section-header">
+  <span id="grep--l"></span>
+  <a class="anchor" href="#grep--l">grep -l</a>
+</h2>
+
+<p><code class="highlighter-rouge">grep</code> has <code class="highlighter-rouge">-l</code> which will print out a list of filenames that match. GNU <code class="highlighter-rouge">grep</code>
+has <code class="highlighter-rouge">-r</code> <small>(and <code class="highlighter-rouge">-R</code>)</small> to search recursively.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>grep -r -l foo
+a
+b
+c
+d
+f/g
+</code></pre>
+</div>
+
+<p>It also has <code class="highlighter-rouge">-Z</code> which changes the output of <code class="highlighter-rouge">-l</code>. By default <code class="highlighter-rouge">-l</code> will print 1
+filename per line but if you have a filename with a newline in it this will
+prevent you from treated each line as a filename.</p>
+
+<p>So if for example you were trying to process the output with a <code class="highlighter-rouge">while read</code> loop
+it would break. I’ve never had a filename with a newline in it but this seems
+to be the standard example used for how such approaches can be broken and you
+should be aware of it as it is a possibility.</p>
+
+<p>Anyways, <code class="highlighter-rouge">-Z</code> outputs a null-delimited list instead.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>grep -r -l -Z foo | cat -vet
+a^@b^@c^@d^@
+</code></pre>
+</div>
+
+<p>We’re using <code class="highlighter-rouge">cat -vet</code> here to show the <em>non-printing</em> characters and <code class="highlighter-rouge">^@</code> is a 
+visual representation of the null-byte.</p>
+
+<p>We could then pipe this to <code class="highlighter-rouge">while read -d ''</code> which sets read’s <code class="highlighter-rouge">DELIM</code> to null to
+process the results.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ grep -r -l -Z foo | while read -d '' -r file; do grep -q bar "$file" || echo "$file"; done
+a
+c
+f/g
+</code></pre>
+</div>
+
+<p>Is this more efficient than the previous <code class="highlighter-rouge">find</code> solution? Maybe? I don’t know.</p>
+
+<a name="awk"></a>
+<h2 class="section-header">
+  <span id="awk"></span>
+  <a class="anchor" href="#awk">awk</a>
+</h2>
+
+<p>Back to <code class="highlighter-rouge">find</code> again we can use <code class="highlighter-rouge">awk</code> to process a file once instead of using 2 <code class="highlighter-rouge">grep</code> calls.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -type f -exec awk <span class="s1">'/foo/{ x = 1 } /bar/{ y = 1; exit } END { if (x &amp;&amp; !y) print FILENAME }'</span> <span class="o">{}</span> <span class="se">\;</span>
+./a
+./c
+./f/g
+</code></pre>
+</div>
+
+<ul>
+  <li><code class="highlighter-rouge">/foo/</code> matches lines that contain <code class="highlighter-rouge">foo</code></li>
+  <li><code class="highlighter-rouge">/bar/</code> matches lines that contain <code class="highlighter-rouge">bar</code></li>
+  <li><code class="highlighter-rouge">/regex/</code> matches any lines that <em>“matches”</em> <code class="highlighter-rouge">regex</code> it is shorthand for <code class="highlighter-rouge">$0 ~ /regex/</code></li>
+</ul>
+
+<p>In <code class="highlighter-rouge">awk</code> <code class="highlighter-rouge">0</code> is considered <em>“False”</em> and non-zero is considered <em>“True”</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>awk <span class="s1">'BEGIN { if (0) print "True" }'</span>
+<span class="gp">$ </span>awk <span class="s1">'BEGIN { if (1) print "True" }'</span>
+True
+</code></pre>
+</div>
+
+<p>Or we could use the <em>ternary operator</em> for perhaps more explicit output.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>awk <span class="s1">'BEGIN { print 0 ? "True" : "False" }'</span>
+False
+<span class="gp">$ </span>awk <span class="s1">'BEGIN { print 1 ? "True" : "False" }'</span>
+True
+</code></pre>
+</div>
+
+<p>So we’re using <code class="highlighter-rouge">x</code> and <code class="highlighter-rouge">y</code> as <em>“flag variables”</em>. Then inside <code class="highlighter-rouge">END</code> we test if
+<code class="highlighter-rouge">foo</code> is found and if <code class="highlighter-rouge">bar</code> is not found print <code class="highlighter-rouge">FILENAME</code>. The <code class="highlighter-rouge">END</code> block is
+executed after all the input has been processed whereas <code class="highlighter-rouge">BEGIN</code> block executes
+before any input has been processed.</p>
+
+<p>You may look at this and say why don’t we just <code class="highlighter-rouge">exit</code> when <code class="highlighter-rouge">/bar/</code> matches?
+Well the reason for this is that after <code class="highlighter-rouge">exit</code> is called <code class="highlighter-rouge">END</code> blocks are
+still executed so we need to set our flag variable or we’d get false results.</p>
+
+<a name="-exec--vs-"></a>
+<h2 class="section-header">
+  <span id="-exec--vs-"></span>
+  <a class="anchor" href="#-exec--vs-">-exec \; vs +</a>
+</h2>
+
+<p>Is this faster than using 2 <code class="highlighter-rouge">grep</code> commands? I’m not sure but I’d hazard a guess
+at “probably”.</p>
+
+<p><code class="highlighter-rouge">-exec command {} \;</code> will execute <code class="highlighter-rouge">command</code> once per <em>“file</em>” found e.g.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">command a</code></li>
+  <li><code class="highlighter-rouge">command b</code></li>
+  <li><code class="highlighter-rouge">command c</code></li>
+</ul>
+
+<p><code class="highlighter-rouge">-exec command {} +</code> will pass as many <em>“filenames”</em> as possible per execution e.g.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">command a b c</code></li>
+</ul>
+
+<p>The reason we don’t use the <code class="highlighter-rouge">+</code> form with our <code class="highlighter-rouge">grep</code> version is because <em>“all”</em> the 
+<em>“filenames</em>” are passed to a single <code class="highlighter-rouge">grep</code> command and <code class="highlighter-rouge">foo</code> is found in one of them 
+meaning the whole chain becomes <em>“True”</em> giving us all files as a match, which is not 
+the behaviour we want.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -type f -exec grep -q foo <span class="o">{}</span> + -print
+./a
+./b
+./c
+./d
+./e
+./f/g
+</code></pre>
+</div>
+
+<p>When we say <em>“all”</em> <em>“filenames”</em> it’s true for this small example. There is a length limit
+on the size of the command-line <code class="highlighter-rouge">ARG_MAX</code> which <code class="highlighter-rouge">find</code> works out and calls <code class="highlighter-rouge">-exec</code>
+with as many <em>“filenames”</em> as possible each time, similar to how <code class="highlighter-rouge">xargs</code> works.</p>
+
+<p>The problem still stands however but one possibility is to use the <code class="highlighter-rouge">+</code> form of <code class="highlighter-rouge">-exec</code> 
+to execute our <code class="highlighter-rouge">grep -l</code> from earlier to build the list of matching files.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -type f -exec grep -l -Z foo <span class="o">{}</span> + | <span class="k">while </span><span class="nb">read</span> -d <span class="s1">''</span> -r file; <span class="k">do </span>grep -q bar <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span> <span class="o">||</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$file</span><span class="s2">"</span>; <span class="k">done</span>
+./a
+./c
+./f/g
+</code></pre>
+</div>
+
+<p>Is this more efficient? I’m not sure, it would be interesting to compare though.</p>
+
+<a name="beginfile"></a>
+<h2 class="section-header">
+  <span id="beginfile"></span>
+  <a class="anchor" href="#beginfile">BEGINFILE</a>
+</h2>
+
+<p>So finally back to <code class="highlighter-rouge">awk</code> again.</p>
+
+<p><code class="highlighter-rouge">awk</code> can accept multiple filenames but as with the <code class="highlighter-rouge">grep</code> example having all files 
+treated as <em>“one”</em> will give us false results.</p>
+
+<p>GNU <code class="highlighter-rouge">awk</code> however has both <code class="highlighter-rouge">BEGINFILE</code> and <code class="highlighter-rouge">ENDFILE</code> blocks. This means we can have 
+multiple files in a single <code class="highlighter-rouge">awk</code> execution but still treat each one <em>“separately”</em>.</p>
+
+<p>It also has <code class="highlighter-rouge">nextfile</code> to move to the next file which can replace our <code class="highlighter-rouge">exit</code> call.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>find -type f -exec awk <span class="s1">'BEGINFILE { x = y = 0 } /foo/{ x = 1 } /bar/{ y = 1; nextfile } ENDFILE { if (x &amp;&amp; !y) print FILENAME }'</span> <span class="o">{}</span> +
+./a
+./c
+./f/g
+</code></pre>
+</div>
+
+<p>So we replace <code class="highlighter-rouge">exit</code> with <code class="highlighter-rouge">nextfile</code> and <code class="highlighter-rouge">END</code> with <code class="highlighter-rouge">ENDFILE</code>.</p>
+
+<p>We need to add a <code class="highlighter-rouge">BEGINFILE</code> block though to reset our flag variables back to their 
+default state for each new file we process.</p>
+
+<p>I’d imagine this would be the <em>“most efficient”</em> of the approaches discussed 
+but you would need to benchmark them to get a definite answer.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (42)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/21/the-real-shell-ninja/">"The Real Shell Ninja™"</a></h2>
+          <p class="preview"><em>Too many login shells cause the halt…</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
