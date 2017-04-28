@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/04/28/python-for-loops/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Python: for loops | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/04/28/python-for-loops/">Python: for loops</a></h1>
+  <p class="text-muted">28 Apr 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Python’s <code class="highlighter-rouge">for</code> loop has <em>“super magic powahz!!”</em> It may help
+to think of it like a <em>“for each”</em> loop e.g.</p>
+
+<p><em>for each something in something:</em></p>
+
+<a name="list"></a>
+<h2 class="section-header">
+  <span id="list"></span>
+  <a class="anchor" href="#list">list</a>
+</h2>
+
+<p>When you iterate over a list with <code class="highlighter-rouge">for</code> you will iterate
+over each item <small>(<em>“element”</em>)</small> in the list.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'hello'</span><span class="p">,</span> <span class="s">'hi'</span><span class="p">,</span> <span class="s">'sup'</span><span class="p">]:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="s">'hello'</span>
+<span class="s">'hi'</span>
+<span class="s">'sup'</span>
+</code></pre>
+</div>
+
+<p>Inlining the definition of the list may look strange there 
+so we’ll create a list with a name and loop through it.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="s">'hello'</span><span class="p">,</span> <span class="s">'hi'</span><span class="p">,</span> <span class="s">'sup'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="s">'hello'</span>
+<span class="s">'hi'</span>
+<span class="s">'sup'</span>
+</code></pre>
+</div>
+
+<p>We don’t need to worry about indexes <small>(<em>“indices”</em>)</small>
+because as we said you iterate directly over the items contained in 
+the list.</p>
+
+<p>What if we wanted the indexes? Let’s say for example we 
+had a leaderboard of names and wanted to print their position
+and name.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">top3</span> <span class="o">=</span> <span class="p">[</span><span class="s">'bob'</span><span class="p">,</span> <span class="s">'alice'</span><span class="p">,</span> <span class="s">'ted'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>Well we could use <code class="highlighter-rouge">range()</code> to give us a list of indexes</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">top3</span><span class="p">))</span>
+<span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Which we could then loop over.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">top3</span><span class="p">)):</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">top3</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+<span class="o">...</span> 
+<span class="mi">0</span> <span class="n">bob</span>
+<span class="mi">1</span> <span class="n">alice</span>
+<span class="mi">2</span> <span class="n">ted</span>
+</code></pre>
+</div>
+
+<p>Oops, we’ll need to use <code class="highlighter-rouge">n + 1</code> for the <em>“position”</em> because list 
+indexes being at <code class="highlighter-rouge">0</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">top3</span><span class="p">)):</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">top3</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+<span class="o">...</span> 
+<span class="mi">1</span> <span class="n">bob</span>
+<span class="mi">2</span> <span class="n">alice</span>
+<span class="mi">3</span> <span class="n">ted</span>
+</code></pre>
+</div>
+
+<a name="enumerate"></a>
+<h2 class="section-header">
+  <span id="enumerate"></span>
+  <a class="anchor" href="#enumerate">enumerate()</a>
+</h2>
+
+<p>Another option is to use Python’s <code class="highlighter-rouge">enumerate()</code> which will take an 
+iterable and give you back an iterable of <code class="highlighter-rouge">index, value</code> pairs 
+(i.e. tuples)</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top3</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="nb">enumerate</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7ffa58a3e828</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>We’ll use <code class="highlighter-rouge">list()</code> to turn it into a list to see its
+contents.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt;&gt;&gt; list(enumerate(top3))
+[(0, 'bob'), (1, 'alice'), (2, 'ted')]
+</code></pre>
+</div>
+
+<p>Okay so we can see it gives us the indexes and the
+values which we can loop over.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>&gt;&gt;&gt; for n, name in enumerate(top3):
+...     print(n + 1, name)
+...
+1 bob
+2 alice
+3 ted
+</code></pre>
+</div>
+
+<p>We have to use <code class="highlighter-rouge">n + 1</code> because the indexing starts
+at 0 however could have also used the <code class="highlighter-rouge">start</code> argument 
+of <code class="highlighter-rouge">enumerate()</code> to specify what number to start counting
+from.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">top3</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="mi">1</span> <span class="n">bob</span>
+<span class="mi">2</span> <span class="n">alice</span>
+<span class="mi">3</span> <span class="n">ted</span>
+</code></pre>
+</div>
+
+<a name="list-of-lists"></a>
+<h2 class="section-header">
+  <span id="list-of-lists"></span>
+  <a class="anchor" href="#list-of-lists">list of lists</a>
+</h2>
+
+<p>So even armed with the knowledge that <code class="highlighter-rouge">for</code> iterates directly over the 
+items contained in a list it seems people still have trouble with the 
+question <em>“How do I loop through a list of lists in Python?”</em></p>
+
+<p>First we’ll define a list of lists <small>(<em>“nested list”</em>)</small></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">list_of_lists</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]]</span>
+</code></pre>
+</div>
+
+<p>We can use <code class="highlighter-rouge">len()</code> to see that it contains 2 <em>items</em></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_of_lists</span><span class="p">)</span>
+<span class="mi">2</span>
+</code></pre>
+</div>
+
+<p>And each item in this case is a list.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">my_list</span> <span class="ow">in</span> <span class="n">list_of_lists</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">my_list</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>So we have a list in <code class="highlighter-rouge">my_list</code> and we know how to iterate
+over a list already e.g. <code class="highlighter-rouge">for num in my_list</code> meaning the 
+combination will look like</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">my_list</span> <span class="ow">in</span> <span class="n">list_of_lists</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">my_list</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="mi">1</span>
+<span class="mi">2</span>
+<span class="mi">3</span>
+<span class="mi">4</span>
+<span class="mi">5</span>
+<span class="mi">6</span>
+</code></pre>
+</div>
+
+<p>Having a <code class="highlighter-rouge">for</code> loop inside another <code class="highlighter-rouge">for</code> loop like this is commonly
+referred to as <em>“nested for loops”</em>.</p>
+
+<p>The super magic powers of <code class="highlighter-rouge">for</code> are not limited to just lists.</p>
+
+<a name="string"></a>
+<h2 class="section-header">
+  <span id="string"></span>
+  <a class="anchor" href="#string">string</a>
+</h2>
+
+<p>When you iterate over a <em>“string”</em> with <code class="highlighter-rouge">for</code> you will iterate over
+each <em>“character”</em> in the string.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="s">'abcd'</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">char</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="s">'a'</span>
+<span class="s">'b'</span>
+<span class="s">'c'</span>
+<span class="s">'d'</span>
+</code></pre>
+</div>
+
+<a name="dict"></a>
+<h2 class="section-header">
+  <span id="dict"></span>
+  <a class="anchor" href="#dict">dict</a>
+</h2>
+
+<p>With a dict <small>(<em>“dictionary”</em>)</small> you will iterate over the keys.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">{</span><span class="s">'foo'</span><span class="p">:</span> <span class="s">'bar'</span><span class="p">,</span> <span class="s">'omg'</span><span class="p">:</span> <span class="s">'lol'</span><span class="p">}:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="s">'omg'</span>
+<span class="s">'foo'</span>
+</code></pre>
+</div>
+
+<p>If you wanted to also get the values you could use
+dict indexing e.g. <code class="highlighter-rouge">dict_name[key_name]</code></p>
+
+<p>Let’s create a dict with a name to show an example.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">students</span> <span class="o">=</span> <span class="p">{</span><span class="s">'bob'</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span> <span class="s">'alice'</span><span class="p">:</span> <span class="mi">23</span><span class="p">,</span> <span class="s">'ted'</span><span class="p">:</span> <span class="mi">22</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">students</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">students</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+<span class="o">...</span> 
+<span class="n">bob</span> <span class="mi">19</span>
+<span class="n">alice</span> <span class="mi">23</span>
+<span class="n">ted</span> <span class="mi">22</span>
+</code></pre>
+</div>
+
+<p>dicts also have an <code class="highlighter-rouge">items()</code> method which will give you
+back an iterable of <code class="highlighter-rouge">key, value</code> pairs (i.e. tuples)</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">students</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+<span class="n">dict_items</span><span class="p">([(</span><span class="s">'bob'</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span> <span class="p">(</span><span class="s">'alice'</span><span class="p">,</span> <span class="mi">23</span><span class="p">),</span> <span class="p">(</span><span class="s">'ted'</span><span class="p">,</span> <span class="mi">22</span><span class="p">)])</span>
+</code></pre>
+</div>
+
+<p>We could iterate over it like so</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">age</span> <span class="ow">in</span> <span class="n">students</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="o">...</span>    <span class="k">print</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">age</span><span class="p">)</span>
+<span class="o">...</span>
+<span class="n">bob</span> <span class="mi">19</span>
+<span class="n">alice</span> <span class="mi">23</span>
+<span class="n">ted</span> <span class="mi">22</span>
+</code></pre>
+</div>
+
+<p>If you wanted just the values from a dict you could use the 
+<code class="highlighter-rouge">.values()</code> method.</p>
+
+<a name="tuple"></a>
+<h2 class="section-header">
+  <span id="tuple"></span>
+  <a class="anchor" href="#tuple">tuple</a>
+</h2>
+
+<p>Iterating over a tuple will have the same behaviour as the list
+example you iterate over each item.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="mi">10</span>
+<span class="mi">11</span>
+<span class="mi">12</span>
+</code></pre>
+</div>
+
+<p>You may be wondering why there are no <code class="highlighter-rouge">()</code> there?</p>
+
+<blockquote>
+  <p>Note that tuples are not formed by the parentheses, but rather by use of the comma operator</p>
+</blockquote>
+
+<p>Some people seem to think that you need to declare 
+tuples using the <code class="highlighter-rouge">t = (1, 2)</code> syntax but that is not the case.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>There’s also the strange looking example of declaring a single item tuple.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span>
+<span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="k">class</span> <span class="err">'</span><span class="nc">tuple</span><span class="s">'&gt;</span><span class="err">
+</span></code></pre>
+</div>
+
+<p>You would need <code class="highlighter-rouge">()</code> for example if you wanted to create a nested tuple structure.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">3</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span>
+<span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="mi">3</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">()</code> can be used to give Python a <em>“hint”</em> with regards to how an expression 
+should be parsed if there is any ambiguity.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (44)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/22/pandas-create-new-column-sum/">pandas: create new column from sum of others</a></h2>
+          <p class="preview"><em>I have a pandas DataFrame with 2 columns <code class="highlighter-rouge">x</code> and <code class="highlighter-rouge">y</code>.
+How do I create a new column <code class="highlighter-rouge">z</code> which is the sum of the
+values from the other columns?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
