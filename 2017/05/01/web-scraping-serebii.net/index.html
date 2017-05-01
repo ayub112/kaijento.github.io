@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/01/web-scraping-serebii.net/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: serebii.net | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/01/web-scraping-serebii.net/">Web scraping: serebii.net</a></h1>
+  <p class="text-muted">01 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>We’re trying extract information about a Pokémon attack from <a href="http://serebii.net">http://serebii.net</a> 
+which <em>“lists all the moves currently available through the Pokémon in Sun &amp; Moon”</em>
+using Python.</p>
+
+<p>The example URL given to work with is <a href="http://serebii.net/attackdex-sm/heavyslam.shtml">http://serebii.net/attackdex-sm/heavyslam.shtml</a>
+and we’re trying to extract the <code class="highlighter-rouge">Battle Type</code> information from the page.</p>
+
+<p><img src="/img/1493625937-attackdex-sm.png" alt="" /></p>
+
+<p>Let’s take a look at the HTML.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;table</span>  <span class="na">class=</span><span class="s">"dextable"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;tr&gt;</span>
+    <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"fooevo"</span> <span class="na">width=</span><span class="s">"33%"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;b&gt;</span>Attack Name<span class="nt">&lt;/b&gt;</span>      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"fooevo"</span> <span class="na">width=</span><span class="s">"33%"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;b&gt;</span>Battle Type<span class="nt">&lt;/b&gt;</span>      <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"fooevo"</span> <span class="na">width=</span><span class="s">"33%"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;b&gt;</span>Category<span class="nt">&lt;/b&gt;</span> <span class="nt">&lt;/td&gt;</span>
+  <span class="nt">&lt;/tr&gt;</span>
+  <span class="nt">&lt;tr&gt;</span>
+    <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cen"</span><span class="nt">&gt;</span>
+    Heavy Slam<span class="nt">&lt;br</span> <span class="nt">/&gt;</span> <span class="ni">&amp;#12504;&amp;#12499;&amp;#12540;&amp;#12508;&amp;#12531;&amp;#12496;&amp;#12540;</span>
+    <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cen"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"/pokedex-bw/type/steel.gif"</span> <span class="na">border=</span><span class="s">"0"</span><span class="nt">&gt;&lt;/a&gt;</span>
+    <span class="nt">&lt;/td&gt;</span>
+    <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cen"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/attackdex-sm/physical.shtml"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"/pokedex-bw/type/physical.png"</span> <span class="na">border=</span><span class="s">"0"</span><span class="nt">&gt;&lt;/a&gt;</span>
+    <span class="nt">&lt;/td&gt;</span>
+  <span class="nt">&lt;/tr&gt;</span>
+</code></pre>
+</div>
+
+<p>What we’re trying to locate here is the second <code class="highlighter-rouge">&lt;a&gt;</code> tag i.e.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"/pokedex-bw/type/steel.gif"</span> <span class="na">border=</span><span class="s">"0"</span><span class="nt">&gt;&lt;/a&gt;</span>
+</code></pre>
+</div>
+
+<p>There doesn’t seem to be any unique markers we can use to isolate this particular
+tag as all of the <code class="highlighter-rouge">class</code> attributes are the same. In situations like this we 
+usually have to resort to <em>“finding by position”</em> or <em>“navigating the tree”</em>.</p>
+
+<p>We know that what we want is contained in the second <code class="highlighter-rouge">&lt;td&gt;</code> tag which itself is contained
+in the <code class="highlighter-rouge">&lt;tr&gt;</code> tag after the <code class="highlighter-rouge">&lt;tr&gt;</code> tag that contains <code class="highlighter-rouge">&lt;b&gt;Battle Type&lt;/b&gt;</code></p>
+
+<p>This means we can locate <code class="highlighter-rouge">&lt;b&gt;Battle Type&lt;/b&gt;</code> move up to the parent <code class="highlighter-rouge">&lt;tr&gt;</code> move to 
+the next <code class="highlighter-rouge">&lt;tr&gt;</code> and get the second <code class="highlighter-rouge">&lt;td&gt;</code> tag.</p>
+
+<p>We’ll be using <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code> to
+parse it.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span>  <span class="o">=</span> <span class="s">'http://serebii.net/attackdex-sm/heavyslam.shtml'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>    <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>The default <code class="highlighter-rouge">html.parser</code> has certain issues which is why I prefer
+to use <code class="highlighter-rouge">html5lib</code> instead. It needs to be installed separately e.g. using 
+<code class="highlighter-rouge">pip install html5lib --user</code></p>
+
+<p>So we need to find <code class="highlighter-rouge">&lt;b&gt;Battle Type&lt;/b&gt;</code> for which we can use the 
+<a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#the-string-argument">string argument</a>
+of <code class="highlighter-rouge">find()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'b'</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">'Battle Type'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">b</span><span class="o">&gt;</span><span class="n">Battle</span> <span class="n">Type</span><span class="o">&lt;/</span><span class="n">b</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">b</code> is the tag name to search for and <code class="highlighter-rouge">string='Battle Type'</code> means its 
+<em>“string content”</em> must equal exactly <code class="highlighter-rouge">Battle Type</code></p>
+
+<p><code class="highlighter-rouge">string</code> can also be given a regex for <em>non-exact</em> or regex matching.</p>
+
+<p>So from the <code class="highlighter-rouge">&lt;b&gt;</code> tag we want to find the parent <code class="highlighter-rouge">&lt;tr&gt;</code> tag which we can do 
+with <code class="highlighter-rouge">find_parent('tr')</code> which searches <em>“upwards”</em>.</p>
+
+<p>Our call to <code class="highlighter-rouge">find()</code> is returning a <code class="highlighter-rouge">bs4.element.Tag</code> object.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'b'</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">'Battle Type'</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="o">&lt;</span><span class="k">class</span> <span class="err">'</span><span class="nc">bs4</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Tag</span><span class="s">'&gt;</span><span class="err">
+</span></code></pre>
+</div>
+
+<p>Which allows us to simply chain the call to <code class="highlighter-rouge">find_parent()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'b'</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">'Battle Type'</span><span class="p">)</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">tr</span><span class="o">&gt;</span>\<span class="n">n</span>\<span class="n">t</span>\<span class="n">t</span><span class="o">&lt;</span><span class="n">td</span> <span class="n">class</span><span class="o">=</span><span class="s">"fooevo"</span> <span class="n">width</span><span class="o">=</span><span class="s">"33</span><span class="si">%</span><span class="s">"</span><span class="o">&gt;</span>\<span class="n">n</span>\<span class="n">t</span>\<span class="n">t</span><span class="o">&lt;</span><span class="n">b</span><span class="o">&gt;</span><span class="n">Attack</span> <span class="n">Name</span><span class="o">&lt;/</span><span class="n">b</span><span class="o">&gt;...</span>
+</code></pre>
+</div>
+
+<p>From there we need to find the next <code class="highlighter-rouge">&lt;tr&gt;</code> tag which we can do with <code class="highlighter-rouge">find_next('tr')</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'b'</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">'Battle Type'</span><span class="p">)</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">tr</span><span class="o">&gt;</span>\<span class="n">n</span>\<span class="n">t</span>\<span class="n">t</span><span class="o">&lt;</span><span class="n">td</span> <span class="n">class</span><span class="o">=</span><span class="s">"cen"</span><span class="o">&gt;</span>\<span class="n">n</span>\<span class="n">t</span>\<span class="n">tHeavy</span> <span class="n">Slam</span><span class="o">&lt;</span><span class="n">br</span><span class="o">/&gt;...</span>
+</code></pre>
+</div>
+
+<p>The chain of method calls is beginning to get quite large so we’ll create a 
+variable to store this tag.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'b'</span><span class="p">,</span> <span class="n">string</span><span class="o">=</span><span class="s">'Battle Type'</span><span class="p">)</span><span class="o">.</span><span class="n">find_parent</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>I’ve chosen <code class="highlighter-rouge">tr</code> here as the name as I like to name the variable the same
+as the tag it represents but this does not need to be the case.</p>
+
+<p>So now that we are positioned at the <code class="highlighter-rouge">&lt;tr&gt;</code> tag that hold the information
+we have a couple of choices. We could simply find the first <code class="highlighter-rouge">&lt;a&gt;</code> tag as
+we know the first <code class="highlighter-rouge">&lt;td&gt;</code> tag doesn’t contain one.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'a'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="o">&gt;&lt;</span><span class="n">img</span> <span class="n">border</span><span class="o">=</span><span class="s">"0"</span> <span class="n">src</span><span class="o">=</span><span class="s">"/pokedex-bw/type/steel.gif"</span><span class="o">/&gt;&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">a</span>
+<span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="o">&gt;&lt;</span><span class="n">img</span> <span class="n">border</span><span class="o">=</span><span class="s">"0"</span> <span class="n">src</span><span class="o">=</span><span class="s">"/pokedex-bw/type/steel.gif"</span><span class="o">/&gt;&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>That may change however so the more <em>“proper”</em> approach would be to
+isolate the second <code class="highlighter-rouge">&lt;td&gt;</code> specifically and work from there as we had 
+originally described.</p>
+
+<p><code class="highlighter-rouge">find_all('td')</code> will return a list of <code class="highlighter-rouge">&lt;td&gt;</code> tags.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'td'</span><span class="p">))</span>
+<span class="mi">3</span>
+</code></pre>
+</div>
+
+<p>Which we can then index using <code class="highlighter-rouge">[1]</code> to get the second tag.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">td</span> <span class="n">class</span><span class="o">=</span><span class="s">"cen"</span><span class="o">&gt;</span>\<span class="n">n</span>\<span class="n">t</span>\<span class="n">t</span><span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="o">&gt;&lt;</span><span class="n">img</span> <span class="n">border</span><span class="o">=</span><span class="s">"0"</span> <span class="n">src</span><span class="o">=</span><span class="s">"/pokedex-bw/type/steel.gif"</span><span class="o">/&gt;&lt;/</span><span class="n">a</span><span class="o">&gt;&lt;/</span><span class="n">td</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">BeautifulSoup</code> has some <em>“shortcut”</em> syntax for <code class="highlighter-rouge">find()</code> and <code class="highlighter-rouge">find_all()</code>. 
+As you may have noticed above <code class="highlighter-rouge">find('a')</code> and <code class="highlighter-rouge">.a</code> produced the same result.
+With <code class="highlighter-rouge">find_all()</code> we can actually omit the method name as it is the default method
+to be called.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">td</span> <span class="n">class</span><span class="o">=</span><span class="s">"cen"</span><span class="o">&gt;</span>\<span class="n">n</span>\<span class="n">t</span>\<span class="n">t</span><span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="o">&gt;&lt;</span><span class="n">img</span> <span class="n">border</span><span class="o">=</span><span class="s">"0"</span> <span class="n">src</span><span class="o">=</span><span class="s">"/pokedex-bw/type/steel.gif"</span><span class="o">/&gt;&lt;/</span><span class="n">a</span><span class="o">&gt;&lt;/</span><span class="n">td</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>So <code class="highlighter-rouge">find_all('td')</code> and <code class="highlighter-rouge">('td')</code> here are equivalent.</p>
+
+<p>From there we can navigate to the <code class="highlighter-rouge">&lt;img&gt;</code> tag and extract the <code class="highlighter-rouge">src</code> attribute.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">img</span>
+<span class="o">&lt;</span><span class="n">img</span> <span class="n">border</span><span class="o">=</span><span class="s">"0"</span> <span class="n">src</span><span class="o">=</span><span class="s">"/pokedex-bw/type/steel.gif"</span><span class="o">/&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span>
+<span class="s">'/pokedex-bw/type/steel.gif'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)</span>
+<span class="p">[</span><span class="s">''</span><span class="p">,</span> <span class="s">'pokedex-bw'</span><span class="p">,</span> <span class="s">'type'</span><span class="p">,</span> <span class="s">'steel.gif'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="s">'steel.gif'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'steel'</span><span class="p">,</span> <span class="s">'gif'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'/'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="s">'steel'</span>
+</code></pre>
+</div>
+
+<p>Again you may want to <em>split</em> it up and use a variable as we 
+did with <code class="highlighter-rouge">tr</code> instead of having a large chain of method calls.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (45)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/04/28/python-for-loops/">Python: for loops</a></h2>
+          <p class="preview">Python’s <code class="highlighter-rouge">for</code> loop has <em>“super magic powahz!!”</em> It may help
+to think of it like a <em>“for each”</em> loop e.g.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
