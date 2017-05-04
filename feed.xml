@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 04 May 2017 12:56:45 +0100</pubDate>
-    <lastBuildDate>Thu, 04 May 2017 12:56:45 +0100</lastBuildDate>
+    <pubDate>Thu, 04 May 2017 12:59:15 +0100</pubDate>
+    <lastBuildDate>Thu, 04 May 2017 12:59:15 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -493,7 +493,7 @@ It gives us back a new list starting and ending with the given indexes.&lt;/p&gt
 Please note however that you should use the &lt;code class=&quot;highlighter-rouge&quot;&gt;csv&lt;/code&gt; module if you actually want to 
 produce &lt;em&gt;proper&lt;/em&gt; CSV data.&lt;/p&gt;
 
-&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
 
 &lt;p&gt;So what we have works (the code is also
 &lt;a href=&quot;https://github.com/kaijento/code/blob/master/webscraping/privataaffarer.se/scrape.py&quot;&gt;on github&lt;/a&gt;)
