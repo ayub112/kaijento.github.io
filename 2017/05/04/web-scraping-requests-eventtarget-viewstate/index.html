@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/04/web-scraping-requests-eventtarget-viewstate/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: requests / EVENTTARGET / VIEWSTATE | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/04/web-scraping-requests-eventtarget-viewstate/">Web scraping: requests / EVENTTARGET / VIEWSTATE</a></h1>
+  <p class="text-muted">04 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/lxml/">lxml</a>
+  
+    
+  <a href="/categories/scrapy/">scrapy</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given the URL <a href="http://www.privataaffarer.se/borsguiden/analyser/">http://www.privataaffarer.se/borsguiden/analyser/</a>
+the goal is to extract or <em>“scrape”</em> the stock data from the table on the page
+using Python. There are multiple pages of results so we would like to loop
+or <em>“crawl”</em> through multiple pages of the results.</p>
+
+<p>First we’ll open up the URL in our browser and use the <code class="highlighter-rouge">Inspector</code> tab 
+to view the DOM. I’m using Firefox here so I <em>“right-click”</em> on the page 
+and choose <code class="highlighter-rouge">Inspect Element</code>. You can also navigate using the menu 
+<code class="highlighter-rouge">Tools -&gt; Web Developer -&gt; Inspector</code></p>
+
+<p>If you’re using Chrome it’s currently under 
+<a href="https://developers.google.com/web/tools/chrome-devtools/">Developer Tools</a>
+but you could just ask <em>The Internet</em> where to find it.</p>
+
+<p><img src="/img/1493785856-privataaffarer.se-inspector.png" alt="" /></p>
+
+<a name="network"></a>
+<h2 class="section-header">
+  <span id="network"></span>
+  <a class="anchor" href="#network">Network</a>
+</h2>
+
+<p>To debug HTTP requests we can view the <code class="highlighter-rouge">Network</code> tab. So let’s switch
+to the <code class="highlighter-rouge">Network</code> tab and then click on the <em>“page 2”</em> button under the
+stock data table.</p>
+
+<p><img src="/img/1493785960-privataaffarer.se-network.png" alt="" /></p>
+
+<p>Usually we’re looking for <code class="highlighter-rouge">POST</code> requests (the <code class="highlighter-rouge">Method</code> column) and luckily 
+in this case it’s the first request that was made. We select the request and 
+then use the <code class="highlighter-rouge">Params</code> tab <small>(over on the right)</small> to view the 
+<code class="highlighter-rouge">POST</code> params that were sent.</p>
+
+<p>The first thing we see is this <code class="highlighter-rouge">__EVENTTARGET</code> <em>“variable”</em>.</p>
+
+<p>It appears these variables used by webapps written in ASP.net for determining 
+<em>“state”</em> (<code class="highlighter-rouge">__VIEWSTATE</code>) and also for validating requests (<code class="highlighter-rouge">__EVENTVALIDATION</code>)</p>
+
+<p>Let’s search for <code class="highlighter-rouge">__EVENTTARGET</code> inside the HTML source and see what we find.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__EVENTTARGET"</span> <span class="na">id=</span><span class="s">"__EVENTTARGET"</span> <span class="na">value=</span><span class="s">""</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__EVENTARGUMENT"</span> <span class="na">id=</span><span class="s">"__EVENTARGUMENT"</span> <span class="na">value=</span><span class="s">""</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__LASTFOCUS"</span> <span class="na">id=</span><span class="s">"__LASTFOCUS"</span> <span class="na">value=</span><span class="s">""</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__VIEWSTATE"</span> <span class="na">id=</span><span class="s">"__VIEWSTATE"</span> <span class="na">value=</span><span class="s">"/wEPDwUKLTk4NDEz...
+</span></code></pre>
+</div>
+
+<p><code class="highlighter-rouge">__VIEWSTATE</code> and <code class="highlighter-rouge">__EVENTVALIDATION</code> contain <strong>HUGE</strong> strings of what appears 
+to be some form of <em>“hashed data”</em>. What they contain isn’t exactly important
+we just know we need to extract their <code class="highlighter-rouge">value</code> and send them with our request.</p>
+
+<p><code class="highlighter-rouge">__EVENTTARGET</code> has an empty <code class="highlighter-rouge">value</code> in the HTML which doesn’t match what our
+<code class="highlighter-rouge">POST</code> request sent but we’ll address that in a moment.</p>
+
+<p>If we look at the rest of the <code class="highlighter-rouge">POST</code> params being sent we see these <code class="highlighter-rouge">ctl00</code>
+type variables.</p>
+
+<p><img src="/img/1493788866-privataaffarer.se-post-params.png" alt="" /></p>
+
+<p>Let’s search through the HTML for the pattern
+<code class="highlighter-rouge">&lt;input type="hidden" name="ctl00</code> and see what we find.</p>
+
+<p>The first result we get is</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"ctl00$FhMainContent$FhContent$ctl00$analysisFilter$filterParams"</span> <span class="na">id=</span><span class="s">"ctl00.."</span> <span class="na">value=</span><span class="s">"InstrumentIdFilter:...
+</span></code></pre>
+</div>
+
+<p>It appears (for this page at least) the <code class="highlighter-rouge">ctl00</code> variables have their <code class="highlighter-rouge">value</code>
+attibute just like the <code class="highlighter-rouge">__</code> type variables which we can extract directly
+from the HTML.</p>
+
+<p>We mentioned that <code class="highlighter-rouge">__EVENTTARGET</code> had an empty value in the HTML but in the <code class="highlighter-rouge">POST</code>
+params it had a value beginning with <code class="highlighter-rouge">ctl00</code> so what exactly is going on?</p>
+
+<p>If we view the HTML for the <em>“page 2”</em> button or we <em>right-click</em> it and <em>“Copy Link Location”</em> we 
+will see the <code class="highlighter-rouge">href</code> value contains</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>javascript:__doPostBack('ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$dataPager$ctl01$ctl01','')
+</code></pre>
+</div>
+
+<p>This <code class="highlighter-rouge">ctl00</code> value matches the contents of <code class="highlighter-rouge">__EVENTTARGET</code> in the <code class="highlighter-rouge">POST</code> request.</p>
+
+<p>If we inspect the <em>“page 3”</em> button we see</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>javascript:__doPostBack('ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$dataPager$ctl01$ctl02','')
+</code></pre>
+</div>
+
+<p>All that changes here is <code class="highlighter-rouge">01</code> to <code class="highlighter-rouge">02</code> - this is the <em>“pagination”</em> works.</p>
+
+<ul>
+  <li>Page 1 of the results is <code class="highlighter-rouge">00</code></li>
+  <li>Page 2 of the results is <code class="highlighter-rouge">01</code></li>
+  <li>Page 3 of the results is <code class="highlighter-rouge">02</code></li>
+</ul>
+
+<p>… and so on.</p>
+
+<p>When we click on a page button it sets the <code class="highlighter-rouge">__EVENTTARGET</code> variable to the corresponding <code class="highlighter-rouge">ctl00</code> page
+value (using Javascript) and then posts the form.</p>
+
+<p>Looking again at the <code class="highlighter-rouge">POST</code> params sent we also notice couple of interesting values.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$max:   30
+ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$total: 360
+</code></pre>
+</div>
+
+<p>This suggests there are <code class="highlighter-rouge">360</code> pages of results and there are <code class="highlighter-rouge">30</code> items per
+result page. We could try sending a value higher than <code class="highlighter-rouge">30</code> to see if
+we can more results per page (meaning we could send less requests). 
+There are usually limits in place though so the only way to find it out would
+be by trial and error. We will just stick to using the default value of <code class="highlighter-rouge">30</code>.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>We’ll be using <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code>
+to parse it. These can be installed using <code class="highlighter-rouge">pip</code> e.g.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>pip install requests beautifulsoup4 html5lib --user
+</code></pre>
+</div>
+
+<p>We will start with some (truncated) example output.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>Behåll,Electrolux B,Danske Bank Markets,263,1,,02-maj
+Sälj,Hexpol B,SEB Equities,98,45,82,02-maj
+Köp,Swedish Orphan Biovitrum,Pareto Securities,136,8,200,02-maj
+Behåll,Electrolux B,Pareto Securities,263,1,280,02-maj
+Behåll,Hexpol B,Kepler Cheuvreux,98,45,102,02-maj
+Sälj,Hexpol B,DNB Markets,98,45,89,02-maj
+Behåll,Nobia,Danske Bank Markets,91,65,100,02-maj
+Köp,Intrum Justitia,UBS,348,392,28-apr
+Behåll,SCA B,Danske Bank Markets,297,7,315,28-apr
+Behåll,SKF B,Danske Bank Markets,191,2,,28-apr
+[...]
+</code></pre>
+</div>
+
+<p>The code that generated it.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://www.privataaffarer.se/borsguiden/analyser/'</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="n">r</span>    <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+
+    <span class="n">target</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s">'ctl00$FhMainContent$FhContent$ctl00'</span>
+        <span class="s">'$AnalysesCourse$CustomPager$dataPager$ctl01$ctl{:02d}'</span>
+    <span class="p">)</span>
+
+    <span class="c"># unsupported CSS Selector 'input[name^=ctl00][value]'</span>
+    <span class="n">data</span>  <span class="o">=</span> <span class="p">{</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]:</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span> 
+                  <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=ctl00]'</span><span class="p">)</span> <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'value'</span><span class="p">)</span> <span class="p">}</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]:</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)</span> <span class="p">}</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="c"># data['ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$total']</span>
+    <span class="n">last_page</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="s">'custom_pager_total_pages'</span><span class="p">)</span><span class="o">.</span><span class="nb">input</span><span class="p">[</span><span class="s">'value'</span><span class="p">])</span>
+
+    <span class="c"># for page in range(last_page + 1):</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">data</span><span class="p">[</span><span class="s">'__EVENTTARGET'</span><span class="p">]</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+
+        <span class="n">r</span>    <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+
+        <span class="c"># unsupported CSS Selector 'tr:not(.tr_header)'</span>
+        <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.analysis_table tr'</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">]</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<a name="code-breakdown"></a>
+<h2 class="section-header">
+  <span id="code-breakdown"></span>
+  <a class="anchor" href="#code-breakdown">Code breakdown</a>
+</h2>
+
+<p>When making multiple requests with <code class="highlighter-rouge">requests</code> you’ll usually want to use a 
+<a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">session object</a>
+to maintain <em>“state”</em> and keep track of cookies.</p>
+
+<p>You’ll also pretty much always want to change the default <code class="highlighter-rouge">User-Agent</code> header 
+which we set here to <code class="highlighter-rouge">Mozilla/5.0</code></p>
+
+<p>We must first send a <code class="highlighter-rouge">GET</code> request to the page so that we can extract the needed
+parameters to send in our subsequent <code class="highlighter-rouge">POST</code> requests.</p>
+
+<p><code class="highlighter-rouge">target</code> is just a string.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">target</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s">'ctl00$FhMainContent$FhContent$ctl00'</span>
+    <span class="s">'$AnalysesCourse$CustomPager$dataPager$ctl01$ctl{:02d}'</span>
+<span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Python will implictily join adjacent <em>“strings”</em></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'this'</span>    <span class="s">'is'</span>      <span class="s">'one'</span>      <span class="s">'string'</span>
+<span class="s">'thisisonestring'</span>
+</code></pre>
+</div>
+
+<p>To split it over multiple lines we need to add the surrounding <code class="highlighter-rouge">()</code> which we
+do just for code formatting reasons to keep under a certain line length.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="p">(</span> <span class="s">'this'</span>     <span class="s">'is'</span>
+<span class="o">...</span>   <span class="s">'a'</span>               <span class="s">'large'</span>  <span class="s">'   string'</span>
+<span class="o">...</span> <span class="p">)</span>
+<span class="s">'thisisalarge   string'</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge"><span class="p">{</span><span class="err">:02d</span><span class="p">}</span></code> at the end of <code class="highlighter-rouge">target</code> is a <code class="highlighter-rouge">.format()</code> string specifier which 
+will be used to <em>“zero-pad”</em> the page number in <code class="highlighter-rouge">__EVENTTARGET</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'{:02d}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="s">'01'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'{:02d}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+<span class="s">'100'</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">2</code> specifies the minimum length of the result and the leading <code class="highlighter-rouge">0</code> will
+mean it will pad with <code class="highlighter-rouge">0</code> instead of a <em>space</em> character.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="s">'{:03d}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="s">'001'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="s">'{:3d}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="s">'  1'</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">d</code> specifies we want it to be outputted as a <em>Decimal Integer</em>. For more
+information about <code class="highlighter-rouge">format()</code> see 
+<a href="https://docs.python.org/3/library/string.html#format-specification-mini-language">the docs</a>.</p>
+
+<p>The declaration of <code class="highlighter-rouge">data</code> may look <em>“odd”</em> if you’ve not seen the syntax before.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span> <span class="o">=</span> <span class="p">{</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]:</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span> 
+             <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=ctl00]'</span><span class="p">)</span> <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'value'</span><span class="p">)</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>It is called a <em>dict comprehension</em> which is just <em>“shorthand”</em> syntax for building
+a dict. We could use a <em>“regular”</em> <code class="highlighter-rouge">for</code> loop instead.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=ctl00]'</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">tag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'value'</span><span class="p">):</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">],</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</code></pre>
+</div>
+
+<p>Feel free to use this form if you prefer but it’s good to be aware of what 
+comprehensions look like.</p>
+
+<p>We’re using <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors">BeautifulSoup’s select()</a>
+here to find all <code class="highlighter-rouge">&lt;input&gt;</code> tags whose <code class="highlighter-rouge">name</code> attribute 
+<em>startswith</em> <code class="highlighter-rouge">ctl00</code> i.e.  <code class="highlighter-rouge">select('input[name^=ctl00]')</code></p>
+
+<p>The <code class="highlighter-rouge">^=</code> here represents the <em>“startswith”</em> operator within a <em>CSS Selector</em>.</p>
+
+<p>There are some matching <code class="highlighter-rouge">ctl00</code> tags that do not have a <code class="highlighter-rouge">value</code> attribute
+and we want to skip these. We can use the selector <code class="highlighter-rouge">[attribute]</code> to specify
+that <code class="highlighter-rouge">attribute</code> must exist.</p>
+
+<p>Combined with <code class="highlighter-rouge">input[name^=ctl00]</code> we would get <code class="highlighter-rouge">input[name^=ctl00][value]</code> 
+which is a valid selector however <code class="highlighter-rouge">BeautifulSoup</code> doesn’t support it.</p>
+
+<p>For <em>“more complete”</em> CSS Selector support popluar choices include <code class="highlighter-rouge">lxml.html.cssselect()</code> 
+and <a href="http://parsel.readthedocs.io/en/latest/">parsel</a>.</p>
+
+<p>As we cannot use the unsupported selector we add the <code class="highlighter-rouge">tag.get('value')</code> check 
+to the code. What does it do?</p>
+
+<p>You can access the values of an attribute by using <em>dict indexing</em> on 
+a <em>beautifulsoup tag object</em> (you can also access <code class="highlighter-rouge">.attrs</code> dict directly 
+e.g. <code class="highlighter-rouge">tag.attrs[name]</code>)</p>
+
+<p>If we try to index the <code class="highlighter-rouge">value</code> key and it’s not present we will raise a <code class="highlighter-rouge">KeyError</code> exception.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">({</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'input'</span><span class="p">}[</span><span class="s">'value'</span><span class="p">])</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">"&lt;stdin&gt;"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="nb">KeyError</span><span class="p">:</span> <span class="s">'value'</span>
+</code></pre>
+</div>
+
+<p>If you use the <code class="highlighter-rouge">dict.get()</code> method however it will just return <code class="highlighter-rouge">None</code> (you can 
+however supply <code class="highlighter-rouge">get()</code> with a default return if desired).</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">({</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'input'</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'value'</span><span class="p">))</span>
+<span class="bp">None</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">({</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'input'</span><span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'value'</span><span class="p">,</span> <span class="s">'o hai'</span><span class="p">))</span>
+<span class="n">o</span> <span class="n">hai</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">None</code> is a <em>“falsey”</em> value so <code class="highlighter-rouge">if tag.get('value')</code> will evaluate to <code class="highlighter-rouge">False</code>
+if there is no <code class="highlighter-rouge">value</code> attribute present.</p>
+
+<a name="findfind_all-is-false"></a>
+<h2 class="section-header">
+  <span id="findfind_all-is-false"></span>
+  <a class="anchor" href="#findfind_all-is-false">find(find_all()) is False</a>
+</h2>
+
+<p>Some people may ask why dont’t you just use <code class="highlighter-rouge">find()</code> or <code class="highlighter-rouge">find_all()</code> 
+instead of using <code class="highlighter-rouge">select()</code>?</p>
+
+<p>It is certainly possible to use <code class="highlighter-rouge">find_all()</code> in this instance.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">soup</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="k">lambda</span> <span class="n">tag</span><span class="p">:</span> <span class="n">tag</span> <span class="ow">and</span> <span class="n">tag</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">'input'</span> <span class="ow">and</span> <span class="n">tag</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'name'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'ctl00'</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>But who wants to be typing all of that, amirite?</p>
+
+<p>We’re extracting all of the <code class="highlighter-rouge">__</code> variables (e.g. <code class="highlighter-rouge">__VIEWSTATE</code> etc) and storing them
+in the <code class="highlighter-rouge">state</code> dict.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">state</span> <span class="o">=</span> <span class="p">{</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]:</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)</span> <span class="p">}</span>
+</code></pre>
+</div>
+
+<p>It’s identical to the <code class="highlighter-rouge">data</code> declaration apart from the <em>startswith</em> condition 
+and there is no need to test if there is a <code class="highlighter-rouge">value</code> attribute present as
+they always are (although it wouldn’t hurt to add it).</p>
+
+<p>We’re then using <code class="highlighter-rouge">data.update(state)</code> to add all the items from the <code class="highlighter-rouge">state</code> dict into
+the <code class="highlighter-rouge">data</code> dict. You could think of this as a <em>“merge”</em> operation.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">data</span>  <span class="o">=</span> <span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'b'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{</span><span class="s">'c'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s">'d'</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">data</span>
+<span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'c'</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s">'b'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s">'d'</span><span class="p">:</span> <span class="mi">4</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>We don’t use the <code class="highlighter-rouge">state</code> variable anywhere else so we could have
+passed the <em>dict comprehension</em> directly to <code class="highlighter-rouge">update()</code> instead.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+    <span class="p">{</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]:</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)</span> <span class="p">}</span>
+<span class="p">)</span>
+</code></pre>
+</div>
+
+<a name="beautifulsugar"></a>
+<h2 class="section-header">
+  <span id="beautifulsugar"></span>
+  <a class="anchor" href="#beautifulsugar">BeautifulSugar</a>
+</h2>
+
+<p>The total number of pages is contained in one of the <code class="highlighter-rouge">ctl00</code> variables but
+we could also extract it from the HTML using <code class="highlighter-rouge">find()</code> as shown in the code.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="s">'custom_pager_total_pages'</span><span class="p">)</span><span class="o">.</span><span class="nb">input</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>This is using some <em>syntactic sugar</em> provided by <code class="highlighter-rouge">BeautifulSoup</code> and is
+shorthand for</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">find</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="p">{</span><span class="s">'class'</span><span class="p">:</span> <span class="s">'custom_pager_total_pages'</span><span class="p">})</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'input'</span><span class="p">)[</span><span class="s">'value'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>If you supply a second argument to <code class="highlighter-rouge">find()</code> or <code class="highlighter-rouge">find_all()</code> it defaults
+to matching it against the <code class="highlighter-rouge">class</code> attribute. <code class="highlighter-rouge">find('tag')</code> can be
+replaced with <code class="highlighter-rouge">.tag</code> as <code class="highlighter-rouge">BeautifulSoup</code> makes it available as an attribute.
+Also, the default method called is <code class="highlighter-rouge">find_all()</code> if no name is supplied
+meaning <code class="highlighter-rouge">find_all('table')</code> can be shortened to just <code class="highlighter-rouge">('table')</code></p>
+
+<p>Now that we have all our <code class="highlighter-rouge">POST</code> params set up we just need to loop
+through the page numbers and set <code class="highlighter-rouge">__EVENTTARGET</code> then make our request.
+We’ve just looped through the first 3 pages here as an example but you
+could loop through them all by using <code class="highlighter-rouge">last_page + 1</code> in the <code class="highlighter-rouge">range()</code>
+instead just like the commented loop line in the code. It all depends on
+how far you want to go back.</p>
+
+<p>To <a href="http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests">send form-encoded data</a>
+ along with our request (<code class="highlighter-rouge">POST</code> params) we pass a dictionary to the 
+<code class="highlighter-rouge">data</code> argument a lá <code class="highlighter-rouge">s.post(url, data=data)</code></p>
+
+<p>You may wonder why we’re sending a request for <em>Page 1</em> as we already
+have that data from our initial <code class="highlighter-rouge">.get()</code> call.</p>
+
+<p>The reason for this is that we would have to duplicate the code for 
+<em>“scraping”</em> the stock data; once for the first page and then again 
+inside the <code class="highlighter-rouge">for</code> loop for the subsequent pages.</p>
+
+<a name="scraping-tables"></a>
+<h2 class="section-header">
+  <span id="scraping-tables"></span>
+  <a class="anchor" href="#scraping-tables">Scraping tables</a>
+</h2>
+
+<p>The stock data is contained inside a <code class="highlighter-rouge">&lt;table&gt;</code> tag.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;table</span> <span class="na">class=</span><span class="s">" table_header analysis_table table"</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>We want to get <em>“all”</em> <code class="highlighter-rouge">&lt;tr&gt;</code> tags inside of this table.
+We’ve used <code class="highlighter-rouge">soup.select('.analysis_table tr')</code> to do so.</p>
+
+<p>In a CSS Selector <code class="highlighter-rouge">.word</code> tests if <code class="highlighter-rouge">word</code> exists inside the <code class="highlighter-rouge">class</code>
+attribute of an item. We’ve omitted the tag name here but we could have
+used <code class="highlighter-rouge">table.analysis_table</code> which would state we only want to search
+for <code class="highlighter-rouge">&lt;table&gt;</code> tags but <code class="highlighter-rouge">analysis_table</code> is unique in the HTML so it’s
+not needed. How explicit / specific you need to be with your
+selectors depends on the HTML you’re dealing with.</p>
+
+<p>There are <code class="highlighter-rouge">2</code> tables on the page, the data we want is in the first one.
+This means we could also use <code class="highlighter-rouge">soup.table('tr')</code> (which is equivalent to
+<code class="highlighter-rouge">soup.find('table').find_all('tr')</code>) to get the same results as the 
+<code class="highlighter-rouge">select()</code> in this instance.</p>
+
+<p>Obviously this assumes the data is always in the first <code class="highlighter-rouge">&lt;table&gt;</code> found
+which may be considered a more <em>“fragile”</em> approach compared to 
+explicitly testing for the unique class word.</p>
+
+<p>We said earlier we wanted <em>all</em> <code class="highlighter-rouge">&lt;tr&gt;</code> tags however that is not entirely
+true. The first <code class="highlighter-rouge">&lt;tr&gt;</code> in the table is inside the <code class="highlighter-rouge">&lt;thead&gt;</code> which contains
+the <em>“headers”</em> in <code class="highlighter-rouge">&lt;th&gt;</code> tags.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;tr&gt;</span>
+  <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">"stock_status"</span> <span class="na">data-columns=</span><span class="s">"data_stock_course_0"</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>The <em>“headers”</em> are also repeated in multiple rows throughout the table.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;tr</span> <span class="na">class=</span><span class="s">"tr_header"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;th</span> <span class="na">class=</span><span class="s">"stock_status"</span> <span class="na">data-columns=</span><span class="s">"data_stock_course_0"</span> <span class="na">data-priority=</span><span class="s">"1"</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>So when we try to find <code class="highlighter-rouge">&lt;td&gt;</code> tags inside those <code class="highlighter-rouge">&lt;tr&gt;</code> tags we will
+get an empty list as the result.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="p">[</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span> <span class="p">]</span>
+<span class="p">[]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="p">[</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">](</span><span class="s">'td'</span><span class="p">)</span> <span class="p">]</span>
+<span class="p">[</span><span class="s">''</span><span class="p">,</span> <span class="s">'Neutral'</span><span class="p">,</span> <span class="s">'Investor B'</span><span class="p">,</span> <span class="s">'Swedbank'</span><span class="p">,</span> <span class="s">'399,6'</span><span class="p">,</span> <span class="s">'405'</span><span class="p">,</span> <span class="s">'25-apr'</span><span class="p">,</span> <span class="s">''</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>An empty list is <em>“falsey”</em> meaning that our <code class="highlighter-rouge">if row:</code> check will 
+only be <code class="highlighter-rouge">True</code> if there are any <code class="highlighter-rouge">&lt;td&gt;</code> tags found which in turn has
+the side-effect of skipping the the unwanted header <em>“rows”</em>.</p>
+
+<p>The <code class="highlighter-rouge">[ ... for ... ]</code> syntax used here is called a <em>list comprehension</em>. 
+It is just shorthand syntax for building lists similar to <em>dict comprehensions</em>
+for building dicts.</p>
+
+<p>It can be written using <em>“regular”</em> <code class="highlighter-rouge">for</code> loop instead.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.analysis_table tr'</span><span class="p">):</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">):</span>
+        <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+</code></pre>
+</div>
+
+<p>So we’re processing each <code class="highlighter-rouge">&lt;tr&gt;</code> tag then finding all the <code class="highlighter-rouge">&lt;td&gt;</code> tags it contains
+and extracting their <code class="highlighter-rouge">.text</code> content and calling <code class="highlighter-rouge">strip()</code> to remove the surrounding
+whitespace.</p>
+
+<p>You may have noticed from the previous result both the first and last entries 
+in the resulting list are empty strings. This is why we have <code class="highlighter-rouge">[1:-1]</code> in the code.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">row</span> <span class="o">=</span> <span class="p">[</span><span class="s">''</span><span class="p">,</span> <span class="s">'Neutral'</span><span class="p">,</span> <span class="s">'Investor B'</span><span class="p">,</span> <span class="s">'Swedbank'</span><span class="p">,</span> <span class="s">'399,6'</span><span class="p">,</span> <span class="s">'405'</span><span class="p">,</span> <span class="s">'25-apr'</span><span class="p">,</span> <span class="s">''</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'Neutral'</span><span class="p">,</span> <span class="s">'Investor B'</span><span class="p">,</span> <span class="s">'Swedbank'</span><span class="p">,</span> <span class="s">'399,6'</span><span class="p">,</span> <span class="s">'405'</span><span class="p">,</span> <span class="s">'25-apr'</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">[start:end]</code> syntax is called <a href="https://docs.python.org/3/tutorial/introduction.html#lists">slicing</a>.
+It gives us back a new list starting and ending with the given indexes.</p>
+
+<p>Finally we use a simple <code class="highlighter-rouge">print(','.join(row))</code> to produce the final output.
+Please note however that you should use the <code class="highlighter-rouge">csv</code> module if you actually want to 
+produce <em>proper</em> CSV data.</p>
+
+<a name="summary"></a>
+<h2 class="section-header">
+  <span id="summary"></span>
+  <a class="anchor" href="#summary">Summary</a>
+</h2>
+
+<p>So what we have works (the code is also
+<a href="https://github.com/kaijento/code/blob/master/webscraping/privataaffarer.se/scrape.py">on github</a>)
+however when needing to loop or <em>“crawl”</em> through 
+multiple pages of results you may want to consider using <a href="http://scrapy.org">Scrapy</a> 
+as it handles a lot of things for you such as parallel requests, error 
+handling, request retries, etc.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (46)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/01/web-scraping-serebii.net/">Web scraping: serebii.net</a></h2>
+          <p class="preview">We’re trying extract information about a Pokémon attack from <a href="http://serebii.net">http://serebii.net</a> 
+which <em>“lists all the moves currently available through the Pokémon in Sun &amp; Moon”</em>
+using Python.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

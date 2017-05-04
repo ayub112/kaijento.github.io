@@ -5,9 +5,521 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 03 May 2017 09:01:51 +0100</pubDate>
-    <lastBuildDate>Wed, 03 May 2017 09:01:51 +0100</lastBuildDate>
+    <pubDate>Thu, 04 May 2017 12:56:45 +0100</pubDate>
+    <lastBuildDate>Thu, 04 May 2017 12:56:45 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Web scraping: requests / EVENTTARGET / VIEWSTATE</title>
+        <description>&lt;p&gt;Given the URL &lt;a href=&quot;http://www.privataaffarer.se/borsguiden/analyser/&quot;&gt;http://www.privataaffarer.se/borsguiden/analyser/&lt;/a&gt;
+the goal is to extract or &lt;em&gt;“scrape”&lt;/em&gt; the stock data from the table on the page
+using Python. There are multiple pages of results so we would like to loop
+or &lt;em&gt;“crawl”&lt;/em&gt; through multiple pages of the results.&lt;/p&gt;
+
+&lt;p&gt;First we’ll open up the URL in our browser and use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab 
+to view the DOM. I’m using Firefox here so I &lt;em&gt;“right-click”&lt;/em&gt; on the page 
+and choose &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;. You can also navigate using the menu 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Tools -&amp;gt; Web Developer -&amp;gt; Inspector&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;If you’re using Chrome it’s currently under 
+&lt;a href=&quot;https://developers.google.com/web/tools/chrome-devtools/&quot;&gt;Developer Tools&lt;/a&gt;
+but you could just ask &lt;em&gt;The Internet&lt;/em&gt; where to find it.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1493785856-privataaffarer.se-inspector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;network&quot;&gt;Network&lt;/h2&gt;
+
+&lt;p&gt;To debug HTTP requests we can view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab. So let’s switch
+to the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab and then click on the &lt;em&gt;“page 2”&lt;/em&gt; button under the
+stock data table.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1493785960-privataaffarer.se-network.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Usually we’re looking for &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; requests (the &lt;code class=&quot;highlighter-rouge&quot;&gt;Method&lt;/code&gt; column) and luckily 
+in this case it’s the first request that was made. We select the request and 
+then use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Params&lt;/code&gt; tab &lt;small&gt;(over on the right)&lt;/small&gt; to view the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; params that were sent.&lt;/p&gt;
+
+&lt;p&gt;The first thing we see is this &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; &lt;em&gt;“variable”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;It appears these variables used by webapps written in ASP.net for determining 
+&lt;em&gt;“state”&lt;/em&gt; (&lt;code class=&quot;highlighter-rouge&quot;&gt;__VIEWSTATE&lt;/code&gt;) and also for validating requests (&lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTVALIDATION&lt;/code&gt;)&lt;/p&gt;
+
+&lt;p&gt;Let’s search for &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; inside the HTML source and see what we find.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__EVENTTARGET&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__EVENTTARGET&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__EVENTARGUMENT&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__EVENTARGUMENT&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__LASTFOCUS&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__LASTFOCUS&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;/&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__VIEWSTATE&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;__VIEWSTATE&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/wEPDwUKLTk4NDEz...
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;__VIEWSTATE&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTVALIDATION&lt;/code&gt; contain &lt;strong&gt;HUGE&lt;/strong&gt; strings of what appears 
+to be some form of &lt;em&gt;“hashed data”&lt;/em&gt;. What they contain isn’t exactly important
+we just know we need to extract their &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; and send them with our request.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; has an empty &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; in the HTML which doesn’t match what our
+&lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request sent but we’ll address that in a moment.&lt;/p&gt;
+
+&lt;p&gt;If we look at the rest of the &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; params being sent we see these &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt;
+type variables.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1493788866-privataaffarer.se-post-params.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s search through the HTML for the pattern
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;input type=&quot;hidden&quot; name=&quot;ctl00&lt;/code&gt; and see what we find.&lt;/p&gt;
+
+&lt;p&gt;The first result we get is&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;input&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;hidden&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;name=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ctl00$FhMainContent$FhContent$ctl00$analysisFilter$filterParams&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ctl00..&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;value=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;InstrumentIdFilter:...
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It appears (for this page at least) the &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; variables have their &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt;
+attibute just like the &lt;code class=&quot;highlighter-rouge&quot;&gt;__&lt;/code&gt; type variables which we can extract directly
+from the HTML.&lt;/p&gt;
+
+&lt;p&gt;We mentioned that &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; had an empty value in the HTML but in the &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt;
+params it had a value beginning with &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; so what exactly is going on?&lt;/p&gt;
+
+&lt;p&gt;If we view the HTML for the &lt;em&gt;“page 2”&lt;/em&gt; button or we &lt;em&gt;right-click&lt;/em&gt; it and &lt;em&gt;“Copy Link Location”&lt;/em&gt; we 
+will see the &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; value contains&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;javascript:__doPostBack('ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$dataPager$ctl01$ctl01','')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; value matches the contents of &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request.&lt;/p&gt;
+
+&lt;p&gt;If we inspect the &lt;em&gt;“page 3”&lt;/em&gt; button we see&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;javascript:__doPostBack('ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$dataPager$ctl01$ctl02','')
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;All that changes here is &lt;code class=&quot;highlighter-rouge&quot;&gt;01&lt;/code&gt; to &lt;code class=&quot;highlighter-rouge&quot;&gt;02&lt;/code&gt; - this is the &lt;em&gt;“pagination”&lt;/em&gt; works.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Page 1 of the results is &lt;code class=&quot;highlighter-rouge&quot;&gt;00&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Page 2 of the results is &lt;code class=&quot;highlighter-rouge&quot;&gt;01&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Page 3 of the results is &lt;code class=&quot;highlighter-rouge&quot;&gt;02&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;… and so on.&lt;/p&gt;
+
+&lt;p&gt;When we click on a page button it sets the &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; variable to the corresponding &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; page
+value (using Javascript) and then posts the form.&lt;/p&gt;
+
+&lt;p&gt;Looking again at the &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; params sent we also notice couple of interesting values.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$max:   30
+ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$total: 360
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This suggests there are &lt;code class=&quot;highlighter-rouge&quot;&gt;360&lt;/code&gt; pages of results and there are &lt;code class=&quot;highlighter-rouge&quot;&gt;30&lt;/code&gt; items per
+result page. We could try sending a value higher than &lt;code class=&quot;highlighter-rouge&quot;&gt;30&lt;/code&gt; to see if
+we can more results per page (meaning we could send less requests). 
+There are usually limits in place though so the only way to find it out would
+be by trial and error. We will just stick to using the default value of &lt;code class=&quot;highlighter-rouge&quot;&gt;30&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
+
+&lt;p&gt;We’ll be using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt;
+to parse it. These can be installed using &lt;code class=&quot;highlighter-rouge&quot;&gt;pip&lt;/code&gt; e.g.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pip install requests beautifulsoup4 html5lib --user
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We will start with some (truncated) example output.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Behåll,Electrolux B,Danske Bank Markets,263,1,,02-maj
+Sälj,Hexpol B,SEB Equities,98,45,82,02-maj
+Köp,Swedish Orphan Biovitrum,Pareto Securities,136,8,200,02-maj
+Behåll,Electrolux B,Pareto Securities,263,1,280,02-maj
+Behåll,Hexpol B,Kepler Cheuvreux,98,45,102,02-maj
+Sälj,Hexpol B,DNB Markets,98,45,89,02-maj
+Behåll,Nobia,Danske Bank Markets,91,65,100,02-maj
+Köp,Intrum Justitia,UBS,348,392,28-apr
+Behåll,SCA B,Danske Bank Markets,297,7,315,28-apr
+Behåll,SKF B,Danske Bank Markets,191,2,,28-apr
+[...]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The code that generated it.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://www.privataaffarer.se/borsguiden/analyser/'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;target&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;'ctl00$FhMainContent$FhContent$ctl00'&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;'$AnalysesCourse$CustomPager$dataPager$ctl01$ctl{:02d}'&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# unsupported CSS Selector 'input[name^=ctl00][value]'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; 
+                  &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input[name^=ctl00]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;state&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input[name^=__]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# data['ctl00$FhMainContent$FhContent$ctl00$AnalysesCourse$CustomPager$total']&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;last_page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'div'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'custom_pager_total_pages'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# for page in range(last_page + 1):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'__EVENTTARGET'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;target&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;c&quot;&gt;# unsupported CSS Selector 'tr:not(.tr_header)'&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tr&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.analysis_table tr'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'td'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;','&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;join&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;code-breakdown&quot;&gt;Code breakdown&lt;/h2&gt;
+
+&lt;p&gt;When making multiple requests with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; you’ll usually want to use a 
+&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/advanced/#session-objects&quot;&gt;session object&lt;/a&gt;
+to maintain &lt;em&gt;“state”&lt;/em&gt; and keep track of cookies.&lt;/p&gt;
+
+&lt;p&gt;You’ll also pretty much always want to change the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header 
+which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;We must first send a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request to the page so that we can extract the needed
+parameters to send in our subsequent &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; requests.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;target&lt;/code&gt; is just a string.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;target&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;'ctl00$FhMainContent$FhContent$ctl00'&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;'$AnalysesCourse$CustomPager$dataPager$ctl01$ctl{:02d}'&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Python will implictily join adjacent &lt;em&gt;“strings”&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'this'&lt;/span&gt;    &lt;span class=&quot;s&quot;&gt;'is'&lt;/span&gt;      &lt;span class=&quot;s&quot;&gt;'one'&lt;/span&gt;      &lt;span class=&quot;s&quot;&gt;'string'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'thisisonestring'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;To split it over multiple lines we need to add the surrounding &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; which we
+do just for code formatting reasons to keep under a certain line length.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'this'&lt;/span&gt;     &lt;span class=&quot;s&quot;&gt;'is'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;   &lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;               &lt;span class=&quot;s&quot;&gt;'large'&lt;/span&gt;  &lt;span class=&quot;s&quot;&gt;'   string'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'thisisalarge   string'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:02d&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt; at the end of &lt;code class=&quot;highlighter-rouge&quot;&gt;target&lt;/code&gt; is a &lt;code class=&quot;highlighter-rouge&quot;&gt;.format()&lt;/code&gt; string specifier which 
+will be used to &lt;em&gt;“zero-pad”&lt;/em&gt; the page number in &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'{:02d}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'01'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'{:02d}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;100&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'100'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; specifies the minimum length of the result and the leading &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; will
+mean it will pad with &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; instead of a &lt;em&gt;space&lt;/em&gt; character.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'{:03d}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'001'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'{:3d}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'  1'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;d&lt;/code&gt; specifies we want it to be outputted as a &lt;em&gt;Decimal Integer&lt;/em&gt;. For more
+information about &lt;code class=&quot;highlighter-rouge&quot;&gt;format()&lt;/code&gt; see 
+&lt;a href=&quot;https://docs.python.org/3/library/string.html#format-specification-mini-language&quot;&gt;the docs&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The declaration of &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; may look &lt;em&gt;“odd”&lt;/em&gt; if you’ve not seen the syntax before.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; 
+             &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input[name^=ctl00]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It is called a &lt;em&gt;dict comprehension&lt;/em&gt; which is just &lt;em&gt;“shorthand”&lt;/em&gt; syntax for building
+a dict. We could use a &lt;em&gt;“regular”&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop instead.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input[name^=ctl00]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Feel free to use this form if you prefer but it’s good to be aware of what 
+comprehensions look like.&lt;/p&gt;
+
+&lt;p&gt;We’re using &lt;a href=&quot;https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors&quot;&gt;BeautifulSoup’s select()&lt;/a&gt;
+here to find all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;input&amp;gt;&lt;/code&gt; tags whose &lt;code class=&quot;highlighter-rouge&quot;&gt;name&lt;/code&gt; attribute 
+&lt;em&gt;startswith&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; i.e.  &lt;code class=&quot;highlighter-rouge&quot;&gt;select('input[name^=ctl00]')&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;^=&lt;/code&gt; here represents the &lt;em&gt;“startswith”&lt;/em&gt; operator within a &lt;em&gt;CSS Selector&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;There are some matching &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; tags that do not have a &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; attribute
+and we want to skip these. We can use the selector &lt;code class=&quot;highlighter-rouge&quot;&gt;[attribute]&lt;/code&gt; to specify
+that &lt;code class=&quot;highlighter-rouge&quot;&gt;attribute&lt;/code&gt; must exist.&lt;/p&gt;
+
+&lt;p&gt;Combined with &lt;code class=&quot;highlighter-rouge&quot;&gt;input[name^=ctl00]&lt;/code&gt; we would get &lt;code class=&quot;highlighter-rouge&quot;&gt;input[name^=ctl00][value]&lt;/code&gt; 
+which is a valid selector however &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; doesn’t support it.&lt;/p&gt;
+
+&lt;p&gt;For &lt;em&gt;“more complete”&lt;/em&gt; CSS Selector support popluar choices include &lt;code class=&quot;highlighter-rouge&quot;&gt;lxml.html.cssselect()&lt;/code&gt; 
+and &lt;a href=&quot;http://parsel.readthedocs.io/en/latest/&quot;&gt;parsel&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;As we cannot use the unsupported selector we add the &lt;code class=&quot;highlighter-rouge&quot;&gt;tag.get('value')&lt;/code&gt; check 
+to the code. What does it do?&lt;/p&gt;
+
+&lt;p&gt;You can access the values of an attribute by using &lt;em&gt;dict indexing&lt;/em&gt; on 
+a &lt;em&gt;beautifulsoup tag object&lt;/em&gt; (you can also access &lt;code class=&quot;highlighter-rouge&quot;&gt;.attrs&lt;/code&gt; dict directly 
+e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;tag.attrs[name]&lt;/code&gt;)&lt;/p&gt;
+
+&lt;p&gt;If we try to index the &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; key and it’s not present we will raise a &lt;code class=&quot;highlighter-rouge&quot;&gt;KeyError&lt;/code&gt; exception.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'input'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&amp;lt;stdin&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nb&quot;&gt;KeyError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you use the &lt;code class=&quot;highlighter-rouge&quot;&gt;dict.get()&lt;/code&gt; method however it will just return &lt;code class=&quot;highlighter-rouge&quot;&gt;None&lt;/code&gt; (you can 
+however supply &lt;code class=&quot;highlighter-rouge&quot;&gt;get()&lt;/code&gt; with a default return if desired).&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'input'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;bp&quot;&gt;None&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;({&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'input'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'o hai'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;o&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hai&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;None&lt;/code&gt; is a &lt;em&gt;“falsey”&lt;/em&gt; value so &lt;code class=&quot;highlighter-rouge&quot;&gt;if tag.get('value')&lt;/code&gt; will evaluate to &lt;code class=&quot;highlighter-rouge&quot;&gt;False&lt;/code&gt;
+if there is no &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; attribute present.&lt;/p&gt;
+
+&lt;h2 id=&quot;findfind_all-is-false&quot;&gt;find(find_all()) is False&lt;/h2&gt;
+
+&lt;p&gt;Some people may ask why dont’t you just use &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;find_all()&lt;/code&gt; 
+instead of using &lt;code class=&quot;highlighter-rouge&quot;&gt;select()&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;It is certainly possible to use &lt;code class=&quot;highlighter-rouge&quot;&gt;find_all()&lt;/code&gt; in this instance.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_all&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;lambda&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'input'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;startswith&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ctl00'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;But who wants to be typing all of that, amirite?&lt;/p&gt;
+
+&lt;p&gt;We’re extracting all of the &lt;code class=&quot;highlighter-rouge&quot;&gt;__&lt;/code&gt; variables (e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;__VIEWSTATE&lt;/code&gt; etc) and storing them
+in the &lt;code class=&quot;highlighter-rouge&quot;&gt;state&lt;/code&gt; dict.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;state&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input[name^=__]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It’s identical to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; declaration apart from the &lt;em&gt;startswith&lt;/em&gt; condition 
+and there is no need to test if there is a &lt;code class=&quot;highlighter-rouge&quot;&gt;value&lt;/code&gt; attribute present as
+they always are (although it wouldn’t hurt to add it).&lt;/p&gt;
+
+&lt;p&gt;We’re then using &lt;code class=&quot;highlighter-rouge&quot;&gt;data.update(state)&lt;/code&gt; to add all the items from the &lt;code class=&quot;highlighter-rouge&quot;&gt;state&lt;/code&gt; dict into
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; dict. You could think of this as a &lt;em&gt;“merge”&lt;/em&gt; operation.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'b'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;state&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'c'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'d'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;state&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'c'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'b'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'d'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We don’t use the &lt;code class=&quot;highlighter-rouge&quot;&gt;state&lt;/code&gt; variable anywhere else so we could have
+passed the &lt;em&gt;dict comprehension&lt;/em&gt; directly to &lt;code class=&quot;highlighter-rouge&quot;&gt;update()&lt;/code&gt; instead.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;update&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input[name^=__]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;beautifulsugar&quot;&gt;BeautifulSugar&lt;/h2&gt;
+
+&lt;p&gt;The total number of pages is contained in one of the &lt;code class=&quot;highlighter-rouge&quot;&gt;ctl00&lt;/code&gt; variables but
+we could also extract it from the HTML using &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; as shown in the code.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'div'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'custom_pager_total_pages'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is using some &lt;em&gt;syntactic sugar&lt;/em&gt; provided by &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; and is
+shorthand for&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'div'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'class'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'custom_pager_total_pages'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'input'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'value'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If you supply a second argument to &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;find_all()&lt;/code&gt; it defaults
+to matching it against the &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; attribute. &lt;code class=&quot;highlighter-rouge&quot;&gt;find('tag')&lt;/code&gt; can be
+replaced with &lt;code class=&quot;highlighter-rouge&quot;&gt;.tag&lt;/code&gt; as &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; makes it available as an attribute.
+Also, the default method called is &lt;code class=&quot;highlighter-rouge&quot;&gt;find_all()&lt;/code&gt; if no name is supplied
+meaning &lt;code class=&quot;highlighter-rouge&quot;&gt;find_all('table')&lt;/code&gt; can be shortened to just &lt;code class=&quot;highlighter-rouge&quot;&gt;('table')&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Now that we have all our &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; params set up we just need to loop
+through the page numbers and set &lt;code class=&quot;highlighter-rouge&quot;&gt;__EVENTTARGET&lt;/code&gt; then make our request.
+We’ve just looped through the first 3 pages here as an example but you
+could loop through them all by using &lt;code class=&quot;highlighter-rouge&quot;&gt;last_page + 1&lt;/code&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;range()&lt;/code&gt;
+instead just like the commented loop line in the code. It all depends on
+how far you want to go back.&lt;/p&gt;
+
+&lt;p&gt;To &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests&quot;&gt;send form-encoded data&lt;/a&gt;
+ along with our request (&lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; params) we pass a dictionary to the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument a lá &lt;code class=&quot;highlighter-rouge&quot;&gt;s.post(url, data=data)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;You may wonder why we’re sending a request for &lt;em&gt;Page 1&lt;/em&gt; as we already
+have that data from our initial &lt;code class=&quot;highlighter-rouge&quot;&gt;.get()&lt;/code&gt; call.&lt;/p&gt;
+
+&lt;p&gt;The reason for this is that we would have to duplicate the code for 
+&lt;em&gt;“scraping”&lt;/em&gt; the stock data; once for the first page and then again 
+inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop for the subsequent pages.&lt;/p&gt;
+
+&lt;h2 id=&quot;scraping-tables&quot;&gt;Scraping tables&lt;/h2&gt;
+
+&lt;p&gt;The stock data is contained inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;table&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;table&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot; table_header analysis_table table&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We want to get &lt;em&gt;“all”&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tr&amp;gt;&lt;/code&gt; tags inside of this table.
+We’ve used &lt;code class=&quot;highlighter-rouge&quot;&gt;soup.select('.analysis_table tr')&lt;/code&gt; to do so.&lt;/p&gt;
+
+&lt;p&gt;In a CSS Selector &lt;code class=&quot;highlighter-rouge&quot;&gt;.word&lt;/code&gt; tests if &lt;code class=&quot;highlighter-rouge&quot;&gt;word&lt;/code&gt; exists inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt;
+attribute of an item. We’ve omitted the tag name here but we could have
+used &lt;code class=&quot;highlighter-rouge&quot;&gt;table.analysis_table&lt;/code&gt; which would state we only want to search
+for &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;table&amp;gt;&lt;/code&gt; tags but &lt;code class=&quot;highlighter-rouge&quot;&gt;analysis_table&lt;/code&gt; is unique in the HTML so it’s
+not needed. How explicit / specific you need to be with your
+selectors depends on the HTML you’re dealing with.&lt;/p&gt;
+
+&lt;p&gt;There are &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; tables on the page, the data we want is in the first one.
+This means we could also use &lt;code class=&quot;highlighter-rouge&quot;&gt;soup.table('tr')&lt;/code&gt; (which is equivalent to
+&lt;code class=&quot;highlighter-rouge&quot;&gt;soup.find('table').find_all('tr')&lt;/code&gt;) to get the same results as the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;select()&lt;/code&gt; in this instance.&lt;/p&gt;
+
+&lt;p&gt;Obviously this assumes the data is always in the first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;table&amp;gt;&lt;/code&gt; found
+which may be considered a more &lt;em&gt;“fragile”&lt;/em&gt; approach compared to 
+explicitly testing for the unique class word.&lt;/p&gt;
+
+&lt;p&gt;We said earlier we wanted &lt;em&gt;all&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tr&amp;gt;&lt;/code&gt; tags however that is not entirely
+true. The first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tr&amp;gt;&lt;/code&gt; in the table is inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;thead&amp;gt;&lt;/code&gt; which contains
+the &lt;em&gt;“headers”&lt;/em&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;th&amp;gt;&lt;/code&gt; tags.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;stock_status&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-columns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;data_stock_course_0&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;em&gt;“headers”&lt;/em&gt; are also repeated in multiple rows throughout the table.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;tr_header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;th&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;stock_status&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-columns=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;data_stock_course_0&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;data-priority=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;1&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So when we try to find &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;td&amp;gt;&lt;/code&gt; tags inside those &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tr&amp;gt;&lt;/code&gt; tags we will
+get an empty list as the result.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;table&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'td'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;table&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'tr'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;](&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'td'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Neutral'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Investor B'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Swedbank'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'399,6'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'405'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'25-apr'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;An empty list is &lt;em&gt;“falsey”&lt;/em&gt; meaning that our &lt;code class=&quot;highlighter-rouge&quot;&gt;if row:&lt;/code&gt; check will 
+only be &lt;code class=&quot;highlighter-rouge&quot;&gt;True&lt;/code&gt; if there are any &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;td&amp;gt;&lt;/code&gt; tags found which in turn has
+the side-effect of skipping the the unwanted header &lt;em&gt;“rows”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;[ ... for ... ]&lt;/code&gt; syntax used here is called a &lt;em&gt;list comprehension&lt;/em&gt;. 
+It is just shorthand syntax for building lists similar to &lt;em&gt;dict comprehensions&lt;/em&gt;
+for building dicts.&lt;/p&gt;
+
+&lt;p&gt;It can be written using &lt;em&gt;“regular”&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop instead.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tr&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.analysis_table tr'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;td&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tr&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'td'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;td&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strip&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So we’re processing each &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tr&amp;gt;&lt;/code&gt; tag then finding all the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;td&amp;gt;&lt;/code&gt; tags it contains
+and extracting their &lt;code class=&quot;highlighter-rouge&quot;&gt;.text&lt;/code&gt; content and calling &lt;code class=&quot;highlighter-rouge&quot;&gt;strip()&lt;/code&gt; to remove the surrounding
+whitespace.&lt;/p&gt;
+
+&lt;p&gt;You may have noticed from the previous result both the first and last entries 
+in the resulting list are empty strings. This is why we have &lt;code class=&quot;highlighter-rouge&quot;&gt;[1:-1]&lt;/code&gt; in the code.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Neutral'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Investor B'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Swedbank'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'399,6'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'405'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'25-apr'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;row&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Neutral'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Investor B'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Swedbank'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'399,6'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'405'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'25-apr'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;[start:end]&lt;/code&gt; syntax is called &lt;a href=&quot;https://docs.python.org/3/tutorial/introduction.html#lists&quot;&gt;slicing&lt;/a&gt;.
+It gives us back a new list starting and ending with the given indexes.&lt;/p&gt;
+
+&lt;p&gt;Finally we use a simple &lt;code class=&quot;highlighter-rouge&quot;&gt;print(','.join(row))&lt;/code&gt; to produce the final output.
+Please note however that you should use the &lt;code class=&quot;highlighter-rouge&quot;&gt;csv&lt;/code&gt; module if you actually want to 
+produce &lt;em&gt;proper&lt;/em&gt; CSV data.&lt;/p&gt;
+
+&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;So what we have works (the code is also
+&lt;a href=&quot;https://github.com/kaijento/code/blob/master/webscraping/privataaffarer.se/scrape.py&quot;&gt;on github&lt;/a&gt;)
+however when needing to loop or &lt;em&gt;“crawl”&lt;/em&gt; through 
+multiple pages of results you may want to consider using &lt;a href=&quot;http://scrapy.org&quot;&gt;Scrapy&lt;/a&gt; 
+as it handles a lot of things for you such as parallel requests, error 
+handling, request retries, etc.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 04 May 2017 09:10:16 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/05/04/web-scraping-requests-eventtarget-viewstate/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/04/web-scraping-requests-eventtarget-viewstate/</guid>
+        
+        <category>python</category>
+        
+        <category>webscraping</category>
+        
+        <category>beautifulsoup</category>
+        
+        <category>requests</category>
+        
+        <category>lxml</category>
+        
+        <category>scrapy</category>
+        
+        
+      </item>
     
       <item>
         <title>Web scraping: serebii.net</title>
@@ -1141,7 +1653,7 @@ when you're just a zombie needing to be reaped.
       </item>
     
       <item>
-        <title>XML parsing: Python, XPath, logical AND</title>
+        <title>XML parsing: Python / XPath / logical AND</title>
         <description>&lt;p&gt;&lt;em&gt;Given the following XML data we need to locate all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags
 whose &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag is equal to the value &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; &lt;strong&gt;and&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;b&amp;gt;&lt;/code&gt; tag is 
 equal to the value &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; and return their &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;id&amp;gt;&lt;/code&gt; using Python.&lt;/em&gt;&lt;/p&gt;
@@ -2027,191 +2539,6 @@ and using &lt;code class=&quot;highlighter-rouge&quot;&gt;.append()&lt;/code&gt;
         <category>json</category>
         
         <category>defaultdict</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>JSON parsing: does a number contain a certain digit?</title>
-        <description>&lt;p&gt;&lt;em&gt;I have a list of JSON objects that contain &lt;code class=&quot;highlighter-rouge&quot;&gt;name&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; 
-entries. I would like to filter out all entries that contain
-a certain digit in their &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;id.json&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; 
-  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;bob&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;   &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;201&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;frank&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;30&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ted&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;   &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;555&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This person wants to do this from the &lt;em&gt;“command-line”&lt;/em&gt; using &lt;em&gt;“bash”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;There are some JSON parsers written in pure &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; there is even one
-for &lt;code class=&quot;highlighter-rouge&quot;&gt;Perl&lt;/code&gt; that is a &lt;a href=&quot;http://www.perlmonks.org/?node_id=995856&quot;&gt;single regex&lt;/a&gt;.&lt;/p&gt;
-
-&lt;p&gt;My preferred options are &lt;code class=&quot;highlighter-rouge&quot;&gt;python&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; but there are many to choose from.&lt;/p&gt;
-
-&lt;h2 id=&quot;python&quot;&gt;Python&lt;/h2&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;             &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
-&lt;span class=&quot;n&quot;&gt;Traceback&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;most&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recent&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;call&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-  &lt;span class=&quot;n&quot;&gt;File&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;&amp;lt;stdin&amp;gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;module&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;TypeError&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;argument&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;type&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'int'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;iterable&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The problem is that &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; is a number in the JSON data
-and not a string so it gets converted to an &lt;code class=&quot;highlighter-rouge&quot;&gt;int&lt;/code&gt; when
-loaded by the &lt;code class=&quot;highlighter-rouge&quot;&gt;json&lt;/code&gt; module.&lt;/p&gt;
-
-&lt;p&gt;To fix this we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;str()&lt;/code&gt; to convert it into a string.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]):&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;             &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'alice'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'name'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'bob'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;201&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Well that’s great but how do we get it back in JSON format?&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;load&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;found&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;found&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;alice&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-        &lt;span class=&quot;s&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;bob&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-        &lt;span class=&quot;s&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;201&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;found = [ ... for ... in ... ]&lt;/code&gt; syntax here is called a &lt;em&gt;list comprehension&lt;/em&gt;. 
-It’s the equivalent to&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;found&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;person&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;people&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'1'&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]):&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;found&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;person&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It’s just &lt;em&gt;“shorthand syntax”&lt;/em&gt; for creating a list.&lt;/p&gt;
-
-&lt;p&gt;You could write the whole command as a &lt;em&gt;“one-liner”&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -c &lt;span class=&quot;s1&quot;&gt;'import json, sys; print(json.dumps(
-    [person for person in json.load(sys.stdin) if &quot;1&quot; in str(person[&quot;id&quot;])], 
-    indent=4))'&lt;/span&gt; &amp;lt; id.json
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 1
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;, 
-    &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-        &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;bob&quot;&lt;/span&gt;, 
-        &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 201
-    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;But if you’re looking for a &lt;em&gt;“one-liner”&lt;/em&gt; you may wish to check out &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;jq&quot;&gt;jq&lt;/h2&gt;
-
-&lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;jq&lt;/code&gt; we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;select()&lt;/code&gt; to filter so here want to to filter
-out those whose &lt;code class=&quot;highlighter-rouge&quot;&gt;.id&lt;/code&gt; value &lt;code class=&quot;highlighter-rouge&quot;&gt;contains&lt;/code&gt; the string &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'.[] | select(.id | contains(&quot;1&quot;))'&lt;/span&gt; id.json
-jq: error &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;at id.json:6&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;: number &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;1&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; and string &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; cannot have their containment checked
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.[]&lt;/code&gt; here &lt;em&gt;“unpacks”&lt;/em&gt; the &lt;em&gt;“list”&lt;/em&gt; of objects so it’s like the
-equivalent of our &lt;code class=&quot;highlighter-rouge&quot;&gt;for person in people&lt;/code&gt; loop. You could use 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;.[x]&lt;/code&gt; to access index &lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt; of a &lt;em&gt;“list”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;We have the same issue as we did with the Python version though.
-We need to convert &lt;code class=&quot;highlighter-rouge&quot;&gt;.id&lt;/code&gt; to a string which we can do with &lt;code class=&quot;highlighter-rouge&quot;&gt;tostring&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'.[] | select(.id | tostring | contains(&quot;1&quot;))'&lt;/span&gt; id.json
-&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;,
-  &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 1
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;bob&quot;&lt;/span&gt;,
-  &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 201
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;You may noticed though that we have lost the original structure
-but we can just add it back in by surrounding our filter with &lt;code class=&quot;highlighter-rouge&quot;&gt;[]&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'[ .[] | select(.id | tostring | contains(&quot;1&quot;)) ]'&lt;/span&gt; id.json
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;,
-    &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 1
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
-  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;bob&quot;&lt;/span&gt;,
-    &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 201
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;map(x)&lt;/code&gt; is another way of writing &lt;code class=&quot;highlighter-rouge&quot;&gt;[ .[] | x ]&lt;/code&gt; so you may also
-see the command written as&lt;/p&gt;
-
-&lt;div class=&quot;language-jq highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;jq &lt;span class=&quot;s1&quot;&gt;'map(select(.id | tostring | contains(&quot;1&quot;)))'&lt;/span&gt; id.json
-&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;
-  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;alice&quot;&lt;/span&gt;,
-    &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 1
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;,
-  &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;name&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;bob&quot;&lt;/span&gt;,
-    &lt;span class=&quot;s2&quot;&gt;&quot;id&quot;&lt;/span&gt;: 201
-  &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Thu, 20 Apr 2017 09:12:27 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/20/json-parsing-number-contain-digit/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/20/json-parsing-number-contain-digit/</guid>
-        
-        <category>bash</category>
-        
-        <category>jq</category>
-        
-        <category>python</category>
         
         
       </item>
