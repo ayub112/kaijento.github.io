@@ -5,12 +5,12 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 04 May 2017 12:59:15 +0100</pubDate>
-    <lastBuildDate>Thu, 04 May 2017 12:59:15 +0100</lastBuildDate>
+    <pubDate>Fri, 05 May 2017 04:56:04 +0100</pubDate>
+    <lastBuildDate>Fri, 05 May 2017 04:56:04 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
-        <title>Web scraping: requests / EVENTTARGET / VIEWSTATE</title>
+        <title>Web scraping: requests ~ EVENTTARGET ~ VIEWSTATE</title>
         <description>&lt;p&gt;Given the URL &lt;a href=&quot;http://www.privataaffarer.se/borsguiden/analyser/&quot;&gt;http://www.privataaffarer.se/borsguiden/analyser/&lt;/a&gt;
 the goal is to extract or &lt;em&gt;“scrape”&lt;/em&gt; the stock data from the table on the page
 using Python. There are multiple pages of results so we would like to loop
@@ -1653,7 +1653,7 @@ when you're just a zombie needing to be reaped.
       </item>
     
       <item>
-        <title>XML parsing: Python / XPath / logical AND</title>
+        <title>XML parsing: Python ~ XPath ~ logical AND</title>
         <description>&lt;p&gt;&lt;em&gt;Given the following XML data we need to locate all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;record&amp;gt;&lt;/code&gt; tags
 whose &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag is equal to the value &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; &lt;strong&gt;and&lt;/strong&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;b&amp;gt;&lt;/code&gt; tag is 
 equal to the value &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; and return their &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;id&amp;gt;&lt;/code&gt; using Python.&lt;/em&gt;&lt;/p&gt;
