@@ -69,10 +69,16 @@
 
 </div>
 <div class="post-content">
-  <p>We’re trying to call hit the <code class="highlighter-rouge">returnBalances</code> endpoint of
+  <p><em>We’re trying to call hit the <code class="highlighter-rouge">returnBalances</code> endpoint of
 the <a href="https://poloniex.com/support/api/">Poloniex API</a>
 using Python’s <code class="highlighter-rouge">requests</code> library but we’re getting back
-an <em>“Invalid command.”</em> error. Pls. Halp.</p>
+an *“Invalid command.”</em> error. How do we fix it?*</p>
+
+<a name="requests"></a>
+<h2 class="section-header">
+  <span id="requests"></span>
+  <a class="anchor" href="#requests">requests</a>
+</h2>
 
 <p>Here is the <code class="highlighter-rouge">requests</code> version of the code.</p>
 
@@ -108,12 +114,18 @@ an <em>“Invalid command.”</em> error. Pls. Halp.</p>
 </code></pre>
 </div>
 
-<p>Hmmm everything looks okay - can you spot the problem?
-Well the first step in debugging this was to try to
-replicate the behaviour when using <code class="highlighter-rouge">urllib.request</code>.
-In Python <code class="highlighter-rouge">2.7</code> the library is called <code class="highlighter-rouge">urllib2</code>.</p>
+<p>Hmmm… everything looks okay in the code. My first thought is to
+see if we can replicate the behaviour when using <code class="highlighter-rouge">urllib.request</code>.</p>
 
-<p>So here’s the code rewritten using <code class="highlighter-rouge">urllib.request</code></p>
+<p><small>(If we were using Python <code class="highlighter-rouge">2.7</code> it would be <code class="highlighter-rouge">urllib2</code>)</small></p>
+
+<a name="urllibrequest"></a>
+<h2 class="section-header">
+  <span id="urllibrequest"></span>
+  <a class="anchor" href="#urllibrequest">urllib.request</a>
+</h2>
+
+<p>Here’s the code rewritten using <code class="highlighter-rouge">urllib.request</code></p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">urllib.parse</span><span class="o">,</span>  <span class="nn">urllib.request</span>
 <span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">hashlib</span><span class="o">,</span> <span class="nn">hmac</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">requests</span>
@@ -156,18 +168,21 @@ In Python <code class="highlighter-rouge">2.7</code> the library is called <code
 <p>So it seems like a good idea would be to debug both requests to 
 see how they differ.</p>
 
+<a name="netcat"></a>
+<h2 class="section-header">
+  <span id="netcat"></span>
+  <a class="anchor" href="#netcat">netcat</a>
+</h2>
+
 <p>One way to do that is to use the <code class="highlighter-rouge">nc</code> (or <code class="highlighter-rouge">netcat</code>) command to listen
 on a local port and point our requests at it. We can use the command
-<code class="highlighter-rouge">nc -l 8080</code> to listen on port <code class="highlighter-rouge">8080</code>.</p>
+<code class="highlighter-rouge">nc -l 8080</code> to listen on port <code class="highlighter-rouge">8080</code></p>
 
 <p>This means we will send our <code class="highlighter-rouge">POST</code> request to <code class="highlighter-rouge">http://localhost:8080</code>
-instead. We will also set the <code class="highlighter-rouge">nonce</code> value to <code class="highlighter-rouge">1</code> in both versions 
+instead of <code class="highlighter-rouge">https://poloniex.com/tradingApi</code>. We will also set the <code class="highlighter-rouge">nonce</code> value to <code class="highlighter-rouge">1</code> in both versions 
 of the code as to have the exact same <code class="highlighter-rouge">POST</code> data.</p>
 
-<p>We will run the <code class="highlighter-rouge">requests</code> version first then then <code class="highlighter-rouge">urlib.request</code> 
-version.</p>
-
-<p><code class="highlighter-rouge">requests</code></p>
+<p>Here’s the <code class="highlighter-rouge">netcat</code> output for the <code class="highlighter-rouge">requests</code> version.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>nc -l 8080
 POST / HTTP/1.1
@@ -185,7 +200,7 @@ Content-Length: 30
 </code></pre>
 </div>
 
-<p><code class="highlighter-rouge">urllib.request</code></p>
+<p>And here is the output for the <code class="highlighter-rouge">urllib.request</code> version.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>nc -l 8080
 POST / HTTP/1.1
@@ -229,8 +244,15 @@ the code.</p>
 </div>
 
 <p>Okay great! So it nows works with <code class="highlighter-rouge">requests</code> and it looks like 
-the <code class="highlighter-rouge">Content-Type</code> header was the culprit. So why is it not being
-set by <code class="highlighter-rouge">requests</code>?</p>
+the <code class="highlighter-rouge">Content-Type</code> header was the culprit.</p>
+
+<p>So why is it not being set by <code class="highlighter-rouge">requests</code>?</p>
+
+<a name="the-data-argument"></a>
+<h2 class="section-header">
+  <span id="the-data-argument"></span>
+  <a class="anchor" href="#the-data-argument">The data argument</a>
+</h2>
 
 <p>Usually when passing form data you supply a dict to the <code class="highlighter-rouge">data</code> argument.</p>
 

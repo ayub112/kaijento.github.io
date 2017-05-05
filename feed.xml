@@ -5,16 +5,18 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 06 May 2017 00:20:14 +0100</pubDate>
-    <lastBuildDate>Sat, 06 May 2017 00:20:14 +0100</lastBuildDate>
+    <pubDate>Sat, 06 May 2017 00:35:25 +0100</pubDate>
+    <lastBuildDate>Sat, 06 May 2017 00:35:25 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
         <title>Poloniex API: Invalid command.</title>
-        <description>&lt;p&gt;We’re trying to call hit the &lt;code class=&quot;highlighter-rouge&quot;&gt;returnBalances&lt;/code&gt; endpoint of
+        <description>&lt;p&gt;&lt;em&gt;We’re trying to call hit the &lt;code class=&quot;highlighter-rouge&quot;&gt;returnBalances&lt;/code&gt; endpoint of
 the &lt;a href=&quot;https://poloniex.com/support/api/&quot;&gt;Poloniex API&lt;/a&gt;
 using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; library but we’re getting back
-an &lt;em&gt;“Invalid command.”&lt;/em&gt; error. Pls. Halp.&lt;/p&gt;
+an *“Invalid command.”&lt;/em&gt; error. How do we fix it?*&lt;/p&gt;
+
+&lt;h2 id=&quot;requests&quot;&gt;requests&lt;/h2&gt;
 
 &lt;p&gt;Here is the &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; version of the code.&lt;/p&gt;
 
@@ -50,12 +52,14 @@ an &lt;em&gt;“Invalid command.”&lt;/em&gt; error. Pls. Halp.&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;Hmmm everything looks okay - can you spot the problem?
-Well the first step in debugging this was to try to
-replicate the behaviour when using &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;.
-In Python &lt;code class=&quot;highlighter-rouge&quot;&gt;2.7&lt;/code&gt; the library is called &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib2&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Hmmm… everything looks okay in the code. My first thought is to
+see if we can replicate the behaviour when using &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;.&lt;/p&gt;
 
-&lt;p&gt;So here’s the code rewritten using &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;small&gt;(If we were using Python &lt;code class=&quot;highlighter-rouge&quot;&gt;2.7&lt;/code&gt; it would be &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib2&lt;/code&gt;)&lt;/small&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;urllibrequest&quot;&gt;urllib.request&lt;/h2&gt;
+
+&lt;p&gt;Here’s the code rewritten using &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;urllib.parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;nn&quot;&gt;urllib.request&lt;/span&gt;
 &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;hashlib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;hmac&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
@@ -98,18 +102,17 @@ In Python &lt;code class=&quot;highlighter-rouge&quot;&gt;2.7&lt;/code&gt; the l
 &lt;p&gt;So it seems like a good idea would be to debug both requests to 
 see how they differ.&lt;/p&gt;
 
+&lt;h2 id=&quot;netcat&quot;&gt;netcat&lt;/h2&gt;
+
 &lt;p&gt;One way to do that is to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;nc&lt;/code&gt; (or &lt;code class=&quot;highlighter-rouge&quot;&gt;netcat&lt;/code&gt;) command to listen
 on a local port and point our requests at it. We can use the command
-&lt;code class=&quot;highlighter-rouge&quot;&gt;nc -l 8080&lt;/code&gt; to listen on port &lt;code class=&quot;highlighter-rouge&quot;&gt;8080&lt;/code&gt;.&lt;/p&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;nc -l 8080&lt;/code&gt; to listen on port &lt;code class=&quot;highlighter-rouge&quot;&gt;8080&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;This means we will send our &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request to &lt;code class=&quot;highlighter-rouge&quot;&gt;http://localhost:8080&lt;/code&gt;
-instead. We will also set the &lt;code class=&quot;highlighter-rouge&quot;&gt;nonce&lt;/code&gt; value to &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt; in both versions 
+instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;https://poloniex.com/tradingApi&lt;/code&gt;. We will also set the &lt;code class=&quot;highlighter-rouge&quot;&gt;nonce&lt;/code&gt; value to &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt; in both versions 
 of the code as to have the exact same &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; data.&lt;/p&gt;
 
-&lt;p&gt;We will run the &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; version first then then &lt;code class=&quot;highlighter-rouge&quot;&gt;urlib.request&lt;/code&gt; 
-version.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Here’s the &lt;code class=&quot;highlighter-rouge&quot;&gt;netcat&lt;/code&gt; output for the &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; version.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;nc -l 8080
 POST / HTTP/1.1
@@ -127,7 +130,7 @@ Content-Length: 30
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
 
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;And here is the output for the &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt; version.&lt;/p&gt;
 
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;nc -l 8080
 POST / HTTP/1.1
@@ -171,8 +174,11 @@ the code.&lt;/p&gt;
 &lt;/div&gt;
 
 &lt;p&gt;Okay great! So it nows works with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; and it looks like 
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Type&lt;/code&gt; header was the culprit. So why is it not being
-set by &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;?&lt;/p&gt;
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Type&lt;/code&gt; header was the culprit.&lt;/p&gt;
+
+&lt;p&gt;So why is it not being set by &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;?&lt;/p&gt;
+
+&lt;h2 id=&quot;the-data-argument&quot;&gt;The data argument&lt;/h2&gt;
 
 &lt;p&gt;Usually when passing form data you supply a dict to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument.&lt;/p&gt;
 
