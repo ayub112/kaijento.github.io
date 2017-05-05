@@ -115,6 +115,24 @@ then use the <code class="highlighter-rouge">Params</code> tab <small>(over on t
 
 <p>Let’s search for <code class="highlighter-rouge">__EVENTTARGET</code> inside the HTML source and see what we find.</p>
 
+<p>If possible I normally fetch the HTML with the <code class="highlighter-rouge">curl</code> command (or Python’s 
+<code class="highlighter-rouge">requests</code> library) and save it locally to perform searches using my editor e.g.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -A Mozilla/5.0 <span class="s1">'http://blah.com'</span> -o page.html
+</code></pre>
+</div>
+
+<p>You can also <em>“right-click”</em> on a request in the <code class="highlighter-rouge">Network</code> tab and select
+<code class="highlighter-rouge">Copy as cURL</code> which will give you the full <code class="highlighter-rouge">curl</code> command to replicate
+the request.</p>
+
+<p><img src="/img/1493960470-privataaffarer.se-copy-as-curl.png" alt="" /></p>
+
+<p>You can add <code class="highlighter-rouge">-o filename</code> to the end of the command to save the output
+to <code class="highlighter-rouge">filename</code></p>
+
+<p>Searching for <code class="highlighter-rouge">__EVENTTARGET</code> in the HTML finds the following</p>
+
 <div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__EVENTTARGET"</span> <span class="na">id=</span><span class="s">"__EVENTTARGET"</span> <span class="na">value=</span><span class="s">""</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__EVENTARGUMENT"</span> <span class="na">id=</span><span class="s">"__EVENTARGUMENT"</span> <span class="na">value=</span><span class="s">""</span> <span class="nt">/&gt;</span>
 <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">"hidden"</span> <span class="na">name=</span><span class="s">"__LASTFOCUS"</span> <span class="na">id=</span><span class="s">"__LASTFOCUS"</span> <span class="na">value=</span><span class="s">""</span> <span class="nt">/&gt;</span>
