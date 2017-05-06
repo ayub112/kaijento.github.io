@@ -5,12 +5,12 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 06 May 2017 20:19:59 +0100</pubDate>
-    <lastBuildDate>Sat, 06 May 2017 20:19:59 +0100</lastBuildDate>
+    <pubDate>Sat, 06 May 2017 23:50:12 +0100</pubDate>
+    <lastBuildDate>Sat, 06 May 2017 23:50:12 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
-        <title>Web scraping: NASA Image Of The Day</title>
+        <title>Web scraping: NASA Image of the Day</title>
         <description>&lt;p&gt;The goal is trying to &lt;em&gt;“scrape”&lt;/em&gt; images from 
 &lt;a href=&quot;https://www.nasa.gov/multimedia/imagegallery/iotd.html&quot;&gt;NASA’s Image of the Day page&lt;/a&gt; 
 using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; module. The images 
