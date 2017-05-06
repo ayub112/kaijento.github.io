@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/06/web-scraping-nasa-image-of-the-day/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: NASA Image Of The Day | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/06/web-scraping-nasa-image-of-the-day/">Web scraping: NASA Image Of The Day</a></h1>
+  <p class="text-muted">06 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+    
+  <a href="/categories/curl/">curl</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is trying to <em>“scrape”</em> images from 
+<a href="https://www.nasa.gov/multimedia/imagegallery/iotd.html">NASA’s Image of the Day page</a> 
+using Python’s <code class="highlighter-rouge">BeautifulSoup</code> module. The images 
+are there when I look in the <code class="highlighter-rouge">Inspector</code> tab but they’re
+not there when I fetch the page using <code class="highlighter-rouge">requests</code>. What am
+I doing wrong?</p>
+
+<a name="developer-tools"></a>
+<h2 class="section-header">
+  <span id="developer-tools"></span>
+  <a class="anchor" href="#developer-tools">“Developer Tools”</a>
+</h2>
+
+<p>I’m using <code class="highlighter-rouge">Firefox</code> as my browser and Javascript is disabled
+by default (using the <code class="highlighter-rouge">NoScript</code> extension) so if I open
+the page I see <em>“nothing”</em>.</p>
+
+<p><img src="/img/1494053422-nasa-noscript.png" alt="" /></p>
+
+<p>The page does not work without Javascript enabled. Neither
+<code class="highlighter-rouge">requests</code> nor the <code class="highlighter-rouge">urllib</code> modules can execute Javascript 
+which is why there are no images present when we use them 
+to fetch the HTML.</p>
+
+<p>One option is to debug the HTTP requests being made
+by the Javascript and try to replicate them with <code class="highlighter-rouge">requests</code>.</p>
+
+<p>To debug HTTP requests we can view the <code class="highlighter-rouge">Network</code> tab.</p>
+
+<p>You may have heard of the <code class="highlighter-rouge">Inspector</code> tab which you can 
+access by <em>right-clicking</em> on a page and selecting 
+<code class="highlighter-rouge">Inspect Element</code>.</p>
+
+<p><img src="/img/1494053653-nasa-inspect-element.png" alt="" /></p>
+
+<p>From there we can select the <code class="highlighter-rouge">Network</code> tab.</p>
+
+<p><img src="/img/1494053054-nasa-network-xhr.png" alt="" /></p>
+
+<p>We’ve filtered the requests being shown to only <code class="highlighter-rouge">XHR</code> which 
+stands for <code class="highlighter-rouge">XMLHttpRequest</code>. These are the type of requests
+that are made via Javascript to fetch data.</p>
+
+<p>If you <em>right-click</em> on an individual request you can (amongst
+other things) <code class="highlighter-rouge">Copy as cURL</code> which will give you the full 
+<code class="highlighter-rouge">curl</code> command to use to replicate the request. You can also
+view more details about the request using the panel on the right.</p>
+
+<p><img src="/img/1494053100-nasa-copy-as-curl.png" alt="" /></p>
+
+<p>Only requests that are made while the <code class="highlighter-rouge">Network</code> tab is open
+are shown so you may need to refresh the page.</p>
+
+<p>So if we copy the URL of the selected request we see it’s made to</p>
+
+<p><a href="https://www.nasa.gov/api/1/query/ubernodes.json?unType%5B%5D=image&amp;routes%5B%5D=1446&amp;page=0&amp;pageSize=24">https://www.nasa.gov/api/1/query/ubernodes.json?unType%5B%5D=image&amp;routes%5B%5D=1446&amp;page=0&amp;pageSize=24</a></p>
+
+<p>(We chose this request as it was the first in the list with a <code class="highlighter-rouge">200</code> response.)</p>
+
+<p>The <code class="highlighter-rouge">GET</code> params should mostly be self documenting</p>
+
+<ul>
+  <li><code class="highlighter-rouge">page=0</code> is the first page of results</li>
+  <li><code class="highlighter-rouge">pageSize=24</code> specifies the number of results per page</li>
+  <li><code class="highlighter-rouge">unType[]=image</code> selects only <em>“images”</em></li>
+</ul>
+
+<p>I tried changing the <code class="highlighter-rouge">pageSize</code> to a larger number but it seems <code class="highlighter-rouge">24</code>
+is the limit (and the default if omitted). Not sure what <code class="highlighter-rouge">routes[]</code> 
+represents however it too can be omitted and the request still works.</p>
+
+<p>If you open this link in your browser you will see something like</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+  <span class="s2">"ubernodes"</span><span class="err">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ubernode"</span><span class="p">,</span>
+      <span class="s2">"promoDateTime"</span><span class="p">:</span> <span class="s2">"2017-05-05T09:31:00-04:00"</span><span class="p">,</span>
+      <span class="s2">"nid"</span><span class="p">:</span> <span class="s2">"401247"</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ubernode"</span><span class="p">,</span>
+      <span class="s2">"promoDateTime"</span><span class="p">:</span> <span class="s2">"2017-05-04T10:04:00-04:00"</span><span class="p">,</span>
+      <span class="s2">"nid"</span><span class="p">:</span> <span class="s2">"401205"</span>
+    <span class="p">},</span>
+    <span class="p">...</span>
+  <span class="p">],</span>
+  <span class="s2">"meta"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"total_rows"</span><span class="err">:</span>  <span class="mi">3216</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>So it’s <code class="highlighter-rouge">JSON</code> data consisting of a list of <em>ubernodes</em>. I’m assuming <code class="highlighter-rouge">3216</code> 
+is the total number of <em>pages</em> but it could also be the total number of 
+<em>images</em> meaning <code class="highlighter-rouge">3216 / 24</code> <em>pages</em>.</p>
+
+<p>Each <em>ubernode</em> has an <code class="highlighter-rouge">id</code> (although it’s called <code class="highlighter-rouge">nid</code> here) the first being <code class="highlighter-rouge">401247</code>.</p>
+
+<p>You may notice this number as it is present in the next request made in the <code class="highlighter-rouge">Network</code> tab.
+<a href="https://www.nasa.gov/api/1/record/node/401247.json">https://www.nasa.gov/api/1/record/node/401247.json</a></p>
+
+<p>Opening this link in a browser doesn’t seem to load but if you fetch it using <code class="highlighter-rouge">curl</code> 
+(or <code class="highlighter-rouge">requests</code>) you should see it looks something like</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+  <span class="s2">"images"</span><span class="err">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">"fid"</span><span class="p">:</span> <span class="mi">556374</span><span class="p">,</span>
+      <span class="s2">"uid"</span><span class="p">:</span> <span class="s2">"324"</span><span class="p">,</span>
+      <span class="s2">"filename"</span><span class="p">:</span> <span class="s2">"pia11241_reduced.jpg"</span><span class="p">,</span>
+      <span class="s2">"uri"</span><span class="p">:</span> <span class="s2">"public://thumbnails/image/pia11241_reduced.jpg"</span><span class="p">,</span>
+      <span class="s2">"filemime"</span><span class="p">:</span> <span class="s2">"image/jpeg"</span><span class="p">,</span>
+      <span class="s2">"filesize"</span><span class="p">:</span> <span class="s2">"18009851"</span><span class="p">,</span>
+      <span class="s2">"timestamp"</span><span class="p">:</span> <span class="s2">"1493922525"</span><span class="p">,</span>
+      <span class="s2">"uuid"</span><span class="p">:</span> <span class="s2">"19f072fa-e4a2-4274-99bd-58a7263fde2f"</span><span class="p">,</span>
+      <span class="s2">"alt"</span><span class="p">:</span> <span class="s2">"360-degree scene from the Mastcam on NASA's Curiosity Mars rover"</span><span class="p">,</span>
+      <span class="s2">"title"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+      <span class="s2">"width"</span><span class="p">:</span> <span class="s2">"10000"</span><span class="p">,</span>
+      <span class="s2">"height"</span><span class="p">:</span> <span class="s2">"2279"</span><span class="p">,</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="s2">"ubernode"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"title"</span><span class="err">:</span> <span class="s2">"Panorama with Active Linear Dune in Gale Crater, Mars"</span><span class="p">,</span>
+    <span class="s2">"nid"</span><span class="err">:</span> <span class="s2">"401247"</span><span class="p">,</span>
+    <span class="s2">"type"</span><span class="err">:</span> <span class="s2">"ubernode"</span><span class="p">,</span>
+    <span class="s2">"changed"</span><span class="err">:</span> <span class="s2">"1493994090"</span><span class="p">,</span>
+</code></pre>
+</div>
+
+<p>Here we can see the <code class="highlighter-rouge">uri</code> value appears to hold what looks like the URL 
+to the image but what is this <code class="highlighter-rouge">public://</code>?</p>
+
+<p>Well the answer is I’m not exactly sure.</p>
+
+<p>If you click on one of the <em>Images Of The Day</em> it brings up a sort of 
+slideshow and allows you to download the image. So we can do this with 
+the <code class="highlighter-rouge">Network</code> tab open to see the actual location of the image.</p>
+
+<p>So, we click on the first image of the day but before clicking the download
+button we click the <em>“basket”</em> in the <code class="highlighter-rouge">Network</code> tab to clear the current
+list of requests.</p>
+
+<p>We don’t need them anymore and they are just cluttering up our view. We 
+also deselect the <code class="highlighter-rouge">XHR</code> filter as we’re not sure if that is the method
+that will be used. We click the download button and see just a single
+request is made.</p>
+
+<p><img src="/img/1494088453-nasa-dl-img.png" alt="" /></p>
+
+<p>If we copy the URL we see it goes to 
+<a href="https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg">https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg</a></p>
+
+<p>This means we can replace <code class="highlighter-rouge">public:/</code> from the <code class="highlighter-rouge">uri</code> value in the <code class="highlighter-rouge">JSON</code> data
+with <code class="highlighter-rouge">https://www.nasa.gov/sites/default/files</code> in order to build the full
+URL to the image.</p>
+
+<p>If we use <code class="highlighter-rouge">curl -I</code> to send a <code class="highlighter-rouge">HEAD</code> request to the URL we can see it’s correct.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -I <span class="s1">'https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg'</span>
+HTTP/1.1 200 OK
+Date: Sat, 06 May 2017 16:46:00 GMT
+Content-Type: image/jpeg
+Content-Length: 18009851
+Connection: keep-alive
+x-amz-id-2: bihPWnpoFwaerzUuXH+wWti2wWJFDjrdZp7BtpRZQXBXGa139pCCKgXiz4d1TULAkTB9AMpV2iM<span class="o">=</span>
+x-amz-request-id: 28DF2A5EDF3C42A4
+Cache-Control: max-age<span class="o">=</span>3600
+Server: AmazonS3
+Age: 3308
+Last-Modified: Fri, 05 May 2017 14:22:33 GMT
+Expires: Sat, 06 May 2017 16:50:52 GMT
+X-UA-Compatible: <span class="nv">IE</span><span class="o">=</span>edge
+Content-Security-Policy: frame-ancestors <span class="s1">'self'</span> <span class="k">*</span>.nasa.gov
+Strict-Transport-Security: max-age<span class="o">=</span>31536000
+</code></pre>
+</div>
+
+<p>So now we know what requests are to be made now we will move on to
+generating the code to perform them.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>First we will show some of the output.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>https://www.nasa.gov/sites/default/files/thumbnails/image/pia21603.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21608.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21606.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21605.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21390.jpeg
+[...]
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia20527-1041.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/iss050e014337.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21494_eagle_esp_050177_1780.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/final_earth_obs_fleet06hw.2100_1920x1080.jpg
+</code></pre>
+</div>
+
+<p>And the code that generated it.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">api</span>    <span class="o">=</span> <span class="s">'https://www.nasa.gov/api/1/'</span>
+<span class="n">public</span> <span class="o">=</span> <span class="s">'https://www.nasa.gov/sites/default/files'</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="c"># first 2 pages</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">api</span> <span class="o">+</span> <span class="s">'query/ubernodes.json'</span><span class="p">,</span> 
+                <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">'page'</span><span class="p">:</span> <span class="n">page</span><span class="p">,</span> <span class="s">'unType[]'</span><span class="p">:</span> <span class="s">'image'</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">ubernode</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'ubernodes'</span><span class="p">]:</span>
+            <span class="n">nid</span> <span class="o">=</span> <span class="n">ubernode</span><span class="p">[</span><span class="s">'nid'</span><span class="p">]</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">api</span> <span class="o">+</span> <span class="s">'record/node/{}.json'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">nid</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'images'</span><span class="p">]:</span>
+                <span class="n">uri</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="s">'uri'</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'public:/'</span><span class="p">,</span> <span class="n">public</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<a name="code-breakdown"></a>
+<h2 class="section-header">
+  <span id="code-breakdown"></span>
+  <a class="anchor" href="#code-breakdown">Code breakdown</a>
+</h2>
+
+<p>When making multiple requests with <code class="highlighter-rouge">requests</code> you’ll usually want to use a 
+<a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">session object</a>
+to maintain <em>“state”</em> and keep track of cookies.</p>
+
+<p>You’ll also pretty much always want to change the default <code class="highlighter-rouge">User-Agent</code> header 
+which we set here to <code class="highlighter-rouge">Mozilla/5.0</code></p>
+
+<p>We use <code class="highlighter-rouge">range()</code> to loop through a range of page numbers. We’ve just used <code class="highlighter-rouge">0</code> and <code class="highlighter-rouge">1</code>
+here to get the first <code class="highlighter-rouge">2</code> pages of results.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>The API call takes a <code class="highlighter-rouge">GET</code> request so we the <code class="highlighter-rouge">params</code> argument to pass the data as 
+opposed to using the <code class="highlighter-rouge">data</code> argument if it was a <code class="highlighter-rouge">POST</code> request.</p>
+
+<p><code class="highlighter-rouge">requests</code> comes with <a href="http://docs.python-requests.org/en/latest/user/quickstart/#json-response-content">.json()</a>
+for decoding a <code class="highlighter-rouge">JSON</code> response (which I imagine just calls <code class="highlighter-rouge">json.loads()</code> <em>“under the hood”</em>).</p>
+
+<p>This takes a <code class="highlighter-rouge">JSON</code> string and turns it into a Python structure.</p>
+
+<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
+  <span class="s2">"ubernodes"</span><span class="err">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"ubernode"</span><span class="p">,</span>
+      <span class="s2">"promoDateTime"</span><span class="p">:</span> <span class="s2">"2017-05-05T09:31:00-04:00"</span><span class="p">,</span>
+      <span class="s2">"nid"</span><span class="p">:</span> <span class="s2">"401247"</span>
+    <span class="p">},</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">JSON</code> we’re working with is (in this instance) also valid Python - 
+it’s basically like a <em>dict of lists</em> which is exactly what we get when we 
+call <code class="highlighter-rouge">.json()</code> on it.</p>
+
+<p>So <code class="highlighter-rouge">r.json()['ubernodes']</code> is a <em>list of dicts</em> which we loop over and
+extract the <code class="highlighter-rouge">nid</code> value.</p>
+
+<p>We then use the <code class="highlighter-rouge">nid</code> to build the URL to request the <em>ubernode</em> record 
+details from the API.</p>
+
+<p>Similar to the previous structure <code class="highlighter-rouge">r.json()['images']</code> is a list
+(even though it looks like they all have a single element) which 
+we loop through to extract the <code class="highlighter-rouge">uri</code> value and replace the 
+<code class="highlighter-rouge">public:/</code> part of it to generate the full URL.</p>
+
+<p>Finally we are just printing out the URL but you could
+fetch them and <a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">save the images</a>
+to disk if that is your goal.</p>
+
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (48)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/05/poloniex-api-invalid-command/">Poloniex API: Invalid command.</a></h2>
+          <p class="preview"><em>We’re trying to make a request to the <code class="highlighter-rouge">returnBalances</code> 
+endpoint of the <a href="https://poloniex.com/support/api/">Poloniex API</a>
+using Python’s <code class="highlighter-rouge">requests</code> library but we’re getting back
+an “Invalid command.” error. How do we fix it?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

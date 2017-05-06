@@ -5,9 +5,301 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 06 May 2017 00:45:02 +0100</pubDate>
-    <lastBuildDate>Sat, 06 May 2017 00:45:02 +0100</lastBuildDate>
+    <pubDate>Sat, 06 May 2017 20:19:59 +0100</pubDate>
+    <lastBuildDate>Sat, 06 May 2017 20:19:59 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Web scraping: NASA Image Of The Day</title>
+        <description>&lt;p&gt;The goal is trying to &lt;em&gt;“scrape”&lt;/em&gt; images from 
+&lt;a href=&quot;https://www.nasa.gov/multimedia/imagegallery/iotd.html&quot;&gt;NASA’s Image of the Day page&lt;/a&gt; 
+using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; module. The images 
+are there when I look in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab but they’re
+not there when I fetch the page using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;. What am
+I doing wrong?&lt;/p&gt;
+
+&lt;h2 id=&quot;developer-tools&quot;&gt;“Developer Tools”&lt;/h2&gt;
+
+&lt;p&gt;I’m using &lt;code class=&quot;highlighter-rouge&quot;&gt;Firefox&lt;/code&gt; as my browser and Javascript is disabled
+by default (using the &lt;code class=&quot;highlighter-rouge&quot;&gt;NoScript&lt;/code&gt; extension) so if I open
+the page I see &lt;em&gt;“nothing”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494053422-nasa-noscript.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The page does not work without Javascript enabled. Neither
+&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; nor the &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib&lt;/code&gt; modules can execute Javascript 
+which is why there are no images present when we use them 
+to fetch the HTML.&lt;/p&gt;
+
+&lt;p&gt;One option is to debug the HTTP requests being made
+by the Javascript and try to replicate them with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;To debug HTTP requests we can view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
+
+&lt;p&gt;You may have heard of the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab which you can 
+access by &lt;em&gt;right-clicking&lt;/em&gt; on a page and selecting 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494053653-nasa-inspect-element.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From there we can select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494053054-nasa-network-xhr.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We’ve filtered the requests being shown to only &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; which 
+stands for &lt;code class=&quot;highlighter-rouge&quot;&gt;XMLHttpRequest&lt;/code&gt;. These are the type of requests
+that are made via Javascript to fetch data.&lt;/p&gt;
+
+&lt;p&gt;If you &lt;em&gt;right-click&lt;/em&gt; on an individual request you can (amongst
+other things) &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy as cURL&lt;/code&gt; which will give you the full 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; command to use to replicate the request. You can also
+view more details about the request using the panel on the right.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494053100-nasa-copy-as-curl.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Only requests that are made while the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab is open
+are shown so you may need to refresh the page.&lt;/p&gt;
+
+&lt;p&gt;So if we copy the URL of the selected request we see it’s made to&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://www.nasa.gov/api/1/query/ubernodes.json?unType%5B%5D=image&amp;amp;routes%5B%5D=1446&amp;amp;page=0&amp;amp;pageSize=24&quot;&gt;https://www.nasa.gov/api/1/query/ubernodes.json?unType%5B%5D=image&amp;amp;routes%5B%5D=1446&amp;amp;page=0&amp;amp;pageSize=24&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;(We chose this request as it was the first in the list with a &lt;code class=&quot;highlighter-rouge&quot;&gt;200&lt;/code&gt; response.)&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; params should mostly be self documenting&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;page=0&lt;/code&gt; is the first page of results&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pageSize=24&lt;/code&gt; specifies the number of results per page&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;unType[]=image&lt;/code&gt; selects only &lt;em&gt;“images”&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;I tried changing the &lt;code class=&quot;highlighter-rouge&quot;&gt;pageSize&lt;/code&gt; to a larger number but it seems &lt;code class=&quot;highlighter-rouge&quot;&gt;24&lt;/code&gt;
+is the limit (and the default if omitted). Not sure what &lt;code class=&quot;highlighter-rouge&quot;&gt;routes[]&lt;/code&gt; 
+represents however it too can be omitted and the request still works.&lt;/p&gt;
+
+&lt;p&gt;If you open this link in your browser you will see something like&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;ubernodes&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;promoDateTime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2017-05-05T09:31:00-04:00&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401247&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;promoDateTime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2017-05-04T10:04:00-04:00&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401205&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;meta&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;total_rows&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;mi&quot;&gt;3216&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So it’s &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data consisting of a list of &lt;em&gt;ubernodes&lt;/em&gt;. I’m assuming &lt;code class=&quot;highlighter-rouge&quot;&gt;3216&lt;/code&gt; 
+is the total number of &lt;em&gt;pages&lt;/em&gt; but it could also be the total number of 
+&lt;em&gt;images&lt;/em&gt; meaning &lt;code class=&quot;highlighter-rouge&quot;&gt;3216 / 24&lt;/code&gt; &lt;em&gt;pages&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Each &lt;em&gt;ubernode&lt;/em&gt; has an &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; (although it’s called &lt;code class=&quot;highlighter-rouge&quot;&gt;nid&lt;/code&gt; here) the first being &lt;code class=&quot;highlighter-rouge&quot;&gt;401247&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;You may notice this number as it is present in the next request made in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.
+&lt;a href=&quot;https://www.nasa.gov/api/1/record/node/401247.json&quot;&gt;https://www.nasa.gov/api/1/record/node/401247.json&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Opening this link in a browser doesn’t seem to load but if you fetch it using &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; 
+(or &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;) you should see it looks something like&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;images&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;fid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;556374&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;uid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;324&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;filename&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;pia11241_reduced.jpg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;uri&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;public://thumbnails/image/pia11241_reduced.jpg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;filemime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;image/jpeg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;filesize&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;18009851&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;timestamp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1493922525&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;uuid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;19f072fa-e4a2-4274-99bd-58a7263fde2f&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;alt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;360-degree scene from the Mastcam on NASA's Curiosity Mars rover&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;width&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;10000&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;height&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2279&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Panorama with Active Linear Dune in Gale Crater, Mars&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401247&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;s2&quot;&gt;&quot;changed&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1493994090&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Here we can see the &lt;code class=&quot;highlighter-rouge&quot;&gt;uri&lt;/code&gt; value appears to hold what looks like the URL 
+to the image but what is this &lt;code class=&quot;highlighter-rouge&quot;&gt;public://&lt;/code&gt;?&lt;/p&gt;
+
+&lt;p&gt;Well the answer is I’m not exactly sure.&lt;/p&gt;
+
+&lt;p&gt;If you click on one of the &lt;em&gt;Images Of The Day&lt;/em&gt; it brings up a sort of 
+slideshow and allows you to download the image. So we can do this with 
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab open to see the actual location of the image.&lt;/p&gt;
+
+&lt;p&gt;So, we click on the first image of the day but before clicking the download
+button we click the &lt;em&gt;“basket”&lt;/em&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab to clear the current
+list of requests.&lt;/p&gt;
+
+&lt;p&gt;We don’t need them anymore and they are just cluttering up our view. We 
+also deselect the &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; filter as we’re not sure if that is the method
+that will be used. We click the download button and see just a single
+request is made.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494088453-nasa-dl-img.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;If we copy the URL we see it goes to 
+&lt;a href=&quot;https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg&quot;&gt;https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This means we can replace &lt;code class=&quot;highlighter-rouge&quot;&gt;public:/&lt;/code&gt; from the &lt;code class=&quot;highlighter-rouge&quot;&gt;uri&lt;/code&gt; value in the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data
+with &lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.nasa.gov/sites/default/files&lt;/code&gt; in order to build the full
+URL to the image.&lt;/p&gt;
+
+&lt;p&gt;If we use &lt;code class=&quot;highlighter-rouge&quot;&gt;curl -I&lt;/code&gt; to send a &lt;code class=&quot;highlighter-rouge&quot;&gt;HEAD&lt;/code&gt; request to the URL we can see it’s correct.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;curl -I &lt;span class=&quot;s1&quot;&gt;'https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg'&lt;/span&gt;
+HTTP/1.1 200 OK
+Date: Sat, 06 May 2017 16:46:00 GMT
+Content-Type: image/jpeg
+Content-Length: 18009851
+Connection: keep-alive
+x-amz-id-2: bihPWnpoFwaerzUuXH+wWti2wWJFDjrdZp7BtpRZQXBXGa139pCCKgXiz4d1TULAkTB9AMpV2iM&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
+x-amz-request-id: 28DF2A5EDF3C42A4
+Cache-Control: max-age&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3600
+Server: AmazonS3
+Age: 3308
+Last-Modified: Fri, 05 May 2017 14:22:33 GMT
+Expires: Sat, 06 May 2017 16:50:52 GMT
+X-UA-Compatible: &lt;span class=&quot;nv&quot;&gt;IE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;edge
+Content-Security-Policy: frame-ancestors &lt;span class=&quot;s1&quot;&gt;'self'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.nasa.gov
+Strict-Transport-Security: max-age&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;31536000
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So now we know what requests are to be made now we will move on to
+generating the code to perform them.&lt;/p&gt;
+
+&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
+
+&lt;p&gt;First we will show some of the output.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.nasa.gov/sites/default/files/thumbnails/image/pia21603.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21608.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21606.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21605.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21390.jpeg
+[...]
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia20527-1041.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/iss050e014337.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/pia21494_eagle_esp_050177_1780.jpg
+https://www.nasa.gov/sites/default/files/thumbnails/image/final_earth_obs_fleet06hw.2100_1920x1080.jpg
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;And the code that generated it.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.nasa.gov/api/1/'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.nasa.gov/sites/default/files'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;c&quot;&gt;# first 2 pages&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'query/ubernodes.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+                &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'unType[]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'image'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ubernode&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ubernodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;nid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ubernode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nid'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record/node/{}.json'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;image&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'images'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;uri&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'uri'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'public:/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uri&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;code-breakdown&quot;&gt;Code breakdown&lt;/h2&gt;
+
+&lt;p&gt;When making multiple requests with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; you’ll usually want to use a 
+&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/advanced/#session-objects&quot;&gt;session object&lt;/a&gt;
+to maintain &lt;em&gt;“state”&lt;/em&gt; and keep track of cookies.&lt;/p&gt;
+
+&lt;p&gt;You’ll also pretty much always want to change the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header 
+which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;We use &lt;code class=&quot;highlighter-rouge&quot;&gt;range()&lt;/code&gt; to loop through a range of page numbers. We’ve just used &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;
+here to get the first &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; pages of results.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The API call takes a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request so we the &lt;code class=&quot;highlighter-rouge&quot;&gt;params&lt;/code&gt; argument to pass the data as 
+opposed to using the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument if it was a &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; comes with &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#json-response-content&quot;&gt;.json()&lt;/a&gt;
+for decoding a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response (which I imagine just calls &lt;code class=&quot;highlighter-rouge&quot;&gt;json.loads()&lt;/code&gt; &lt;em&gt;“under the hood”&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;This takes a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; string and turns it into a Python structure.&lt;/p&gt;
+
+&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s2&quot;&gt;&quot;ubernodes&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;promoDateTime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2017-05-05T09:31:00-04:00&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401247&quot;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; we’re working with is (in this instance) also valid Python - 
+it’s basically like a &lt;em&gt;dict of lists&lt;/em&gt; which is exactly what we get when we 
+call &lt;code class=&quot;highlighter-rouge&quot;&gt;.json()&lt;/code&gt; on it.&lt;/p&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;r.json()['ubernodes']&lt;/code&gt; is a &lt;em&gt;list of dicts&lt;/em&gt; which we loop over and
+extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;nid&lt;/code&gt; value.&lt;/p&gt;
+
+&lt;p&gt;We then use the &lt;code class=&quot;highlighter-rouge&quot;&gt;nid&lt;/code&gt; to build the URL to request the &lt;em&gt;ubernode&lt;/em&gt; record 
+details from the API.&lt;/p&gt;
+
+&lt;p&gt;Similar to the previous structure &lt;code class=&quot;highlighter-rouge&quot;&gt;r.json()['images']&lt;/code&gt; is a list
+(even though it looks like they all have a single element) which 
+we loop through to extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;uri&lt;/code&gt; value and replace the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;public:/&lt;/code&gt; part of it to generate the full URL.&lt;/p&gt;
+
+&lt;p&gt;Finally we are just printing out the URL but you could
+fetch them and &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content&quot;&gt;save the images&lt;/a&gt;
+to disk if that is your goal.&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 06 May 2017 07:42:50 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/05/06/web-scraping-nasa-image-of-the-day/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/06/web-scraping-nasa-image-of-the-day/</guid>
+        
+        <category>python</category>
+        
+        <category>webscraping</category>
+        
+        <category>requests</category>
+        
+        <category>json</category>
+        
+        <category>curl</category>
+        
+        
+      </item>
     
       <item>
         <title>Poloniex API: Invalid command.</title>
@@ -2280,177 +2572,6 @@ and &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; to overwrite
         <category>perl</category>
         
         <category>regex</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>bash: reformatting dates in a logfile</title>
-        <description>&lt;p&gt;&lt;em&gt;I have a file where each line starts with a date string: 
-dayname monthname day year. I need to reformat it into Y-m-d format. 
-Pls Halp.&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The sample input we’re given is:&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Sat Aug 2 2015, value, value, value
-Mon Aug 4 2015, value, value, value
-Wed Aug 6 2015, value, value, value
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; command to reformat date strings. GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt;
-allows us to specify a date via the &lt;code class=&quot;highlighter-rouge&quot;&gt;-d&lt;/code&gt; option and we can supply
-a format string for the output date using &lt;code class=&quot;highlighter-rouge&quot;&gt;+FORMAT&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;%F&lt;/code&gt; is equivalent to &lt;code class=&quot;highlighter-rouge&quot;&gt;%Y-%m-%d&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;You can see a full list of the format strings 
-&lt;a href=&quot;https://www.gnu.org/software/coreutils/manual/html_node/date-invocation.html#date-invocation&quot;&gt;in the manual&lt;/a&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p date
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Sat Aug 2 2015&quot;&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;date -d &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$date&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; +%F
-2015-08-02
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;If you do not have access to GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; e.g. you’re on OSX 
-(or MacOS or whatever it’s called these days) chances are 
-you have BSD &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; which has the &lt;code class=&quot;highlighter-rouge&quot;&gt;-f&lt;/code&gt; option for reading in dates of 
-a certain format.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;date -j -f &lt;span class=&quot;s2&quot;&gt;&quot;%a %b %d %Y&quot;&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$date&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; +%F
-2015-08-02
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We can combine the use of &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt; with a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop to read the
-input file line by line.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat logfile.log
-Sat Aug 2 2015, value, value, value
-Mon Aug 4 2015, value, value, value
-Wed Aug 6 2015, value, value, value
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;, &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r date rest; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;date -d &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$date&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; +%F&lt;span class=&quot;sb&quot;&gt;`&lt;/span&gt;; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$date&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$rest&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; &amp;lt; logfile.log
-2015-08-02, value, value, value
-2015-08-04, value, value, value
-2015-08-06, value, value, value
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We’re setting &lt;code class=&quot;highlighter-rouge&quot;&gt;IFS=,&lt;/code&gt; to allow read to separate &lt;em&gt;“words”&lt;/em&gt; by a comma.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;, &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r date rest &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Sat Aug 2 2015, value, value, value'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p date rest
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Sat Aug 2 2015&quot;&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;rest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; value, value, value&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;As we only supply 2 variable names to &lt;code class=&quot;highlighter-rouge&quot;&gt;read&lt;/code&gt; it automatically fills the
-second one with the &lt;em&gt;“rest”&lt;/em&gt; of the data on the line.&lt;/p&gt;
-
-&lt;p&gt;If we added another variable we would get the first &lt;em&gt;“value”&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;IFS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;, &lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -r date first_value rest &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Sat Aug 2 2015, value-a, value-b, value-c'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -p date first_value rest
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;date&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;Sat Aug 2 2015&quot;&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;first_value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; value-a&quot;&lt;/span&gt;
-&lt;span class=&quot;nb&quot;&gt;declare&lt;/span&gt; -- &lt;span class=&quot;nv&quot;&gt;rest&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot; value-b, value-c&quot;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This approach does not modify the input file. To do so we could redirect the output
-of the &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; loop to a temporary file and then use &lt;code class=&quot;highlighter-rouge&quot;&gt;mv&lt;/code&gt; to overwrite the original
-file.&lt;/p&gt;
-
-&lt;p&gt;This is somewhat messy and if the file is in anyway large executing &lt;code class=&quot;highlighter-rouge&quot;&gt;date&lt;/code&gt;
-for each line will probably not be the quickest thing in the world.&lt;/p&gt;
-
-&lt;h2 id=&quot;perl&quot;&gt;perl&lt;/h2&gt;
-
-&lt;p&gt;Another option is to instead use &lt;code class=&quot;highlighter-rouge&quot;&gt;Perl&lt;/code&gt; with its &lt;code class=&quot;highlighter-rouge&quot;&gt;Time::Piece&lt;/code&gt; module for parsing / reformatting 
-dates.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -MTime::Piece -pe &lt;span class=&quot;s1&quot;&gt;'s/([^,]+)/Time::Piece-&amp;gt;strptime($1, &quot;%a %b %d %Y&quot;)-&amp;gt;strftime(&quot;%Y-%m-%d&quot;)/e'&lt;/span&gt; logfile.log
-2015-08-02, value, value, value
-2015-08-04, value, value, value
-2015-08-06, value, value, value
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This does not modify the input file.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat logfile.log
-Sat Aug 2 2015, value, value, value
-Mon Aug 4 2015, value, value, value
-Wed Aug 6 2015, value, value, value
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;To do so we can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; &lt;em&gt;“switch”&lt;/em&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; &lt;em&gt;“switch”&lt;/em&gt; takes an optional argument though:
-a SUFFIX if you want it to create a backup file for you. This means that we cannot
-cannot write &lt;code class=&quot;highlighter-rouge&quot;&gt;-pie&lt;/code&gt; but must use &lt;code class=&quot;highlighter-rouge&quot;&gt;-pi -e&lt;/code&gt; instead.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -MTime::Piece -pi -e &lt;span class=&quot;s1&quot;&gt;'s/([^,]+)/Time::Piece-&amp;gt;strptime($1, &quot;%a %b %d %Y&quot;)-&amp;gt;strftime(&quot;%Y-%m-%d&quot;)/e'&lt;/span&gt; logfile.log
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat logfile.log
-2015-08-02, value, value, value
-2015-08-04, value, value, value
-2015-08-06, value, value, value
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Because we know that each line starts with the date string, matching up to but not including
-the first comma on the line will match only the date.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;([^,]+)&lt;/code&gt; matches and captures a sequence of 1 or more characters that is not &lt;code class=&quot;highlighter-rouge&quot;&gt;,&lt;/code&gt; i.e. the date&lt;/li&gt;
-  &lt;li&gt;the &lt;code class=&quot;highlighter-rouge&quot;&gt;e&lt;/code&gt; modifer on the &lt;code class=&quot;highlighter-rouge&quot;&gt;s/pattern/replacement/&lt;/code&gt; command evaluates the replacement as Perl code&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;So on the first line of our logfile &lt;code class=&quot;highlighter-rouge&quot;&gt;Time::Piece-&amp;gt;strptime($1, &quot;%a %b %d %Y&quot;)&lt;/code&gt; turns into
-&lt;code class=&quot;highlighter-rouge&quot;&gt;Time::Piece-&amp;gt;strptime(&quot;Sat Aug 2 2015&quot;, &quot;%a %b %d %Y&quot;)&lt;/code&gt; as &lt;code class=&quot;highlighter-rouge&quot;&gt;$1&lt;/code&gt; is the content of the first
-capture group i.e. the date.&lt;/p&gt;
-
-&lt;p&gt;This creates a &lt;code class=&quot;highlighter-rouge&quot;&gt;Time::Piece&lt;/code&gt; object from our parsed date which we then reformat using the 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;strftime()&lt;/code&gt; method giving us the desired output format.&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-M&lt;/code&gt; switch is for loading modules it’s like doing a &lt;code class=&quot;highlighter-rouge&quot;&gt;use&lt;/code&gt; inside your Perl code.&lt;/p&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;perl -pe 's///'&lt;/code&gt; is essentially a replacement for &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;perl -MO&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;Deparse -pe &lt;span class=&quot;s1&quot;&gt;'s/foo/bar/'&lt;/span&gt;
-LINE: &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;defined&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$_&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &amp;lt;ARGV&amp;gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    s/foo/bar/;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;continue&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
-    die &lt;span class=&quot;s2&quot;&gt;&quot;-p destination: &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$!&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\n&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; unless print &lt;span class=&quot;nv&quot;&gt;$_&lt;/span&gt;;
-&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
--e syntax OK
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-p&lt;/code&gt; adds a while read line loop with an implicit &lt;code class=&quot;highlighter-rouge&quot;&gt;print&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-n&lt;/code&gt; does the same without the &lt;code class=&quot;highlighter-rouge&quot;&gt;print&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;If you find sed’s Basic or Extended Regular Expressions annoying this is a
-good replacement. It also gives you access to multiline searching / replacing
-with the &lt;code class=&quot;highlighter-rouge&quot;&gt;-0777&lt;/code&gt; switch.&lt;/p&gt;
-
-&lt;p&gt;You can view the documentation for the switches using the &lt;code class=&quot;highlighter-rouge&quot;&gt;perldoc perlrun&lt;/code&gt; command or
-you can try viewing it on &lt;a href=&quot;https://metacpan.org/pod/perlrun&quot;&gt;metacpan.org&lt;/a&gt;.&lt;/p&gt;
-</description>
-        <pubDate>Thu, 20 Apr 2017 12:38:23 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/20/bash-reformatting-dates-in-file/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/20/bash-reformatting-dates-in-file/</guid>
-        
-        <category>bash</category>
-        
-        <category>perl</category>
-        
-        <category>date</category>
         
         
       </item>
