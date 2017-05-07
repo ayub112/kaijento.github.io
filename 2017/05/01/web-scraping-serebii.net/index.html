@@ -78,6 +78,12 @@ and we’re trying to extract the <code class="highlighter-rouge">Battle Type</c
 
 <p><img src="/img/1493625937-attackdex-sm.png" alt="" /></p>
 
+<a name="html"></a>
+<h2 class="section-header">
+  <span id="html"></span>
+  <a class="anchor" href="#html">HTML</a>
+</h2>
+
 <p>Let’s take a look at the HTML.</p>
 
 <div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;table</span>  <span class="na">class=</span><span class="s">"dextable"</span><span class="nt">&gt;</span>
@@ -92,6 +98,15 @@ and we’re trying to extract the <code class="highlighter-rouge">Battle Type</c
   <span class="nt">&lt;tr&gt;</span>
     <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cen"</span><span class="nt">&gt;</span>
     Heavy Slam<span class="nt">&lt;br</span> <span class="nt">/&gt;</span> <span class="ni">&amp;#12504;&amp;#12499;&amp;#12540;&amp;#12508;&amp;#12531;&amp;#12496;&amp;#12540;</span>
+      <span class="c">&lt;!--&lt;table width="300" cellspacing="0" cellpadding="0"&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;English&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Heavy Slam&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;Japanese&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;&amp;#12504;&amp;#12499;&amp;#12540;&amp;#12508;&amp;#12531;&amp;#12496;&amp;#12540;&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;French&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Tacle Lourd&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;German&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Rammboss&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;Spanish&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Cuerpo Pesado&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;Italian&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Pesobomba&lt;/td&gt;&lt;/tr&gt;
+            &lt;tr&gt; &lt;td&gt;&lt;b&gt;Korean&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;&amp;#54756;&amp;#48708;&amp;#48388;&amp;#48260;&lt;/td&gt;&lt;/tr&gt;
+          &lt;/table&gt;--&gt;</span>
     <span class="nt">&lt;/td&gt;</span>
     <span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cen"</span><span class="nt">&gt;</span>
       <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/attackdex-sm/steel.shtml"</span><span class="nt">&gt;&lt;img</span> <span class="na">src=</span><span class="s">"/pokedex-bw/type/steel.gif"</span> <span class="na">border=</span><span class="s">"0"</span><span class="nt">&gt;&lt;/a&gt;</span>
@@ -118,6 +133,12 @@ in the <code class="highlighter-rouge">&lt;tr&gt;</code> tag after the <code cla
 
 <p>This means we can locate <code class="highlighter-rouge">&lt;b&gt;Battle Type&lt;/b&gt;</code> move up to the parent <code class="highlighter-rouge">&lt;tr&gt;</code> move to 
 the next <code class="highlighter-rouge">&lt;tr&gt;</code> and get the second <code class="highlighter-rouge">&lt;td&gt;</code> tag.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
 
 <p>We’ll be using <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code> to
 parse it.</p>
@@ -243,6 +264,105 @@ to be called.</p>
 
 <p>Again you may want to <em>split</em> it up and use a variable as we 
 did with <code class="highlighter-rouge">tr</code> instead of having a large chain of method calls.</p>
+
+<a name="extracting-a-comment-using-beautifulsoup"></a>
+<h2 class="section-header">
+  <span id="extracting-a-comment-using-beautifulsoup"></span>
+  <a class="anchor" href="#extracting-a-comment-using-beautifulsoup">Extracting a comment using BeautifulSoup</a>
+</h2>
+
+<p>So after we extracted the <code class="highlighter-rouge">Battle Type</code> it was then requested
+that we extract the <code class="highlighter-rouge">Attack Name</code>.</p>
+
+<p>The <code class="highlighter-rouge">Attack Name</code> is contained in the first <code class="highlighter-rouge">&lt;td&gt;</code> inside our <code class="highlighter-rouge">&lt;tr&gt;</code>
+tag however it the data that we want is inside a  <code class="highlighter-rouge">&lt;table&gt;</code> 
+tag that is commented out.</p>
+
+<p>This <code class="highlighter-rouge">&lt;table&gt;</code> contains translations of the name in different languages
+and we would like to build a dict using this data.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;tr&gt;</span>
+<span class="nt">&lt;td</span> <span class="na">class=</span><span class="s">"cen"</span><span class="nt">&gt;</span>
+Heavy Slam<span class="nt">&lt;br</span> <span class="nt">/&gt;</span> <span class="ni">&amp;#12504;&amp;#12499;&amp;#12540;&amp;#12508;&amp;#12531;&amp;#12496;&amp;#12540;</span>
+  <span class="c">&lt;!--&lt;table width="300" cellspacing="0" cellpadding="0"&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;English&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Heavy Slam&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;Japanese&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;&amp;#12504;&amp;#12499;&amp;#12540;&amp;#12508;&amp;#12531;&amp;#12496;&amp;#12540;&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;French&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Tacle Lourd&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;German&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Rammboss&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;Spanish&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Cuerpo Pesado&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;Italian&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;Pesobomba&lt;/td&gt;&lt;/tr&gt;
+        &lt;tr&gt; &lt;td&gt;&lt;b&gt;Korean&lt;/b&gt;: &lt;/td&gt;&lt;td&gt;&amp;#54756;&amp;#48708;&amp;#48388;&amp;#48260;&lt;/td&gt;&lt;/tr&gt;
+      &lt;/table&gt;--&gt;</span>
+<span class="nt">&lt;/td&gt;</span>
+</code></pre>
+</div>
+
+<p>There’s currently no nice way to search for comments. The simplest
+method seems to be by passing a callback to the <code class="highlighter-rouge">string</code> argument
+which uses <code class="highlighter-rouge">isinstance()</code> to check the object type.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">bs4.element</span> <span class="kn">import</span> <span class="n">Comment</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="k">lambda</span> <span class="n">tag</span><span class="p">:</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tag</span><span class="p">,</span> <span class="n">Comment</span><span class="p">))</span>
+<span class="s">'&lt;table width="300" cellspacing="0" cellpadding="0"&gt;</span><span class="se">\n\t\t\t</span><span class="s">&lt;tr&gt;...</span><span class="err">
+</span></code></pre>
+</div>
+
+<p>We could also navigate to the <code class="highlighter-rouge">&lt;br /&gt;</code> tag then use multiple <code class="highlighter-rouge">.next</code> calls
+to navigate to the comment.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">br</span><span class="o">.</span><span class="nb">next</span>
+<span class="s">' </span><span class="se">\u30d8\u30d3\u30fc\u30dc\u30f3\u30d0\u30fc\n\t\t\t\t</span><span class="s">'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">tr</span><span class="o">.</span><span class="n">br</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="nb">next</span>
+<span class="s">'&lt;table width="300" cellspacing="0" cellpadding="0"&gt;</span><span class="se">\n\t\t\t</span><span class="s">&lt;tr&gt;...</span><span class="err">
+</span></code></pre>
+</div>
+
+<p>As we now have the HTML as a <em>“string”</em> we need to feed it to a new
+<code class="highlighter-rouge">BeautifulSoup</code> object in order to have it parsed.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">comment</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">br</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="nb">next</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">table</span>   <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">comment</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>The language names are in the <code class="highlighter-rouge">&lt;b&gt;</code> tags and the translations are 
+then in the following <code class="highlighter-rouge">&lt;td&gt;</code> tags.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">table</span><span class="o">.</span><span class="n">b</span>
+<span class="o">&lt;</span><span class="n">b</span><span class="o">&gt;</span><span class="n">English</span><span class="o">&lt;/</span><span class="n">b</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">table</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">td</span><span class="o">&gt;</span><span class="n">Heavy</span> <span class="n">Slam</span><span class="o">&lt;/</span><span class="n">td</span><span class="o">&gt;</span>
+</code></pre>
+</div>
+
+<p>We can then use a <em>dict comprehension</em> to build our dict.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="p">{</span> <span class="n">b</span><span class="o">.</span><span class="n">text</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">table</span><span class="p">(</span><span class="s">'b'</span><span class="p">)</span> <span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="s">"English"</span><span class="p">:</span> <span class="s">"Heavy Slam"</span><span class="p">,</span> 
+    <span class="s">"French"</span><span class="p">:</span> <span class="s">"Tacle Lourd"</span><span class="p">,</span> 
+    <span class="s">"German"</span><span class="p">:</span> <span class="s">"Rammboss"</span><span class="p">,</span> 
+    <span class="s">"Italian"</span><span class="p">:</span> <span class="s">"Pesobomba"</span><span class="p">,</span> 
+    <span class="s">"Japanese"</span><span class="p">:</span> <span class="s">"</span><span class="se">\u30d8\u30d3\u30fc\u30dc\u30f3\u30d0\u30fc</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"Korean"</span><span class="p">:</span> <span class="s">"</span><span class="se">\ud5e4\ube44\ubd04\ubc84</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"Spanish"</span><span class="p">:</span> <span class="s">"Cuerpo Pesado"</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>You could also build the dict using a regular <code class="highlighter-rouge">for</code> loop if you wish.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">name</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">table</span><span class="p">(</span><span class="s">'b'</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">text</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>We’ve made use of the <code class="highlighter-rouge">json</code> module in the previous example to 
+<em>pretty-print</em> the dict for display purposes.</p>
 
 </div>
 
