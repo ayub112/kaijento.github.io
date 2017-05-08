@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 08 May 2017 10:22:35 +0100</pubDate>
-    <lastBuildDate>Mon, 08 May 2017 10:22:35 +0100</lastBuildDate>
+    <pubDate>Mon, 08 May 2017 10:32:35 +0100</pubDate>
+    <lastBuildDate>Mon, 08 May 2017 10:32:35 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -203,6 +203,16 @@ that something must follow but it is not included in the match (or captured)&lt;
 &lt;p&gt;This allows us to match the &lt;em&gt;“word”&lt;/em&gt; that comes before &lt;code class=&quot;highlighter-rouge&quot;&gt;views&lt;/code&gt; in the text which
 is the number of views.&lt;/p&gt;
 
+&lt;p&gt;We could also use &lt;code class=&quot;highlighter-rouge&quot;&gt;split()&lt;/code&gt; but assuming word position could be considered
+a more &lt;em&gt;“fragile”&lt;/em&gt; approach.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.post'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'album'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\xb7&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'279,116'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'views'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.post'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;div&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;split&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'279,116'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
 &lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
 
 &lt;p&gt;Now that we know what requests to make and how to extract the required 
@@ -280,7 +290,8 @@ often be blocked.&lt;/p&gt;
 
 &lt;p&gt;The rest of the code is just fetching each page (we’ve used the first two
 pages in this example), building our &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; objects and extracting
-the data which has already been explained.&lt;/p&gt;
+the data which has already been explained however we’re now using &lt;code class=&quot;highlighter-rouge&quot;&gt;select()&lt;/code&gt;
+to process all of the images per page.&lt;/p&gt;
 
 &lt;p&gt;The final goal is probably to save the images to disk which you could 
 implement &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content&quot;&gt;using requests&lt;/a&gt;.&lt;/p&gt;

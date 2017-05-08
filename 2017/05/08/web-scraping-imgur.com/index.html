@@ -272,6 +272,16 @@ that something must follow but it is not included in the match (or captured)</li
 <p>This allows us to match the <em>“word”</em> that comes before <code class="highlighter-rouge">views</code> in the text which
 is the number of views.</p>
 
+<p>We could also use <code class="highlighter-rouge">split()</code> but assuming word position could be considered
+a more <em>“fragile”</em> approach.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.post'</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="p">[</span><span class="s">'album'</span><span class="p">,</span> <span class="s">'</span><span class="se">\xb7</span><span class="s">'</span><span class="p">,</span> <span class="s">'279,116'</span><span class="p">,</span> <span class="s">'views'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.post'</span><span class="p">)</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+<span class="s">'279,116'</span>
+</code></pre>
+</div>
+
 <a name="code"></a>
 <h2 class="section-header">
   <span id="code"></span>
@@ -353,7 +363,8 @@ often be blocked.</p>
 
 <p>The rest of the code is just fetching each page (we’ve used the first two
 pages in this example), building our <code class="highlighter-rouge">BeautifulSoup</code> objects and extracting
-the data which has already been explained.</p>
+the data which has already been explained however we’re now using <code class="highlighter-rouge">select()</code>
+to process all of the images per page.</p>
 
 <p>The final goal is probably to save the images to disk which you could 
 implement <a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">using requests</a>.</p>
