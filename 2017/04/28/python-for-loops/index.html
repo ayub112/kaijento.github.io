@@ -367,6 +367,38 @@ tuples using the <code class="highlighter-rouge">t = (1, 2)</code> syntax but th
 <p>So <code class="highlighter-rouge">()</code> can be used to give Python a <em>“hint”</em> with regards to how an expression 
 should be parsed if there is any ambiguity.</p>
 
+<a name="file"></a>
+<h2 class="section-header">
+  <span id="file"></span>
+  <a class="anchor" href="#file">file</a>
+</h2>
+
+<p>Finally another very useful feature is when dealing with <em>“files”</em>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+<span class="n">This</span> <span class="n">Is</span>
+<span class="n">Is</span> <span class="n">IS</span> <span class="n">My</span> <span class="n">example</span>
+<span class="n">isn</span><span class="s">'t It great</span><span class="err">
+</span></code></pre>
+</div>
+
+<p>When you iterate over a <em>“file object”</em> with <code class="highlighter-rouge">for</code> you iterate
+over each line.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="n">This</span> <span class="n">Is</span>
+<span class="n">Is</span> <span class="n">IS</span> <span class="n">My</span> <span class="n">example</span>
+<span class="n">isn</span><span class="s">'t It great</span><span class="err">
+</span></code></pre>
+</div>
+
+<p>This is the <em>idiom</em> used to read a file <em>line-by-line</em> in Python. 
+Using the <code class="highlighter-rouge">with</code> block will automatically call <code class="highlighter-rouge">.close()</code> on the 
+<em>“file object”</em> when the block exits.</p>
+
 </div>
 
   

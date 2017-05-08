@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 07 May 2017 19:25:10 +0100</pubDate>
-    <lastBuildDate>Sun, 07 May 2017 19:25:10 +0100</lastBuildDate>
+    <pubDate>Mon, 08 May 2017 07:32:15 +0100</pubDate>
+    <lastBuildDate>Mon, 08 May 2017 07:32:15 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -1666,6 +1666,34 @@ tuples using the &lt;code class=&quot;highlighter-rouge&quot;&gt;t = (1, 2)&lt;/
 
 &lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; can be used to give Python a &lt;em&gt;“hint”&lt;/em&gt; with regards to how an expression 
 should be parsed if there is any ambiguity.&lt;/p&gt;
+
+&lt;h2 id=&quot;file&quot;&gt;file&lt;/h2&gt;
+
+&lt;p&gt;Finally another very useful feature is when dealing with &lt;em&gt;“files”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'myfile'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Is&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IS&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;My&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;example&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;isn&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'t It great&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When you iterate over a &lt;em&gt;“file object”&lt;/em&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; you iterate
+over each line.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'myfile'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;line&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;         &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;line&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;n&quot;&gt;This&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Is&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IS&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;My&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;example&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;isn&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'t It great&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This is the &lt;em&gt;idiom&lt;/em&gt; used to read a file &lt;em&gt;line-by-line&lt;/em&gt; in Python. 
+Using the &lt;code class=&quot;highlighter-rouge&quot;&gt;with&lt;/code&gt; block will automatically call &lt;code class=&quot;highlighter-rouge&quot;&gt;.close()&lt;/code&gt; on the 
+&lt;em&gt;“file object”&lt;/em&gt; when the block exits.&lt;/p&gt;
 </description>
         <pubDate>Fri, 28 Apr 2017 12:11:59 +0100</pubDate>
         <link>http://kaijento.github.io/2017/04/28/python-for-loops/</link>
