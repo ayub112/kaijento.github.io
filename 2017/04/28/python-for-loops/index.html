@@ -377,10 +377,13 @@ should be parsed if there is any ambiguity.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
 <span class="n">This</span> <span class="n">Is</span>
-<span class="n">Is</span> <span class="n">IS</span> <span class="n">My</span> <span class="n">example</span>
-<span class="n">isn</span><span class="s">'t It great</span><span class="err">
-</span></code></pre>
+<span class="n">My</span> <span class="n">example</span> <span class="n">FILE</span>
+<span class="k">with</span> <span class="mi">3</span> <span class="n">lines</span>
+</code></pre>
 </div>
+
+<p><small>(If you’re using Python 2 you can use <code class="highlighter-rouge">from __future__ import print_function</code>
+to get access to the superior <code class="highlighter-rouge">print()</code> function from Python 3)</small></p>
 
 <p>When you iterate over a <em>“file object”</em> with <code class="highlighter-rouge">for</code> you iterate
 over each line.</p>
@@ -390,9 +393,9 @@ over each line.</p>
 <span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
 <span class="o">...</span> 
 <span class="n">This</span> <span class="n">Is</span>
-<span class="n">Is</span> <span class="n">IS</span> <span class="n">My</span> <span class="n">example</span>
-<span class="n">isn</span><span class="s">'t It great</span><span class="err">
-</span></code></pre>
+<span class="n">My</span> <span class="n">example</span> <span class="n">FILE</span>
+<span class="k">with</span> <span class="mi">3</span> <span class="n">lines</span>
+</code></pre>
 </div>
 
 <p>This is the <em>idiom</em> used to read a file <em>line-by-line</em> in Python. 
