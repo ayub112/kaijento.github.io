@@ -294,19 +294,19 @@ information for each image let’s write some code.</p>
 <p>First though we will show some example output.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python imgur.py 
-url:    http//i.imgur.com/WZxfBPmb.jpg
+url:    http://i.imgur.com/WZxfBPmb.jpg
 title:  Riding doggo
 views:  302,993
-url:    http//i.imgur.com/NlxYcfeb.jpg
+url:    http://i.imgur.com/NlxYcfeb.jpg
 title:  Super Dissed
 views:  262,927
-url:    http//i.imgur.com/H3iyVykb.jpg
+url:    http://i.imgur.com/H3iyVykb.jpg
 title:  Introducing the undisputed heavyweight champ of the world...
 views:  153,290
-url:    http//i.imgur.com/IjRZgkVb.jpg
+url:    http://i.imgur.com/IjRZgkVb.jpg
 title:  Essentially Covers It All
 views:  34,400
-url:    http//i.imgur.com/Hyy0WRAb.jpg
+url:    http://i.imgur.com/Hyy0WRAb.jpg
 title:  Hair Cutting <span class="k">for </span>Ex Wedding
 views:  431,877
 <span class="o">[</span>...]
@@ -328,7 +328,7 @@ views:  431,877
         <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.post'</span><span class="p">):</span>
-            <span class="n">url</span>   <span class="o">=</span> <span class="s">'http'</span> <span class="o">+</span> <span class="n">post</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span>
+            <span class="n">url</span>   <span class="o">=</span> <span class="s">'http:'</span> <span class="o">+</span> <span class="n">post</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">]</span>
             <span class="n">title</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">p</span><span class="o">.</span><span class="n">text</span>
             <span class="n">views</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">S+(?= views)'</span><span class="p">,</span> <span class="n">post</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">div</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
             <span class="k">print</span><span class="p">(</span><span class="s">'url:   '</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
