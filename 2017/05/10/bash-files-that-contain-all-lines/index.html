@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/10/bash-files-that-contain-all-lines/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: files that contain all lines from file | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/10/bash-files-that-contain-all-lines/">bash: files that contain all lines from file</a></h1>
+  <p class="text-muted">10 May 2017</p>
+
+
+</div>
+<div class="post-content">
+  <p><em>Given <code class="highlighter-rouge">file-a</code> I need to find all files recursively (“using bash”)
+that contain all of the lines from <code class="highlighter-rouge">file-a</code> regardless of order.
+How can I do this?</em></p>
+
+<p>Usually <em>“using bash”</em> just means <em>“from the command-line”</em> so
+we’re just going to skip ahead directly to <code class="highlighter-rouge">Python</code> because
+doing this <em>“in bash”</em> is a world of pain.</p>
+
+<p>Let’s create some example files for testing.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat all-lines/file-a
+a
+b
+c
+<span class="gp">$ </span>cat all-lines/dir/file1
+c
+b
+a
+<span class="gp">$ </span>cat all-lines/dir/file2
+a
+b
+c
+d
+<span class="gp">$ </span>cat all-lines/dir/file3
+d
+c
+e
+</code></pre>
+</div>
+
+<p>So we have <code class="highlighter-rouge">2</code> matching files here: <code class="highlighter-rouge">file1</code> and <code class="highlighter-rouge">file2</code>.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>First we have the output.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python find-files.py
+all-lines/dir/file1
+all-lines/dir/file2
+</code></pre>
+</div>
+
+<p>The code that generated it.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">file_a</span>    <span class="o">=</span> <span class="s">'all-lines/file-a'</span>
+<span class="n">start_dir</span> <span class="o">=</span> <span class="s">'all-lines/dir'</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_a</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">lines_a</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">start_dir</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">lines_b</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lines_b</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                <span class="c">#if lines_a.issubset(lines_b):</span>
+                <span class="k">if</span> <span class="n">lines_a</span> <span class="o">&lt;=</span> <span class="n">lines_b</span><span class="p">:</span>
+                    <span class="k">print</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                    <span class="k">break</span>
+</code></pre>
+</div>
+
+<p>If you’ve not seen <a href="https://docs.python.org/3/reference/compound_stmts.html#with">the with statement</a> 
+before it’s being used here as when the block exits it will
+automatically call <code class="highlighter-rouge">close()</code> on the file for us.</p>
+
+<p>We’re creating the set <code class="highlighter-rouge">lines_a</code> to store all the lines
+from <code class="highlighter-rouge">file-a</code> which we will use to compare against the 
+other files.</p>
+
+<p>Two things to note:</p>
+
+<ul>
+  <li>this assumes <code class="highlighter-rouge">file-a</code> fits into memory</li>
+  <li>line endings are not being removed</li>
+</ul>
+
+<p>If we wanted to ignore line endings we could instead store
+<code class="highlighter-rouge">line.rstrip('\r\n')</code> in our <code class="highlighter-rouge">lines_a</code> and <code class="highlighter-rouge">lines_b</code> sets.</p>
+
+<p>A <a href="https://docs.python.org/3/tutorial/datastructures.html#sets">set</a> 
+is an unordered collection with no duplicate elements. Set objects 
+also support mathematical operations like union, intersection, 
+difference, and symmetric difference.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="s">'abcd'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">y</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="s">'abcdef'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span> <span class="o">&lt;=</span> <span class="n">y</span>
+<span class="bp">True</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">x</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+<span class="bp">True</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">&lt;=</code> here is the same as using <a href="https://docs.python.org/3/library/stdtypes.html#set.issubset">issubset()</a>
+which provides a simple way to test if all the elements in <code class="highlighter-rouge">x</code> are contained in <code class="highlighter-rouge">y</code>.</p>
+
+<a name="oswalk"></a>
+<h2 class="section-header">
+  <span id="oswalk"></span>
+  <a class="anchor" href="#oswalk">os.walk()</a>
+</h2>
+
+<p>To process a directory structure recursively in Python we can use <a href="https://docs.python.org/3/library/os.html#os.walk">os.walk()</a>
+which would be like using the <code class="highlighter-rouge">find</code> command.</p>
+
+<p><code class="highlighter-rouge">os.walk()</code> yields a 3-tuple <code class="highlighter-rouge">(dirpath, dirnames, filenames)</code></p>
+
+<ul>
+  <li><code class="highlighter-rouge">dirpath</code> being the path to the current directory being processed</li>
+  <li><code class="highlighter-rouge">dirnames</code> being a list of directory names contained in <code class="highlighter-rouge">dirpath</code></li>
+  <li><code class="highlighter-rouge">filenames</code> being a list of file names contained in <code class="highlighter-rouge">dirpath</code></li>
+</ul>
+
+<p>As <code class="highlighter-rouge">filenames</code> only gives us the names and not the full path we use <code class="highlighter-rouge">os.path.join(root, f)</code> 
+to build the full path to the filename in our code. Also note that <code class="highlighter-rouge">root</code> appears to be
+the name most commonly used in examples to store the <code class="highlighter-rouge">dirpath</code> value.</p>
+
+<p>So for each file we create our <code class="highlighter-rouge">lines_b</code> set and process the file
+<em>line-by-line</em> adding each line to the set.</p>
+
+<p>The reason we’re processing each <code class="highlighter-rouge">file-b</code> line-by-line and using <code class="highlighter-rouge">add()</code> 
+is because this allows us to stop processing the file as soon as there 
+is a match. If there is a match we call <code class="highlighter-rouge">break</code> which exits the <code class="highlighter-rouge">for</code> 
+loop immediately.</p>
+
+<p>If we had a large file that contained a match in the first few lines
+this would save from having to process the full file. It could also
+allow us to process files that are <em>“too large to fit into memory”</em>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (50)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/08/web-scraping-imgur.com/">Web scraping: imgur.com</a></h2>
+          <p class="preview"><em>I’m trying to “scrape” images from Imgur 
+using BeautifulSoup and requests but I’m only getting the
+first page of results. Why?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
