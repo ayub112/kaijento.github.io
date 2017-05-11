@@ -76,7 +76,15 @@
 the profile page of each member. The example URL given was 
 <a href="http://steamcommunity.com/groups/KeyVendorNet">http://steamcommunity.com/groups/KeyVendorNet</a>.</p>
 
-<p>Let’s open it up and take a look in the <code class="highlighter-rouge">Inspector</code> tab:</p>
+<p>We will start by opening the page in our browser and viewing the
+<code class="highlighter-rouge">Inspector</code> tab. You can access this by <em>right-clicking</em> and selecting
+<code class="highlighter-rouge">Inspect Element</code>. I’m using <code class="highlighter-rouge">Firefox</code> here but the same should 
+apply for <code class="highlighter-rouge">Chrome</code>.</p>
+
+<p><img src="/img/1494227500-imgur-inspect-element.png" alt="" /></p>
+
+<p>You can also access it from the menu (<em>Web Developer / Developer Tools</em>) 
+or through keyboard shortcuts.</p>
 
 <p><img src="/img/1491025694-steamcommunity.png" alt="" /></p>
 
@@ -89,7 +97,10 @@ the profile page of each member. The example URL given was
 </code></pre>
 </div>
 
-<p>Let’s use <code class="highlighter-rouge">requests</code> and <code class="highlighter-rouge">BeautifulSoup</code> to fetch and extract it:</p>
+<p>Let’s use <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code> 
+to fetch parse it. You can install these using 
+<code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code> if you have not
+already.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
@@ -217,9 +228,17 @@ other uses of this class attribute in the HTML.</p>
 </div>
 
 <p><code class="highlighter-rouge">find(tag, value)</code> is shorthand for <code class="highlighter-rouge">find(tag, {'class': 'value'})</code> i.e. it defaults to matching against 
-the class attribute. Do note however that using the find methods will be an exact comparison e.g. if we
-had <code class="highlighter-rouge">&lt;a class="something linkFriend"&gt;</code> the CSS Selector would still return a match because <code class="highlighter-rouge">.class</code> tests
-against each “word”.</p>
+the class attribute.</p>
+
+<p>Do note that like the <em>CSS Selector</em> approach it will test if <code class="highlighter-rouge">value</code> is a exists as a <em>“word”</em> in the
+<code class="highlighter-rouge">class</code> attribute definition.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="s">'&lt;div class="foo bar"&gt;'</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">div</span> <span class="n">class</span><span class="o">=</span><span class="s">"foo bar"</span><span class="o">&gt;&lt;/</span><span class="n">div</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="s">'&lt;div class="foo bar"&gt;'</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'div'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">)[</span><span class="s">'class'</span><span class="p">]</span>
+<span class="p">[</span><span class="s">'foo'</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">]</span>
+</code></pre>
+</div>
 
 <p><code class="highlighter-rouge">select_one()</code> returns the first match like <code class="highlighter-rouge">find()</code>. <code class="highlighter-rouge">select()</code> returns a list of matches similar to 
 <code class="highlighter-rouge">find_all()</code>.</p>

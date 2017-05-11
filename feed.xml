@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 10 May 2017 08:49:24 +0100</pubDate>
-    <lastBuildDate>Wed, 10 May 2017 08:49:24 +0100</lastBuildDate>
+    <pubDate>Thu, 11 May 2017 22:14:14 +0100</pubDate>
+    <lastBuildDate>Thu, 11 May 2017 22:14:14 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -145,6 +145,10 @@ allow us to process files that are &lt;em&gt;“too large to fit into memory”&
         <pubDate>Wed, 10 May 2017 07:33:04 +0100</pubDate>
         <link>http://kaijento.github.io/2017/05/10/bash-files-that-contain-all-lines/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/05/10/bash-files-that-contain-all-lines/</guid>
+        
+        <category>bash</category>
+        
+        <category>python</category>
         
         
       </item>
