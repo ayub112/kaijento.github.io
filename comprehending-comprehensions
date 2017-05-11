@@ -1,0 +1,31 @@
+>>> L = [['foo,bar'], ['omg'], ['lol,', 'bb,q']]
+>>> L
+[['foo,bar'], ['omg'], ['lol,', 'bb,q']]
+>>> [w.replace(',', ';') for i in lista_definitiva for w in i ]
+KeyboardInterrupt
+>>> lista_definitiva = L
+>>> [w.replace(',', ';') for i in lista_definitiva for w in i ]
+['foo;bar', 'omg', 'lol;', 'bb;q']
+>>> [[w.replace(',', ';') for i in lista_definitiva] for w in i ]
+[['lol;', 'lol;', 'lol;'], ['bb;q', 'bb;q', 'bb;q']]
+>>> [ [w.replace(',', ';') for w in i] for i in lista_definitiva ]
+[['foo;bar'], ['omg'], ['lol;', 'bb;q']]
+
+>>> {size: price for size, price in [ input().split()  for i in range(n) ]}
+bob 1
+tom 2
+{'bob': '1', 'tom': '2'}
+>>> {size: int(price) for size, price in [ input().split()  for i in range(n) ]}
+a 1
+b 2
+{'b': 2, 'a': 1}
+>>> dict(input.split() for _ in range(3))
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 1, in <genexpr>
+AttributeError: 'builtin_function_or_method' object has no attribute 'split'
+>>> dict(input().split() for _ in range(3))
+a 1
+b 2
+c 3
+{'b': '2', 'a': '1', 'c': '3'}
