@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/12/web-scraping-scriptnotes.net/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: scriptnotes.net | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/12/web-scraping-scriptnotes.net/">Web scraping: scriptnotes.net</a></h1>
+  <p class="text-muted">12 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is to extract or <em>“scrape”</em> the links to
+the podcasts on <a href="http://scriptnotes.net">http://scriptnotes.net</a>
+and save the files to disk using Python.</p>
+
+<p>We’ll firstly open the page in our browser and take a look at the
+<code class="highlighter-rouge">Inspector</code> tab. I’ve done it here by <em>right-clicking</em> on the first
+download link and selecting <code class="highlighter-rouge">Inspect Element</code>. This will open
+it up directly at the HTML of the element we selected.</p>
+
+<p><img src="/img/1494582958-scriptnotes-inspect-element.png" alt="" /></p>
+
+<p>With the <code class="highlighter-rouge">Inspector</code> tab open you can also use the <em>Selector</em> tool
+(the first button on the panel to the left of <code class="highlighter-rouge">Inspector</code>) to browse
+to the source of a specific element.</p>
+
+<p><img src="/img/1494582926-scriptnotes-inspector.png" alt="" /></p>
+
+<p>So now with it open we can see the the link to the podcast episode
+is inside the <code class="highlighter-rouge">href</code> attribute and it ends with <code class="highlighter-rouge">.mp3</code></p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>Let’s use <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code>
+to fetch parse it. You can install these using
+<code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code> if you have not
+already.</p>
+
+<p>So what we want to do is to find all <code class="highlighter-rouge">&lt;a&gt;</code> tags that contain an 
+<code class="highlighter-rouge">href</code> attribute whose value ends with <code class="highlighter-rouge">.mp3</code></p>
+
+<p>Perhaps the simplest way to do that is to use a <em>CSS Selector</em> with
+<a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors">BeautifulSoup’s select()</a>
+method.</p>
+
+<p><em>CSS Selector’s</em> are a <em>“language”</em> for selecting items. A brief subset includes:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">tag</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code></li>
+  <li><code class="highlighter-rouge">tag[attr]</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr=""</code> regardless of the value of <code class="highlighter-rouge">attr</code></li>
+  <li><code class="highlighter-rouge">tag[attr=string]</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr</code> whose value is exactly <code class="highlighter-rouge">string</code></li>
+  <li><code class="highlighter-rouge">tag[attr$=string]</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr</code> whose value <em>endswith</em> <code class="highlighter-rouge">string</code></li>
+</ul>
+
+<p>This means we can use <code class="highlighter-rouge">a[href$=.mp3]</code> to find what we want.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://scriptnotes.net'</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mp3s</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'a[href$=.mp3]'</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">mp3s</span><span class="p">)</span>
+<span class="mi">10</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mp3s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="o">&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3"</span><span class="o">&gt;</span><span class="n">here</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mp3s</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'href'</span><span class="p">]</span>
+<span class="s">'http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">mp3s</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s">'href'</span><span class="p">]</span>
+<span class="s">'http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_292.mp3'</span>
+</code></pre>
+</div>
+
+<p>So we have the links to the <code class="highlighter-rouge">10</code> podcasts on the page. Could we get
+them using <em>regex?!?!?!</em></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'http</span><span class="err">\</span><span class="s">S+</span><span class="err">\</span><span class="s">.mp3'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+<span class="mi">20</span>
+</code></pre>
+</div>
+
+<p>The problem using this is that the link also appears inside another <code class="highlighter-rouge">&lt;a&gt;</code> tag.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;a</span> <span class="na">href=</span><span class="err"> </span><span class="s">"http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3"</span><span class="nt">&gt;</span>here<span class="nt">&lt;/a&gt;</span>
+[...]
+<span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3?dest-id=145488"</span> <span class="nt">&gt;</span>Download this Episode<span class="nt">&lt;/a&gt;</span>
+</code></pre>
+</div>
+
+<p>We could use a <em>positive lookahead assertion</em> <code class="highlighter-rouge">(?=)</code> to state that a <code class="highlighter-rouge">"</code> must follow
+but because it is inside <code class="highlighter-rouge">(?=)</code> it is not captured or included in the match.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'http</span><span class="err">\</span><span class="s">S+</span><span class="err">\</span><span class="s">.mp3(?=")'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
+<span class="mi">10</span>
+</code></pre>
+</div>
+
+<p>So now we know how to get all the links from a single page, what about multiple pages?</p>
+
+<p>If we scroll down to the bottom of the page and click on the <code class="highlighter-rouge">Page 2</code> link we will
+see the address that opens is
+<a href="http://scriptnotes.net/page/2/size/10">http://scriptnotes.net/page/2/size/10</a></p>
+
+<p>This means we can manually build the URL for a specific page by changing <code class="highlighter-rouge">page/n</code>
+which would allow us to loop (or <em>“crawl”</em>) through pages of results.</p>
+
+<p>We also note the <code class="highlighter-rouge">size/10</code> and we have <code class="highlighter-rouge">10</code> mp3 links in our result so this
+suggests we can change the <em>“parameter”</em>. I tested with <code class="highlighter-rouge">20</code> and with <code class="highlighter-rouge">100</code>
+and both appear to work. This would allow us to get more podcast links
+with fewer requests however it does seem to that increasing the size slows
+down each request. There also may be a limit on the number of returned results 
+you would have to test around to find that out.</p>
+
+<p>Let’s show an example of how we would loop through multiple pages.</p>
+
+<p>First, the example output.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python scriptnotes.net.py 
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_298.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_297.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_296.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_strike_vote.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_295.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_294.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_99-2.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_293.mp3
+<span class="o">[</span>...]
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_219.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_218.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_217.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_216.mp3
+</code></pre>
+</div>
+
+<p>The code.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="n">size</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">url</span>  <span class="o">=</span> <span class="s">'http://scriptnotes.net/page/{}/size/'</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">r</span>    <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">page</span><span class="p">))</span>
+        <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">mp3</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'a[href$=.mp3]'</span><span class="p">):</span>
+            <span class="k">print</span><span class="p">(</span><span class="n">mp3</span><span class="p">[</span><span class="s">'href'</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p>When making multiple requests with <code class="highlighter-rouge">requests</code> you’ll usually want to use a 
+<a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">session object</a>
+to maintain <em>“state”</em> and keep track of cookies.</p>
+
+<p>You’ll also pretty much always want to change the default <code class="highlighter-rouge">User-Agent</code> header 
+which we set here to <code class="highlighter-rouge">Mozilla/5.0</code> as the default <code class="highlighter-rouge">requests</code> header tends
+to be blocked.</p>
+
+<p>We’ve set size to <code class="highlighter-rouge">50</code> here and looped through the first <code class="highlighter-rouge">2</code> pages
+as an example.</p>
+
+<p>Also, instead of just printing the URL you could fetch it and
+<a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">save the result to disk</a>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (51)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/10/bash-files-that-contain-all-lines/">bash: files that contain all lines from file</a></h2>
+          <p class="preview"><em>Given <code class="highlighter-rouge">file-a</code> I need to find all files recursively (“using bash”)
+that contain all of the lines from <code class="highlighter-rouge">file-a</code> regardless of order.
+How can I do this?</em></p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

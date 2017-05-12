@@ -5,9 +5,189 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 11 May 2017 22:14:14 +0100</pubDate>
-    <lastBuildDate>Thu, 11 May 2017 22:14:14 +0100</lastBuildDate>
+    <pubDate>Fri, 12 May 2017 11:51:26 +0100</pubDate>
+    <lastBuildDate>Fri, 12 May 2017 11:51:26 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Web scraping: scriptnotes.net</title>
+        <description>&lt;p&gt;The goal is to extract or &lt;em&gt;“scrape”&lt;/em&gt; the links to
+the podcasts on &lt;a href=&quot;http://scriptnotes.net&quot;&gt;http://scriptnotes.net&lt;/a&gt;
+and save the files to disk using Python.&lt;/p&gt;
+
+&lt;p&gt;We’ll firstly open the page in our browser and take a look at the
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. I’ve done it here by &lt;em&gt;right-clicking&lt;/em&gt; on the first
+download link and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;. This will open
+it up directly at the HTML of the element we selected.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494582958-scriptnotes-inspect-element.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab open you can also use the &lt;em&gt;Selector&lt;/em&gt; tool
+(the first button on the panel to the left of &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;) to browse
+to the source of a specific element.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494582926-scriptnotes-inspector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So now with it open we can see the the link to the podcast episode
+is inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; attribute and it ends with &lt;code class=&quot;highlighter-rouge&quot;&gt;.mp3&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
+
+&lt;p&gt;Let’s use &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt;
+to fetch parse it. You can install these using
+&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 requests html5lib --user&lt;/code&gt; if you have not
+already.&lt;/p&gt;
+
+&lt;p&gt;So what we want to do is to find all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tags that contain an 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; attribute whose value ends with &lt;code class=&quot;highlighter-rouge&quot;&gt;.mp3&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Perhaps the simplest way to do that is to use a &lt;em&gt;CSS Selector&lt;/em&gt; with
+&lt;a href=&quot;https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors&quot;&gt;BeautifulSoup’s select()&lt;/a&gt;
+method.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;CSS Selector’s&lt;/em&gt; are a &lt;em&gt;“language”&lt;/em&gt; for selecting items. A brief subset includes:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr]&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr=&quot;&quot;&lt;/code&gt; regardless of the value of &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr=string]&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt; whose value is exactly &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr$=string]&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt; whose value &lt;em&gt;endswith&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This means we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;a[href$=.mp3]&lt;/code&gt; to find what we want.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://scriptnotes.net'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mp3s&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a[href$=.mp3]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mp3s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mp3s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;href&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;here&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mp3s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'href'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mp3s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'href'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_292.mp3'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So we have the links to the &lt;code class=&quot;highlighter-rouge&quot;&gt;10&lt;/code&gt; podcasts on the page. Could we get
+them using &lt;em&gt;regex?!?!?!&lt;/em&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'http&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;.mp3'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;20&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The problem using this is that the link also appears inside another &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;err&quot;&gt; &lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;here&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+[...]
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3?dest-id=145488&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Download this Episode&lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We could use a &lt;em&gt;positive lookahead assertion&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;(?=)&lt;/code&gt; to state that a &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt; must follow
+but because it is inside &lt;code class=&quot;highlighter-rouge&quot;&gt;(?=)&lt;/code&gt; it is not captured or included in the match.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'http&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;S+&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;.mp3(?=&quot;)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So now we know how to get all the links from a single page, what about multiple pages?&lt;/p&gt;
+
+&lt;p&gt;If we scroll down to the bottom of the page and click on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Page 2&lt;/code&gt; link we will
+see the address that opens is
+&lt;a href=&quot;http://scriptnotes.net/page/2/size/10&quot;&gt;http://scriptnotes.net/page/2/size/10&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This means we can manually build the URL for a specific page by changing &lt;code class=&quot;highlighter-rouge&quot;&gt;page/n&lt;/code&gt;
+which would allow us to loop (or &lt;em&gt;“crawl”&lt;/em&gt;) through pages of results.&lt;/p&gt;
+
+&lt;p&gt;We also note the &lt;code class=&quot;highlighter-rouge&quot;&gt;size/10&lt;/code&gt; and we have &lt;code class=&quot;highlighter-rouge&quot;&gt;10&lt;/code&gt; mp3 links in our result so this
+suggests we can change the &lt;em&gt;“parameter”&lt;/em&gt;. I tested with &lt;code class=&quot;highlighter-rouge&quot;&gt;20&lt;/code&gt; and with &lt;code class=&quot;highlighter-rouge&quot;&gt;100&lt;/code&gt;
+and both appear to work. This would allow us to get more podcast links
+with fewer requests however it does seem to that increasing the size slows
+down each request. There also may be a limit on the number of returned results 
+you would have to test around to find that out.&lt;/p&gt;
+
+&lt;p&gt;Let’s show an example of how we would loop through multiple pages.&lt;/p&gt;
+
+&lt;p&gt;First, the example output.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python scriptnotes.net.py 
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_299.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_298.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_297.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_296.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_strike_vote.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_295.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_294.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_99-2.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_293.mp3
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;...]
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_219.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_218.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_217.mp3
+http://traffic.libsyn.com/scriptnotes/scriptnotes_ep_216.mp3
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The code.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;50&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://scriptnotes.net/page/{}/size/'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;mp3&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'a[href$=.mp3]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;mp3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'href'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When making multiple requests with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; you’ll usually want to use a 
+&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/advanced/#session-objects&quot;&gt;session object&lt;/a&gt;
+to maintain &lt;em&gt;“state”&lt;/em&gt; and keep track of cookies.&lt;/p&gt;
+
+&lt;p&gt;You’ll also pretty much always want to change the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header 
+which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt; as the default &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; header tends
+to be blocked.&lt;/p&gt;
+
+&lt;p&gt;We’ve set size to &lt;code class=&quot;highlighter-rouge&quot;&gt;50&lt;/code&gt; here and looped through the first &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; pages
+as an example.&lt;/p&gt;
+
+&lt;p&gt;Also, instead of just printing the URL you could fetch it and
+&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content&quot;&gt;save the result to disk&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Fri, 12 May 2017 10:59:42 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/05/12/web-scraping-scriptnotes.net/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/12/web-scraping-scriptnotes.net/</guid>
+        
+        <category>python</category>
+        
+        <category>webscraping</category>
+        
+        <category>beautifulsoup</category>
+        
+        <category>requests</category>
+        
+        
+      </item>
     
       <item>
         <title>bash: files that contain all lines from file</title>
@@ -2958,58 +3138,6 @@ but you would need to benchmark them to get a definite answer.&lt;/p&gt;
         <category>awk</category>
         
         <category>glob</category>
-        
-        <category>linux</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>&quot;The Real Shell Ninja™&quot;</title>
-        <description>&lt;p&gt;&lt;em&gt;Too many login shells cause the halt…&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Fri, 04 Apr 2017 14:14:04 +0100
-
-I think it's about time you shut the fuck up you 
-complete and utter fucking moron. I bet you pipe 
-cat to grep. I bet you parse ls. I bet you couldn't 
-exit an interactive ed session if your fucking life 
-depended on it. 
-
-I bet you are one of these asshole motherfuckers
-who think the world runs &quot;linux&quot; and you use seq
-in your shell scripts. 
-
-What a fucking joke.
-
-I run AIX. I run VMS. My personal workstation runs 
-HP-UX. I've been running exotic flavours of UNIX 
-that you don't know exist since before you were even 
-born. I'm the definition of elite. I'm 539. I'm 
-considered a fucking god on usenet.
-
-I bet you don't even know what usenet is. Christ,
-this current generation of fucktards who are unable
-to open a manual page absolutely fucking sicken me.
-Not to mention those who CANNOT. USE. A. FUCKING. 
-SEARCH. ENGINE. 
-
-So take your &quot;agile&quot;, &quot;docker-based&quot; keyboard and 
-shove it up your fucking ass because you're in no 
-position to be giving out &quot;advice&quot; on such topics. 
-
-It's time to make way for The Real Shell Ninja™
-when you're just a zombie needing to be reaped.
-
-*plonk*
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Fri, 21 Apr 2017 14:14:04 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/21/the-real-shell-ninja/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/21/the-real-shell-ninja/</guid>
-        
-        <category>bash</category>
         
         <category>linux</category>
         
