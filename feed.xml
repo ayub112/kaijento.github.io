@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 13 May 2017 18:37:01 +0100</pubDate>
-    <lastBuildDate>Sat, 13 May 2017 18:37:01 +0100</lastBuildDate>
+    <pubDate>Sat, 13 May 2017 18:53:21 +0100</pubDate>
+    <lastBuildDate>Sat, 13 May 2017 18:53:21 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -207,8 +207,8 @@ printed the output to &lt;code class=&quot;highlighter-rouge&quot;&gt;sys.stdout
 example.&lt;/p&gt;
 </description>
         <pubDate>Sat, 13 May 2017 17:17:32 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/05/13/swansonvitamins.com/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/05/13/swansonvitamins.com/</guid>
+        <link>http://kaijento.github.io/2017/05/13/web-scraping-swansonvitamins.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/13/web-scraping-swansonvitamins.com/</guid>
         
         <category>python</category>
         
