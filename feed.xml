@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 13 May 2017 19:33:06 +0100</pubDate>
-    <lastBuildDate>Sat, 13 May 2017 19:33:06 +0100</lastBuildDate>
+    <pubDate>Sat, 13 May 2017 19:41:16 +0100</pubDate>
+    <lastBuildDate>Sat, 13 May 2017 19:41:16 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -32,8 +32,8 @@ of the page after it has parsed the source HTML and as such it
 may differ from the source HTML.&lt;/p&gt;
 
 &lt;p&gt;Looking at the HTML we can see that the word itself is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt;
-tag but that tag is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;div&amp;gt;&lt;/code&gt; with the &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; attribute
-&lt;code class=&quot;highlighter-rouge&quot;&gt;word-and-pronunciation&lt;/code&gt; which makes it simple to &lt;em&gt;“scrape”&lt;/em&gt;.&lt;/p&gt;
+tag but that tag is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;div&amp;gt;&lt;/code&gt; tag with &lt;code class=&quot;highlighter-rouge&quot;&gt;class=&quot;word-and-pronunciation&quot;&lt;/code&gt;
+which makes it easy to locate.&lt;/p&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;word-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;word-and-pronunciation&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
@@ -42,9 +42,7 @@ tag but that tag is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&am
 &lt;/div&gt;
 
 &lt;p&gt;The definitions are slightly more tricky as they are a sequence
-of 1 or more &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags that follow &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;Definition&amp;lt;/h2&amp;gt;&lt;/code&gt;. This
-is very similar to what we faced in the 
-&lt;a href=&quot;/2017/05/13/web-scraping-wikipedia.com/&quot;&gt;wikipedia.com article&lt;/a&gt;.&lt;/p&gt;
+of 1 or more &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags that follow the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;Definition&amp;lt;/h2&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;wod-definition-container&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;h2&amp;gt;&lt;/span&gt;Definition&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h2&amp;gt;&lt;/span&gt;
@@ -55,6 +53,9 @@ is very similar to what we faced in the
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;...
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
+
+&lt;p&gt;This is very similar to what we faced in the 
+&lt;a href=&quot;/2017/05/13/web-scraping-wikipedia.com/&quot;&gt;wikipedia.com article&lt;/a&gt;.&lt;/p&gt;
 
 &lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
 
@@ -77,8 +78,10 @@ already.&lt;/p&gt;
 &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; header is commonly blocked.&lt;/p&gt;
 
 &lt;p&gt;There are several ways to approach isolating particular items. In this
-instance the word is in the first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; tag on the page. We could use
-BeautifulSoup’s &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; method to return the first match.&lt;/p&gt;
+instance the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; tag that contains the word is in the first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; 
+tag on the page.&lt;/p&gt;
+
+&lt;p&gt;We can BeautifulSoup’s &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; method to return the first matching tag.&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;microcosm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
