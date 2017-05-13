@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/13/web-scraping-fightmetric.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: fightmetric.com | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/13/web-scraping-fightmetric.com/">Web scraping: fightmetric.com</a></h1>
+  <p class="text-muted">13 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given a <a href="http://fightmetric.com">http://fightmetric.com</a> profile page
+the goal is to extract or <em>“scrape”</em> the fighter’s details i.e. 
+name, record and stats. We’ve been given 
+<a href="http://www.fightmetric.com/fighter-details/2f5cbecbbe18bac4">http://www.fightmetric.com/fighter-details/2f5cbecbbe18bac4</a>
+as an example URL.</p>
+
+<p>The first thing we will do is to open the page in our browser
+and view the <code class="highlighter-rouge">Inspector</code> tab. I’ve done it here by <em>right-clicking</em>
+on the page and selecting <code class="highlighter-rouge">Inspect Element</code>.</p>
+
+<p><img src="/img/1494683039-fightmetric-inspect.png" alt="" /></p>
+
+<p>We can then use the <em>Selector</em> tool (the first button on the panel to the
+left of <code class="highlighter-rouge">Inspector</code>) to click on a specific element on the page to
+display the HTML.</p>
+
+<p><img src="/img/1494683159-fightmetric-inspector.png" alt="" /></p>
+
+<p>Do note that the <code class="highlighter-rouge">Inspector</code> tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.</p>
+
+<p>So it looks like the name, record and nickname can be easily extracted.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;h2</span> <span class="na">class=</span><span class="s">"b-content__title"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"b-content__title-highlight"</span><span class="nt">&gt;</span>
+    Shamil Abdurakhimov
+  <span class="nt">&lt;/span&gt;</span>
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"b-content__title-record"</span><span class="nt">&gt;</span>
+    Record: 16-4-0
+  <span class="nt">&lt;/span&gt;</span>
+<span class="nt">&lt;/h2&gt;</span>
+<span class="nt">&lt;p</span> <span class="na">class=</span><span class="s">"b-content__Nickname"</span><span class="nt">&gt;</span>
+  Abrek
+<span class="nt">&lt;/p&gt;</span>
+</code></pre>
+</div>
+
+<p>They each have a unique <code class="highlighter-rouge">class</code> attribute which we can target however 
+the <em>“stats”</em> sections look rather messy.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"b-list__info-box b-list__info-box_style_small-width js-guide"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"b-list__box-list"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"b-list__box-list-item b-list__box-list-item_type_block"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"b-list__box-item-title b-list__box-item-title_type_width"</span><span class="nt">&gt;</span>
+        Height:
+      <span class="nt">&lt;/i&gt;</span>
+      6' 3"
+    <span class="nt">&lt;/li&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"b-list__box-list-item b-list__box-list-item_type_block"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"b-list__box-item-title b-list__box-item-title_type_width"</span><span class="nt">&gt;</span>
+        Weight:
+      <span class="nt">&lt;/i&gt;</span>
+      235 lbs.
+    <span class="nt">&lt;/li&gt;</span>
+    [...]
+</code></pre>
+</div>
+
+<p>Each <em>“stat”</em> name is inside an <code class="highlighter-rouge">&lt;i&gt;</code> tag that has a <code class="highlighter-rouge">class</code> attribute
+which contains <code class="highlighter-rouge">b-list__box-item-title</code>. The <code class="highlighter-rouge">&lt;i&gt;</code> tag is itself
+inside an <code class="highlighter-rouge">&lt;li&gt;</code> tag. If we isolate the <code class="highlighter-rouge">&lt;i&gt;</code> tag we can then use 
+<code class="highlighter-rouge">.next</code> to navigate to the <em>stat</em> value.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>We’ll be using <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code>
+to parse it. You can install these using
+<code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code> if you have not
+already.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://www.fightmetric.com/fighter-details/2f5cbecbbe18bac4'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>We’re setting the <code class="highlighter-rouge">User-Agent</code> header to <code class="highlighter-rouge">Mozilla/5.0</code> as the default 
+<code class="highlighter-rouge">requests</code> header is commonly blocked.</p>
+
+<p>We mentioned that the name had a unique <code class="highlighter-rouge">class</code> attribute and we can
+use the <em>CSS Selector</em> <code class="highlighter-rouge">.b-content__title-highlight</code> to match it. The
+<code class="highlighter-rouge">.</code> here matches against the <code class="highlighter-rouge">class</code> attribute.</p>
+
+<p>We could be more explicit
+and use <code class="highlighter-rouge">span.b-content__title-highlight</code> i.e. by specifying the tag name
+but there are no other tags with that <code class="highlighter-rouge">class</code> so it can be omitted.</p>
+
+<p>We’re using the <code class="highlighter-rouge">select_one()</code> method which takes a <em>CSS Selector</em> and
+returns the first matching tag.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-highlight'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">span</span> <span class="n">class</span><span class="o">=</span><span class="s">"b-content__title-highlight"</span><span class="o">&gt;</span>\<span class="n">n</span>     <span class="n">Shamil</span> <span class="n">Abdurakhimov</span>\<span class="n">n</span>\<span class="n">n</span>         <span class="o">&lt;/</span><span class="n">span</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-highlight'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="s">'</span><span class="se">\n</span><span class="s">                Shamil Abdurakhimov</span><span class="se">\n\n</span><span class="s">            '</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-highlight'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="s">'Shamil Abdurakhimov'</span>
+</code></pre>
+</div>
+
+<p>We can use the same process to extract the record and nickname.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-record'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="s">'Record: 16-4-0'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-record'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="s">'16-4-0'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__Nickname'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="s">'Abrek'</span>
+</code></pre>
+</div>
+
+<p>Moving on to the stats we can use the <em>CSS Selector</em> 
+<code class="highlighter-rouge">.b-list__box-item-title</code> to isolate each <code class="highlighter-rouge">&lt;i&gt;</code> tag
+inside the <code class="highlighter-rouge">&lt;li&gt;</code> tag.</p>
+
+<p>Again, we could be explicit and specify the tag name 
+using <code class="highlighter-rouge">i.b-list__box-item-title</code> but there are no other
+matches here so it can be omitted.</p>
+
+<p>You may notice that the <code class="highlighter-rouge">class</code> attribute does not
+contain that exact value.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"b-list__box-item-title b-list__box-item-title_type_width"</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>When a <code class="highlighter-rouge">class</code> attribute has multiple class names or <em>“words”</em> we
+only need to specify one of them in order to match.</p>
+
+<p>From here we can chain multiple <code class="highlighter-rouge">.next</code> calls to navigate
+to the value.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-list__box-item-title'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">i</span> <span class="n">class</span><span class="o">=</span><span class="s">"b-list__box-item-title b-list__box-item-title_type_width"</span><span class="o">&gt;</span>\<span class="n">n</span>   <span class="n">Height</span><span class="p">:</span>\<span class="n">n</span>   <span class="o">&lt;/</span><span class="n">i</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-list__box-item-title'</span><span class="p">)</span><span class="o">.</span><span class="nb">next</span>
+<span class="s">'</span><span class="se">\n</span><span class="s">     Height:</span><span class="se">\n</span><span class="s">   '</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-list__box-item-title'</span><span class="p">)</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="nb">next</span>
+<span class="s">'</span><span class="se">\n</span><span class="s">      6</span><span class="se">\'</span><span class="s"> 3"</span><span class="se">\n</span><span class="s">    '</span>
+</code></pre>
+</div>
+
+<p>As mentioned <code class="highlighter-rouge">select_one()</code> returns the first match.</p>
+
+<p>We can use <code class="highlighter-rouge">select()</code> to get all matches.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.b-list__box-item-title'</span><span class="p">):</span>
+<span class="o">...</span>     <span class="n">i</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">i</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="o">...</span> 
+<span class="p">(</span><span class="s">'Height:'</span><span class="p">,</span> <span class="s">'6</span><span class="se">\'</span><span class="s"> 3"'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Weight:'</span><span class="p">,</span> <span class="s">'235 lbs.'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Reach:'</span><span class="p">,</span> <span class="s">'76"'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'STANCE:'</span><span class="p">,</span> <span class="s">'Orthodox'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'DOB:'</span><span class="p">,</span> <span class="s">'Sep 02, 1981'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Career statistics:'</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'SLpM:'</span><span class="p">,</span> <span class="s">'2.48'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Str. Acc.:'</span><span class="p">,</span> <span class="s">'45</span><span class="si">%</span><span class="s">'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'SApM:'</span><span class="p">,</span> <span class="s">'2.50'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Str. Def:'</span><span class="p">,</span> <span class="s">'58</span><span class="si">%</span><span class="s">'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">''</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'TD Avg.:'</span><span class="p">,</span> <span class="s">'1.40'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'TD Acc.:'</span><span class="p">,</span> <span class="s">'22</span><span class="si">%</span><span class="s">'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'TD Def.:'</span><span class="p">,</span> <span class="s">'77</span><span class="si">%</span><span class="s">'</span><span class="p">)</span>
+<span class="p">(</span><span class="s">'Sub. Avg.:'</span><span class="p">,</span> <span class="s">'0.3'</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>However we have <code class="highlighter-rouge">2</code> unwanted results here.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">('Career statistics:', '')</code></li>
+  <li><code class="highlighter-rouge">('', '')</code></li>
+</ul>
+
+<p><code class="highlighter-rouge">Career statistics</code> matches because of the <code class="highlighter-rouge">class</code> attribute.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"b-list__info-box-left"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"b-list__box-item-title"</span><span class="nt">&gt;</span>
+    Career statistics:
+  <span class="nt">&lt;/i&gt;</span>
+  <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"b-list__box-list b-list__box-list_margin-top"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;li</span> <span class="na">class=</span><span class="s">"b-list__box-list-item b-list__box-list-item_type_block"</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>Do note though that this matching tag is not inside an <code class="highlighter-rouge">&lt;li&gt;</code> tag.
+This means we can avoid this unwanted match by specifying that
+it must be inside an <code class="highlighter-rouge">&lt;li&gt;</code> tag.</p>
+
+<p>We can use the selector <code class="highlighter-rouge">li .b-list__box-item-title</code> to specify that.</p>
+
+<p>This states that <code class="highlighter-rouge">.b-list__box-item-title</code> must match anywhere
+inside an <code class="highlighter-rouge">&lt;li&gt;</code> tag i.e. <code class="highlighter-rouge">one two</code> states that <code class="highlighter-rouge">two</code> must be
+a descendent of <code class="highlighter-rouge">one</code>.</p>
+
+<p>The <code class="highlighter-rouge">2nd</code> unwanted result is due to a <em>“blank”</em> <code class="highlighter-rouge">&lt;i&gt;</code> tag in the HTML.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;i</span> <span class="na">class=</span><span class="s">"b-list__box-item-title b-list__box-item-title_type_width"</span><span class="nt">&gt;</span>\n\n          <span class="nt">&lt;/i&gt;</span>
+</code></pre>
+</div>
+
+<p>An empty string is a <em>Falsey</em> value so we can use <code class="highlighter-rouge">if</code> to filter it out.
+We will also use a dictionary to store the stat names and values.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">fighter</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'li .b-list__box-item-title'</span><span class="p">):</span>
+<span class="o">...</span>    <span class="n">stat</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">i</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="o">...</span>    <span class="k">if</span> <span class="n">stat</span><span class="p">:</span> 
+<span class="o">...</span>        <span class="n">fighter</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+<span class="o">...</span> 
+</code></pre>
+</div>
+
+<p>We can use the <code class="highlighter-rouge">json</code> module to <em>pretty-print</em> the resulting dict.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fighter</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+    <span class="s">"DOB:"</span><span class="p">:</span> <span class="s">"Sep 02, 1981"</span><span class="p">,</span> 
+    <span class="s">"Height:"</span><span class="p">:</span> <span class="s">"6' 3</span><span class="se">\"</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"Reach:"</span><span class="p">:</span> <span class="s">"76</span><span class="se">\"</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"SApM:"</span><span class="p">:</span> <span class="s">"2.50"</span><span class="p">,</span> 
+    <span class="s">"SLpM:"</span><span class="p">:</span> <span class="s">"2.48"</span><span class="p">,</span> 
+    <span class="s">"STANCE:"</span><span class="p">:</span> <span class="s">"Orthodox"</span><span class="p">,</span> 
+    <span class="s">"Str. Acc.:"</span><span class="p">:</span> <span class="s">"45</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"Str. Def:"</span><span class="p">:</span> <span class="s">"58</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"Sub. Avg.:"</span><span class="p">:</span> <span class="s">"0.3"</span><span class="p">,</span> 
+    <span class="s">"TD Acc.:"</span><span class="p">:</span> <span class="s">"22</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"TD Avg.:"</span><span class="p">:</span> <span class="s">"1.40"</span><span class="p">,</span> 
+    <span class="s">"TD Def.:"</span><span class="p">:</span> <span class="s">"77</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+    <span class="s">"Weight:"</span><span class="p">:</span> <span class="s">"235 lbs."</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>We could also add the name, record, and nickname that we extracted 
+earlier to the dict.</p>
+
+<p>Here’s the full code.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">requests</span>
+<span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="n">url</span>  <span class="o">=</span> <span class="s">'http://www.fightmetric.com/fighter-details/2f5cbecbbe18bac4'</span>
+<span class="n">r</span>    <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
+
+<span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+
+<span class="n">name</span>   <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-highlight'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">record</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__title-record'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">nick</span>   <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'.b-content__Nickname'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+<span class="n">fighter</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">Record</span><span class="o">=</span><span class="n">record</span><span class="p">,</span> <span class="n">Nickname</span><span class="o">=</span><span class="n">nick</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'li .b-list__box-item-title'</span><span class="p">):</span>
+    <span class="n">stat</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">i</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="nb">next</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">stat</span><span class="p">:</span>
+        <span class="n">fighter</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fighter</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>The output it produced.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python fightmetric.com.py 
+<span class="o">{</span>
+    <span class="s2">"DOB:"</span>: <span class="s2">"Sep 02, 1981"</span>, 
+    <span class="s2">"Height:"</span>: <span class="s2">"6' 3</span><span class="se">\"</span><span class="s2">"</span>, 
+    <span class="s2">"Name"</span>: <span class="s2">"Shamil Abdurakhimov"</span>, 
+    <span class="s2">"Nickname"</span>: <span class="s2">"Abrek"</span>, 
+    <span class="s2">"Reach:"</span>: <span class="s2">"76</span><span class="se">\"</span><span class="s2">"</span>, 
+    <span class="s2">"Record"</span>: <span class="s2">"16-4-0"</span>, 
+    <span class="s2">"SApM:"</span>: <span class="s2">"2.50"</span>, 
+    <span class="s2">"SLpM:"</span>: <span class="s2">"2.48"</span>, 
+    <span class="s2">"STANCE:"</span>: <span class="s2">"Orthodox"</span>, 
+    <span class="s2">"Str. Acc.:"</span>: <span class="s2">"45%"</span>, 
+    <span class="s2">"Str. Def:"</span>: <span class="s2">"58%"</span>, 
+    <span class="s2">"Sub. Avg.:"</span>: <span class="s2">"0.3"</span>, 
+    <span class="s2">"TD Acc.:"</span>: <span class="s2">"22%"</span>, 
+    <span class="s2">"TD Avg.:"</span>: <span class="s2">"1.40"</span>, 
+    <span class="s2">"TD Def.:"</span>: <span class="s2">"77%"</span>, 
+    <span class="s2">"Weight:"</span>: <span class="s2">"235 lbs."</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (53)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/13/web-scraping-wikipedia.com/">Web scraping: wikipedia.com</a></h2>
+          <p class="preview">The goal is given the wikipedia page of a film
+we need to extract the text content of the Plot
+section using Python. We’ve been given 
+<a href="https://en.wikipedia.org/wiki/Dangal_(film)">https://en.wikipedia.org/wiki/Dangal_(film)</a>
+as an example URL.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
