@@ -5,9 +5,178 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 12 May 2017 11:51:26 +0100</pubDate>
-    <lastBuildDate>Fri, 12 May 2017 11:51:26 +0100</lastBuildDate>
+    <pubDate>Sat, 13 May 2017 11:01:09 +0100</pubDate>
+    <lastBuildDate>Sat, 13 May 2017 11:01:09 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Web scraping: wikipedia.com</title>
+        <description>&lt;p&gt;The goal is given the wikipedia page of a film
+we need to extract the text content of the Plot
+section using Python. We’ve been given 
+&lt;a href=&quot;https://en.wikipedia.org/wiki/Dangal_(film)&quot;&gt;https://en.wikipedia.org/wiki/Dangal_(film)&lt;/a&gt;
+as an example URL.&lt;/p&gt;
+
+&lt;p&gt;The first thing we will do is to open the page in our browser
+and view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. I’ve done it here by &lt;em&gt;right-clicking&lt;/em&gt;
+on the page and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494664340-wikipedia-inspect.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I then use the &lt;em&gt;Selector&lt;/em&gt; tool (the first button on the panel to the
+left of &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;) and click the Plot header to display
+that specific section of the HTML.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494664370-wikipedia-inspector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation 
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.&lt;/p&gt;
+
+&lt;p&gt;So we can see that the Plot header is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; tag with 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;id=&quot;Plot&quot;&lt;/code&gt; which is itself inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;h2&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;span&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;mw-headline&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Plot&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;Plot&lt;span class=&quot;nt&quot;&gt;&amp;lt;/span&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;h2&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;
+  plot 1
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;
+  plot 2
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/p&amp;gt;&lt;/span&gt;
+[...]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The actual Plot contents is contained in &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt; or more &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags that come
+after the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;&lt;/code&gt; tag. In this particular example there are &lt;code class=&quot;highlighter-rouge&quot;&gt;6&lt;/code&gt; &lt;em&gt;“sibling”&lt;/em&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags.&lt;/p&gt;
+
+&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
+
+&lt;p&gt;We’ll be using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt;
+to parse it. You can install these using
+&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 requests html5lib --user&lt;/code&gt; if you have not
+already.&lt;/p&gt;
+
+&lt;p&gt;We will start by first isolating the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'https://en.wikipedia.org/wiki/Dangal_(film)'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'#Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;span&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;mw-headline&quot;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Plot&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Plot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;span&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'span'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;span&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;mw-headline&quot;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Plot&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Plot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;span&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;There are various ways for selecting particular elements and we’ve
+shown 2 examples here. First we use the &lt;em&gt;CSS Selector&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;#Plot&lt;/code&gt; which
+will match anything that has &lt;code class=&quot;highlighter-rouge&quot;&gt;id=&quot;Plot&quot;&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;#&lt;/code&gt; here matches against
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; attribute.&lt;/p&gt;
+
+&lt;p&gt;We’ve omitted the tag name because there are no other elements that
+match that &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt;, we could have been more explicit and used &lt;code class=&quot;highlighter-rouge&quot;&gt;span#Plot&lt;/code&gt;
+to search only &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; tags.&lt;/p&gt;
+
+&lt;p&gt;There is also &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; which we pass the &lt;code class=&quot;highlighter-rouge&quot;&gt;tag&lt;/code&gt; name and a dict of
+attribute names and values to match against.&lt;/p&gt;
+
+&lt;p&gt;We will use the &lt;code class=&quot;highlighter-rouge&quot;&gt;select_one()&lt;/code&gt; approach for now as it’s less typing.&lt;/p&gt;
+
+&lt;p&gt;From the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; tag we can then search &lt;em&gt;“upwards”&lt;/em&gt; using
+&lt;code class=&quot;highlighter-rouge&quot;&gt;find_parent()&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'#Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;span&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;mw-headline&quot;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;id&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Plot&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Plot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;span&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We can then navigate to the &lt;em&gt;sibling&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tag using &lt;code class=&quot;highlighter-rouge&quot;&gt;find_next_sibling()&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'#Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Mahavir&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Singh&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Phogat&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;an&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;amateur&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;wrestler&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This gives us the first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tag but there can be multiple &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags
+containing the plot text. This means we want to keep moving to the next 
+sibling tag until we reach a tag that is not a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;p&gt;We can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;.name&lt;/code&gt; attribute to access the name of a tag.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'#Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We could combine this with a &lt;code class=&quot;highlighter-rouge&quot;&gt;while&lt;/code&gt; loop to fetch the &lt;code class=&quot;highlighter-rouge&quot;&gt;.text&lt;/code&gt; content of
+each individual &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tag and store them all in a list.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;plot&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'#Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;plot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;plot&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The actual goal was to extract or &lt;em&gt;“scrape”&lt;/em&gt; the Plot summary for multiple
+films so here is an example of how one could create a loop to do so.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;films&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Udta Punjab'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Dangal (film)'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://en.wikipedia.org/wiki/'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;film&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;films&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;film&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;plot&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'#Plot'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_parent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;plot&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+        &lt;span class=&quot;c&quot;&gt;# do something with plot&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’re setting the &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt;
+as the default &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; value is commonly blocked. In 
+this case Wikipedia does not block it so it’s not needed.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 13 May 2017 09:27:46 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/05/13/web-scraping-wikipedia.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/13/web-scraping-wikipedia.com/</guid>
+        
+        <category>python</category>
+        
+        <category>webscraping</category>
+        
+        <category>beautifulsoup</category>
+        
+        <category>requests</category>
+        
+        
+      </item>
     
       <item>
         <title>Web scraping: scriptnotes.net</title>
@@ -17,10 +186,14 @@ and save the files to disk using Python.&lt;/p&gt;
 
 &lt;p&gt;We’ll firstly open the page in our browser and take a look at the
 &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. I’ve done it here by &lt;em&gt;right-clicking&lt;/em&gt; on the first
-download link and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;. This will open
-it up directly at the HTML of the element we selected.&lt;/p&gt;
+download link and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;. This will leave the
+HTML of the element selected directly in focus in the display window.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/1494582958-scriptnotes-inspect-element.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.&lt;/p&gt;
 
 &lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab open you can also use the &lt;em&gt;Selector&lt;/em&gt; tool
 (the first button on the panel to the left of &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;) to browse
@@ -33,8 +206,8 @@ is inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; 
 
 &lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
 
-&lt;p&gt;Let’s use &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt;
-to fetch parse it. You can install these using
+&lt;p&gt;We’ll be using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt;
+to parse it. You can install these using
 &lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 requests html5lib --user&lt;/code&gt; if you have not
 already.&lt;/p&gt;
 
@@ -393,7 +566,11 @@ access by &lt;em&gt;right-clicking&lt;/em&gt; on a page and selecting
 
 &lt;p&gt;&lt;img src=&quot;/img/1494227500-imgur-inspect-element.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;From there we can select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
+&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.&lt;/p&gt;
+
+&lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab open we can simply select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/1494227380-imgur-network-xhr.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
@@ -808,8 +985,8 @@ we just need to append to the end but perhaps a better example of
 to maintain &lt;em&gt;“state”&lt;/em&gt; and keep track of cookies.&lt;/p&gt;
 
 &lt;p&gt;You’ll also pretty much always want to set the &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header 
-which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt; as the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; will
-often be blocked.&lt;/p&gt;
+which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt; as the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; tends
+to be blocked.&lt;/p&gt;
 
 &lt;p&gt;So we &lt;code class=&quot;highlighter-rouge&quot;&gt;get()&lt;/code&gt; the first page of results from &lt;code class=&quot;highlighter-rouge&quot;&gt;page/0/hit.json&lt;/code&gt; however
 you could use a loop to process multiple pages.&lt;/p&gt;
@@ -1403,16 +1580,15 @@ the goal is to extract or &lt;em&gt;“scrape”&lt;/em&gt; the stock data from 
 using Python. There are multiple pages of results so we would like to loop
 or &lt;em&gt;“crawl”&lt;/em&gt; through multiple pages of the results.&lt;/p&gt;
 
-&lt;p&gt;First we’ll open up the URL in our browser and use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab 
-to view the DOM. I’m using Firefox here so I &lt;em&gt;“right-click”&lt;/em&gt; on the page 
-and choose &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;. You can also navigate using the menu 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;Tools -&amp;gt; Web Developer -&amp;gt; Inspector&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;If you’re using Chrome it’s currently under 
-&lt;a href=&quot;https://developers.google.com/web/tools/chrome-devtools/&quot;&gt;Developer Tools&lt;/a&gt;
-but you could just ask &lt;em&gt;The Internet&lt;/em&gt; where to find it.&lt;/p&gt;
+&lt;p&gt;First we’ll open up the URL in our browser and view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab.
+I’ve done this here by &lt;em&gt;“right-clicking”&lt;/em&gt; on the page 
+and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/1493785856-privataaffarer.se-inspector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.&lt;/p&gt;
 
 &lt;h2 id=&quot;network&quot;&gt;Network&lt;/h2&gt;
 
@@ -1603,7 +1779,8 @@ Behåll,SKF B,Danske Bank Markets,191,2,,28-apr
 to maintain &lt;em&gt;“state”&lt;/em&gt; and keep track of cookies.&lt;/p&gt;
 
 &lt;p&gt;You’ll also pretty much always want to change the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header 
-which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt;&lt;/p&gt;
+which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt; as the default &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; header tends
+to be blocked.&lt;/p&gt;
 
 &lt;p&gt;We must first send a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request to the page so that we can extract the needed
 parameters to send in our subsequent &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; requests.&lt;/p&gt;
@@ -1935,11 +2112,20 @@ using Python.&lt;/p&gt;
 &lt;p&gt;The example URL given to work with is &lt;a href=&quot;http://serebii.net/attackdex-sm/heavyslam.shtml&quot;&gt;http://serebii.net/attackdex-sm/heavyslam.shtml&lt;/a&gt;
 and we’re trying to extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;Battle Type&lt;/code&gt; information from the page.&lt;/p&gt;
 
+&lt;p&gt;Let’s open up the page in our browser and view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab.
+I’ve done it here by &lt;em&gt;right-clicking&lt;/em&gt; on the page and selecting 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1493625930-serebii-inspect.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation 
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.&lt;/p&gt;
+
 &lt;p&gt;&lt;img src=&quot;/img/1493625937-attackdex-sm.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;h2 id=&quot;html&quot;&gt;HTML&lt;/h2&gt;
-
-&lt;p&gt;Let’s take a look at the HTML.&lt;/p&gt;
+&lt;p&gt;Here we can see the structure of the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;table&amp;gt;&lt;/code&gt; that contains the data
+we’re after.&lt;/p&gt;
 
 &lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;table&lt;/span&gt;  &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;dextable&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
   &lt;span class=&quot;nt&quot;&gt;&amp;lt;tr&amp;gt;&lt;/span&gt;
@@ -1992,7 +2178,9 @@ the next &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tr&amp;gt;&lt;/
 &lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
 
 &lt;p&gt;We’ll be using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt; to
-parse it.&lt;/p&gt;
+parse it. You can install these using 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 requests html5lib --user&lt;/code&gt; if you have not
+already.&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
@@ -2002,10 +2190,6 @@ parse it.&lt;/p&gt;
 &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;
 &lt;/div&gt;
-
-&lt;p&gt;The default &lt;code class=&quot;highlighter-rouge&quot;&gt;html.parser&lt;/code&gt; has certain issues which is why I prefer
-to use &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt; instead. It needs to be installed separately e.g. using 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install html5lib --user&lt;/code&gt;&lt;/p&gt;
 
 &lt;p&gt;So we need to find &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;b&amp;gt;Battle Type&amp;lt;/b&amp;gt;&lt;/code&gt; for which we can use the 
 &lt;a href=&quot;https://www.crummy.com/software/BeautifulSoup/bs4/doc/#the-string-argument&quot;&gt;string argument&lt;/a&gt;
@@ -2722,424 +2906,6 @@ and it does what we expect.&lt;/p&gt;
         <category>python</category>
         
         <category>pandas</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>bash: find files that contain string A but not string B</title>
-        <description>&lt;p&gt;&lt;em&gt;How do I find all files that contain string &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; but do
-NOT contain string &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; on linux using bash?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;The original question asked about &lt;em&gt;“strings”&lt;/em&gt; but the tools
-we’ll be using support regular expressions so we will essentially
-be answering:&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;How do I find all files that match pattern &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; but don’t
-match pattern &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt;?&lt;/em&gt;&lt;/p&gt;
-
-&lt;p&gt;If you’d just like a possible solution:&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;find . -type f -exec grep -q foo &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt; -not -exec grep -q bar &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt; -print
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;
-    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; here refers to the current directory you can pass multiple directories
-to start the search from if you wish e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;find /tmp /sys&lt;/code&gt;&lt;/p&gt;
-  &lt;/li&gt;
-  &lt;li&gt;
-    &lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; allows you to omit any start directories and will default to &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt;&lt;/p&gt;
-  &lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;There are many ways to solve this problem, what follows is a discussion
-on the above example along with some others.&lt;/p&gt;
-
-&lt;p&gt;Create some test files.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ls -l
-total 16K
--rw------- 1 user group  4 Apr 22 08:01 a
--rw------- 1 user group  7 Apr 22 08:01 b
--rw------- 1 user group  4 Apr 22 08:01 c
--rw------- 1 user group 24 Apr 22 08:01 d
--rw------- 1 user group 24 Apr 22 08:01 e
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Their contents.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat a
-foo
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat b
-foobar
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat c 
-foo
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat d
-blahblahfoo
-barblahblah
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat e 
-lol
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So we want to find all files that contain &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; but at the same time
-do not contain &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; which would be files &lt;code class=&quot;highlighter-rouge&quot;&gt;a&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;c&lt;/code&gt; in our sample data.&lt;/p&gt;
-
-&lt;p&gt;We can use &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; to find lines that match a pattern. We can use the
-&lt;code class=&quot;highlighter-rouge&quot;&gt;-q&lt;/code&gt; option which will &lt;em&gt;Exit immediately with zero status if any match is found&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Combined with the shell’s &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&amp;amp;&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;||&lt;/code&gt; constructs we could say something
-like  &lt;code class=&quot;highlighter-rouge&quot;&gt;grep -q foo &amp;amp;&amp;amp; grep -q bar || print filename&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;command1 &amp;amp;&amp;amp; command2&lt;/code&gt; will only execute &lt;code class=&quot;highlighter-rouge&quot;&gt;command2&lt;/code&gt; if &lt;code class=&quot;highlighter-rouge&quot;&gt;command1&lt;/code&gt; exits
-&lt;em&gt;successfully&lt;/em&gt; &lt;small&gt;(i.e. an exit code of &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt;)&lt;/small&gt; whereas 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;command1 || command2&lt;/code&gt; will only execute it if &lt;code class=&quot;highlighter-rouge&quot;&gt;command1&lt;/code&gt; exits with a
-&lt;em&gt;non-zero&lt;/em&gt; status.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;grep -q foo &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; grep -q bar &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-./a
-./c
-./e
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Is that an &lt;code class=&quot;highlighter-rouge&quot;&gt;./e&lt;/code&gt; I see before me?! WAT?!&lt;/p&gt;
-
-&lt;p&gt;The problem is if the first &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; fails i.e. when the file does not contain &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt;
-it’s executing the &lt;code class=&quot;highlighter-rouge&quot;&gt;||&lt;/code&gt;. We need the &lt;code class=&quot;highlighter-rouge&quot;&gt;grep -q bar || echo&lt;/code&gt; treated as a single &lt;em&gt;“group”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;One option is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;()&lt;/code&gt; to group them together in their own explicit subshell.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;grep -q foo &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; grep -q bar &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-./a
-./c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We could have also used &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{}&lt;/span&gt;&lt;/code&gt; which is for grouping commands. Do note though that &lt;code class=&quot;highlighter-rouge&quot;&gt;}&lt;/code&gt; needs
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;;&lt;/code&gt; before it (or a newline).&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;grep -q foo &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt; grep -q bar &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-./a
-./c
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;-vs-&quot;&gt;* vs ./*&lt;/h2&gt;
-
-&lt;p&gt;So you will have probably seen &lt;code class=&quot;highlighter-rouge&quot;&gt;for file in *&lt;/code&gt; before but why are we using &lt;code class=&quot;highlighter-rouge&quot;&gt;./*&lt;/code&gt; here instead?&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-a b c d e
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-./a ./b ./c ./d ./e
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It’s because of filenames with a leading dash &lt;code class=&quot;highlighter-rouge&quot;&gt;-&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch ./-HELLO
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;ls &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done
-&lt;/span&gt;ls: invalid option -- &lt;span class=&quot;s1&quot;&gt;'E'&lt;/span&gt;
-Try &lt;span class=&quot;s1&quot;&gt;'ls --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Let’s use &lt;code class=&quot;highlighter-rouge&quot;&gt;set -x&lt;/code&gt; to enable some &lt;em&gt;“debugging output”&lt;/em&gt; &lt;small&gt;(use &lt;code class=&quot;highlighter-rouge&quot;&gt;set +x&lt;/code&gt;
-to disable it)&lt;/small&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;set&lt;/span&gt; -x
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;ls &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-+ &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'*'&lt;/span&gt;
-+ ls -HELLO
-ls: invalid option -- &lt;span class=&quot;s1&quot;&gt;'E'&lt;/span&gt;
-Try &lt;span class=&quot;s1&quot;&gt;'ls --help'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So because of the &lt;code class=&quot;highlighter-rouge&quot;&gt;-&lt;/code&gt; each letter of the filename is being interpreted
-as a command-line option. If we give a full path to the file e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;./-HELLO&lt;/code&gt;
-this will not be an issue. Another option is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;--&lt;/code&gt; to indicate the
-end of command-line options&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;ls -- &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
--HELLO
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Also note that &lt;em&gt;“hidden”&lt;/em&gt; entries are not matched by default by &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt;. We 
-would need to use &lt;code class=&quot;highlighter-rouge&quot;&gt;shopt -s dotglob&lt;/code&gt; to allow &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; to match names with a 
-leading &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; if desired.&lt;/p&gt;
-
-&lt;h2 id=&quot;search-recursively&quot;&gt;search recursively&lt;/h2&gt;
-
-&lt;p&gt;What happens if we need a &lt;em&gt;“recursive”&lt;/em&gt; solution? Well &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; 4 brought us
-&lt;code class=&quot;highlighter-rouge&quot;&gt;globstar&lt;/code&gt; which allows for &lt;em&gt;recursive globbing&lt;/em&gt;. It needs to be enabled
-using &lt;code class=&quot;highlighter-rouge&quot;&gt;shopt -s&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s globstar
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mkdir -p h/i/j/k/l/
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;touch h/i/j/k/l/m
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/
-./ ./f/ ./h/ ./h/i/ ./h/i/j/ ./h/i/j/k/ ./h/i/j/k/l/
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-./a ./b ./c ./d ./e ./f ./f/g ./h ./h/i ./h/i/j ./h/i/j/k ./h/i/j/k/l ./h/i/j/k/l/m
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;With globstar enabled &lt;code class=&quot;highlighter-rouge&quot;&gt;**/&lt;/code&gt; will match all directories and subdirectories &lt;small&gt;(the &lt;code class=&quot;highlighter-rouge&quot;&gt;./&lt;/code&gt;
-is here due to the &lt;em&gt;leading dash&lt;/em&gt; issue mentioned earlier)&lt;/small&gt;. We then have the
-extra &lt;code class=&quot;highlighter-rouge&quot;&gt;*&lt;/code&gt; on the end to match the contents of each directory and subdirectory. &lt;small&gt;
-(possibly not all contents though. see &lt;code class=&quot;highlighter-rouge&quot;&gt;dotglob&lt;/code&gt;)&lt;/small&gt;&lt;/p&gt;
-
-&lt;p&gt;Let’s try it with our greps.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;mkdir f
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo &lt;/span&gt;foo &amp;gt; f/g
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;shopt&lt;/span&gt; -s globstar
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;grep -q foo &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; grep -q bar &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-./a
-./c
-grep: ./f: Is a directory
-./f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; spits out some warnings though because we ran it on &lt;code class=&quot;highlighter-rouge&quot;&gt;./f&lt;/code&gt; which is not a file.
-This is just a warning and doesn’t prevent the command from working so we could just
-discard it by using &lt;code class=&quot;highlighter-rouge&quot;&gt;2&amp;gt;/dev/null&lt;/code&gt; on the first &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; command.&lt;/p&gt;
-
-&lt;p&gt;Another option is to use bash’s
-&lt;a href=&quot;https://www.gnu.org/software/bash/manual/html_node/Bash-Conditional-Expressions.html#Bash-Conditional-Expressions&quot;&gt;Conditional Expressions&lt;/a&gt;
-to filter out only &lt;em&gt;“regular”&lt;/em&gt; files. e.g.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;file &lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; ./&lt;span class=&quot;k&quot;&gt;**&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[[&lt;/span&gt; -f &lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;]]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; grep ... &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt; grep ... &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;At this stage though we’re basically emulating &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; in &lt;code class=&quot;highlighter-rouge&quot;&gt;bash&lt;/code&gt; when
-we could just use it directly instead.&lt;/p&gt;
-
-&lt;h2 id=&quot;find&quot;&gt;find&lt;/h2&gt;
-
-&lt;p&gt;This is the command given at the beginning of the article.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -type f -exec grep -q foo &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt; -not -exec grep -q bar &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt; -print
-./a
-./c
-./f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;There is an implicit &lt;code class=&quot;highlighter-rouge&quot;&gt;-and&lt;/code&gt; between &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; &lt;em&gt;“expressions”&lt;/em&gt; so if we took
-the last two expressions we would have&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-exec grep -q bar {} \; -and -print&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;This would print the filename if the &lt;code class=&quot;highlighter-rouge&quot;&gt;grep -q bar&lt;/code&gt; was successful. We want the 
-opposite behaviour though which is why &lt;code class=&quot;highlighter-rouge&quot;&gt;-not&lt;/code&gt; is there.&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-not expression&lt;/code&gt;
-This is the unary NOT operator.  It evaluates to true if the expression is false.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;So with &lt;code class=&quot;highlighter-rouge&quot;&gt;-not -exec grep ... -print&lt;/code&gt; we only print the filename if the second
-&lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; failed i.e. it did not contain &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt;. Due to the implicit ands the previous 
-expressions must have all succeeded to reach &lt;code class=&quot;highlighter-rouge&quot;&gt;-not&lt;/code&gt; i.e. it must be &lt;code class=&quot;highlighter-rouge&quot;&gt;-type f&lt;/code&gt; and
-the first &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec grep&lt;/code&gt; matched.&lt;/p&gt;
-
-&lt;p&gt;So this works and to me is the &lt;em&gt;“simplest”&lt;/em&gt; solution. It does however call &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt;
-at least once (and possibly twice) for every file. Can we be more &lt;em&gt;“efficient”&lt;/em&gt;
-or as they say on the internet:&lt;/p&gt;
-
-&lt;p&gt;&lt;em&gt;“CAN WE GO FASTAAR LULZ?!!1”&lt;/em&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;grep--l&quot;&gt;grep -l&lt;/h2&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; has &lt;code class=&quot;highlighter-rouge&quot;&gt;-l&lt;/code&gt; which will print out a list of filenames that match. GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt;
-has &lt;code class=&quot;highlighter-rouge&quot;&gt;-r&lt;/code&gt; &lt;small&gt;(and &lt;code class=&quot;highlighter-rouge&quot;&gt;-R&lt;/code&gt;)&lt;/small&gt; to search recursively.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -r -l foo
-a
-b
-c
-d
-f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It also has &lt;code class=&quot;highlighter-rouge&quot;&gt;-Z&lt;/code&gt; which changes the output of &lt;code class=&quot;highlighter-rouge&quot;&gt;-l&lt;/code&gt;. By default &lt;code class=&quot;highlighter-rouge&quot;&gt;-l&lt;/code&gt; will print 1
-filename per line but if you have a filename with a newline in it this will
-prevent you from treated each line as a filename.&lt;/p&gt;
-
-&lt;p&gt;So if for example you were trying to process the output with a &lt;code class=&quot;highlighter-rouge&quot;&gt;while read&lt;/code&gt; loop
-it would break. I’ve never had a filename with a newline in it but this seems
-to be the standard example used for how such approaches can be broken and you
-should be aware of it as it is a possibility.&lt;/p&gt;
-
-&lt;p&gt;Anyways, &lt;code class=&quot;highlighter-rouge&quot;&gt;-Z&lt;/code&gt; outputs a null-delimited list instead.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;grep -r -l -Z foo | cat -vet
-a^@b^@c^@d^@
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;cat -vet&lt;/code&gt; here to show the &lt;em&gt;non-printing&lt;/em&gt; characters and &lt;code class=&quot;highlighter-rouge&quot;&gt;^@&lt;/code&gt; is a 
-visual representation of the null-byte.&lt;/p&gt;
-
-&lt;p&gt;We could then pipe this to &lt;code class=&quot;highlighter-rouge&quot;&gt;while read -d ''&lt;/code&gt; which sets read’s &lt;code class=&quot;highlighter-rouge&quot;&gt;DELIM&lt;/code&gt; to null to
-process the results.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ grep -r -l -Z foo | while read -d '' -r file; do grep -q bar &quot;$file&quot; || echo &quot;$file&quot;; done
-a
-c
-f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Is this more efficient than the previous &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; solution? Maybe? I don’t know.&lt;/p&gt;
-
-&lt;h2 id=&quot;awk&quot;&gt;awk&lt;/h2&gt;
-
-&lt;p&gt;Back to &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; again we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; to process a file once instead of using 2 &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; calls.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -type f -exec awk &lt;span class=&quot;s1&quot;&gt;'/foo/{ x = 1 } /bar/{ y = 1; exit } END { if (x &amp;amp;&amp;amp; !y) print FILENAME }'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; &lt;span class=&quot;se&quot;&gt;\;&lt;/span&gt;
-./a
-./c
-./f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/foo/&lt;/code&gt; matches lines that contain &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/bar/&lt;/code&gt; matches lines that contain &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;/regex/&lt;/code&gt; matches any lines that &lt;em&gt;“matches”&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;regex&lt;/code&gt; it is shorthand for &lt;code class=&quot;highlighter-rouge&quot;&gt;$0 ~ /regex/&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;In &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; is considered &lt;em&gt;“False”&lt;/em&gt; and non-zero is considered &lt;em&gt;“True”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'BEGIN { if (0) print &quot;True&quot; }'&lt;/span&gt;
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'BEGIN { if (1) print &quot;True&quot; }'&lt;/span&gt;
-True
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Or we could use the &lt;em&gt;ternary operator&lt;/em&gt; for perhaps more explicit output.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'BEGIN { print 0 ? &quot;True&quot; : &quot;False&quot; }'&lt;/span&gt;
-False
-&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;awk &lt;span class=&quot;s1&quot;&gt;'BEGIN { print 1 ? &quot;True&quot; : &quot;False&quot; }'&lt;/span&gt;
-True
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;x&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;y&lt;/code&gt; as &lt;em&gt;“flag variables”&lt;/em&gt;. Then inside &lt;code class=&quot;highlighter-rouge&quot;&gt;END&lt;/code&gt; we test if
-&lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; is found and if &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; is not found print &lt;code class=&quot;highlighter-rouge&quot;&gt;FILENAME&lt;/code&gt;. The &lt;code class=&quot;highlighter-rouge&quot;&gt;END&lt;/code&gt; block is
-executed after all the input has been processed whereas &lt;code class=&quot;highlighter-rouge&quot;&gt;BEGIN&lt;/code&gt; block executes
-before any input has been processed.&lt;/p&gt;
-
-&lt;p&gt;You may look at this and say why don’t we just &lt;code class=&quot;highlighter-rouge&quot;&gt;exit&lt;/code&gt; when &lt;code class=&quot;highlighter-rouge&quot;&gt;/bar/&lt;/code&gt; matches?
-Well the reason for this is that after &lt;code class=&quot;highlighter-rouge&quot;&gt;exit&lt;/code&gt; is called &lt;code class=&quot;highlighter-rouge&quot;&gt;END&lt;/code&gt; blocks are
-still executed so we need to set our flag variable or we’d get false results.&lt;/p&gt;
-
-&lt;h2 id=&quot;-exec--vs-&quot;&gt;-exec \; vs +&lt;/h2&gt;
-
-&lt;p&gt;Is this faster than using 2 &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; commands? I’m not sure but I’d hazard a guess
-at “probably”.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-exec command {} \;&lt;/code&gt; will execute &lt;code class=&quot;highlighter-rouge&quot;&gt;command&lt;/code&gt; once per &lt;em&gt;“file&lt;/em&gt;” found e.g.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;command a&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;command b&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;command c&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-exec command {} +&lt;/code&gt; will pass as many &lt;em&gt;“filenames”&lt;/em&gt; as possible per execution e.g.&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;command a b c&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;The reason we don’t use the &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; form with our &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; version is because &lt;em&gt;“all”&lt;/em&gt; the 
-&lt;em&gt;“filenames&lt;/em&gt;” are passed to a single &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; command and &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; is found in one of them 
-meaning the whole chain becomes &lt;em&gt;“True”&lt;/em&gt; giving us all files as a match, which is not 
-the behaviour we want.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -type f -exec grep -q foo &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; + -print
-./a
-./b
-./c
-./d
-./e
-./f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;When we say &lt;em&gt;“all”&lt;/em&gt; &lt;em&gt;“filenames”&lt;/em&gt; it’s true for this small example. There is a length limit
-on the size of the command-line &lt;code class=&quot;highlighter-rouge&quot;&gt;ARG_MAX&lt;/code&gt; which &lt;code class=&quot;highlighter-rouge&quot;&gt;find&lt;/code&gt; works out and calls &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt;
-with as many &lt;em&gt;“filenames”&lt;/em&gt; as possible each time, similar to how &lt;code class=&quot;highlighter-rouge&quot;&gt;xargs&lt;/code&gt; works.&lt;/p&gt;
-
-&lt;p&gt;The problem still stands however but one possibility is to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; form of &lt;code class=&quot;highlighter-rouge&quot;&gt;-exec&lt;/code&gt; 
-to execute our &lt;code class=&quot;highlighter-rouge&quot;&gt;grep -l&lt;/code&gt; from earlier to build the list of matching files.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -type f -exec grep -l -Z foo &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; + | &lt;span class=&quot;k&quot;&gt;while &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;read&lt;/span&gt; -d &lt;span class=&quot;s1&quot;&gt;''&lt;/span&gt; -r file; &lt;span class=&quot;k&quot;&gt;do &lt;/span&gt;grep -q bar &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;||&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$file&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;&lt;/span&gt;; &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt;
-./a
-./c
-./f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Is this more efficient? I’m not sure, it would be interesting to compare though.&lt;/p&gt;
-
-&lt;h2 id=&quot;beginfile&quot;&gt;BEGINFILE&lt;/h2&gt;
-
-&lt;p&gt;So finally back to &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; again.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; can accept multiple filenames but as with the &lt;code class=&quot;highlighter-rouge&quot;&gt;grep&lt;/code&gt; example having all files 
-treated as &lt;em&gt;“one”&lt;/em&gt; will give us false results.&lt;/p&gt;
-
-&lt;p&gt;GNU &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; however has both &lt;code class=&quot;highlighter-rouge&quot;&gt;BEGINFILE&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;ENDFILE&lt;/code&gt; blocks. This means we can have 
-multiple files in a single &lt;code class=&quot;highlighter-rouge&quot;&gt;awk&lt;/code&gt; execution but still treat each one &lt;em&gt;“separately”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;It also has &lt;code class=&quot;highlighter-rouge&quot;&gt;nextfile&lt;/code&gt; to move to the next file which can replace our &lt;code class=&quot;highlighter-rouge&quot;&gt;exit&lt;/code&gt; call.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;find -type f -exec awk &lt;span class=&quot;s1&quot;&gt;'BEGINFILE { x = y = 0 } /foo/{ x = 1 } /bar/{ y = 1; nextfile } ENDFILE { if (x &amp;amp;&amp;amp; !y) print FILENAME }'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt; +
-./a
-./c
-./f/g
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So we replace &lt;code class=&quot;highlighter-rouge&quot;&gt;exit&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;nextfile&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;END&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;ENDFILE&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;We need to add a &lt;code class=&quot;highlighter-rouge&quot;&gt;BEGINFILE&lt;/code&gt; block though to reset our flag variables back to their 
-default state for each new file we process.&lt;/p&gt;
-
-&lt;p&gt;I’d imagine this would be the &lt;em&gt;“most efficient”&lt;/em&gt; of the approaches discussed 
-but you would need to benchmark them to get a definite answer.&lt;/p&gt;
-</description>
-        <pubDate>Sat, 22 Apr 2017 08:06:06 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/04/22/bash-find-files-with-string-a-but-not-string-b/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/04/22/bash-find-files-with-string-a-but-not-string-b/</guid>
-        
-        <category>bash</category>
-        
-        <category>find</category>
-        
-        <category>grep</category>
-        
-        <category>regex</category>
-        
-        <category>awk</category>
-        
-        <category>glob</category>
-        
-        <category>linux</category>
         
         
       </item>

@@ -75,10 +75,14 @@ and save the files to disk using Python.</p>
 
 <p>We’ll firstly open the page in our browser and take a look at the
 <code class="highlighter-rouge">Inspector</code> tab. I’ve done it here by <em>right-clicking</em> on the first
-download link and selecting <code class="highlighter-rouge">Inspect Element</code>. This will open
-it up directly at the HTML of the element we selected.</p>
+download link and selecting <code class="highlighter-rouge">Inspect Element</code>. This will leave the
+HTML of the element selected directly in focus in the display window.</p>
 
 <p><img src="/img/1494582958-scriptnotes-inspect-element.png" alt="" /></p>
+
+<p>Do note that the <code class="highlighter-rouge">Inspector</code> tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.</p>
 
 <p>With the <code class="highlighter-rouge">Inspector</code> tab open you can also use the <em>Selector</em> tool
 (the first button on the panel to the left of <code class="highlighter-rouge">Inspector</code>) to browse
@@ -95,8 +99,8 @@ is inside the <code class="highlighter-rouge">href</code> attribute and it ends 
   <a class="anchor" href="#code">Code</a>
 </h2>
 
-<p>Let’s use <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code>
-to fetch parse it. You can install these using
+<p>We’ll be using <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code>
+to parse it. You can install these using
 <code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code> if you have not
 already.</p>
 
@@ -245,7 +249,7 @@ as an example.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (51)</a>
+            <a href="/archive">View Archive (52)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/05/10/bash-files-that-contain-all-lines/">bash: files that contain all lines from file</a></h2>
           <p class="preview"><em>Given <code class="highlighter-rouge">file-a</code> I need to find all files recursively (“using bash”)
@@ -255,6 +259,21 @@ How can I do this?</em></p>
 
         </div>
       
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Newer
+            
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/13/web-scraping-wikipedia.com/">Web scraping: wikipedia.com</a></h2>
+          <p class="preview">The goal is given the wikipedia page of a film
+we need to extract the text content of the Plot
+section using Python. We’ve been given 
+<a href="https://en.wikipedia.org/wiki/Dangal_(film)">https://en.wikipedia.org/wiki/Dangal_(film)</a>
+as an example URL.</p>
+
+
+        </div>
       
     </div>
   

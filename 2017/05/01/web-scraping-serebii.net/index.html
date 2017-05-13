@@ -76,15 +76,20 @@ using Python.</p>
 <p>The example URL given to work with is <a href="http://serebii.net/attackdex-sm/heavyslam.shtml">http://serebii.net/attackdex-sm/heavyslam.shtml</a>
 and we’re trying to extract the <code class="highlighter-rouge">Battle Type</code> information from the page.</p>
 
+<p>Let’s open up the page in our browser and view the <code class="highlighter-rouge">Inspector</code> tab.
+I’ve done it here by <em>right-clicking</em> on the page and selecting 
+<code class="highlighter-rouge">Inspect Element</code>.</p>
+
+<p><img src="/img/1493625930-serebii-inspect.png" alt="" /></p>
+
+<p>Do note that the <code class="highlighter-rouge">Inspector</code> tab shows your browser’s representation 
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.</p>
+
 <p><img src="/img/1493625937-attackdex-sm.png" alt="" /></p>
 
-<a name="html"></a>
-<h2 class="section-header">
-  <span id="html"></span>
-  <a class="anchor" href="#html">HTML</a>
-</h2>
-
-<p>Let’s take a look at the HTML.</p>
+<p>Here we can see the structure of the <code class="highlighter-rouge">&lt;table&gt;</code> that contains the data
+we’re after.</p>
 
 <div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;table</span>  <span class="na">class=</span><span class="s">"dextable"</span><span class="nt">&gt;</span>
   <span class="nt">&lt;tr&gt;</span>
@@ -141,7 +146,9 @@ the next <code class="highlighter-rouge">&lt;tr&gt;</code> and get the second <c
 </h2>
 
 <p>We’ll be using <code class="highlighter-rouge">requests</code> to fetch the HTML and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code> to
-parse it.</p>
+parse it. You can install these using 
+<code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code> if you have not
+already.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
@@ -151,10 +158,6 @@ parse it.</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
 </code></pre>
 </div>
-
-<p>The default <code class="highlighter-rouge">html.parser</code> has certain issues which is why I prefer
-to use <code class="highlighter-rouge">html5lib</code> instead. It needs to be installed separately e.g. using 
-<code class="highlighter-rouge">pip install html5lib --user</code></p>
 
 <p>So we need to find <code class="highlighter-rouge">&lt;b&gt;Battle Type&lt;/b&gt;</code> for which we can use the 
 <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#the-string-argument">string argument</a>
@@ -373,7 +376,7 @@ then in the following <code class="highlighter-rouge">&lt;td&gt;</code> tags.</p
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (51)</a>
+            <a href="/archive">View Archive (52)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/04/28/python-for-loops/">Python: for loops</a></h2>
           <p class="preview">Python’s <code class="highlighter-rouge">for</code> loop has <em>“super magic powahz!!”</em> It may help

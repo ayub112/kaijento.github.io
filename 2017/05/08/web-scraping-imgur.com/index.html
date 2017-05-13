@@ -137,7 +137,11 @@ access by <em>right-clicking</em> on a page and selecting
 
 <p><img src="/img/1494227500-imgur-inspect-element.png" alt="" /></p>
 
-<p>From there we can select the <code class="highlighter-rouge">Network</code> tab.</p>
+<p>Do note that the <code class="highlighter-rouge">Inspector</code> tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.</p>
+
+<p>With the <code class="highlighter-rouge">Inspector</code> tab open we can simply select the <code class="highlighter-rouge">Network</code> tab.</p>
 
 <p><img src="/img/1494227380-imgur-network-xhr.png" alt="" /></p>
 
@@ -560,8 +564,8 @@ we just need to append to the end but perhaps a better example of
 to maintain <em>“state”</em> and keep track of cookies.</p>
 
 <p>You’ll also pretty much always want to set the <code class="highlighter-rouge">User-Agent</code> header 
-which we set here to <code class="highlighter-rouge">Mozilla/5.0</code> as the default <code class="highlighter-rouge">User-Agent</code> will
-often be blocked.</p>
+which we set here to <code class="highlighter-rouge">Mozilla/5.0</code> as the default <code class="highlighter-rouge">User-Agent</code> tends
+to be blocked.</p>
 
 <p>So we <code class="highlighter-rouge">get()</code> the first page of results from <code class="highlighter-rouge">page/0/hit.json</code> however
 you could use a loop to process multiple pages.</p>
@@ -595,7 +599,7 @@ instead of just printing the URLs.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (51)</a>
+            <a href="/archive">View Archive (52)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/05/06/web-scraping-nasa-image-of-the-day/">Web scraping: NASA Image of the Day</a></h2>
           <p class="preview">The goal is trying to <em>“scrape”</em> images from 

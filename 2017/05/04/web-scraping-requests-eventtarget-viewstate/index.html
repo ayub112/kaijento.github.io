@@ -80,16 +80,15 @@ the goal is to extract or <em>“scrape”</em> the stock data from the table on
 using Python. There are multiple pages of results so we would like to loop
 or <em>“crawl”</em> through multiple pages of the results.</p>
 
-<p>First we’ll open up the URL in our browser and use the <code class="highlighter-rouge">Inspector</code> tab 
-to view the DOM. I’m using Firefox here so I <em>“right-click”</em> on the page 
-and choose <code class="highlighter-rouge">Inspect Element</code>. You can also navigate using the menu 
-<code class="highlighter-rouge">Tools -&gt; Web Developer -&gt; Inspector</code></p>
-
-<p>If you’re using Chrome it’s currently under 
-<a href="https://developers.google.com/web/tools/chrome-devtools/">Developer Tools</a>
-but you could just ask <em>The Internet</em> where to find it.</p>
+<p>First we’ll open up the URL in our browser and view the <code class="highlighter-rouge">Inspector</code> tab.
+I’ve done this here by <em>“right-clicking”</em> on the page 
+and selecting <code class="highlighter-rouge">Inspect Element</code>.</p>
 
 <p><img src="/img/1493785856-privataaffarer.se-inspector.png" alt="" /></p>
+
+<p>Do note that the <code class="highlighter-rouge">Inspector</code> tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the source HTML.</p>
 
 <a name="network"></a>
 <h2 class="section-header">
@@ -292,7 +291,8 @@ Behåll,SKF B,Danske Bank Markets,191,2,,28-apr
 to maintain <em>“state”</em> and keep track of cookies.</p>
 
 <p>You’ll also pretty much always want to change the default <code class="highlighter-rouge">User-Agent</code> header 
-which we set here to <code class="highlighter-rouge">Mozilla/5.0</code></p>
+which we set here to <code class="highlighter-rouge">Mozilla/5.0</code> as the default <code class="highlighter-rouge">requests</code> header tends
+to be blocked.</p>
 
 <p>We must first send a <code class="highlighter-rouge">GET</code> request to the page so that we can extract the needed
 parameters to send in our subsequent <code class="highlighter-rouge">POST</code> requests.</p>
@@ -621,7 +621,7 @@ handling, request retries, etc.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (51)</a>
+            <a href="/archive">View Archive (52)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/05/01/web-scraping-serebii.net/">Web scraping: serebii.net</a></h2>
           <p class="preview">We’re trying extract information about a Pokémon attack from <a href="http://serebii.net">http://serebii.net</a> 
