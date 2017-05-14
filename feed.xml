@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 14 May 2017 13:29:45 +0100</pubDate>
-    <lastBuildDate>Sun, 14 May 2017 13:29:45 +0100</lastBuildDate>
+    <pubDate>Sun, 14 May 2017 13:33:45 +0100</pubDate>
+    <lastBuildDate>Sun, 14 May 2017 13:33:45 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -253,7 +253,7 @@ the zipcode to the end of it.&lt;/p&gt;
 that the table needs to be &lt;em&gt;“parsed”&lt;/em&gt; in 
 some way.&lt;/p&gt;
 
-&lt;p&gt;For the parsing we could use &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; along with 
+&lt;p&gt;For the &lt;em&gt;“parsing”&lt;/em&gt; we could use &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; along with 
 &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt; which can be installed using the command 
 &lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 html5lib --user&lt;/code&gt;
 if you do not already have them.&lt;/p&gt;
