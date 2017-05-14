@@ -83,6 +83,24 @@ over each item <small>(<em>“element”</em>)</small> in the list.</p>
 </code></pre>
 </div>
 
+<p>So we supply the name (in this case <code class="highlighter-rouge">word</code>) of a variable
+which we can use to access each item. If we had an already
+existing variable with the same name
+it will be overwritten. The variable also exists after 
+the <code class="highlighter-rouge">for</code> loop has finished executing.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">word</span> <span class="o">=</span> <span class="s">'before'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'hello'</span><span class="p">,</span> <span class="s">'hi'</span><span class="p">,</span> <span class="s">'sup'</span><span class="p">]:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="n">hello</span>
+<span class="n">hi</span>
+<span class="n">sup</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+<span class="n">sup</span>
+</code></pre>
+</div>
+
 <p>Inlining the definition of the list may look strange there 
 so we’ll create a list with a name and loop through it.</p>
 
