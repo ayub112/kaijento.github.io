@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 14 May 2017 13:25:21 +0100</pubDate>
-    <lastBuildDate>Sun, 14 May 2017 13:25:21 +0100</lastBuildDate>
+    <pubDate>Sun, 14 May 2017 13:29:45 +0100</pubDate>
+    <lastBuildDate>Sun, 14 May 2017 13:29:45 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -33,10 +33,12 @@ in my browser.&lt;/p&gt;
 
 &lt;p&gt;&lt;img src=&quot;/img/1494750611-census-noscript.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;I’m using &lt;code class=&quot;highlighter-rouge&quot;&gt;Firefox&lt;/code&gt; with Javascript disabled and I see this message.
+&lt;p&gt;I’m using &lt;code class=&quot;highlighter-rouge&quot;&gt;Firefox&lt;/code&gt; with Javascript disabled and I see this &lt;em&gt;“requires an
+Internet Browser with Javascript enabled”&lt;/em&gt; message.
 I also try to click on the &lt;code class=&quot;highlighter-rouge&quot;&gt;Go&lt;/code&gt; button and nothing happens. This 
 tells us that Javascript is used to perform the search and 
-also tells us what type of requests we should look for.&lt;/p&gt;
+also tells us what type of requests we should look for in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt;
+tab.&lt;/p&gt;
 
 &lt;p&gt;I &lt;em&gt;right-click&lt;/em&gt; on the page and select &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt; to open up
 the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. (Although you can access it directly from
@@ -47,7 +49,7 @@ the menu or using keyboard shortcuts.)&lt;/p&gt;
 &lt;p&gt;From there I select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab. I also filter the type of
 requests displayed to only &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; which stands for &lt;code class=&quot;highlighter-rouge&quot;&gt;XMLHttpRequest&lt;/code&gt;.
 This is the type of requests made by Javascript and we know to look
-for these specifically due to the hint we received above.&lt;/p&gt;
+for these specifically due to the hint we received earlier.&lt;/p&gt;
 
 &lt;p&gt;I then re-enable Javascript in my browser and refresh the page.&lt;/p&gt;
 

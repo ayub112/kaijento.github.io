@@ -95,10 +95,12 @@ in my browser.</p>
 
 <p><img src="/img/1494750611-census-noscript.png" alt="" /></p>
 
-<p>I’m using <code class="highlighter-rouge">Firefox</code> with Javascript disabled and I see this message.
+<p>I’m using <code class="highlighter-rouge">Firefox</code> with Javascript disabled and I see this <em>“requires an
+Internet Browser with Javascript enabled”</em> message.
 I also try to click on the <code class="highlighter-rouge">Go</code> button and nothing happens. This 
 tells us that Javascript is used to perform the search and 
-also tells us what type of requests we should look for.</p>
+also tells us what type of requests we should look for in the <code class="highlighter-rouge">Network</code>
+tab.</p>
 
 <p>I <em>right-click</em> on the page and select <code class="highlighter-rouge">Inspect Element</code> to open up
 the <code class="highlighter-rouge">Inspector</code> tab. (Although you can access it directly from
@@ -109,7 +111,7 @@ the menu or using keyboard shortcuts.)</p>
 <p>From there I select the <code class="highlighter-rouge">Network</code> tab. I also filter the type of
 requests displayed to only <code class="highlighter-rouge">XHR</code> which stands for <code class="highlighter-rouge">XMLHttpRequest</code>.
 This is the type of requests made by Javascript and we know to look
-for these specifically due to the hint we received above.</p>
+for these specifically due to the hint we received earlier.</p>
 
 <p>I then re-enable Javascript in my browser and refresh the page.</p>
 
