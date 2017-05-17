@@ -5,9 +5,867 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 14 May 2017 20:34:36 +0100</pubDate>
-    <lastBuildDate>Sun, 14 May 2017 20:34:36 +0100</lastBuildDate>
+    <pubDate>Wed, 17 May 2017 11:37:00 +0100</pubDate>
+    <lastBuildDate>Wed, 17 May 2017 11:37:00 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Web scraping: instagram.com</title>
+        <description>&lt;p&gt;The goal is to &lt;em&gt;“scrape”&lt;/em&gt; media posts from an &lt;em&gt;Instagram&lt;/em&gt; page 
+using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; libraries 
+however only the &lt;em&gt;“first page”&lt;/em&gt; of results is being
+displayed. Why is this?&lt;/p&gt;
+
+&lt;p&gt;We were not given an example URL so we will use
+&lt;a href=&quot;https://www.instagram.com/thefatfoxcamden/&quot;&gt;https://www.instagram.com/thefatfoxcamden/&lt;/a&gt;
+for testing purposes (as they post awesome pictures).&lt;/p&gt;
+
+&lt;p&gt;You should know that &lt;a href=&quot;https://www.instagram.com/developer/&quot;&gt;instagram has an api&lt;/a&gt;.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;You use it, taking the blue pill—the article ends.&lt;/li&gt;
+  &lt;li&gt;You take the red pill—you stay in Wonderland, 
+and I show you how deep a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response goes.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Remember: all I’m offering is the truth. Nothing more.&lt;/p&gt;
+
+&lt;p&gt;If you don’t need the truth and just want to see how to &lt;em&gt;“Scrape instagram in 30 lines
+of Python!!!!!”&lt;/em&gt; the final code from this article is 
+&lt;a href=&quot;https://github.com/kaijento/code/blob/master/webscraping/instagram.com/instagram.py&quot;&gt;on github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;developer-tools&quot;&gt;“Developer Tools”&lt;/h2&gt;
+
+&lt;p&gt;So the first thing I do is open the URL in my browser (&lt;code class=&quot;highlighter-rouge&quot;&gt;Firefox&lt;/code&gt; with Javascript 
+disabled) and I see the following.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494833773-instagram-noscript.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;This tells us that &lt;em&gt;Instagram&lt;/em&gt; doesn’t function without Javascript enabled.
+We were told however that using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; (which does not execute Javascript)
+returned the first page of results. This tells us that there is some data 
+contained in the source &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So what we want to do is to debug the HTTP requests being made to fetch
+the &lt;em&gt;“Next Page”&lt;/em&gt; of results. To do this we can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab of
+the browser which is located in what is commonly referred to as the 
+&lt;em&gt;“Developer Tools”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;I &lt;em&gt;right-click&lt;/em&gt; on the page and select &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt; to open up
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. (Although you can access it directly from
+the menu or using keyboard shortcuts.)&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494833818-instagram-inspect.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab open I then select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab. 
+I also filter the type of
+requests displayed to only &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; which stands for &lt;code class=&quot;highlighter-rouge&quot;&gt;XMLHttpRequest&lt;/code&gt;.
+These are the type of requests made by Javascript and we already
+know Javascript is doing the work so we want to look at these
+requests specifically.&lt;/p&gt;
+
+&lt;p&gt;I then re-enable Javascript in my browser and refresh the page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494833959-instagram-network-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab open we can select an individual request and
+an &lt;em&gt;Information Panel&lt;/em&gt; will appear on the right. We can then select
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;Response&lt;/code&gt; tab within that panel to view information about the 
+response received.&lt;/p&gt;
+
+&lt;p&gt;Let’s take a closer look at the response.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494834391-instagram-response-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So the response is &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data and we can see it contains &lt;code class=&quot;highlighter-rouge&quot;&gt;start_cursor&lt;/code&gt;
+and &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; which look like they have something to do with 
+&lt;em&gt;“pagination”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;We see &lt;code class=&quot;highlighter-rouge&quot;&gt;count: 402&lt;/code&gt; which is the same number of &lt;code class=&quot;highlighter-rouge&quot;&gt;Posts&lt;/code&gt; on the page
+and we also see &lt;code class=&quot;highlighter-rouge&quot;&gt;nodes&lt;/code&gt; 
+which appears to be a list containing the information of each media item.&lt;/p&gt;
+
+&lt;p&gt;Interesting values for each node include&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;code&lt;/code&gt; - this is used in the &lt;em&gt;“post”&lt;/em&gt; URL e.g.
+&lt;a href=&quot;https://www.instagram.com/p/BUGg5r6gf5T/&quot;&gt;https://www.instagram.com/p/BUGg5r6gf5T/&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;display_src&lt;/code&gt; - this appears to be a direct URL to the &lt;em&gt;“source”&lt;/em&gt; (an image in this case)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; - the &lt;em&gt;“node id”&lt;/em&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;You may notice that the &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; of the first &lt;em&gt;“node”&lt;/em&gt; is the same value
+as the page &lt;code class=&quot;highlighter-rouge&quot;&gt;start_cursor&lt;/code&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;1515190529653195341&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Scrolling down to look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; of the last &lt;em&gt;“node”&lt;/em&gt;..&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494834392-instagram-response-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;.. we can see that it matches the value of the page &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;1511430693194883315&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Let’s take a look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;Params&lt;/code&gt; tab to see what data was 
+sent in the request.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494834530-instagram-params-1.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt; param we see &lt;code class=&quot;highlighter-rouge&quot;&gt;ig_user(3612106348)&lt;/code&gt; which suggests the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;3612106348&lt;/code&gt; number is the &lt;em&gt;id&lt;/em&gt; of this instagram user’s account.&lt;/p&gt;
+
+&lt;p&gt;There is also &lt;code class=&quot;highlighter-rouge&quot;&gt;media.after(AQDJ-....,+12&lt;/code&gt; which suggests the &lt;code class=&quot;highlighter-rouge&quot;&gt;AQDJ-...&lt;/code&gt; 
+string is an &lt;em&gt;id&lt;/em&gt; for a particular media item and 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;,+12&lt;/code&gt; looks like it’s saying &lt;em&gt;“Give me the next 12 items after this id”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;This makes sense because as you may have noticed &lt;code class=&quot;highlighter-rouge&quot;&gt;12&lt;/code&gt; is the
+number of media items on a page of results. The &lt;code class=&quot;highlighter-rouge&quot;&gt;AQDJ-...&lt;/code&gt; string however, 
+doesn’t seem to follow the naming pattern of the &lt;em&gt;“node”&lt;/em&gt; ids we
+got in the response.&lt;/p&gt;
+
+&lt;p&gt;Looking back at the main &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab we can see that a second &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request 
+was also made so let’s take a closer look at that.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494845820-instagram-network-3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s take a look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;Params&lt;/code&gt; sent with the request.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494834531-instagram-params-2.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We can see &lt;code class=&quot;highlighter-rouge&quot;&gt;ig_user&lt;/code&gt; is the same but the &lt;code class=&quot;highlighter-rouge&quot;&gt;media.after()&lt;/code&gt; string 
+is now &lt;code class=&quot;highlighter-rouge&quot;&gt;1511430693194883315,+12&lt;/code&gt; and this &lt;code class=&quot;highlighter-rouge&quot;&gt;1511430693194883315&lt;/code&gt;
+value matches the page &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; value from the first
+request made.&lt;/p&gt;
+
+&lt;p&gt;So it looks like we can extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; value from a 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Response&lt;/code&gt; and use it in the &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt; parameter to fetch the next 
+page of results.&lt;/p&gt;
+
+&lt;p&gt;If we &lt;em&gt;right-click&lt;/em&gt; on a request we get some useful options.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1494834368-instagram-copy-as.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We can&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Copy Response&lt;/code&gt; which will copy the &lt;code class=&quot;highlighter-rouge&quot;&gt;Response&lt;/code&gt; tab data (i.e. the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data from above)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Copy POST Data&lt;/code&gt; which will copy the &lt;code class=&quot;highlighter-rouge&quot;&gt;Params&lt;/code&gt; tab data (i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;ref&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;query_id&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Copy as cURL&lt;/code&gt; which will give the full &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; command to replicate the request&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;copy-as-curl&quot;&gt;Copy as cURL&lt;/h2&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; is a command-line tool for sending requests similar to how we use &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; 
+in Python.&lt;/p&gt;
+
+&lt;p&gt;Let’s copy the command and run it in our shell.&lt;/p&gt;
+
+&lt;p&gt;The actual command-line generated is rather large so &lt;code class=&quot;highlighter-rouge&quot;&gt;[...]&lt;/code&gt; here just
+represents the remainder of the command.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;curl &lt;span class=&quot;s1&quot;&gt;'https://www.instagram.com/query/'&lt;/span&gt; --2.0 -H &lt;span class=&quot;s1&quot;&gt;'Host: www.instagram.com'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;...]
+curl: option --2.0: is unknown
+curl: try &lt;span class=&quot;s1&quot;&gt;'curl --help'&lt;/span&gt; or &lt;span class=&quot;s1&quot;&gt;'curl --manual'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;more information
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Oops, my version of &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; doesn’t support &lt;code class=&quot;highlighter-rouge&quot;&gt;--2.0&lt;/code&gt;, let’s try again with that
+option removed.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;curl &lt;span class=&quot;s1&quot;&gt;'https://www.instagram.com/query/'&lt;/span&gt; -H &lt;span class=&quot;s1&quot;&gt;'Host: www.instagram.com'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;...]
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;media&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;page_info&quot;&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;start_cursor&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;1515043026307776083&quot;&lt;/span&gt;, &lt;span class=&quot;s2&quot;&gt;&quot;end_cursor&quot;&lt;/span&gt;: &lt;span class=&quot;s2&quot;&gt;&quot;1511400656827605604&quot;&lt;/span&gt; ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It works and we get our &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response. I re-ran &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; without the &lt;code class=&quot;highlighter-rouge&quot;&gt;ref&lt;/code&gt; param and 
+it still worked. I then ran it without the &lt;code class=&quot;highlighter-rouge&quot;&gt;query_id&lt;/code&gt; param and it still worked.
+So it seems that &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt; is the only param that gets checked by the &lt;code class=&quot;highlighter-rouge&quot;&gt;query&lt;/code&gt; endpoint.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; by default prints to stdout and we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;-o filename&lt;/code&gt; to output to &lt;code class=&quot;highlighter-rouge&quot;&gt;filename&lt;/code&gt; 
+instead or we could use shell redirection e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;gt; filename&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-H&lt;/code&gt; option to &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; is for setting 
+&lt;a href=&quot;https://en.wikipedia.org/wiki/List_of_HTTP_header_fields&quot;&gt;HTTP Headers&lt;/a&gt;.
+You may have noticed when we &lt;em&gt;right-clicked&lt;/em&gt; on our request above there was
+also a &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy Request Headers&lt;/code&gt; option which gives us a nice view of them.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;POST /query/ HTTP/1.1
+Host: www.instagram.com
+User-Agent: Mozilla/5.0 (...
+Accept: */*
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+X-CSRFToken: vzHPj1VZ7ga7LkszmFc1u7e6CqwI2Bvv
+X-Instagram-AJAX: 1
+Content-Type: application/x-www-form-urlencoded
+X-Requested-With: XMLHttpRequest
+Referer: https://www.instagram.com/thefatfoxcamden/
+Content-Length: 559
+Cookie: rur=ATN; csrftoken=vzHPj1VZ7ga7LkszmFc1u7e6CqwI2Bvv; ...
+Connection: keep-alive
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We could also view them in &lt;code class=&quot;highlighter-rouge&quot;&gt;Headers&lt;/code&gt; tab of the request &lt;em&gt;Information Panel&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;Through trial and error (simply retrying the request omitting a value
+at a time) I discovered that the request fails without the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Referer&lt;/code&gt; header set to an &lt;a href=&quot;&quot;&gt;http://instagram.com&lt;/a&gt; URL.&lt;/p&gt;
+
+&lt;p&gt;It will also fail without 
+a valid &lt;code class=&quot;highlighter-rouge&quot;&gt;X-CSRFToken&lt;/code&gt; &lt;em&gt;Header&lt;/em&gt; and the corresponding &lt;code class=&quot;highlighter-rouge&quot;&gt;csrftoken&lt;/code&gt;
+&lt;em&gt;Cookie&lt;/em&gt; entry.&lt;/p&gt;
+
+&lt;p&gt;So where did this &lt;em&gt;csrftoken&lt;/em&gt; value come value come from?&lt;/p&gt;
+
+&lt;p&gt;We mentioned in the beginning that it looked like there was some data
+of importance contained in the source &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; so let’s go look there.&lt;/p&gt;
+
+&lt;p&gt;We’ll use &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; to save fetch the &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; of the profile page which allows 
+us to search through it easier using our &lt;em&gt;favourite editor&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;curl -A Mozilla/5.0 https://www.instagram.com/thefatfoxcamden/ -o page.html
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;-A&lt;/code&gt; sets the &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header which we do as the default &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; value
+is commonly blocked.&lt;/p&gt;
+
+&lt;p&gt;If we do a &lt;em&gt;case-insensitive&lt;/em&gt; search for &lt;code class=&quot;highlighter-rouge&quot;&gt;csrf&lt;/code&gt; inside &lt;code class=&quot;highlighter-rouge&quot;&gt;page.html&lt;/code&gt; we find&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;text/javascript&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;window._sharedData = {
+  &quot;activity_counts&quot;: null, &quot;config&quot;: {&quot;csrf_token&quot;: &quot;VCyFuVr7P1pZzFkxQmkA1z9GpNo1ZOub&quot;,
+  ...
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So there is a &lt;code class=&quot;highlighter-rouge&quot;&gt;csrf_token&lt;/code&gt; contained in the source &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; inside this 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;window._sharedData&lt;/code&gt; (Javascript) variable. If we 
+take a closer look at the contents of this variable we can see that it also
+seems to contain the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response data from the first &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request 
+we looked at.&lt;/p&gt;
+
+&lt;p&gt;While we are searching let’s search for the &lt;code class=&quot;highlighter-rouge&quot;&gt;ig_user()&lt;/code&gt; &lt;em&gt;id&lt;/em&gt; number from earlier.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&quot;id&quot;: &quot;3612106348&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Hopefully this demonstrates that searching in the source &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; for data 
+that was sent along with the request you’re debugging can be an important
+step in solving the puzzle.&lt;/p&gt;
+
+&lt;p&gt;If we search &lt;code class=&quot;highlighter-rouge&quot;&gt;start_cursor&lt;/code&gt; we find no match however we do find a 
+match for &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;{&quot;has_next_page&quot;: true, &quot;end_cursor&quot;: &quot;AQBB1hheP9G_e4Ui95IhF1zt5jbd2KloyjJj...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;… but it does seem to differ from the &lt;code class=&quot;highlighter-rouge&quot;&gt;media.after()&lt;/code&gt;
+param that was sent in the very first request.&lt;/p&gt;
+
+&lt;p&gt;This does suggest though, that we can:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;make an initial &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request to the profile page&lt;/li&gt;
+  &lt;li&gt;extract &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;csrf_token&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;use those values in our &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request to &lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.instagram.com/query/&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
+
+&lt;p&gt;We can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy POST Data&lt;/code&gt; functionality mentioned earlier to populate
+our code with the needed data and then make the appropriate edits to turn 
+it into a Python dict for passing along to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument of 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;requests.post()&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Although in this instance we’re actually only using the &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt; param 
+and we want to &lt;em&gt;“inject”&lt;/em&gt; the value of &lt;code class=&quot;highlighter-rouge&quot;&gt;ig_user&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; 
+into it so we use the &lt;code class=&quot;highlighter-rouge&quot;&gt;%s&lt;/code&gt; style string formatting to allow us to 
+do so.&lt;/p&gt;
+
+&lt;p&gt;I mentioned earlier that through &lt;em&gt;trial and error&lt;/em&gt; I discovered what 
+headers were needed but you could of course just copy ALL the headers
+from the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab instead of trying to figure that out.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.instagram.com/thefatfoxcamden/'&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;     &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.instagram.com/query/'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'''&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\
+&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;ig_user(&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s)+{+media.after(&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s,+12)+{
+++count,
+++nodes+{
+++++__typename,
+++++caption,
+++++code,
+++++comments+{
+++++++count
+++++},
+++++comments_disabled,
+++++date,
+++++dimensions+{
+++++++height,
+++++++width
+++++},
+++++display_src,
+++++id,
+++++is_video,
+++++likes+{
+++++++count
+++++},
+++++owner+{
+++++++id
+++++},
+++++thumbnail_src,
+++++video_views
+++},
+++page_info
+}
++}&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\
+&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'''&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;ig_user&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;id&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;        &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;csrftoken&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;csrf_token&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;end_cursor&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'q'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ig_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;'Referer'&lt;/span&gt;    &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;'X-CSRFToken'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;csrftoken&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'csrftoken'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;csrftoken&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Yes, to extract &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;csrf_token&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; we’re
+using &lt;em&gt;Regular Expressions!!!!!&lt;/em&gt; which according to 
+&lt;em&gt;the Internet&lt;/em&gt; we’re never supposed to use. &lt;em&gt;Zomg!!!&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;We will have to let the &lt;em&gt;h8rz h8&lt;/em&gt; as they say.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(?:problems){99}(?!regex)&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Each regex follows the same &lt;em&gt;pattern&lt;/em&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;id&quot;: &quot;&lt;/code&gt; matches literally the string &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;id&quot;: &quot;&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(&lt;/code&gt; delimits the start of a &lt;em&gt;Capture Group&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[^&quot;]&lt;/code&gt; matches any characters that is not &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt; (this is called a &lt;em&gt;Character Class&lt;/em&gt;)&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;+&lt;/code&gt; means the &lt;em&gt;“previous atom”&lt;/em&gt; &lt;em&gt;1 or more times&lt;/em&gt; which in this case applies to &lt;code class=&quot;highlighter-rouge&quot;&gt;[^&quot;]&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;)&lt;/code&gt; closes the &lt;em&gt;Capture Group&lt;/em&gt; and the final &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt; matches the closing &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;[^&quot;]+&lt;/code&gt; matches up to (but not including) the closing &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt; (i.e. 
+a sequence of &lt;em&gt;1 or more&lt;/em&gt; characters that are not &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&lt;/code&gt;) thus matching the
+&lt;em&gt;value&lt;/em&gt; contained inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;&quot;&lt;/code&gt; and because we have &lt;em&gt;“captured”&lt;/em&gt;
+it we can refer to it using &lt;code class=&quot;highlighter-rouge&quot;&gt;group(1)&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'&quot;id&quot;: &quot;hello&quot;'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;id&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;'hello'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.group(1)&lt;/code&gt; gives us the contents of the first &lt;em&gt;Capture Group&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The other patterns are identitical apart from the key name changing.&lt;/p&gt;
+
+&lt;p&gt;It can be common for the whitespace around &lt;code class=&quot;highlighter-rouge&quot;&gt;:&lt;/code&gt; to change so we could 
+replace &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;key&quot;: &quot;&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;key&quot;\s*:\s*&quot;&lt;/code&gt; to be more &lt;em&gt;“robust”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;\s*&lt;/code&gt; here matches a sequence of &lt;em&gt;0 or more&lt;/em&gt; &lt;em&gt;“whitespace”&lt;/em&gt; characters.&lt;/p&gt;
+
+&lt;p&gt;So after all of that let’s hope it works.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python post.py
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'status'&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'fail'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'message'&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'syntax error'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;FUUUUUUUUUU!&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;So it looks like our request &lt;em&gt;“worked”&lt;/em&gt; but the error message suggests 
+that there is something wrong with our &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt; param.&lt;/p&gt;
+
+&lt;p&gt;When passing a dict to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument the values are &lt;em&gt;form-encoded&lt;/em&gt;
+by &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; however you can also pass a string which will go through 
+untouched.&lt;/p&gt;
+
+&lt;p&gt;We know from 
+&lt;a href=&quot;/2017/05/05/poloniex-api-invalid-command/#netcat&quot;&gt;debugging the POST request with netcat&lt;/a&gt;
+that passing a string to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument
+&lt;a href=&quot;/2017/05/05/poloniex-api-invalid-command/#the-data-argument&quot;&gt;bypasses the setting of the Content-Type
+header&lt;/a&gt; so we must set it manually.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;'Content-Type'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'application/x-www-form-urlencoded'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Also note that because we’re using a string we must manually add the param name
+in our string data (i.e. the &lt;code class=&quot;highlighter-rouge&quot;&gt;q=&lt;/code&gt;)&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'''&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\
+&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;q=ig_user(&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;%&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;s)+{...
+...
+...&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\
+&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'''&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;When we pass &lt;code class=&quot;highlighter-rouge&quot;&gt;data={'foo': 'bar'}&lt;/code&gt; it gets turned into &lt;code class=&quot;highlighter-rouge&quot;&gt;foo=bar&lt;/code&gt; i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;foo&lt;/code&gt; is
+the param &lt;em&gt;name&lt;/em&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;bar&lt;/code&gt; is the param &lt;em&gt;value&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;ig_user&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;c&quot;&gt;# no longer a dict&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As we are bypassing this functionality by passing a string we must manually 
+add &lt;code class=&quot;highlighter-rouge&quot;&gt;q=&lt;/code&gt; to the start of our content as previously shown.&lt;/p&gt;
+
+&lt;p&gt;With these 2 changes let’s re-run the code. We’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; this time
+to drop us into an interactive session.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -i post.py
+&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'status'&lt;/span&gt;: &lt;span class=&quot;s1&quot;&gt;'ok'&lt;/span&gt;, &lt;span class=&quot;s1&quot;&gt;'media'&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'count'&lt;/span&gt;: 402, &lt;span class=&quot;s1&quot;&gt;'page_info'&lt;/span&gt;: &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'has_previous_page'&lt;/span&gt;:...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So it works! and now that we are in an interactive session we can 
+take a closer look at &lt;code class=&quot;highlighter-rouge&quot;&gt;r&lt;/code&gt; the repsonse object.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'status'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'count'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'page_info'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'nodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'caption'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Cure&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;that&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Monday&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;fear&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;☺️&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We know that we’re receiving a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response from this request 
+so we use the &lt;a href=&quot;http://docs.python-requests.org/en/master/user/quickstart/#json-response-content&quot;&gt;.json()&lt;/a&gt;
+method on a Response object which turns a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; &lt;em&gt;“string”&lt;/em&gt; into
+a Python structure (also see &lt;a href=&quot;https://docs.python.org/3/library/json.html&quot;&gt;json.loads()&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;To see a &lt;em&gt;pretty-printed&lt;/em&gt; version of the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;json.dumps()&lt;/code&gt; 
+with its &lt;code class=&quot;highlighter-rouge&quot;&gt;indent&lt;/code&gt; argument.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;&quot;media&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;402&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+    &lt;span class=&quot;s&quot;&gt;&quot;nodes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;__typename&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;GraphImage&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;caption&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Cure that Monday fear &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\u263a\ufe0f&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;code&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;BUHCcJHA8JN&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;comments&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;&quot;count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;comments_disabled&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;date&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1494844808&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;dimensions&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;&quot;height&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1080&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;width&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1080&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;display_src&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;https://scontent.cdninstagram.com/...&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;1515190529653195341&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;is_video&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;likes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;&quot;count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;160&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;owner&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;3612106348&quot;&lt;/span&gt;
+        &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;thumbnail_src&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;https://scontent.cdninstagram.com/...&quot;&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;I’ve truncated the output here due to its size. It can be useful in such cases to write
+the &lt;em&gt;pretty-printed&lt;/em&gt; output to a file instead for further inspection.&lt;/p&gt;
+
+&lt;p&gt;Now that we have our &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response we can extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; 
+value to use in a &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request to fetch the next &lt;em&gt;“page”&lt;/em&gt; of results.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page_info'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'end_cursor'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'csrftoken'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;csrftoken&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'caption'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Blurry&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eyes&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;… and again?&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;q&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page_info'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'end_cursor'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cookies&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'csrftoken'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;csrftoken&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'caption'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Lunch&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sun&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;what&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;more&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;could&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;you&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ask&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;GREAT SUCCESS!&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;So now that we have our &lt;em&gt;“pagination”&lt;/em&gt; working we could use 
+another regex to &lt;em&gt;“scrape”&lt;/em&gt; all the URLs contained in the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;display_src&lt;/code&gt; values to give us direct links to the images.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;src_urls&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;display_src&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;But, but, but… &lt;em&gt;what about muh videoz?!?!?!?!?!?!!?&lt;/em&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;extracting-json-from-html&quot;&gt;Extracting JSON from HTML&lt;/h2&gt;
+
+&lt;p&gt;You may have noticed the &lt;code class=&quot;highlighter-rouge&quot;&gt;&quot;is_video&quot;: false&lt;/code&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; output above.
+In the case of a video it would obviously be &lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt; and not &lt;code class=&quot;highlighter-rouge&quot;&gt;false&lt;/code&gt; however
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;display_src&lt;/code&gt; will be the &lt;em&gt;“preview image”&lt;/em&gt; of the video and not a link
+to the video itself.&lt;/p&gt;
+
+&lt;p&gt;In order to get the direct link to the video more work is needed.&lt;/p&gt;
+
+&lt;p&gt;We know that &lt;code class=&quot;highlighter-rouge&quot;&gt;code&lt;/code&gt; is used to build the the URL to an 
+individual &lt;em&gt;“post”&lt;/em&gt; page and we know that &lt;em&gt;Instagram&lt;/em&gt; is storing 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data in the source &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; via this &lt;code class=&quot;highlighter-rouge&quot;&gt;window._sharedData&lt;/code&gt; 
+variable so let’s fetch a video post page and take a look.&lt;/p&gt;
+
+&lt;p&gt;If we didn’t know the name of &lt;code class=&quot;highlighter-rouge&quot;&gt;window._sharedData&lt;/code&gt; we could always search
+for some of the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; keys instead e.g. &lt;code class=&quot;highlighter-rouge&quot;&gt;is_video&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;We’ll be using
+&lt;a href=&quot;https://www.instagram.com/p/BSfdmLugXjd/&quot;&gt;https://www.instagram.com/p/BSfdmLugXjd/&lt;/a&gt;
+as our URL for testing.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;curl -A Mozilla/5.0 https://www.instagram.com/p/BSfdmLugXjd/ -o post.html
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Locating the &lt;code class=&quot;highlighter-rouge&quot;&gt;sharedData&lt;/code&gt; we can see the following.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;text/javascript&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;window._sharedData = {
+  &quot;activity_counts&quot;: null, &quot;config&quot;: 
+  {&quot;csrf_token&quot;: &quot;Ht46CMuWhTX5ohHVf38i2JYDukekxTnj&quot;, &quot;viewer&quot;: null}, 
+  &quot;entry_data&quot;: {&quot;PostPage&quot;: 
+    [{&quot;graphql&quot;: {&quot;shortcode_media&quot;: {&quot;__typename&quot;: &quot;GraphVideo&quot;, &quot;id&quot;: &quot;1486036569335888093&quot;, 
+     &quot;shortcode&quot;: &quot;BSfdmLugXjd&quot;, &quot;dimensions&quot;: {&quot;height&quot;: 800, &quot;width&quot;: 640}, 
+     &quot;video_url&quot;: &quot;https://scontent.cdninstagram.com/t50.2886-16/17815456_1265625920187368_2182862195560284160_n.mp4&quot;, 
+     &quot;video_view_count&quot;: 856, &quot;is_video&quot;: true
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So we have a &lt;code class=&quot;highlighter-rouge&quot;&gt;video_url&lt;/code&gt; in there with the direct link to the &lt;code class=&quot;highlighter-rouge&quot;&gt;.mp4&lt;/code&gt; file
+which we could extract by using the regex approach from earlier.&lt;/p&gt;
+
+&lt;p&gt;This leaves us with the question of how do we process each &lt;em&gt;“node”&lt;/em&gt;
+from our results page to&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;test if &lt;code class=&quot;highlighter-rouge&quot;&gt;is_video&lt;/code&gt; is &lt;code class=&quot;highlighter-rouge&quot;&gt;true&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;if it is: extract &lt;code class=&quot;highlighter-rouge&quot;&gt;code&lt;/code&gt; - fetch URL - extract &lt;code class=&quot;highlighter-rouge&quot;&gt;video_url&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;else, extract &lt;code class=&quot;highlighter-rouge&quot;&gt;display_src&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This means we would need to be able to group &lt;code class=&quot;highlighter-rouge&quot;&gt;code&lt;/code&gt;, &lt;code class=&quot;highlighter-rouge&quot;&gt;is_video&lt;/code&gt;
+and &lt;code class=&quot;highlighter-rouge&quot;&gt;display_src&lt;/code&gt; together for each &lt;em&gt;“node”&lt;/em&gt; entry.&lt;/p&gt;
+
+&lt;p&gt;We know that the data is contained inside the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;window._sharedData&lt;/code&gt; variable and it looks like its
+in &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; format.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;script &lt;/span&gt;&lt;span class=&quot;na&quot;&gt;type=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;text/javascript&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;window&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nx&quot;&gt;_sharedData&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;s2&quot;&gt;&quot;show_app_install&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kc&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;/script&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If we could isolate this part of the &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; and just keep the &lt;code class=&quot;highlighter-rouge&quot;&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;&lt;/code&gt;
+contents we could try passing it to &lt;code class=&quot;highlighter-rouge&quot;&gt;json.loads()&lt;/code&gt; to turn it 
+into a Python structure.&lt;/p&gt;
+
+&lt;p&gt;Let’s return to &lt;code class=&quot;highlighter-rouge&quot;&gt;page.html&lt;/code&gt; we saved earlier for some testing.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page.html'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'window._sharedData = {'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;';&amp;lt;/script&amp;gt;'&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[:&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)]&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;loads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;keys&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;())&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'show_app_install'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'platform'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'activity_counts'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'hostname'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;For &lt;em&gt;“teh lulz”&lt;/em&gt; we’ve used &lt;code class=&quot;highlighter-rouge&quot;&gt;str.find()&lt;/code&gt; in combination with &lt;em&gt;slicing&lt;/em&gt; to extract
+the needed data however if you’re not &lt;em&gt;regexphobic&lt;/em&gt; you could have also gone that
+route.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'window._sharedData = (&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;{.+?});&amp;lt;/script&amp;gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;str.find()&lt;/code&gt; obviously works with exact string matching meaning 
+the regex approach can be considered more &lt;em&gt;“flexible”&lt;/em&gt; as we 
+could make use of things like &lt;code class=&quot;highlighter-rouge&quot;&gt;\s*&lt;/code&gt; to match any optional whitespace.&lt;/p&gt;
+
+&lt;p&gt;You may see both techniques in your travels so it just serves as an example
+here.&lt;/p&gt;
+
+&lt;p&gt;So our plan seems to have worked…&lt;/p&gt;
+
+&lt;p&gt;Let’s use &lt;code class=&quot;highlighter-rouge&quot;&gt;json.dumps()&lt;/code&gt; to get a &lt;em&gt;pretty-printed&lt;/em&gt; version.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;dumps&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;indent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sort_keys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;bp&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;s&quot;&gt;&quot;config&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;csrf_token&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;Fa4xUEE8aohXO7UEgZEXPAvyobAOQvVF&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+  &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+  &lt;span class=&quot;s&quot;&gt;&quot;country_code&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;IE&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+  &lt;span class=&quot;s&quot;&gt;&quot;entry_data&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;&quot;ProfilePage&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+      &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;s&quot;&gt;&quot;logging_page_id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;profilePage_3612106348&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+        &lt;span class=&quot;s&quot;&gt;&quot;user&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+          &lt;span class=&quot;s&quot;&gt;&quot;biography&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;7-4 weekdays.&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;followed_by&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&quot;count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7423&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;followed_by_viewer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;follows&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&quot;count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;94&lt;/span&gt;
+          &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;follows_viewer&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;false&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;full_name&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;The Fat Fox&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;id&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;3612106348&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+          &lt;span class=&quot;s&quot;&gt;&quot;media&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;s&quot;&gt;&quot;count&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;402&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
+            &lt;span class=&quot;s&quot;&gt;&quot;nodes&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
+              &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So we can see that &lt;code class=&quot;highlighter-rouge&quot;&gt;nodes&lt;/code&gt; is buried down inside 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;j['entry_data']['ProfilePage'][0]['user']['media']['nodes']&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s try iterate over it and extract some values.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;node&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'entry_data'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ProfilePage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'code'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'is_video'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;BUHCcJHA8JN&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;BUGg5r6gf5T&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;BUCMkOvgIQM&lt;/span&gt; &lt;span class=&quot;bp&quot;&gt;False&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;This means we now have a way to process each &lt;em&gt;“node”&lt;/em&gt; and deal with
+both images and videos correctly which we can incorporate into
+our code to process each page of results.&lt;/p&gt;
+
+&lt;h2 id=&quot;but-wait-theres-more&quot;&gt;But wait, there’s more!&lt;/h2&gt;
+
+&lt;p&gt;We mentioned at the start that &lt;em&gt;Instagram&lt;/em&gt; had an API so let’s
+look at the docs for the 
+&lt;a href=&quot;https://www.instagram.com/developer/endpoints/users/#get_users_media_recent_self&quot;&gt;Get most recent media&lt;/a&gt;
+endpoint.&lt;/p&gt;
+
+&lt;p&gt;If we look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;PARAMETERS&lt;/code&gt; we see&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;max_id&lt;/code&gt;  Return media earlier than this max_id.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;min_id&lt;/code&gt;  Return media later than this min_id.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This sounds similar to what’s been going on with &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;start_cursor&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;Out of curiosity I tried to replace our &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request with a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt;
+request to &lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.instagram.com/thefatfoxcamden/?max_id=end_cursor&lt;/code&gt; which
+seemed to work however we get back &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; contains all of the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data just like the other pages
+and we just saw how to extract it and load it up into &lt;code class=&quot;highlighter-rouge&quot;&gt;json.loads()&lt;/code&gt; 
+so let’s give that approach a try here.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.instagram.com/thefatfoxcamden/'&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;caption&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;caption&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;end_cursor&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;caption&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Do note we’re using a regex to just extract the first &lt;code class=&quot;highlighter-rouge&quot;&gt;caption&lt;/code&gt; from
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data as we’re only testing if the &lt;em&gt;“pagination”&lt;/em&gt; is working.&lt;/p&gt;
+
+&lt;p&gt;Once again we’ll use Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; option to drop us into an interactive 
+session.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python -i get.py
+Cure that Monday fear ☺️
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Now let’s try to &lt;em&gt;get&lt;/em&gt; the next page of results. Note that as it’s now
+a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request we use &lt;code class=&quot;highlighter-rouge&quot;&gt;params&lt;/code&gt; as opposed to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'max_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;caption&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;caption&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;caption&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Blurry&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;eyes&lt;/span&gt; &lt;span class=&quot;err&quot;&gt;?&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;One more for good luck.&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;end_cursor&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'max_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;caption&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;caption&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;   &lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;caption&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;Lunch&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sun&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;what&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;more&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;could&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;you&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ask&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;!&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;EVEN GREATER SUCCESS!&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;This means we have now have no need for the disgusting &lt;code class=&quot;highlighter-rouge&quot;&gt;q=&lt;/code&gt; &lt;em&gt;POST param&lt;/em&gt;, 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;csrftoken&lt;/code&gt; or &lt;em&gt;Cookie&lt;/em&gt; and all we need to do now is add in the code
+from earlier that processed each &lt;em&gt;“node”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;instagram.py&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;__future__&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;print_function&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;user&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'thefatfoxcamden'&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.instagram.com/'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;user&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;''&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'PAGE: '&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;profile&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'max_id'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'window._sharedData = (&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;\&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;{.+?});&amp;lt;/script&amp;gt;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;loads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;node&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'entry_data'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ProfilePage'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'media'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;][&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt; 
+            &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'is_video'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.instagram.com/p/'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'code'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;video_url&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'VIDEO:'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+                &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'IMAGE:'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'display_src'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+        
+        &lt;span class=&quot;n&quot;&gt;end_cursor&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;search&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;r'&quot;end_cursor&quot;: &quot;([^&quot;]+)&quot;'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;group&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So the code should be easy enough to follow as we’ve discussed all
+the parts already.&lt;/p&gt;
+
+&lt;p&gt;We are looping over the first &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; pages of results as an example.
+&lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; is initially empty so we will get the first page of results.&lt;/p&gt;
+
+&lt;p&gt;We then extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data and process each &lt;em&gt;“node”&lt;/em&gt; printing
+&lt;code class=&quot;highlighter-rouge&quot;&gt;display_src&lt;/code&gt; if it’s an image and fetching the individal post
+page to extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;video_url&lt;/code&gt; if it’s a video.&lt;/p&gt;
+
+&lt;p&gt;Finally we extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;end_cursor&lt;/code&gt; which is used to fetch the 
+next page of results, and repeat.&lt;/p&gt;
+
+&lt;p&gt;Here is what the output looks like.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1495013338-instagram-final-output.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We’re obviously just printing the URLs here and the goal is
+probably to fetch them and 
+&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content&quot;&gt;save the result to disk&lt;/a&gt;
+instead.&lt;/p&gt;
+
+&lt;h2 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;a href=&quot;https://www.instagram.com/developer/&quot;&gt;instagram has an api&lt;/a&gt; and if you’re attempting
+to do anything remotely resembling &lt;em&gt;“large-scale”&lt;/em&gt; scraping you should probably use it
+and abide by their API guidelines.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Initially having Javascript disabled can be helpful.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab is &lt;em&gt;“teh total r0x0r”&lt;/em&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;Searching the source &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; for param names and values is a worthwhile exercise.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(?:problems){99}(?!regex)&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;You just &lt;em&gt;“built an instagram scraper in 30 lines of Python!!!! Zomg!!!!”&lt;/em&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Source code is also available 
+&lt;a href=&quot;https://github.com/kaijento/code/blob/master/webscraping/instagram.com/instagram.py&quot;&gt;on github&lt;/a&gt;.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 17 May 2017 08:30:46 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/05/17/web-scraping-instagram.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/17/web-scraping-instagram.com/</guid>
+        
+        <category>python</category>
+        
+        <category>webscraping</category>
+        
+        <category>beautifulsoup</category>
+        
+        <category>requests</category>
+        
+        <category>netcat</category>
+        
+        <category>regex</category>
+        
+        <category>json</category>
+        
+        
+      </item>
     
       <item>
         <title>Web scraping: factfinder.census.gov</title>
@@ -48,7 +906,7 @@ the menu or using keyboard shortcuts.)&lt;/p&gt;
 
 &lt;p&gt;From there I select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab. I also filter the type of
 requests displayed to only &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; which stands for &lt;code class=&quot;highlighter-rouge&quot;&gt;XMLHttpRequest&lt;/code&gt;.
-This is the type of requests made by Javascript and we know to look
+These are the type of requests made by Javascript and we know to look
 for these specifically due to the hint we received earlier.&lt;/p&gt;
 
 &lt;p&gt;I then re-enable Javascript in my browser and refresh the page.&lt;/p&gt;
@@ -1528,7 +2386,7 @@ using &lt;code class=&quot;highlighter-rouge&quot;&gt;pip&lt;/code&gt; e.g.&lt;/
 
 &lt;p&gt;One thing to note is that &lt;a href=&quot;https://api.imgur.com/&quot;&gt;imgur.com has an api&lt;/a&gt;.&lt;/p&gt;
 &lt;ul&gt;
-  &lt;li&gt;You use it, take the blue pill—the article ends.&lt;/li&gt;
+  &lt;li&gt;You use it, taking the blue pill—the article ends.&lt;/li&gt;
   &lt;li&gt;You take the red pill—you stay in Wonderland, 
 and I show you how deep a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response goes.&lt;/li&gt;
 &lt;/ul&gt;
@@ -1629,8 +2487,8 @@ request which can be very useful for testing things out from the command-line.&l
 
 &lt;p&gt;&lt;img src=&quot;/img/1494280248-imgur-copy-as-curl.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
 
-&lt;p&gt;We can add &lt;code class=&quot;highlighter-rouge&quot;&gt;-o filename&lt;/code&gt; to the end of the command to store the output into &lt;code class=&quot;highlighter-rouge&quot;&gt;filename&lt;/code&gt;
-instead of just printing the result if needed.&lt;/p&gt;
+&lt;p&gt;We can add &lt;code class=&quot;highlighter-rouge&quot;&gt;-o filename&lt;/code&gt; to the end of the &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; command to store the output 
+into &lt;code class=&quot;highlighter-rouge&quot;&gt;filename&lt;/code&gt; instead of just printing the result if needed.&lt;/p&gt;
 
 &lt;p&gt;Using the exact command is not always necessary but at the very least you will want 
 to set the &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header which is what we’ll do here.&lt;/p&gt;
@@ -1644,6 +2502,9 @@ and finally using shell redirection to write the result to file.&lt;/p&gt;
 
 &lt;p&gt;You could of course use &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; along with &lt;code class=&quot;highlighter-rouge&quot;&gt;json.dump()&lt;/code&gt; to do it directly from
 Python and there’s also &lt;a href=&quot;https://httpie.org/&quot;&gt;httpie&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;You may have also noticed the &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy Response&lt;/code&gt; entry in the &lt;em&gt;right-click&lt;/em&gt; menu which
+as the name suggests copies the response to your clipboard.&lt;/p&gt;
 
 &lt;h2 id=&quot;json&quot;&gt;JSON&lt;/h2&gt;
 
@@ -2322,257 +3183,6 @@ to disk if that is your goal.&lt;/p&gt;
         <category>json</category>
         
         <category>curl</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Poloniex API: Invalid command.</title>
-        <description>&lt;p&gt;&lt;em&gt;We’re trying to make a request to the &lt;code class=&quot;highlighter-rouge&quot;&gt;returnBalances&lt;/code&gt; 
-endpoint of the &lt;a href=&quot;https://poloniex.com/support/api/&quot;&gt;Poloniex API&lt;/a&gt;
-using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; library but we’re getting back
-an “Invalid command.” error. How do we fix it?&lt;/em&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;requests&quot;&gt;requests&lt;/h2&gt;
-
-&lt;p&gt;Here is the &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; version of the code.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;hashlib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;hmac&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://poloniex.com/tradingApi'&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'mykey'&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;secret&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'mysecret'&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;nonce&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'command=returnBalances&amp;amp;nonce={}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;signature&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hmac&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;secret&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;digestmod&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hashlib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sha512&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Key'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Sign'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;signature&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hexdigest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'BTC'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Running the code using Python &lt;code class=&quot;highlighter-rouge&quot;&gt;3.6&lt;/code&gt; we get&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python3 poloniex.py
-&lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;error&quot;&lt;/span&gt;:&lt;span class=&quot;s2&quot;&gt;&quot;Invalid command.&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Hmmm… everything looks okay in the code. My first thought is to
-see if we can replicate the behaviour when using &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;small&gt;(If we were using Python &lt;code class=&quot;highlighter-rouge&quot;&gt;2.7&lt;/code&gt; it would be &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib2&lt;/code&gt;)&lt;/small&gt;&lt;/p&gt;
-
-&lt;h2 id=&quot;urllibrequest&quot;&gt;urllib.request&lt;/h2&gt;
-
-&lt;p&gt;Here’s the code rewritten using &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;urllib.parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;  &lt;span class=&quot;nn&quot;&gt;urllib.request&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;hashlib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;hmac&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://poloniex.com/tradingApi'&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'mykey'&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;secret&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'mysecret'&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'command'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'returnBalances'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'nonce'&lt;/span&gt;  &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1000&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;parse&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;urlencode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;signature&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hmac&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;secret&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;encode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hashlib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sha512&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Key'&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Sign'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;signature&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hexdigest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;method&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'POST'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;urllib&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;urlopen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;decode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;loads&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'BTC'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;And let’s see the output.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python3 poloniex-urllib.py
-0.00000000
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;It works as expected. &lt;small&gt;(but I gotz no bitcoinz ;_;)&lt;/small&gt;&lt;/p&gt;
-
-&lt;p&gt;So it seems like a good idea would be to debug both requests to 
-see how they differ.&lt;/p&gt;
-
-&lt;h2 id=&quot;netcat&quot;&gt;netcat&lt;/h2&gt;
-
-&lt;p&gt;One way to do that is to use the &lt;code class=&quot;highlighter-rouge&quot;&gt;nc&lt;/code&gt; (or &lt;code class=&quot;highlighter-rouge&quot;&gt;netcat&lt;/code&gt;) command to listen
-on a local port and point our requests at it. We can use the command
-&lt;code class=&quot;highlighter-rouge&quot;&gt;nc -l 8080&lt;/code&gt; to listen on port &lt;code class=&quot;highlighter-rouge&quot;&gt;8080&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;This means we will send our &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request to &lt;code class=&quot;highlighter-rouge&quot;&gt;http://localhost:8080&lt;/code&gt;
-instead of &lt;code class=&quot;highlighter-rouge&quot;&gt;https://poloniex.com/tradingApi&lt;/code&gt;. We will also set the &lt;code class=&quot;highlighter-rouge&quot;&gt;nonce&lt;/code&gt; value to &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt; in both versions 
-of the code as to have the exact same &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; data.&lt;/p&gt;
-
-&lt;p&gt;Here’s the &lt;code class=&quot;highlighter-rouge&quot;&gt;netcat&lt;/code&gt; output for the &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; version.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;nc -l 8080
-POST / HTTP/1.1
-Accept-Encoding: gzip, deflate
-Accept: &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-Host: localhost:8080
-Connection: keep-alive
-User-Agent: python-requests/2.13.0
-Key:  mykey
-Sign: mysignature
-
-Content-Length: 30
-
-&lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;returnBalances&amp;amp;nonce&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;And here is the output for the &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt; version.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;nc -l 8080
-POST / HTTP/1.1
-Accept-Encoding: identity
-Content-Type: application/x-www-form-urlencoded
-Connection: close
-Host: localhost:8080
-User-Agent: Python-urllib/3.6
-Key:  mykey
-Sign: mysignature
-
-Content-Length: 30
-
-&lt;span class=&quot;nb&quot;&gt;command&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;returnBalances&amp;amp;nonce&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;As we can see the &lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Length&lt;/code&gt; is identical as well as the &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; data.
-This suggests to us that the problem lies in the headers.&lt;/p&gt;
-
-&lt;p&gt;The first thing I notice is the &lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Type&lt;/code&gt; header in the &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib.request&lt;/code&gt;
-version that does not exist in the &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; version.&lt;/p&gt;
-
-&lt;p&gt;So let’s go and manually add that header to our &lt;code class=&quot;highlighter-rouge&quot;&gt;headers&lt;/code&gt; dict in our
-&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; code.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Content-Type'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'application/x-www-form-urlencoded'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Key'&lt;/span&gt;         &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s&quot;&gt;'Sign'&lt;/span&gt;        &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;signature&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;hexdigest&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(),&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We also point our &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request back at the Poloniex API and run
-the code.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python3 poloniex.py
-0.00000000
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Okay great! So it nows works with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; and it looks like 
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Type&lt;/code&gt; header was the culprit.&lt;/p&gt;
-
-&lt;p&gt;So why is it not being set by &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;?&lt;/p&gt;
-
-&lt;h2 id=&quot;the-data-argument&quot;&gt;The data argument&lt;/h2&gt;
-
-&lt;p&gt;Usually when passing form data you supply a dict to the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'http://localhost:8080'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Let’s look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;netcat&lt;/code&gt; output.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;nc -l 8080
-POST / HTTP/1.1
-Host: localhost:8080
-User-Agent: python-requests/2.13.0
-Accept-Encoding: gzip, deflate
-Accept: &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-Connection: keep-alive
-Content-Length: 7
-Content-Type: application/x-www-form-urlencoded
-
-&lt;span class=&quot;nv&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So when we pass a dict it sets the header. However if we pass
-a string…&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;post&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'http://localhost:8080'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'foo=bar'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;… the header does not get set.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;nc -l 8080
-POST / HTTP/1.1
-Host: localhost:8080
-User-Agent: python-requests/2.13.0
-Accept-Encoding: gzip, deflate
-Accept: &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;/&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;
-Connection: keep-alive
-Content-Length: 7
-
-&lt;span class=&quot;nv&quot;&gt;foo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;bar
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;From &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#more-complicated-post-requests&quot;&gt;the docs:&lt;/a&gt;&lt;/p&gt;
-
-&lt;blockquote&gt;
-  &lt;p&gt;There are many times that you want to send data that is not form-encoded. 
-If you pass in a string instead of a dict, that data will be posted directly.&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;So not only does it skip the &lt;em&gt;“urlencoding”&lt;/em&gt; of the data it also skips the
-sending of the &lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Type&lt;/code&gt; header which is causing the Poloniex API 
-to &lt;em&gt;“reject”&lt;/em&gt; our request.&lt;/p&gt;
-
-&lt;p&gt;We could change &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; to a dict.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'command=returnBalances&amp;amp;nonce={}'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;But as we need to turn it into a &lt;em&gt;“string”&lt;/em&gt; for use in generating the &lt;code class=&quot;highlighter-rouge&quot;&gt;signature&lt;/code&gt;
-it seems simpler to just leave &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; as it is and manually send the
-&lt;code class=&quot;highlighter-rouge&quot;&gt;Content-Type&lt;/code&gt; header with the request.&lt;/p&gt;
-</description>
-        <pubDate>Fri, 05 May 2017 19:30:15 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/05/05/poloniex-api-invalid-command/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/05/05/poloniex-api-invalid-command/</guid>
-        
-        <category>python</category>
-        
-        <category>requests</category>
-        
-        <category>urllib</category>
-        
-        <category>netcat</category>
         
         
       </item>

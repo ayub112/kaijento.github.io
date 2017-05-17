@@ -91,7 +91,7 @@ using <code class="highlighter-rouge">pip</code> e.g.</p>
 
 <p>One thing to note is that <a href="https://api.imgur.com/">imgur.com has an api</a>.</p>
 <ul>
-  <li>You use it, take the blue pill—the article ends.</li>
+  <li>You use it, taking the blue pill—the article ends.</li>
   <li>You take the red pill—you stay in Wonderland, 
 and I show you how deep a <code class="highlighter-rouge">JSON</code> response goes.</li>
 </ul>
@@ -196,8 +196,8 @@ request which can be very useful for testing things out from the command-line.</
 
 <p><img src="/img/1494280248-imgur-copy-as-curl.png" alt="" /></p>
 
-<p>We can add <code class="highlighter-rouge">-o filename</code> to the end of the command to store the output into <code class="highlighter-rouge">filename</code>
-instead of just printing the result if needed.</p>
+<p>We can add <code class="highlighter-rouge">-o filename</code> to the end of the <code class="highlighter-rouge">curl</code> command to store the output 
+into <code class="highlighter-rouge">filename</code> instead of just printing the result if needed.</p>
 
 <p>Using the exact command is not always necessary but at the very least you will want 
 to set the <code class="highlighter-rouge">User-Agent</code> header which is what we’ll do here.</p>
@@ -211,6 +211,9 @@ and finally using shell redirection to write the result to file.</p>
 
 <p>You could of course use <code class="highlighter-rouge">requests</code> along with <code class="highlighter-rouge">json.dump()</code> to do it directly from
 Python and there’s also <a href="https://httpie.org/">httpie</a>.</p>
+
+<p>You may have also noticed the <code class="highlighter-rouge">Copy Response</code> entry in the <em>right-click</em> menu which
+as the name suggests copies the response to your clipboard.</p>
 
 <a name="json"></a>
 <h2 class="section-header">
@@ -599,7 +602,7 @@ instead of just printing the URLs.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (56)</a>
+            <a href="/archive">View Archive (57)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/05/06/web-scraping-nasa-image-of-the-day/">Web scraping: NASA Image of the Day</a></h2>
           <p class="preview">The goal is trying to <em>“scrape”</em> images from 

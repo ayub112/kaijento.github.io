@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/17/web-scraping-instagram.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: instagram.com | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/17/web-scraping-instagram.com/">Web scraping: instagram.com</a></h1>
+  <p class="text-muted">17 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+    
+  <a href="/categories/netcat/">netcat</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+    
+  <a href="/categories/json/">json</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is to <em>“scrape”</em> media posts from an <em>Instagram</em> page 
+using Python’s <code class="highlighter-rouge">BeautifulSoup</code> and <code class="highlighter-rouge">requests</code> libraries 
+however only the <em>“first page”</em> of results is being
+displayed. Why is this?</p>
+
+<p>We were not given an example URL so we will use
+<a href="https://www.instagram.com/thefatfoxcamden/">https://www.instagram.com/thefatfoxcamden/</a>
+for testing purposes (as they post awesome pictures).</p>
+
+<p>You should know that <a href="https://www.instagram.com/developer/">instagram has an api</a>.</p>
+<ul>
+  <li>You use it, taking the blue pill—the article ends.</li>
+  <li>You take the red pill—you stay in Wonderland, 
+and I show you how deep a <code class="highlighter-rouge">JSON</code> response goes.</li>
+</ul>
+
+<p>Remember: all I’m offering is the truth. Nothing more.</p>
+
+<p>If you don’t need the truth and just want to see how to <em>“Scrape instagram in 30 lines
+of Python!!!!!”</em> the final code from this article is 
+<a href="https://github.com/kaijento/code/blob/master/webscraping/instagram.com/instagram.py">on github</a>.</p>
+
+<a name="developer-tools"></a>
+<h2 class="section-header">
+  <span id="developer-tools"></span>
+  <a class="anchor" href="#developer-tools">“Developer Tools”</a>
+</h2>
+
+<p>So the first thing I do is open the URL in my browser (<code class="highlighter-rouge">Firefox</code> with Javascript 
+disabled) and I see the following.</p>
+
+<p><img src="/img/1494833773-instagram-noscript.png" alt="" /></p>
+
+<p>This tells us that <em>Instagram</em> doesn’t function without Javascript enabled.
+We were told however that using <code class="highlighter-rouge">requests</code> (which does not execute Javascript)
+returned the first page of results. This tells us that there is some data 
+contained in the source <code class="highlighter-rouge">HTML</code>.</p>
+
+<p>So what we want to do is to debug the HTTP requests being made to fetch
+the <em>“Next Page”</em> of results. To do this we can use the <code class="highlighter-rouge">Network</code> tab of
+the browser which is located in what is commonly referred to as the 
+<em>“Developer Tools”</em>.</p>
+
+<p>I <em>right-click</em> on the page and select <code class="highlighter-rouge">Inspect Element</code> to open up
+the <code class="highlighter-rouge">Inspector</code> tab. (Although you can access it directly from
+the menu or using keyboard shortcuts.)</p>
+
+<p><img src="/img/1494833818-instagram-inspect.png" alt="" /></p>
+
+<p>With the <code class="highlighter-rouge">Inspector</code> tab open I then select the <code class="highlighter-rouge">Network</code> tab. 
+I also filter the type of
+requests displayed to only <code class="highlighter-rouge">XHR</code> which stands for <code class="highlighter-rouge">XMLHttpRequest</code>.
+These are the type of requests made by Javascript and we already
+know Javascript is doing the work so we want to look at these
+requests specifically.</p>
+
+<p>I then re-enable Javascript in my browser and refresh the page.</p>
+
+<p><img src="/img/1494833959-instagram-network-1.png" alt="" /></p>
+
+<p>With the <code class="highlighter-rouge">Network</code> tab open we can select an individual request and
+an <em>Information Panel</em> will appear on the right. We can then select
+the <code class="highlighter-rouge">Response</code> tab within that panel to view information about the 
+response received.</p>
+
+<p>Let’s take a closer look at the response.</p>
+
+<p><img src="/img/1494834391-instagram-response-1.png" alt="" /></p>
+
+<p>So the response is <code class="highlighter-rouge">JSON</code> data and we can see it contains <code class="highlighter-rouge">start_cursor</code>
+and <code class="highlighter-rouge">end_cursor</code> which look like they have something to do with 
+<em>“pagination”</em>.</p>
+
+<p>We see <code class="highlighter-rouge">count: 402</code> which is the same number of <code class="highlighter-rouge">Posts</code> on the page
+and we also see <code class="highlighter-rouge">nodes</code> 
+which appears to be a list containing the information of each media item.</p>
+
+<p>Interesting values for each node include</p>
+
+<ul>
+  <li><code class="highlighter-rouge">code</code> - this is used in the <em>“post”</em> URL e.g.
+<a href="https://www.instagram.com/p/BUGg5r6gf5T/">https://www.instagram.com/p/BUGg5r6gf5T/</a></li>
+  <li><code class="highlighter-rouge">display_src</code> - this appears to be a direct URL to the <em>“source”</em> (an image in this case)</li>
+  <li><code class="highlighter-rouge">id</code> - the <em>“node id”</em></li>
+</ul>
+
+<p>You may notice that the <code class="highlighter-rouge">id</code> of the first <em>“node”</em> is the same value
+as the page <code class="highlighter-rouge">start_cursor</code></p>
+
+<ul>
+  <li><code class="highlighter-rouge">1515190529653195341</code></li>
+</ul>
+
+<p>Scrolling down to look at the <code class="highlighter-rouge">id</code> of the last <em>“node”</em>..</p>
+
+<p><img src="/img/1494834392-instagram-response-2.png" alt="" /></p>
+
+<p>.. we can see that it matches the value of the page <code class="highlighter-rouge">end_cursor</code></p>
+
+<ul>
+  <li><code class="highlighter-rouge">1511430693194883315</code></li>
+</ul>
+
+<p>Let’s take a look at the <code class="highlighter-rouge">Params</code> tab to see what data was 
+sent in the request.</p>
+
+<p><img src="/img/1494834530-instagram-params-1.png" alt="" /></p>
+
+<p>In the <code class="highlighter-rouge">q</code> param we see <code class="highlighter-rouge">ig_user(3612106348)</code> which suggests the 
+<code class="highlighter-rouge">3612106348</code> number is the <em>id</em> of this instagram user’s account.</p>
+
+<p>There is also <code class="highlighter-rouge">media.after(AQDJ-....,+12</code> which suggests the <code class="highlighter-rouge">AQDJ-...</code> 
+string is an <em>id</em> for a particular media item and 
+<code class="highlighter-rouge">,+12</code> looks like it’s saying <em>“Give me the next 12 items after this id”</em>.</p>
+
+<p>This makes sense because as you may have noticed <code class="highlighter-rouge">12</code> is the
+number of media items on a page of results. The <code class="highlighter-rouge">AQDJ-...</code> string however, 
+doesn’t seem to follow the naming pattern of the <em>“node”</em> ids we
+got in the response.</p>
+
+<p>Looking back at the main <code class="highlighter-rouge">Network</code> tab we can see that a second <code class="highlighter-rouge">POST</code> request 
+was also made so let’s take a closer look at that.</p>
+
+<p><img src="/img/1494845820-instagram-network-3.png" alt="" /></p>
+
+<p>Let’s take a look at the <code class="highlighter-rouge">Params</code> sent with the request.</p>
+
+<p><img src="/img/1494834531-instagram-params-2.png" alt="" /></p>
+
+<p>We can see <code class="highlighter-rouge">ig_user</code> is the same but the <code class="highlighter-rouge">media.after()</code> string 
+is now <code class="highlighter-rouge">1511430693194883315,+12</code> and this <code class="highlighter-rouge">1511430693194883315</code>
+value matches the page <code class="highlighter-rouge">end_cursor</code> value from the first
+request made.</p>
+
+<p>So it looks like we can extract the <code class="highlighter-rouge">end_cursor</code> value from a 
+<code class="highlighter-rouge">Response</code> and use it in the <code class="highlighter-rouge">q</code> parameter to fetch the next 
+page of results.</p>
+
+<p>If we <em>right-click</em> on a request we get some useful options.</p>
+
+<p><img src="/img/1494834368-instagram-copy-as.png" alt="" /></p>
+
+<p>We can</p>
+<ul>
+  <li><code class="highlighter-rouge">Copy Response</code> which will copy the <code class="highlighter-rouge">Response</code> tab data (i.e. the <code class="highlighter-rouge">JSON</code> data from above)</li>
+  <li><code class="highlighter-rouge">Copy POST Data</code> which will copy the <code class="highlighter-rouge">Params</code> tab data (i.e. <code class="highlighter-rouge">q</code>, <code class="highlighter-rouge">ref</code>, <code class="highlighter-rouge">query_id</code>)</li>
+  <li><code class="highlighter-rouge">Copy as cURL</code> which will give the full <code class="highlighter-rouge">curl</code> command to replicate the request</li>
+</ul>
+
+<a name="copy-as-curl"></a>
+<h2 class="section-header">
+  <span id="copy-as-curl"></span>
+  <a class="anchor" href="#copy-as-curl">Copy as cURL</a>
+</h2>
+
+<p><code class="highlighter-rouge">curl</code> is a command-line tool for sending requests similar to how we use <code class="highlighter-rouge">requests</code> 
+in Python.</p>
+
+<p>Let’s copy the command and run it in our shell.</p>
+
+<p>The actual command-line generated is rather large so <code class="highlighter-rouge">[...]</code> here just
+represents the remainder of the command.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s1">'https://www.instagram.com/query/'</span> --2.0 -H <span class="s1">'Host: www.instagram.com'</span> <span class="o">[</span>...]
+curl: option --2.0: is unknown
+curl: try <span class="s1">'curl --help'</span> or <span class="s1">'curl --manual'</span> <span class="k">for </span>more information
+</code></pre>
+</div>
+
+<p>Oops, my version of <code class="highlighter-rouge">curl</code> doesn’t support <code class="highlighter-rouge">--2.0</code>, let’s try again with that
+option removed.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl <span class="s1">'https://www.instagram.com/query/'</span> -H <span class="s1">'Host: www.instagram.com'</span> <span class="o">[</span>...]
+<span class="o">{</span><span class="s2">"media"</span>: <span class="o">{</span><span class="s2">"page_info"</span>: <span class="o">{</span><span class="s2">"start_cursor"</span>: <span class="s2">"1515043026307776083"</span>, <span class="s2">"end_cursor"</span>: <span class="s2">"1511400656827605604"</span> ...
+</code></pre>
+</div>
+
+<p>It works and we get our <code class="highlighter-rouge">JSON</code> response. I re-ran <code class="highlighter-rouge">curl</code> without the <code class="highlighter-rouge">ref</code> param and 
+it still worked. I then ran it without the <code class="highlighter-rouge">query_id</code> param and it still worked.
+So it seems that <code class="highlighter-rouge">q</code> is the only param that gets checked by the <code class="highlighter-rouge">query</code> endpoint.</p>
+
+<p><code class="highlighter-rouge">curl</code> by default prints to stdout and we can use <code class="highlighter-rouge">-o filename</code> to output to <code class="highlighter-rouge">filename</code> 
+instead or we could use shell redirection e.g. <code class="highlighter-rouge">&gt; filename</code></p>
+
+<p>The <code class="highlighter-rouge">-H</code> option to <code class="highlighter-rouge">curl</code> is for setting 
+<a href="https://en.wikipedia.org/wiki/List_of_HTTP_header_fields">HTTP Headers</a>.
+You may have noticed when we <em>right-clicked</em> on our request above there was
+also a <code class="highlighter-rouge">Copy Request Headers</code> option which gives us a nice view of them.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>POST /query/ HTTP/1.1
+Host: www.instagram.com
+User-Agent: Mozilla/5.0 (...
+Accept: */*
+Accept-Language: en-GB,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+X-CSRFToken: vzHPj1VZ7ga7LkszmFc1u7e6CqwI2Bvv
+X-Instagram-AJAX: 1
+Content-Type: application/x-www-form-urlencoded
+X-Requested-With: XMLHttpRequest
+Referer: https://www.instagram.com/thefatfoxcamden/
+Content-Length: 559
+Cookie: rur=ATN; csrftoken=vzHPj1VZ7ga7LkszmFc1u7e6CqwI2Bvv; ...
+Connection: keep-alive
+</code></pre>
+</div>
+
+<p>We could also view them in <code class="highlighter-rouge">Headers</code> tab of the request <em>Information Panel</em>.</p>
+
+<p>Through trial and error (simply retrying the request omitting a value
+at a time) I discovered that the request fails without the 
+<code class="highlighter-rouge">Referer</code> header set to an <a href="">http://instagram.com</a> URL.</p>
+
+<p>It will also fail without 
+a valid <code class="highlighter-rouge">X-CSRFToken</code> <em>Header</em> and the corresponding <code class="highlighter-rouge">csrftoken</code>
+<em>Cookie</em> entry.</p>
+
+<p>So where did this <em>csrftoken</em> value come value come from?</p>
+
+<p>We mentioned in the beginning that it looked like there was some data
+of importance contained in the source <code class="highlighter-rouge">HTML</code> so let’s go look there.</p>
+
+<p>We’ll use <code class="highlighter-rouge">curl</code> to save fetch the <code class="highlighter-rouge">HTML</code> of the profile page which allows 
+us to search through it easier using our <em>favourite editor</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -A Mozilla/5.0 https://www.instagram.com/thefatfoxcamden/ -o page.html
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">-A</code> sets the <code class="highlighter-rouge">User-Agent</code> header which we do as the default <code class="highlighter-rouge">curl</code> value
+is commonly blocked.</p>
+
+<p>If we do a <em>case-insensitive</em> search for <code class="highlighter-rouge">csrf</code> inside <code class="highlighter-rouge">page.html</code> we find</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;</span><span class="err">window._sharedData = {
+  "activity_counts": null, "config": {"csrf_token": "VCyFuVr7P1pZzFkxQmkA1z9GpNo1ZOub",
+  ...
+</span></code></pre>
+</div>
+
+<p>So there is a <code class="highlighter-rouge">csrf_token</code> contained in the source <code class="highlighter-rouge">HTML</code> inside this 
+<code class="highlighter-rouge">window._sharedData</code> (Javascript) variable. If we 
+take a closer look at the contents of this variable we can see that it also
+seems to contain the <code class="highlighter-rouge">JSON</code> response data from the first <code class="highlighter-rouge">POST</code> request 
+we looked at.</p>
+
+<p>While we are searching let’s search for the <code class="highlighter-rouge">ig_user()</code> <em>id</em> number from earlier.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>"id": "3612106348"
+</code></pre>
+</div>
+
+<p>Hopefully this demonstrates that searching in the source <code class="highlighter-rouge">HTML</code> for data 
+that was sent along with the request you’re debugging can be an important
+step in solving the puzzle.</p>
+
+<p>If we search <code class="highlighter-rouge">start_cursor</code> we find no match however we do find a 
+match for <code class="highlighter-rouge">end_cursor</code></p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code>{"has_next_page": true, "end_cursor": "AQBB1hheP9G_e4Ui95IhF1zt5jbd2KloyjJj...
+</code></pre>
+</div>
+
+<p>… but it does seem to differ from the <code class="highlighter-rouge">media.after()</code>
+param that was sent in the very first request.</p>
+
+<p>This does suggest though, that we can:</p>
+
+<ul>
+  <li>make an initial <code class="highlighter-rouge">GET</code> request to the profile page</li>
+  <li>extract <code class="highlighter-rouge">id</code>, <code class="highlighter-rouge">csrf_token</code> and <code class="highlighter-rouge">end_cursor</code></li>
+  <li>use those values in our <code class="highlighter-rouge">POST</code> request to <code class="highlighter-rouge">https://www.instagram.com/query/</code></li>
+</ul>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>We can use the <code class="highlighter-rouge">Copy POST Data</code> functionality mentioned earlier to populate
+our code with the needed data and then make the appropriate edits to turn 
+it into a Python dict for passing along to the <code class="highlighter-rouge">data</code> argument of 
+<code class="highlighter-rouge">requests.post()</code></p>
+
+<p>Although in this instance we’re actually only using the <code class="highlighter-rouge">q</code> param 
+and we want to <em>“inject”</em> the value of <code class="highlighter-rouge">ig_user</code> and <code class="highlighter-rouge">end_cursor</code> 
+into it so we use the <code class="highlighter-rouge">%s</code> style string formatting to allow us to 
+do so.</p>
+
+<p>I mentioned earlier that through <em>trial and error</em> I discovered what 
+headers were needed but you could of course just copy ALL the headers
+from the <code class="highlighter-rouge">Network</code> tab instead of trying to figure that out.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/thefatfoxcamden/'</span>
+<span class="n">api</span>     <span class="o">=</span> <span class="s">'https://www.instagram.com/query/'</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="s">'''</span><span class="se">\
+</span><span class="s">ig_user(</span><span class="si">%</span><span class="s">s)+{+media.after(</span><span class="si">%</span><span class="s">s,+12)+{
+++count,
+++nodes+{
+++++__typename,
+++++caption,
+++++code,
+++++comments+{
+++++++count
+++++},
+++++comments_disabled,
+++++date,
+++++dimensions+{
+++++++height,
+++++++width
+++++},
+++++display_src,
+++++id,
+++++is_video,
+++++likes+{
+++++++count
+++++},
+++++owner+{
+++++++id
+++++},
+++++thumbnail_src,
+++++video_views
+++},
+++page_info
+}
++}</span><span class="se">\
+</span><span class="s">'''</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+
+    <span class="n">ig_user</span>    <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"id": "([^"]+)"'</span>        <span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">csrftoken</span>  <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"csrf_token": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">end_cursor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"end_cursor": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span> <span class="s">'q'</span><span class="p">:</span> <span class="n">q</span> <span class="o">%</span> <span class="p">(</span><span class="n">ig_user</span><span class="p">,</span> <span class="n">end_cursor</span><span class="p">)</span> <span class="p">}</span>
+
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">'Referer'</span>    <span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> 
+        <span class="s">'X-CSRFToken'</span><span class="p">:</span> <span class="n">csrftoken</span>
+    <span class="p">}</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">cookies</span><span class="o">=</span><span class="p">{</span><span class="s">'csrftoken'</span><span class="p">:</span> <span class="n">csrftoken</span><span class="p">},</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</code></pre>
+</div>
+
+<p>Yes, to extract <code class="highlighter-rouge">id</code>, <code class="highlighter-rouge">csrf_token</code> and <code class="highlighter-rouge">end_cursor</code> we’re
+using <em>Regular Expressions!!!!!</em> which according to 
+<em>the Internet</em> we’re never supposed to use. <em>Zomg!!!</em></p>
+
+<p>We will have to let the <em>h8rz h8</em> as they say.</p>
+
+<p><code class="highlighter-rouge">(?:problems){99}(?!regex)</code></p>
+
+<p>Each regex follows the same <em>pattern</em>:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">"id": "</code> matches literally the string <code class="highlighter-rouge">"id": "</code></li>
+  <li><code class="highlighter-rouge">(</code> delimits the start of a <em>Capture Group</em></li>
+  <li><code class="highlighter-rouge">[^"]</code> matches any characters that is not <code class="highlighter-rouge">"</code> (this is called a <em>Character Class</em>)</li>
+  <li><code class="highlighter-rouge">+</code> means the <em>“previous atom”</em> <em>1 or more times</em> which in this case applies to <code class="highlighter-rouge">[^"]</code></li>
+  <li><code class="highlighter-rouge">)</code> closes the <em>Capture Group</em> and the final <code class="highlighter-rouge">"</code> matches the closing <code class="highlighter-rouge">"</code></li>
+</ul>
+
+<p>So <code class="highlighter-rouge">[^"]+</code> matches up to (but not including) the closing <code class="highlighter-rouge">"</code> (i.e. 
+a sequence of <em>1 or more</em> characters that are not <code class="highlighter-rouge">"</code>) thus matching the
+<em>value</em> contained inside the <code class="highlighter-rouge">""</code> and because we have <em>“captured”</em>
+it we can refer to it using <code class="highlighter-rouge">group(1)</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">text</span> <span class="o">=</span> <span class="s">'"id": "hello"'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"id": "([^"]+)"'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="s">'hello'</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">.group(1)</code> gives us the contents of the first <em>Capture Group</em>.</p>
+
+<p>The other patterns are identitical apart from the key name changing.</p>
+
+<p>It can be common for the whitespace around <code class="highlighter-rouge">:</code> to change so we could 
+replace <code class="highlighter-rouge">"key": "</code> with <code class="highlighter-rouge">"key"\s*:\s*"</code> to be more <em>“robust”</em>.</p>
+
+<p><code class="highlighter-rouge">\s*</code> here matches a sequence of <em>0 or more</em> <em>“whitespace”</em> characters.</p>
+
+<p>So after all of that let’s hope it works.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python post.py
+<span class="o">{</span><span class="s1">'status'</span>: <span class="s1">'fail'</span>, <span class="s1">'message'</span>: <span class="s1">'syntax error'</span><span class="o">}</span>
+</code></pre>
+</div>
+
+<p><strong>FUUUUUUUUUU!</strong></p>
+
+<p>So it looks like our request <em>“worked”</em> but the error message suggests 
+that there is something wrong with our <code class="highlighter-rouge">q</code> param.</p>
+
+<p>When passing a dict to the <code class="highlighter-rouge">data</code> argument the values are <em>form-encoded</em>
+by <code class="highlighter-rouge">requests</code> however you can also pass a string which will go through 
+untouched.</p>
+
+<p>We know from 
+<a href="/2017/05/05/poloniex-api-invalid-command/#netcat">debugging the POST request with netcat</a>
+that passing a string to the <code class="highlighter-rouge">data</code> argument
+<a href="/2017/05/05/poloniex-api-invalid-command/#the-data-argument">bypasses the setting of the Content-Type
+header</a> so we must set it manually.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">'application/x-www-form-urlencoded'</span><span class="p">,</span>
+    <span class="o">...</span>
+</code></pre>
+</div>
+
+<p>Also note that because we’re using a string we must manually add the param name
+in our string data (i.e. the <code class="highlighter-rouge">q=</code>)</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">q</span> <span class="o">=</span> <span class="s">'''</span><span class="se">\
+</span><span class="s">q=ig_user(</span><span class="si">%</span><span class="s">s)+{...
+...
+...</span><span class="se">\
+</span><span class="s">'''</span>
+</code></pre>
+</div>
+
+<p>When we pass <code class="highlighter-rouge">data={'foo': 'bar'}</code> it gets turned into <code class="highlighter-rouge">foo=bar</code> i.e. <code class="highlighter-rouge">foo</code> is
+the param <em>name</em> and <code class="highlighter-rouge">bar</code> is the param <em>value</em>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span> <span class="o">=</span> <span class="n">q</span> <span class="o">%</span> <span class="p">(</span><span class="n">ig_user</span><span class="p">,</span> <span class="n">end_cursor</span><span class="p">)</span> <span class="c"># no longer a dict</span>
+</code></pre>
+</div>
+
+<p>As we are bypassing this functionality by passing a string we must manually 
+add <code class="highlighter-rouge">q=</code> to the start of our content as previously shown.</p>
+
+<p>With these 2 changes let’s re-run the code. We’re using <code class="highlighter-rouge">-i</code> this time
+to drop us into an interactive session.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -i post.py
+<span class="o">{</span><span class="s1">'status'</span>: <span class="s1">'ok'</span>, <span class="s1">'media'</span>: <span class="o">{</span><span class="s1">'count'</span>: 402, <span class="s1">'page_info'</span>: <span class="o">{</span><span class="s1">'has_previous_page'</span>:...
+</code></pre>
+</div>
+
+<p>So it works! and now that we are in an interactive session we can 
+take a closer look at <code class="highlighter-rouge">r</code> the repsonse object.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="p">[</span><span class="s">'status'</span><span class="p">,</span> <span class="s">'media'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'media'</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="p">[</span><span class="s">'count'</span><span class="p">,</span> <span class="s">'page_info'</span><span class="p">,</span> <span class="s">'nodes'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'media'</span><span class="p">][</span><span class="s">'nodes'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'caption'</span><span class="p">])</span>
+<span class="n">Cure</span> <span class="n">that</span> <span class="n">Monday</span> <span class="n">fear</span> <span class="err">☺️</span>
+</code></pre>
+</div>
+
+<p>We know that we’re receiving a <code class="highlighter-rouge">JSON</code> response from this request 
+so we use the <a href="http://docs.python-requests.org/en/master/user/quickstart/#json-response-content">.json()</a>
+method on a Response object which turns a <code class="highlighter-rouge">JSON</code> <em>“string”</em> into
+a Python structure (also see <a href="https://docs.python.org/3/library/json.html">json.loads()</a>)</p>
+
+<p>To see a <em>pretty-printed</em> version of the <code class="highlighter-rouge">JSON</code> data we can use <code class="highlighter-rouge">json.dumps()</code> 
+with its <code class="highlighter-rouge">indent</code> argument.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+  <span class="s">"media"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">"count"</span><span class="p">:</span> <span class="mi">402</span><span class="p">,</span> 
+    <span class="s">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">"__typename"</span><span class="p">:</span> <span class="s">"GraphImage"</span><span class="p">,</span> 
+        <span class="s">"caption"</span><span class="p">:</span> <span class="s">"Cure that Monday fear </span><span class="se">\u263a\ufe0f</span><span class="s">"</span><span class="p">,</span> 
+        <span class="s">"code"</span><span class="p">:</span> <span class="s">"BUHCcJHA8JN"</span><span class="p">,</span> 
+        <span class="s">"comments"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">"count"</span><span class="p">:</span> <span class="mi">4</span>
+        <span class="p">},</span> 
+        <span class="s">"comments_disabled"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+        <span class="s">"date"</span><span class="p">:</span> <span class="mi">1494844808</span><span class="p">,</span> 
+        <span class="s">"dimensions"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">"height"</span><span class="p">:</span> <span class="mi">1080</span><span class="p">,</span> 
+          <span class="s">"width"</span><span class="p">:</span> <span class="mi">1080</span>
+        <span class="p">},</span> 
+        <span class="s">"display_src"</span><span class="p">:</span> <span class="s">"https://scontent.cdninstagram.com/..."</span><span class="p">,</span>
+        <span class="s">"id"</span><span class="p">:</span> <span class="s">"1515190529653195341"</span><span class="p">,</span> 
+        <span class="s">"is_video"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+        <span class="s">"likes"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">"count"</span><span class="p">:</span> <span class="mi">160</span>
+        <span class="p">},</span> 
+        <span class="s">"owner"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">"id"</span><span class="p">:</span> <span class="s">"3612106348"</span>
+        <span class="p">},</span> 
+        <span class="s">"thumbnail_src"</span><span class="p">:</span> <span class="s">"https://scontent.cdninstagram.com/..."</span>
+      <span class="p">},</span> 
+</code></pre>
+</div>
+
+<p>I’ve truncated the output here due to its size. It can be useful in such cases to write
+the <em>pretty-printed</em> output to a file instead for further inspection.</p>
+
+<p>Now that we have our <code class="highlighter-rouge">JSON</code> response we can extract the <code class="highlighter-rouge">end_cursor</code> 
+value to use in a <code class="highlighter-rouge">POST</code> request to fetch the next <em>“page”</em> of results.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="n">q</span> <span class="o">%</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'media'</span><span class="p">][</span><span class="s">'page_info'</span><span class="p">][</span><span class="s">'end_cursor'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">cookies</span><span class="o">=</span><span class="p">{</span><span class="s">'csrftoken'</span><span class="p">:</span> <span class="n">csrftoken</span><span class="p">},</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'media'</span><span class="p">][</span><span class="s">'nodes'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'caption'</span><span class="p">])</span>
+<span class="n">Blurry</span> <span class="n">eyes</span> <span class="err">?</span>
+</code></pre>
+</div>
+
+<p>… and again?</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="n">q</span> <span class="o">%</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'media'</span><span class="p">][</span><span class="s">'page_info'</span><span class="p">][</span><span class="s">'end_cursor'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">cookies</span><span class="o">=</span><span class="p">{</span><span class="s">'csrftoken'</span><span class="p">:</span> <span class="n">csrftoken</span><span class="p">},</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'media'</span><span class="p">][</span><span class="s">'nodes'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'caption'</span><span class="p">])</span>
+<span class="n">Lunch</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">sun</span> <span class="n">what</span> <span class="n">more</span> <span class="n">could</span> <span class="n">you</span> <span class="n">ask</span> <span class="k">for</span><span class="err">!</span>
+</code></pre>
+</div>
+
+<p><strong>GREAT SUCCESS!</strong></p>
+
+<p>So now that we have our <em>“pagination”</em> working we could use 
+another regex to <em>“scrape”</em> all the URLs contained in the 
+<code class="highlighter-rouge">display_src</code> values to give us direct links to the images.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">src_urls</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'"display_src": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>But, but, but… <em>what about muh videoz?!?!?!?!?!?!!?</em></p>
+
+<a name="extracting-json-from-html"></a>
+<h2 class="section-header">
+  <span id="extracting-json-from-html"></span>
+  <a class="anchor" href="#extracting-json-from-html">Extracting JSON from HTML</a>
+</h2>
+
+<p>You may have noticed the <code class="highlighter-rouge">"is_video": false</code> in the <code class="highlighter-rouge">JSON</code> output above.
+In the case of a video it would obviously be <code class="highlighter-rouge">true</code> and not <code class="highlighter-rouge">false</code> however
+the <code class="highlighter-rouge">display_src</code> will be the <em>“preview image”</em> of the video and not a link
+to the video itself.</p>
+
+<p>In order to get the direct link to the video more work is needed.</p>
+
+<p>We know that <code class="highlighter-rouge">code</code> is used to build the the URL to an 
+individual <em>“post”</em> page and we know that <em>Instagram</em> is storing 
+<code class="highlighter-rouge">JSON</code> data in the source <code class="highlighter-rouge">HTML</code> via this <code class="highlighter-rouge">window._sharedData</code> 
+variable so let’s fetch a video post page and take a look.</p>
+
+<p>If we didn’t know the name of <code class="highlighter-rouge">window._sharedData</code> we could always search
+for some of the <code class="highlighter-rouge">JSON</code> keys instead e.g. <code class="highlighter-rouge">is_video</code></p>
+
+<p>We’ll be using
+<a href="https://www.instagram.com/p/BSfdmLugXjd/">https://www.instagram.com/p/BSfdmLugXjd/</a>
+as our URL for testing.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>curl -A Mozilla/5.0 https://www.instagram.com/p/BSfdmLugXjd/ -o post.html
+</code></pre>
+</div>
+
+<p>Locating the <code class="highlighter-rouge">sharedData</code> we can see the following.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;</span><span class="err">window._sharedData = {
+  "activity_counts": null, "config": 
+  {"csrf_token": "Ht46CMuWhTX5ohHVf38i2JYDukekxTnj", "viewer": null}, 
+  "entry_data": {"PostPage": 
+    [{"graphql": {"shortcode_media": {"__typename": "GraphVideo", "id": "1486036569335888093", 
+     "shortcode": "BSfdmLugXjd", "dimensions": {"height": 800, "width": 640}, 
+     "video_url": "https://scontent.cdninstagram.com/t50.2886-16/17815456_1265625920187368_2182862195560284160_n.mp4", 
+     "video_view_count": 856, "is_video": true
+</span></code></pre>
+</div>
+
+<p>So we have a <code class="highlighter-rouge">video_url</code> in there with the direct link to the <code class="highlighter-rouge">.mp4</code> file
+which we could extract by using the regex approach from earlier.</p>
+
+<p>This leaves us with the question of how do we process each <em>“node”</em>
+from our results page to</p>
+
+<ul>
+  <li>test if <code class="highlighter-rouge">is_video</code> is <code class="highlighter-rouge">true</code></li>
+  <li>if it is: extract <code class="highlighter-rouge">code</code> - fetch URL - extract <code class="highlighter-rouge">video_url</code></li>
+  <li>else, extract <code class="highlighter-rouge">display_src</code></li>
+</ul>
+
+<p>This means we would need to be able to group <code class="highlighter-rouge">code</code>, <code class="highlighter-rouge">is_video</code>
+and <code class="highlighter-rouge">display_src</code> together for each <em>“node”</em> entry.</p>
+
+<p>We know that the data is contained inside the 
+<code class="highlighter-rouge">window._sharedData</code> variable and it looks like its
+in <code class="highlighter-rouge">JSON</code> format.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;script </span><span class="na">type=</span><span class="s">"text/javascript"</span><span class="nt">&gt;</span><span class="nb">window</span><span class="p">.</span><span class="nx">_sharedData</span> <span class="o">=</span> <span class="p">{</span>
+<span class="p">...</span>
+<span class="s2">"show_app_install"</span><span class="p">:</span> <span class="kc">true</span><span class="p">};</span><span class="nt">&lt;/script&gt;</span>
+</code></pre>
+</div>
+
+<p>If we could isolate this part of the <code class="highlighter-rouge">HTML</code> and just keep the <code class="highlighter-rouge"><span class="p">{</span><span class="err">...</span><span class="p">}</span></code>
+contents we could try passing it to <code class="highlighter-rouge">json.loads()</code> to turn it 
+into a Python structure.</p>
+
+<p>Let’s return to <code class="highlighter-rouge">page.html</code> we saved earlier for some testing.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'page.html'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="o">...</span>     <span class="n">text</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="o">...</span>
+<span class="o">...</span>     <span class="n">start</span> <span class="o">=</span> <span class="s">'window._sharedData = {'</span>
+<span class="o">...</span>     <span class="n">end</span>   <span class="o">=</span> <span class="s">';&lt;/script&gt;'</span>
+<span class="o">...</span>
+<span class="o">...</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:]</span>
+<span class="o">...</span>     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[:</span><span class="n">data</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">end</span><span class="p">)]</span>
+<span class="o">...</span>
+<span class="o">...</span>     <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">j</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="o">...</span>
+<span class="p">[</span><span class="s">'show_app_install'</span><span class="p">,</span> <span class="s">'platform'</span><span class="p">,</span> <span class="s">'activity_counts'</span><span class="p">,</span> <span class="s">'hostname'</span><span class="p">,</span> <span class="o">...</span>
+</code></pre>
+</div>
+
+<p>For <em>“teh lulz”</em> we’ve used <code class="highlighter-rouge">str.find()</code> in combination with <em>slicing</em> to extract
+the needed data however if you’re not <em>regexphobic</em> you could have also gone that
+route.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'window._sharedData = (</span><span class="err">\</span><span class="s">{.+?});&lt;/script&gt;'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">str.find()</code> obviously works with exact string matching meaning 
+the regex approach can be considered more <em>“flexible”</em> as we 
+could make use of things like <code class="highlighter-rouge">\s*</code> to match any optional whitespace.</p>
+
+<p>You may see both techniques in your travels so it just serves as an example
+here.</p>
+
+<p>So our plan seems to have worked…</p>
+
+<p>Let’s use <code class="highlighter-rouge">json.dumps()</code> to get a <em>pretty-printed</em> version.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+  <span class="s">"config"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">"csrf_token"</span><span class="p">:</span> <span class="s">"Fa4xUEE8aohXO7UEgZEXPAvyobAOQvVF"</span><span class="p">,</span> 
+  <span class="p">},</span> 
+  <span class="s">"country_code"</span><span class="p">:</span> <span class="s">"IE"</span><span class="p">,</span> 
+  <span class="s">"entry_data"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">"ProfilePage"</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">"logging_page_id"</span><span class="p">:</span> <span class="s">"profilePage_3612106348"</span><span class="p">,</span> 
+        <span class="s">"user"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">"biography"</span><span class="p">:</span> <span class="s">"7-4 weekdays."</span><span class="p">,</span> 
+          <span class="s">"followed_by"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">"count"</span><span class="p">:</span> <span class="mi">7423</span>
+          <span class="p">},</span> 
+          <span class="s">"followed_by_viewer"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+          <span class="s">"follows"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">"count"</span><span class="p">:</span> <span class="mi">94</span>
+          <span class="p">},</span> 
+          <span class="s">"follows_viewer"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+          <span class="s">"full_name"</span><span class="p">:</span> <span class="s">"The Fat Fox"</span><span class="p">,</span> 
+          <span class="s">"id"</span><span class="p">:</span> <span class="s">"3612106348"</span><span class="p">,</span> 
+          <span class="s">"media"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">"count"</span><span class="p">:</span> <span class="mi">402</span><span class="p">,</span> 
+            <span class="s">"nodes"</span><span class="p">:</span> <span class="p">[</span>
+              <span class="p">{</span>
+</code></pre>
+</div>
+
+<p>So we can see that <code class="highlighter-rouge">nodes</code> is buried down inside 
+<code class="highlighter-rouge">j['entry_data']['ProfilePage'][0]['user']['media']['nodes']</code></p>
+
+<p>Let’s try iterate over it and extract some values.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">j</span><span class="p">[</span><span class="s">'entry_data'</span><span class="p">][</span><span class="s">'ProfilePage'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'user'</span><span class="p">][</span><span class="s">'media'</span><span class="p">][</span><span class="s">'nodes'</span><span class="p">]:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s">'code'</span><span class="p">],</span> <span class="n">node</span><span class="p">[</span><span class="s">'is_video'</span><span class="p">])</span>
+<span class="n">BUHCcJHA8JN</span> <span class="bp">False</span>
+<span class="n">BUGg5r6gf5T</span> <span class="bp">False</span>
+<span class="n">BUCMkOvgIQM</span> <span class="bp">False</span>
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</code></pre>
+</div>
+
+<p>This means we now have a way to process each <em>“node”</em> and deal with
+both images and videos correctly which we can incorporate into
+our code to process each page of results.</p>
+
+<a name="but-wait-theres-more"></a>
+<h2 class="section-header">
+  <span id="but-wait-theres-more"></span>
+  <a class="anchor" href="#but-wait-theres-more">But wait, there’s more!</a>
+</h2>
+
+<p>We mentioned at the start that <em>Instagram</em> had an API so let’s
+look at the docs for the 
+<a href="https://www.instagram.com/developer/endpoints/users/#get_users_media_recent_self">Get most recent media</a>
+endpoint.</p>
+
+<p>If we look at the <code class="highlighter-rouge">PARAMETERS</code> we see</p>
+
+<ul>
+  <li><code class="highlighter-rouge">max_id</code>  Return media earlier than this max_id.</li>
+  <li><code class="highlighter-rouge">min_id</code>  Return media later than this min_id.</li>
+</ul>
+
+<p>This sounds similar to what’s been going on with <code class="highlighter-rouge">end_cursor</code> and <code class="highlighter-rouge">start_cursor</code>.</p>
+
+<p>Out of curiosity I tried to replace our <code class="highlighter-rouge">POST</code> request with a <code class="highlighter-rouge">GET</code>
+request to <code class="highlighter-rouge">https://www.instagram.com/thefatfoxcamden/?max_id=end_cursor</code> which
+seemed to work however we get back <code class="highlighter-rouge">HTML</code> instead of <code class="highlighter-rouge">JSON</code>.</p>
+
+<p>The <code class="highlighter-rouge">HTML</code> contains all of the <code class="highlighter-rouge">JSON</code> data just like the other pages
+and we just saw how to extract it and load it up into <code class="highlighter-rouge">json.loads()</code> 
+so let’s give that approach a try here.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/thefatfoxcamden/'</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">)</span>
+
+    <span class="n">caption</span>    <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"caption": "([^"]+)"'</span>   <span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">end_cursor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"end_cursor": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Do note we’re using a regex to just extract the first <code class="highlighter-rouge">caption</code> from
+the <code class="highlighter-rouge">JSON</code> data as we’re only testing if the <em>“pagination”</em> is working.</p>
+
+<p>Once again we’ll use Python’s <code class="highlighter-rouge">-i</code> option to drop us into an interactive 
+session.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -i get.py
+Cure that Monday fear ☺️
+</code></pre>
+</div>
+
+<p>Now let’s try to <em>get</em> the next page of results. Note that as it’s now
+a <code class="highlighter-rouge">GET</code> request we use <code class="highlighter-rouge">params</code> as opposed to the <code class="highlighter-rouge">data</code> argument.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">'max_id'</span><span class="p">:</span> <span class="n">end_cursor</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">caption</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"caption": "([^"]+)"'</span>   <span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+<span class="n">Blurry</span> <span class="n">eyes</span> <span class="err">?</span>
+</code></pre>
+</div>
+
+<p>One more for good luck.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">end_cursor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"end_cursor": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">'max_id'</span><span class="p">:</span> <span class="n">end_cursor</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">caption</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"caption": "([^"]+)"'</span>   <span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
+<span class="n">Lunch</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">sun</span> <span class="n">what</span> <span class="n">more</span> <span class="n">could</span> <span class="n">you</span> <span class="n">ask</span> <span class="k">for</span><span class="err">!</span>
+</code></pre>
+</div>
+
+<p><strong>EVEN GREATER SUCCESS!</strong></p>
+
+<p>This means we have now have no need for the disgusting <code class="highlighter-rouge">q=</code> <em>POST param</em>, 
+<code class="highlighter-rouge">csrftoken</code> or <em>Cookie</em> and all we need to do now is add in the code
+from earlier that processed each <em>“node”</em>.</p>
+
+<p><code class="highlighter-rouge">instagram.py</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+
+<span class="n">user</span> <span class="o">=</span> <span class="s">'thefatfoxcamden'</span>
+
+<span class="n">profile</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/'</span> <span class="o">+</span> <span class="n">user</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="n">end_cursor</span> <span class="o">=</span> <span class="s">''</span>
+    <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'PAGE: '</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">'max_id'</span><span class="p">:</span> <span class="n">end_cursor</span><span class="p">})</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'window._sharedData = (</span><span class="err">\</span><span class="s">{.+?});&lt;/script&gt;'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">j</span>    <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">j</span><span class="p">[</span><span class="s">'entry_data'</span><span class="p">][</span><span class="s">'ProfilePage'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'user'</span><span class="p">][</span><span class="s">'media'</span><span class="p">][</span><span class="s">'nodes'</span><span class="p">]:</span> 
+            <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s">'is_video'</span><span class="p">]:</span>
+                <span class="n">page</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/p/'</span> <span class="o">+</span> <span class="n">node</span><span class="p">[</span><span class="s">'code'</span><span class="p">]</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+                <span class="n">url</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"video_url": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">'VIDEO:'</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">print</span><span class="p">(</span><span class="s">'IMAGE:'</span><span class="p">,</span> <span class="n">node</span><span class="p">[</span><span class="s">'display_src'</span><span class="p">])</span>
+        
+        <span class="n">end_cursor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"end_cursor": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>So the code should be easy enough to follow as we’ve discussed all
+the parts already.</p>
+
+<p>We are looping over the first <code class="highlighter-rouge">2</code> pages of results as an example.
+<code class="highlighter-rouge">end_cursor</code> is initially empty so we will get the first page of results.</p>
+
+<p>We then extract the <code class="highlighter-rouge">JSON</code> data and process each <em>“node”</em> printing
+<code class="highlighter-rouge">display_src</code> if it’s an image and fetching the individal post
+page to extract the <code class="highlighter-rouge">video_url</code> if it’s a video.</p>
+
+<p>Finally we extract the <code class="highlighter-rouge">end_cursor</code> which is used to fetch the 
+next page of results, and repeat.</p>
+
+<p>Here is what the output looks like.</p>
+
+<p><img src="/img/1495013338-instagram-final-output.png" alt="" /></p>
+
+<p>We’re obviously just printing the URLs here and the goal is
+probably to fetch them and 
+<a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">save the result to disk</a>
+instead.</p>
+
+<a name="conclusion"></a>
+<h2 class="section-header">
+  <span id="conclusion"></span>
+  <a class="anchor" href="#conclusion">Conclusion</a>
+</h2>
+
+<ul>
+  <li>
+    <p><a href="https://www.instagram.com/developer/">instagram has an api</a> and if you’re attempting
+to do anything remotely resembling <em>“large-scale”</em> scraping you should probably use it
+and abide by their API guidelines.</p>
+  </li>
+  <li>
+    <p>Initially having Javascript disabled can be helpful.</p>
+  </li>
+  <li>
+    <p>The <code class="highlighter-rouge">Network</code> tab is <em>“teh total r0x0r”</em></p>
+  </li>
+  <li>
+    <p>Searching the source <code class="highlighter-rouge">HTML</code> for param names and values is a worthwhile exercise.</p>
+  </li>
+  <li>
+    <p><code class="highlighter-rouge">(?:problems){99}(?!regex)</code></p>
+  </li>
+  <li>
+    <p>You just <em>“built an instagram scraper in 30 lines of Python!!!! Zomg!!!!”</em></p>
+  </li>
+</ul>
+
+<p>Source code is also available 
+<a href="https://github.com/kaijento/code/blob/master/webscraping/instagram.com/instagram.py">on github</a>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (57)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/14/web-scraping-factfinder.census.gov/">Web scraping: factfinder.census.gov</a></h2>
+          <p class="preview">The goal is to enter a zipcode into the <code class="highlighter-rouge">Community Facts</code> search
+on the <a href="https://factfinder.census.gov">https://factfinder.census.gov</a>
+page and <em>scrape</em> the resulting 
+<code class="highlighter-rouge">2010</code> <em>Census General Population and Housing Characteristics</em> table data if
+present.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
