@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 17 May 2017 11:37:00 +0100</pubDate>
-    <lastBuildDate>Wed, 17 May 2017 11:37:00 +0100</lastBuildDate>
+    <pubDate>Wed, 17 May 2017 12:26:48 +0100</pubDate>
+    <lastBuildDate>Wed, 17 May 2017 12:26:48 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -632,7 +632,7 @@ route.&lt;/p&gt;
 the regex approach can be considered more &lt;em&gt;“flexible”&lt;/em&gt; as we 
 could make use of things like &lt;code class=&quot;highlighter-rouge&quot;&gt;\s*&lt;/code&gt; to match any optional whitespace.&lt;/p&gt;
 
-&lt;p&gt;You may see both techniques in your travels so it just serves as an example
+&lt;p&gt;You may see both techniques on your travels so it just serves as an example
 here.&lt;/p&gt;
 
 &lt;p&gt;So our plan seems to have worked…&lt;/p&gt;
