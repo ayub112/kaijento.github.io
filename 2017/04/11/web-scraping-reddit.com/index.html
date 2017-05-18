@@ -75,26 +75,26 @@
 
 </div>
 <div class="post-content">
-  <p><em>How do I scrape the front page of a subreddit using Python?</em></p>
+  <p>The goal is to extract or <em>“scrape”</em> information from the posts
+on the front page of a subreddit e.g. 
+<a href="http://reddit.com/r/learnpython/new/">http://reddit.com/r/learnpython/new/</a></p>
 
-<p><em>Scraping a subreddit</em> seems to be a commonly requested task
- and people usually attempt to do it using <code class="highlighter-rouge">urllib</code> or <code class="highlighter-rouge">requests</code> 
-combined with <code class="highlighter-rouge">lxml</code> or <code class="highlighter-rouge">BeautifulSoup</code>.</p>
+<p>You should know that <a href="https://www.reddit.com/dev/api">Reddit has an api</a>
+and <a href="https://praw.readthedocs.io/">PRAW</a> exists to make using it easier.</p>
 
-<p>Reddit does have an <a href="https://www.reddit.com/dev/api">official API</a> and 
-there is a Python interface to it in <a href="https://praw.readthedocs.io/">PRAW</a>. 
-You do however, need to register an account and use OAuth with this 
-approach.</p>
+<ul>
+  <li>You use it, taking the blue pill—the article ends.</li>
+  <li>You take the red pill—you stay in Wonderland, 
+and I show you how deep a <code class="highlighter-rouge">JSON</code> response goes.</li>
+</ul>
 
-<p>There is also another option. Reddit allows you to add a <code class="highlighter-rouge">.json</code> 
-extension to the end of your request and will give you back 
-the data in JSON format which can then be processed using a
-JSON parser such as the <code class="highlighter-rouge">json</code> module.</p>
+<p>Remember: all I’m offering is the truth. Nothing more.</p>
 
-<p>It is sort of like they provide unauthorized access to their JSON API
-with this method.</p>
+<p>Reddit allows you to add a <code class="highlighter-rouge">.json</code> extension to the end of your request 
+and will give you back a <code class="highlighter-rouge">JSON</code> response instead of <code class="highlighter-rouge">HTML</code>.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
+<span class="o">&gt;&gt;&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://reddit.com/r/learnpython/new/.json'</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">r</span>   <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
 <span class="o">&gt;&gt;&gt;</span>
@@ -103,7 +103,8 @@ with this method.</p>
 </code></pre>
 </div>
 
-<p>Reddit blocks certain user-agent strings so we must spoof it.</p>
+<p>We’re setting the <code class="highlighter-rouge">User-Agent</code> header to <code class="highlighter-rouge">Mozilla/5.0</code> 
+as the default <code class="highlighter-rouge">requests</code> value is blocked.</p>
 
 <a name="rjson"></a>
 <h2 class="section-header">
@@ -111,9 +112,10 @@ with this method.</p>
   <a class="anchor" href="#rjson">r.json()</a>
 </h2>
 
-<p><code class="highlighter-rouge">r.json()</code> just does a <code class="highlighter-rouge">json.loads()</code> in the background which turns
-a JSON string into a Python structure. We get back a nested structure 
-of dicts and lists.</p>
+<p>We know that we’re receiving a <code class="highlighter-rouge">JSON</code> response from this request 
+so we use the <a href="http://docs.python-requests.org/en/master/user/quickstart/#json-response-content">.json()</a>
+method on a Response object which turns a <code class="highlighter-rouge">JSON</code> <em>“string”</em> into
+a Python structure (also see <a href="https://docs.python.org/3/library/json.html">json.loads()</a>)</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 <span class="o">&lt;</span><span class="nb">type</span> <span class="s">'dict'</span><span class="o">&gt;</span>
@@ -124,14 +126,50 @@ of dicts and lists.</p>
 </code></pre>
 </div>
 
-<p>To view a pretty-printed version of the structure we can use <code class="highlighter-rouge">json.dumps()</code>
-e.g. <code class="highlighter-rouge">print(json.dumps(r.json(), indent=4, sort_keys=True))</code></p>
+<p>To see a <em>pretty-printed</em> version of the <code class="highlighter-rouge">JSON</code> data we can use <code class="highlighter-rouge">json.dumps()</code> 
+with its <code class="highlighter-rouge">indent</code> argument.</p>
 
-<p>You will get a lot of output running it directly on <code class="highlighter-rouge">r.json()</code> so it may 
-make sense to write it out to a file (<code class="highlighter-rouge">json.dump()</code>) instead.</p>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="p">{</span>
+  <span class="s">"data"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">"after"</span><span class="p">:</span> <span class="s">"t3_6bst7o"</span><span class="p">,</span> 
+    <span class="s">"before"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"children"</span><span class="p">:</span> <span class="p">[</span>
+      <span class="p">{</span>
+        <span class="s">"data"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s">"approved_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+          <span class="s">"archived"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+          <span class="s">"author"</span><span class="p">:</span> <span class="s">"openflask"</span><span class="p">,</span> 
+          <span class="s">"author_flair_css_class"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+          <span class="s">"author_flair_text"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+          <span class="s">"banned_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+          <span class="s">"brand_safe"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> 
+          <span class="s">"can_gild"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+          <span class="s">"clicked"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+          <span class="s">"contest_mode"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+          <span class="s">"created"</span><span class="p">:</span> <span class="mf">1495117016.0</span><span class="p">,</span> 
+<span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</code></pre>
+</div>
 
-<p>After looking at the structure we can see that the posts are available inside
-the <code class="highlighter-rouge">['data']['children']</code> list. <code class="highlighter-rouge">['data']</code> also holds some other information.</p>
+<p>The output generated for this particular response is quite large
+so it makes sense to write the output to a file for further inspection.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'reddit.json'</span><span class="p">,</span> <span class="s">'w'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span> <span class="nb">file</span><span class="o">=</span><span class="n">f</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>Note if you’re using Python <code class="highlighter-rouge">2</code> you’ll need 
+<code class="highlighter-rouge">from __future__ import print_function</code> to have access to the 
+<code class="highlighter-rouge">print()</code> <em>function</em> that has the <code class="highlighter-rouge">file</code> argument (or you could just use
+<code class="highlighter-rouge">json.dump()</code>).</p>
+
+<p>Upon further inspection we can see that <code class="highlighter-rouge">r.json()['data']['children']</code> is 
+a list of dicts and each dict represents a submission or <em>“post”</em>.</p>
+
+<p>There is also some <em>“subreddit”</em> information available.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'after'</span><span class="p">]</span>
 <span class="s">'t3_64o6gh'</span>
@@ -139,8 +177,9 @@ the <code class="highlighter-rouge">['data']['children']</code> list. <code clas
 </div>
 
 <p>These <code class="highlighter-rouge">before</code> and <code class="highlighter-rouge">after</code> values are used for result page navigation
-when you click on the <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">prev</code> buttons. To get to the next
-page we can pass <code class="highlighter-rouge">after=t3_64o6gh</code> as a GET param.</p>
+just like when you click on the <code class="highlighter-rouge">next</code> and <code class="highlighter-rouge">prev</code> buttons.</p>
+
+<p>To get to the next page we can pass <code class="highlighter-rouge">after=t3_64o6gh</code> as a GET param.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">next_page_url</span> <span class="o">=</span> <span class="n">url</span> <span class="o">+</span> <span class="s">'?&amp;after='</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'after'</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">next_page</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page2_url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
@@ -152,43 +191,46 @@ page we can pass <code class="highlighter-rouge">after=t3_64o6gh</code> as a GET
 <p>When making multiple requests however, you will usually want to use a 
 <a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">session object</a>.</p>
 
-<p>So each post is a dict and the important information is available inside the <code class="highlighter-rouge">data</code> key:</p>
+<p>So as mentioned each submission is a dict and the important information is available 
+inside the <code class="highlighter-rouge">data</code> key:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">post</span>  <span class="o">=</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="p">{</span>
-    <span class="s">"data"</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s">"approved_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
-        <span class="s">"archived"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
-        <span class="s">"author"</span><span class="p">:</span> <span class="s">"HolyCoder"</span><span class="p">,</span> 
-        <span class="s">"author_flair_css_class"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
-        <span class="s">"author_flair_text"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
-        <span class="s">"banned_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
-        <span class="s">"brand_safe"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> 
-        <span class="s">"clicked"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
-        <span class="s">"contest_mode"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
-        <span class="s">"created"</span><span class="p">:</span> <span class="mf">1491943248.0</span><span class="p">,</span> 
-        <span class="s">"created_utc"</span><span class="p">:</span> <span class="mf">1491914448.0</span><span class="p">,</span> 
-        <span class="s">"distinguished"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
-        <span class="s">"domain"</span><span class="p">:</span> <span class="s">"self.learnpython"</span><span class="p">,</span> 
+  <span class="s">"data"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">"approved_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"archived"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+    <span class="s">"author"</span><span class="p">:</span> <span class="s">"HolyCoder"</span><span class="p">,</span> 
+    <span class="s">"author_flair_css_class"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"author_flair_text"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"banned_by"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"brand_safe"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span> 
+    <span class="s">"clicked"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+    <span class="s">"contest_mode"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+    <span class="s">"created"</span><span class="p">:</span> <span class="mf">1491943248.0</span><span class="p">,</span> 
+    <span class="s">"created_utc"</span><span class="p">:</span> <span class="mf">1491914448.0</span><span class="p">,</span> 
+    <span class="s">"distinguished"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+    <span class="s">"domain"</span><span class="p">:</span> <span class="s">"self.learnpython"</span><span class="p">,</span> 
 <span class="p">[</span><span class="o">...</span><span class="p">]</span>
 </code></pre>
 </div>
 
-<p>I’ve truncated the output here but the ones people are usually after are <code class="highlighter-rouge">author</code>,
+<p>I’ve truncated the output here but important values include <code class="highlighter-rouge">author</code>,
 <code class="highlighter-rouge">selftext</code>, <code class="highlighter-rouge">title</code> and <code class="highlighter-rouge">url</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
 <span class="s">'https://www.reddit.com/r/learnpython/comments/64qkav/efficiency_of_an_algorithm/'</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'data'</span><span class="p">][</span><span class="s">'title'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'title'</span><span class="p">]</span>
 <span class="s">'Efficiency of an algorithm'</span>
 </code></pre>
 </div>
 
 <p>It’s pretty annoying having to use <code class="highlighter-rouge">['data']</code> all the time so we could have 
-instead done:</p>
+instead declared <code class="highlighter-rouge">posts</code> using a <em>list comprehension</em>.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="p">[</span> <span class="n">post</span><span class="p">[</span><span class="s">'data'</span><span class="p">]</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span> <span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">'url'</span><span class="p">]</span>
@@ -202,8 +244,8 @@ instead done:</p>
   <a class="anchor" href="#raww">r/aww</a>
 </h2>
 
-<p>So let’s say you wanted to “scrape” all the newest “images” from 
-<a href="http://reddit.com/r/aww/new/">r/aww</a> for teh cuddlez you could:</p>
+<p>You’re feeling down and you want to “scrape” all the newest “images” from 
+<a href="http://reddit.com/r/aww/new/">r/aww</a> for <em>“teh cuddlez”</em></p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'http://www.reddit.com/r/aww/new/.json'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]:</span>
@@ -237,9 +279,8 @@ instead done:</p>
 </code></pre>
 </div>
 
-<p>These URLs would require further processing though as not all of them are 
-direct links and not all of them are images however it seems to be a
-common request with the image dedicated subreddits.</p>
+<p>Some of these URLs would require further processing though as not 
+all of them are direct links to images and not all of them are images.</p>
 
 <a name="beautifulsoup"></a>
 <h2 class="section-header">
@@ -247,8 +288,9 @@ common request with the image dedicated subreddits.</p>
   <a class="anchor" href="#beautifulsoup">BeautifulSoup</a>
 </h2>
 
-<p>You can of course just request the regular URL and process the HTML
- with a parser such as <code class="highlighter-rouge">BeautifulSoup</code>:</p>
+<p>You could of course just request the regular URL, processing the <code class="highlighter-rouge">HTML</code>
+with <code class="highlighter-rouge">BeautifulSoup</code> and <code class="highlighter-rouge">html5lib</code> which you can install using
+<code class="highlighter-rouge">pip install beautifulsoup4 html5lib --user</code> if you do not already have them.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'http://reddit.com/r/aww/new/'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
@@ -283,15 +325,19 @@ common request with the image dedicated subreddits.</p>
 </code></pre>
 </div>
 
-<p>Which to me at least looks like a simpler way of getting the data compared to
-the JSON response parsing approach.</p>
+<p>BeautifulSoup’s <code class="highlighter-rouge">select()</code> method locates items using <em>CSS Selectors</em>
+and <code class="highlighter-rouge">div.thing</code> here matches <code class="highlighter-rouge">&lt;div&gt;</code> tags that contain <code class="highlighter-rouge">thing</code> as a <em>class name</em>
+e.g. <code class="highlighter-rouge">class="thing"</code></p>
+
+<p>We can then use <em>dict indexing</em> on a <code class="highlighter-rouge">BeautifulSoup</code> <em>Tag</em> object to extract the value 
+of a specific tag attribute.</p>
+
+<p>In this case the URL is contained in <code class="highlighter-rouge">data-url="..."</code></p>
 
 <p>As already mentioned Reddit does have an API with
 <a href="https://github.com/reddit/reddit/wiki/API#rules">rules / guidelines</a> and if 
-you’re wanting to do some large-scale interaction with Reddit you should
-probably go that route and use one of the extensive API interfaces for
-your language such as <a href="https://praw.readthedocs.io/">PRAW</a> in the case of
-Python.</p>
+you’re wanting to do any type of <em>“large-scale”</em> interaction with Reddit you 
+should probably use it via the <a href="https://praw.readthedocs.io/">PRAW</a> library.</p>
 
 </div>
 
