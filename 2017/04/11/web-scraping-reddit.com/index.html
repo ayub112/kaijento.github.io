@@ -93,6 +93,9 @@ and I show you how deep a <code class="highlighter-rouge">JSON</code> response g
 <p>Reddit allows you to add a <code class="highlighter-rouge">.json</code> extension to the end of your request 
 and will give you back a <code class="highlighter-rouge">JSON</code> response instead of <code class="highlighter-rouge">HTML</code>.</p>
 
+<p>We’ll be using <code class="highlighter-rouge">requests</code> as our <em>“HTTP client”</em> which you can install using 
+<code class="highlighter-rouge">pip install requests --user</code> if you have not already.</p>
+
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
 <span class="o">&gt;&gt;&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s">'http://reddit.com/r/learnpython/new/.json'</span>
@@ -194,9 +197,7 @@ just like when you click on the <code class="highlighter-rouge">next</code> and 
 <p>So as mentioned each submission is a dict and the important information is available 
 inside the <code class="highlighter-rouge">data</code> key:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
-<span class="o">&gt;&gt;&gt;</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span>
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">posts</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">post</span>  <span class="o">=</span> <span class="n">posts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
@@ -238,14 +239,17 @@ instead declared <code class="highlighter-rouge">posts</code> using a <em>list c
 </code></pre>
 </div>
 
+<p>One example of why you may want to do this perhaps is to <em>“scrape”</em> the links
+from one of the <em>“image posting”</em> subreddits to access the images.</p>
+
 <a name="raww"></a>
 <h2 class="section-header">
   <span id="raww"></span>
   <a class="anchor" href="#raww">r/aww</a>
 </h2>
 
-<p>You’re feeling down and you want to “scrape” all the newest “images” from 
-<a href="http://reddit.com/r/aww/new/">r/aww</a> for <em>“teh cuddlez”</em></p>
+<p>One such subreddit is
+<a href="http://reddit.com/r/aww/new/">r/aww</a> home of <em>“teh cuddlez”</em>.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'http://www.reddit.com/r/aww/new/.json'</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s">'user-agent'</span><span class="p">:</span> <span class="s">'Mozilla/5.0'</span><span class="p">})</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">post</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'data'</span><span class="p">][</span><span class="s">'children'</span><span class="p">]:</span>
@@ -281,6 +285,9 @@ instead declared <code class="highlighter-rouge">posts</code> using a <em>list c
 
 <p>Some of these URLs would require further processing though as not 
 all of them are direct links to images and not all of them are images.</p>
+
+<p>In the case of the direct image links we could fetch them and
+<a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">save the result to disk</a>.</p>
 
 <a name="beautifulsoup"></a>
 <h2 class="section-header">
