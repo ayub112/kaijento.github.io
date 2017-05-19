@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 19 May 2017 12:59:00 +0100</pubDate>
-    <lastBuildDate>Fri, 19 May 2017 12:59:00 +0100</lastBuildDate>
+    <pubDate>Fri, 19 May 2017 13:03:29 +0100</pubDate>
+    <lastBuildDate>Fri, 19 May 2017 13:03:29 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -15,7 +15,7 @@
 and to extract or &lt;em&gt;“scrape”&lt;/em&gt; the video URL and title of the first
 page of results using Java’s &lt;a href=&quot;https://jsoup.org&quot;&gt;jsoup&lt;/a&gt; library.&lt;/p&gt;
 
-&lt;p&gt;This is their first time attempting to use an &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; parser so 
+&lt;p&gt;This is the user’s first time attempting to use an &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; parser so 
 we will attempt to be as verbose as possible with the
 explanation.&lt;/p&gt;
 
@@ -42,8 +42,8 @@ followed by the character’s corresponding &lt;em&gt;hexidecimal&lt;/em&gt; val
 &lt;p&gt;In our URL everything before the &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; character is the actual
 &lt;em&gt;“location”&lt;/em&gt; and everything after is called the &lt;em&gt;“query string”&lt;/em&gt;.&lt;/p&gt;
 
-&lt;p&gt;The &lt;em&gt;“query string”&lt;/em&gt; is used to pass data through and when it’s 
-contained in the URL when we make a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request (as opposed to the
+&lt;p&gt;The &lt;em&gt;“query string”&lt;/em&gt; is used to pass data through and it’s 
+passed along in the URL when we make a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request (as opposed to the
 other common form of request which is called &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt;).&lt;/p&gt;
 
 &lt;p&gt;The &lt;em&gt;query string&lt;/em&gt; consists of &lt;code class=&quot;highlighter-rouge&quot;&gt;name=value&lt;/code&gt; pairs which are separated
