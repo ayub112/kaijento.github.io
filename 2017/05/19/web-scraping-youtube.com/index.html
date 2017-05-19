@@ -117,14 +117,14 @@ by <code class="highlighter-rouge">&amp;</code> e.g.</p>
   <li><code class="highlighter-rouge">name=me&amp;age=539</code></li>
 </ul>
 
-<p>So because <code class="highlighter-rouge">?</code> and <code class="highlighter-rouge">&amp;</code> are part of the <em>“syntax”</em> what would we do if 
+<p>So because <code class="highlighter-rouge">?</code> and <code class="highlighter-rouge">&amp;</code> are part of the <em>“URL syntax”</em> what would we do if 
 one of our <em>“param”</em> names or values contained one of those characters?</p>
 
 <p>This is the reason for the <em>URL encoding</em> certain <em>“reserved”</em> characters
 are encoded so they can be passed along and not interpreted as part of the
 URL / query string themselves.</p>
 
-<p>So this means to perform a search we need to:</p>
+<p>So back to our task it looks like we need to:</p>
 
 <ul>
   <li>make a <code class="highlighter-rouge">GET</code> request to <code class="highlighter-rouge">https://www.youtube.com/results</code></li>
@@ -138,7 +138,7 @@ URL / query string themselves.</p>
   <a class="anchor" href="#developer-tools">“Developer Tools”</a>
 </h2>
 
-<p>So to see what is happening with our webpage we can use the <code class="highlighter-rouge">Inspector</code>
+<p>To see what is happening with our webpage we can use the <code class="highlighter-rouge">Inspector</code>
 tab in our browser from what is commonly referred to as its 
 <em>“Developer Tools”</em>.</p>
 

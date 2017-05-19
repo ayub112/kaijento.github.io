@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 19 May 2017 13:03:29 +0100</pubDate>
-    <lastBuildDate>Fri, 19 May 2017 13:03:29 +0100</lastBuildDate>
+    <pubDate>Fri, 19 May 2017 13:06:39 +0100</pubDate>
+    <lastBuildDate>Fri, 19 May 2017 13:06:39 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -52,14 +52,14 @@ by &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&lt;/code&gt; e.g.&l
   &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;name=me&amp;amp;age=539&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;So because &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&lt;/code&gt; are part of the &lt;em&gt;“syntax”&lt;/em&gt; what would we do if 
+&lt;p&gt;So because &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&lt;/code&gt; are part of the &lt;em&gt;“URL syntax”&lt;/em&gt; what would we do if 
 one of our &lt;em&gt;“param”&lt;/em&gt; names or values contained one of those characters?&lt;/p&gt;
 
 &lt;p&gt;This is the reason for the &lt;em&gt;URL encoding&lt;/em&gt; certain &lt;em&gt;“reserved”&lt;/em&gt; characters
 are encoded so they can be passed along and not interpreted as part of the
 URL / query string themselves.&lt;/p&gt;
 
-&lt;p&gt;So this means to perform a search we need to:&lt;/p&gt;
+&lt;p&gt;So back to our task it looks like we need to:&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;make a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request to &lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.youtube.com/results&lt;/code&gt;&lt;/li&gt;
@@ -69,7 +69,7 @@ URL / query string themselves.&lt;/p&gt;
 
 &lt;h2 id=&quot;developer-tools&quot;&gt;“Developer Tools”&lt;/h2&gt;
 
-&lt;p&gt;So to see what is happening with our webpage we can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;
+&lt;p&gt;To see what is happening with our webpage we can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;
 tab in our browser from what is commonly referred to as its 
 &lt;em&gt;“Developer Tools”&lt;/em&gt;.&lt;/p&gt;
 
