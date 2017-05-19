@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/19/web-scraping-youtube.com/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: youtube.com | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/19/web-scraping-youtube.com/">Web scraping: youtube.com</a></h1>
+  <p class="text-muted">19 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/java/">java</a>
+  
+    
+  <a href="/categories/jsoup/">jsoup</a>
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is to perform a <a href="http://www.youtube.com">YouTube</a> search 
+and to extract or <em>“scrape”</em> the video URL and title of the first
+page of results using Java’s <a href="https://jsoup.org">jsoup</a> library.</p>
+
+<p>This is their first time attempting to use an <code class="highlighter-rouge">HTML</code> parser so 
+we will attempt to be as verbose as possible with the
+explanation.</p>
+
+<p>The details given in this article are not specific to Java
+and there is also a solution offered using <code class="highlighter-rouge">requests</code>,
+<code class="highlighter-rouge">BeautifulSoup</code> and <code class="highlighter-rouge">html5lib</code> if you’re using Python.</p>
+
+<a name="get-request"></a>
+<h2 class="section-header">
+  <span id="get-request"></span>
+  <a class="anchor" href="#get-request">GET request</a>
+</h2>
+
+<p><img src="/img/1495186250-youtube-url.png" alt="" /></p>
+
+<p>When we search for something we can see the resulting URL in 
+the address bar is 
+<a href="https://www.youtube.com/results?search_query=dj%20liquid%20raving">https://www.youtube.com/results?search_query=dj liquid raving</a></p>
+
+<p>However if we copy the URL and paste it somewhere we see the space characters have 
+been replaced with <code class="highlighter-rouge">%20</code> …</p>
+
+<p>This is called <em>Percent</em> or
+<a href="https://en.wikipedia.org/wiki/Percent-encoding">URL encoding</a>
+which in the most basic form simply replaces a character with a <code class="highlighter-rouge">%</code> 
+followed by the character’s corresponding <em>hexidecimal</em> value.</p>
+
+<p>In our URL everything before the <code class="highlighter-rouge">?</code> character is the actual
+<em>“location”</em> and everything after is called the <em>“query string”</em>.</p>
+
+<p>The <em>“query string”</em> is used to pass data through and when it’s 
+contained in the URL when we make a <code class="highlighter-rouge">GET</code> request (as opposed to the
+other common form of request which is called <code class="highlighter-rouge">POST</code>).</p>
+
+<p>The <em>query string</em> consists of <code class="highlighter-rouge">name=value</code> pairs which are separated
+by <code class="highlighter-rouge">&amp;</code> e.g.</p>
+<ul>
+  <li><code class="highlighter-rouge">name=me&amp;age=539</code></li>
+</ul>
+
+<p>So because <code class="highlighter-rouge">?</code> and <code class="highlighter-rouge">&amp;</code> are part of the <em>“syntax”</em> what would we do if 
+one of our <em>“param”</em> names or values contained one of those characters?</p>
+
+<p>This is the reason for the <em>URL encoding</em> certain <em>“reserved”</em> characters
+are encoded so they can be passed along and not interpreted as part of the
+URL / query string themselves.</p>
+
+<p>So this means to perform a search we need to:</p>
+
+<ul>
+  <li>make a <code class="highlighter-rouge">GET</code> request to <code class="highlighter-rouge">https://www.youtube.com/results</code></li>
+  <li>passing the <em>param</em> name <code class="highlighter-rouge">search_query</code></li>
+  <li>that has a value <code class="highlighter-rouge">dj liquid raving</code></li>
+</ul>
+
+<a name="developer-tools"></a>
+<h2 class="section-header">
+  <span id="developer-tools"></span>
+  <a class="anchor" href="#developer-tools">“Developer Tools”</a>
+</h2>
+
+<p>So to see what is happening with our webpage we can use the <code class="highlighter-rouge">Inspector</code>
+tab in our browser from what is commonly referred to as its 
+<em>“Developer Tools”</em>.</p>
+
+<p>I’ve done it here by <em>right-clicking</em>
+on the page and selecting <code class="highlighter-rouge">Inspect Element</code>.</p>
+
+<p><img src="/img/1495187840-youtube-inspect.png" alt="" /></p>
+
+<p>We can then use the <em>Selector</em> tool (the first button on the panel to the
+left of <code class="highlighter-rouge">Inspector</code>) to click on a specific element on the page to
+display the HTML.</p>
+
+<p><img src="/img/1495187818-youtube-inspector.png" alt="" /></p>
+
+<p>You can also <em>right-click</em> directly on an element when opening the 
+<code class="highlighter-rouge">Inspect Element</code> option to have that element directly in focus when
+it opens.</p>
+
+<p>Do note that the <code class="highlighter-rouge">Inspector</code> tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the actual source HTML.</p>
+
+<a name="html"></a>
+<h2 class="section-header">
+  <span id="html"></span>
+  <a class="anchor" href="#html">HTML</a>
+</h2>
+
+<p>So if we take a closer look at the <code class="highlighter-rouge">HTML</code> structure of the first result we can
+see</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;h3</span> <span class="na">class=</span><span class="s">"yt-lockup-title "</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"/watch?v=fLnFHbmyd_I"</span> <span class="na">class=</span><span class="s">"yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink spf-link "</span> 
+     <span class="na">data-sessionlink=</span><span class="s">"itct=CEcQ3DAYACITCJGukrLA-9MCFQopFgodvQQGWSj0JFIQZGogbGlxdWlkIHJhdmluZw"</span> 
+     <span class="na">title=</span><span class="s">"DJ Liquid - I Can't Stop Raving"</span> <span class="na">rel=</span><span class="s">"spf-prefetch"</span> <span class="na">aria-describedby=</span><span class="s">"description-id-801577"</span> <span class="na">dir=</span><span class="s">"ltr"</span><span class="nt">&gt;</span>
+    DJ Liquid - I Can't Stop Raving
+  <span class="nt">&lt;/a&gt;</span>
+  <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"accessible-description"</span> <span class="na">id=</span><span class="s">"description-id-801577"</span><span class="nt">&gt;</span> - Duration: 4:26.<span class="nt">&lt;/span&gt;</span>
+<span class="nt">&lt;/h3&gt;</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">h3</code> here is called a <em>tag</em> and the <code class="highlighter-rouge">class</code> is called an <em>attribute</em> 
+of that tag.</p>
+
+<p><code class="highlighter-rouge">&lt;h3&gt;</code> represents the opening of the tag (i’ve omitted the <em>attribute</em> 
+definition here) and <code class="highlighter-rouge">&lt;/h3&gt;</code> is the closing of the tag.</p>
+
+<p><code class="highlighter-rouge">HTML</code> could be classified as a <em>“tree like”</em> structure.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;A&gt;</span>
+  <span class="nt">&lt;B&gt;</span>
+    <span class="nt">&lt;C&gt;&lt;/C&gt;</span>
+  <span class="nt">&lt;/B&gt;</span>
+<span class="nt">&lt;A&gt;</span>
+</code></pre>
+</div>
+
+<p>In this example:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">A</code> is the <em>parent</em></li>
+  <li><code class="highlighter-rouge">B</code> is a <em>child</em> of <code class="highlighter-rouge">A</code></li>
+  <li><code class="highlighter-rouge">C</code> is a <em>child</em> of <code class="highlighter-rouge">B</code></li>
+  <li><code class="highlighter-rouge">C</code> is also a <em>grandchild</em> of <code class="highlighter-rouge">A</code></li>
+  <li><code class="highlighter-rouge">B</code> and <code class="highlighter-rouge">C</code> are both <em>descendents</em> of <code class="highlighter-rouge">A</code></li>
+</ul>
+
+<p>This means that in the <code class="highlighter-rouge">HTML</code> of the first search result the <code class="highlighter-rouge">&lt;a&gt;</code> tag is a direct
+<em>child</em> of the <code class="highlighter-rouge">&lt;h3&gt;</code> tag which will be important in helping us <em>“scrape”</em> 
+the needed data from the results.</p>
+
+<a name="jsoup"></a>
+<h2 class="section-header">
+  <span id="jsoup"></span>
+  <a class="anchor" href="#jsoup">Jsoup</a>
+</h2>
+
+<p>We’re going to just start with the code.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jsoup.Jsoup</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jsoup.nodes.Document</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jsoup.nodes.Element</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">YouTubeSearch</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span> <span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+
+        <span class="n">String</span> <span class="n">url</span>   <span class="o">=</span> <span class="s">"http://www.youtube.com/results"</span><span class="o">;</span>
+        <span class="n">String</span> <span class="n">query</span> <span class="o">=</span> <span class="s">"dj liquid raving"</span><span class="o">;</span>
+
+        <span class="n">Document</span> <span class="n">doc</span> <span class="o">=</span> <span class="n">Jsoup</span><span class="o">.</span><span class="na">connect</span><span class="o">(</span><span class="n">url</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">data</span><span class="o">(</span><span class="s">"search_query"</span><span class="o">,</span> <span class="n">query</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">userAgent</span><span class="o">(</span><span class="s">"Mozilla/5.0"</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">get</span><span class="o">();</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Element</span> <span class="n">a</span> <span class="o">:</span> <span class="n">doc</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="s">".yt-lockup-title &gt; a[title]"</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">a</span><span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"href"</span><span class="o">)</span> <span class="o">+</span> <span class="s">" "</span> <span class="o">+</span> <span class="n">a</span><span class="o">.</span><span class="na">attr</span><span class="o">(</span><span class="s">"title"</span><span class="o">));</span>
+        <span class="o">}</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>It (hopefully) should be relatively easy to follow.</p>
+
+<p>We’re using the
+<a href="https://jsoup.org/cookbook/input/load-document-from-url">Json.connect(String url)</a>
+method.</p>
+
+<p>The <code class="highlighter-rouge">.data()</code> call sets up our <em>query string</em> (it also handles the <em>URL encoding</em>).</p>
+
+<p>With <code class="highlighter-rouge">.userAgent()</code> we’re setting the <code class="highlighter-rouge">User-Agent</code> header to <code class="highlighter-rouge">Mozilla/5.0</code> as 
+the default value is commonly blocked.</p>
+
+<p>Finally we call <code class="highlighter-rouge">.get()</code> which
+sends a <code class="highlighter-rouge">GET</code> request and the result is stored in our <code class="highlighter-rouge">doc</code> variable.</p>
+
+<p>We then use the <a href="https://jsoup.org/cookbook/extracting-data/selector-syntax">select()</a>
+to <em>“select”</em> the particular tags we are interested in (which are the <code class="highlighter-rouge">&lt;a&gt;</code> tags
+in this case) and extract the <em>watch</em> URL and the video title.</p>
+
+<p>Running it from the command-line we get the following.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ java YouTubeSearch
+/watch?v=fLnFHbmyd_I DJ Liquid - I Can't Stop Raving
+/watch?v=AxFL35Gfwo8 Dj liquid- Tetris (Rave Mix)
+/watch?v=AaNlSOZMTvs DJ Liquid | I Can't Stop Raving
+/watch?v=iAVJ9gModh0 Dj Liquid - I Cant Stop Raving
+/watch?v=fLnFHbmyd_I&amp;list=RDfLnFHbmyd_I Mix - DJ Liquid - I Can't Stop Raving
+/watch?v=vSioSwQH_84 Trance-Rave-Jungle--Dj Liquid- Final Fantasy
+/watch?v=X9eR0st-kZQ DUNE - I Can't Stop Raving
+/watch?v=EJjQEDYcWSg RAVE GENERATION 2 - DISC 2
+/watch?v=vcSlX7n6VOA Dj Liquid I cant stop raving
+/watch?v=d_zxv0UWowM Old Skool Hardcore Breakbeat Rave Mix - 1992-1993 Classics
+/watch?v=XLjGsLIAOSY Dj Liquid - Birth Of Liquid Dreams
+/watch?v=r-D5jGMuBtI 1992 Rave in 7 Minutes
+/watch?v=g67WJ1f_W54 Jericho Liquid Rave
+/watch?v=XbC0S1UtbNs DJ Liquid   Trance Rave Jungle   Japanese Techno
+/watch?v=YnZaXfWH1sA Liquid Sky &amp; Free Trance | Vegas | By Up Team Audiovisual
+/watch?v=AU5UYHcrd30 DJ Liquid Transformers Mix
+/watch?v=fLnFHbmyd_I&amp;list=PLA1EB849BF8EE7AFD raving
+/watch?v=gBkNLGLWTUc Dj Ravin @ LIQUID The Club Sibiu
+/watch?v=ONdG3KpKgaU Dj Liquid - Platinum
+/watch?v=9XvjrKNCyRE DJ Liquid Jogja special party - Lagu Terbaik
+</code></pre>
+</div>
+
+<p>If we only wanted to get the <em>first</em> result we could
+remove the <code class="highlighter-rouge">for</code> loop and use the <code class="highlighter-rouge">Elements.first()</code> method instead.</p>
+
+<div class="language-java highlighter-rouge"><pre class="highlight"><code><span class="n">Element</span> <span class="n">a</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="s">".yt-lockup-title &gt; a[title]"</span><span class="o">).</span><span class="na">first</span><span class="o">();</span>
+</code></pre>
+</div>
+
+<a name="css-selectors"></a>
+<h2 class="section-header">
+  <span id="css-selectors"></span>
+  <a class="anchor" href="#css-selectors">CSS Selectors</a>
+</h2>
+
+<p>In our <code class="highlighter-rouge">select()</code> call we used <code class="highlighter-rouge">.yt-lockup-title &gt; a[title]</code> which is called a 
+<a href="https://jsoup.org/apidocs/org/jsoup/select/Selector.html">CSS Selector</a>.</p>
+
+<p>From the docs:</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">.class</code>    <em>matches</em> elements with a class name of “class”</p>
+</blockquote>
+
+<p>This means  that <code class="highlighter-rouge">.yt-lockup-title</code> matches any tag that have <code class="highlighter-rouge">yt-lockup-title</code>
+as an entry in their <code class="highlighter-rouge">class</code> attribute.</p>
+
+<p>This matches our <code class="highlighter-rouge">&lt;h3&gt;</code> tag.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;h3</span> <span class="na">class=</span><span class="s">"yt-lockup-title "</span><span class="nt">&gt;</span>
+</code></pre>
+</div>
+
+<p>We could be more explicit and use <code class="highlighter-rouge">h3.yt-lockup-title</code> which would state that
+we should only search <code class="highlighter-rouge">&lt;h3&gt;</code> tags but no other tags have a <code class="highlighter-rouge">class</code> attribute
+matching <code class="highlighter-rouge">yt-lockup-title</code> so it can be omitted.</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">E &gt; F</code>     <em>matches</em> an F direct child of E</p>
+</blockquote>
+
+<p><code class="highlighter-rouge">E</code> in our selector matches the <code class="highlighter-rouge">&lt;h3&gt;</code> tag and <code class="highlighter-rouge">F</code> in our 
+in our selector is <code class="highlighter-rouge">a[title]</code> meaning that <code class="highlighter-rouge">a[title]</code> must be a direct
+<em>child</em> of the <code class="highlighter-rouge">&lt;h3&gt;</code> tag.</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">[attr]</code>    <em>matches</em> elements with an attribute named “attr” (with any value)</p>
+</blockquote>
+
+<p>This means <code class="highlighter-rouge">[title]</code> matches any tag with a <code class="highlighter-rouge">title</code> attribute however we want
+to only match <code class="highlighter-rouge">&lt;a&gt;</code> tags so we also specify the tag name with <code class="highlighter-rouge">a[title]</code></p>
+
+<p>The reason we specify <code class="highlighter-rouge">title</code> here is because there are other <em>child</em>
+<code class="highlighter-rouge">&lt;a&gt;</code> tags that we do not want to match and they do not have a 
+<code class="highlighter-rouge">title</code> attribute.</p>
+
+<p>The <em>watch</em> URL is located inside the <code class="highlighter-rouge">href</code> attribute of the <code class="highlighter-rouge">&lt;a&gt;</code> tag
+and the video title is located inside the <code class="highlighter-rouge">title</code> attribute which we
+access by using the 
+<a href="https://jsoup.org/cookbook/extracting-data/attributes-text-html">.attr()</a>
+method.</p>
+
+<p>You may have noticed that we had <code class="highlighter-rouge">2</code> <em>“playlist”</em> results in the output.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>/watch?v=fLnFHbmyd_I&amp;list=RDfLnFHbmyd_I Mix
+/watch?v=fLnFHbmyd_I&amp;list=PLA1EB849BF8EE7AFD
+</code></pre>
+</div>
+
+<p>How could we exclude these from our matches?</p>
+
+<p>Well when extracting <code class="highlighter-rouge">.attr("href")</code> we could test that it didn’t
+contain <code class="highlighter-rouge">&amp;list=</code> however we could also do it in our <em>Selector</em>
+by utilizing</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">[attr*=valContaining]</code>    <em>matches</em> elements with an attribute named “attr”, and value containing “valContaining”</p>
+</blockquote>
+
+<p>… and</p>
+
+<blockquote>
+  <p><code class="highlighter-rouge">:not(selector)</code>    <em>matches</em> elements that do not match the selector.</p>
+</blockquote>
+
+<p>We could use <code class="highlighter-rouge">[href*=&amp;list=]</code> to match any tag that has an <code class="highlighter-rouge">href</code>
+attribute whose value contains <code class="highlighter-rouge">&amp;list=</code> and we could then use <code class="highlighter-rouge">:not()</code> 
+around that to <em>“invert”</em> the match.</p>
+
+<p>To have it apply to our already existing <code class="highlighter-rouge">a[title]</code> selector we 
+simply chain them together i.e. <code class="highlighter-rouge">a[title]:not([href*=&amp;list=])</code></p>
+
+<p>This first matches all <code class="highlighter-rouge">&lt;a&gt;</code> tags with a <code class="highlighter-rouge">title</code> attribute and then filters
+out any that contain <code class="highlighter-rouge">&amp;list=</code> in their <code class="highlighter-rouge">href</code> attribute.</p>
+
+<p>With this modification to our selector we no longer match the <em>playlist</em>
+URLs.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>$ java YouTubeSearch
+http://www.youtube.com/watch?v=fLnFHbmyd_I DJ Liquid - I Can't Stop Raving
+http://www.youtube.com/watch?v=AxFL35Gfwo8 Dj liquid- Tetris (Rave Mix)
+http://www.youtube.com/watch?v=AaNlSOZMTvs DJ Liquid | I Can't Stop Raving
+http://www.youtube.com/watch?v=vSioSwQH_84 Trance-Rave-Jungle--Dj Liquid- Final
+http://www.youtube.com/watch?v=iAVJ9gModh0 Dj Liquid - I Cant Stop Raving
+http://www.youtube.com/watch?v=X9eR0st-kZQ DUNE - I Can't Stop Raving
+http://www.youtube.com/watch?v=EJjQEDYcWSg RAVE GENERATION 2 - DISC 2
+http://www.youtube.com/watch?v=vcSlX7n6VOA Dj Liquid I cant stop raving
+http://www.youtube.com/watch?v=d_zxv0UWowM Old Skool Hardcore Breakbeat Rave Mi
+http://www.youtube.com/watch?v=g67WJ1f_W54 Jericho Liquid Rave
+http://www.youtube.com/watch?v=XLjGsLIAOSY Dj Liquid - Birth Of Liquid Dreams
+http://www.youtube.com/watch?v=XbC0S1UtbNs DJ Liquid   Trance Rave Jungle   Jap
+http://www.youtube.com/watch?v=r-D5jGMuBtI 1992 Rave in 7 Minutes
+http://www.youtube.com/watch?v=YnZaXfWH1sA Liquid Sky &amp; Free Trance | Vegas | B
+http://www.youtube.com/watch?v=AU5UYHcrd30 DJ Liquid Transformers Mix
+http://www.youtube.com/watch?v=AyXtFuWDTSA Dance-Techno-Trance-RAVE-Happy Hardc
+http://www.youtube.com/watch?v=ONdG3KpKgaU Dj Liquid - Platinum
+http://www.youtube.com/watch?v=9XvjrKNCyRE DJ Liquid Jogja special party - Lagu
+</code></pre>
+</div>
+
+<p>We’ve also added <code class="highlighter-rouge">http://www.youtube.com</code> to the output to give us the
+<em>“absolute”</em> URL as the <code class="highlighter-rouge">href</code> attribute only contained a <em>“relative”</em> one.</p>
+
+<a name="python"></a>
+<h2 class="section-header">
+  <span id="python"></span>
+  <a class="anchor" href="#python">Python</a>
+</h2>
+
+<p>If you’ve come here as a Python user the equivalent code using <code class="highlighter-rouge">requests</code>
+to fetch the <code class="highlighter-rouge">HTML</code> and <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code> to parse it 
+would look like</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="n">url</span>    <span class="o">=</span> <span class="s">'http://www.youtube.com/results'</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s">'search_query'</span><span class="p">:</span> <span class="s">'dj liquid raving'</span><span class="p">}</span>
+
+    <span class="n">r</span>    <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'.yt-lockup-title &gt; a[title]'</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s">'&amp;list='</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="s">'href'</span><span class="p">]:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'http://www.youtube.com'</span> <span class="o">+</span> <span class="n">a</span><span class="p">[</span><span class="s">'href'</span><span class="p">],</span> <span class="n">a</span><span class="p">[</span><span class="s">'title'</span><span class="p">])</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">BeautifulSoup</code> does not have the extensive support of <em>CSS Selectors</em>
+that <code class="highlighter-rouge">Jsoup</code> has however filtering out the <em>playlist</em> URLs directly
+in code is probably a more <em>“readable”</em> approach.</p>
+
+<p>To install these libraries you can use <code class="highlighter-rouge">pip</code></p>
+
+<ul>
+  <li><code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code></li>
+</ul>
+
+<a name="thats-it"></a>
+<h2 class="section-header">
+  <span id="thats-it"></span>
+  <a class="anchor" href="#thats-it">That’s it!</a>
+</h2>
+
+<p>You should be aware that <em>YouTube</em> does have <a href="https://developers.google.com/youtube/">an API</a> 
+which you may wish to use.</p>
+
+<p>The final version of the code examples used here are also available
+<a href="https://github.com/kaijento/code/blob/master/webscraping/youtube.com/">on github</a>.</p>
+
+<p><a href="http://www.youtube.com/watch?v=fLnFHbmyd_I">♫ ♫ ♪ ♪  I Can’t Stop Ravin’ ♪ ♪ ♫ ♫</a></p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (58)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/17/web-scraping-instagram.com/">Web scraping: instagram.com</a></h2>
+          <p class="preview">The goal is to <em>“scrape”</em> media posts from an <em>Instagram</em> page 
+using Python’s <code class="highlighter-rouge">BeautifulSoup</code> and <code class="highlighter-rouge">requests</code> libraries 
+however only the <em>“first page”</em> of results is being
+displayed. Why is this?</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

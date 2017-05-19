@@ -5,9 +5,391 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 18 May 2017 08:11:34 +0100</pubDate>
-    <lastBuildDate>Thu, 18 May 2017 08:11:34 +0100</lastBuildDate>
+    <pubDate>Fri, 19 May 2017 12:59:00 +0100</pubDate>
+    <lastBuildDate>Fri, 19 May 2017 12:59:00 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>Web scraping: youtube.com</title>
+        <description>&lt;p&gt;The goal is to perform a &lt;a href=&quot;http://www.youtube.com&quot;&gt;YouTube&lt;/a&gt; search 
+and to extract or &lt;em&gt;“scrape”&lt;/em&gt; the video URL and title of the first
+page of results using Java’s &lt;a href=&quot;https://jsoup.org&quot;&gt;jsoup&lt;/a&gt; library.&lt;/p&gt;
+
+&lt;p&gt;This is their first time attempting to use an &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; parser so 
+we will attempt to be as verbose as possible with the
+explanation.&lt;/p&gt;
+
+&lt;p&gt;The details given in this article are not specific to Java
+and there is also a solution offered using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;,
+&lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt; if you’re using Python.&lt;/p&gt;
+
+&lt;h2 id=&quot;get-request&quot;&gt;GET request&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1495186250-youtube-url.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When we search for something we can see the resulting URL in 
+the address bar is 
+&lt;a href=&quot;https://www.youtube.com/results?search_query=dj%20liquid%20raving&quot;&gt;https://www.youtube.com/results?search_query=dj liquid raving&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;However if we copy the URL and paste it somewhere we see the space characters have 
+been replaced with &lt;code class=&quot;highlighter-rouge&quot;&gt;%20&lt;/code&gt; …&lt;/p&gt;
+
+&lt;p&gt;This is called &lt;em&gt;Percent&lt;/em&gt; or
+&lt;a href=&quot;https://en.wikipedia.org/wiki/Percent-encoding&quot;&gt;URL encoding&lt;/a&gt;
+which in the most basic form simply replaces a character with a &lt;code class=&quot;highlighter-rouge&quot;&gt;%&lt;/code&gt; 
+followed by the character’s corresponding &lt;em&gt;hexidecimal&lt;/em&gt; value.&lt;/p&gt;
+
+&lt;p&gt;In our URL everything before the &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; character is the actual
+&lt;em&gt;“location”&lt;/em&gt; and everything after is called the &lt;em&gt;“query string”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;The &lt;em&gt;“query string”&lt;/em&gt; is used to pass data through and when it’s 
+contained in the URL when we make a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request (as opposed to the
+other common form of request which is called &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;The &lt;em&gt;query string&lt;/em&gt; consists of &lt;code class=&quot;highlighter-rouge&quot;&gt;name=value&lt;/code&gt; pairs which are separated
+by &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&lt;/code&gt; e.g.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;name=me&amp;amp;age=539&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So because &lt;code class=&quot;highlighter-rouge&quot;&gt;?&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;&lt;/code&gt; are part of the &lt;em&gt;“syntax”&lt;/em&gt; what would we do if 
+one of our &lt;em&gt;“param”&lt;/em&gt; names or values contained one of those characters?&lt;/p&gt;
+
+&lt;p&gt;This is the reason for the &lt;em&gt;URL encoding&lt;/em&gt; certain &lt;em&gt;“reserved”&lt;/em&gt; characters
+are encoded so they can be passed along and not interpreted as part of the
+URL / query string themselves.&lt;/p&gt;
+
+&lt;p&gt;So this means to perform a search we need to:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;make a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request to &lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.youtube.com/results&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;passing the &lt;em&gt;param&lt;/em&gt; name &lt;code class=&quot;highlighter-rouge&quot;&gt;search_query&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;that has a value &lt;code class=&quot;highlighter-rouge&quot;&gt;dj liquid raving&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;developer-tools&quot;&gt;“Developer Tools”&lt;/h2&gt;
+
+&lt;p&gt;So to see what is happening with our webpage we can use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;
+tab in our browser from what is commonly referred to as its 
+&lt;em&gt;“Developer Tools”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;I’ve done it here by &lt;em&gt;right-clicking&lt;/em&gt;
+on the page and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1495187840-youtube-inspect.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;We can then use the &lt;em&gt;Selector&lt;/em&gt; tool (the first button on the panel to the
+left of &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;) to click on a specific element on the page to
+display the HTML.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/img/1495187818-youtube-inspector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;You can also &lt;em&gt;right-click&lt;/em&gt; directly on an element when opening the 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt; option to have that element directly in focus when
+it opens.&lt;/p&gt;
+
+&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
+of the page after it has parsed the source HTML and as such it
+may differ from the actual source HTML.&lt;/p&gt;
+
+&lt;h2 id=&quot;html&quot;&gt;HTML&lt;/h2&gt;
+
+&lt;p&gt;So if we take a closer look at the &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; structure of the first result we can
+see&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;h3&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yt-lockup-title &quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;a&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;href=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;/watch?v=fLnFHbmyd_I&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yt-uix-tile-link yt-ui-ellipsis yt-ui-ellipsis-2 yt-uix-sessionlink spf-link &quot;&lt;/span&gt; 
+     &lt;span class=&quot;na&quot;&gt;data-sessionlink=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;itct=CEcQ3DAYACITCJGukrLA-9MCFQopFgodvQQGWSj0JFIQZGogbGlxdWlkIHJhdmluZw&quot;&lt;/span&gt; 
+     &lt;span class=&quot;na&quot;&gt;title=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;DJ Liquid - I Can't Stop Raving&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;rel=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;spf-prefetch&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;aria-describedby=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;description-id-801577&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;dir=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;ltr&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+    DJ Liquid - I Can't Stop Raving
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/a&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;span&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;accessible-description&quot;&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;id=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;description-id-801577&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt; - Duration: 4:26.&lt;span class=&quot;nt&quot;&gt;&amp;lt;/span&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h3&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;h3&lt;/code&gt; here is called a &lt;em&gt;tag&lt;/em&gt; and the &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; is called an &lt;em&gt;attribute&lt;/em&gt; 
+of that tag.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; represents the opening of the tag (i’ve omitted the &lt;em&gt;attribute&lt;/em&gt; 
+definition here) and &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;/h3&amp;gt;&lt;/code&gt; is the closing of the tag.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; could be classified as a &lt;em&gt;“tree like”&lt;/em&gt; structure.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;A&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;B&amp;gt;&lt;/span&gt;
+    &lt;span class=&quot;nt&quot;&gt;&amp;lt;C&amp;gt;&amp;lt;/C&amp;gt;&lt;/span&gt;
+  &lt;span class=&quot;nt&quot;&gt;&amp;lt;/B&amp;gt;&lt;/span&gt;
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;A&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;In this example:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt; is the &lt;em&gt;parent&lt;/em&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; is a &lt;em&gt;child&lt;/em&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;C&lt;/code&gt; is a &lt;em&gt;child&lt;/em&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;C&lt;/code&gt; is also a &lt;em&gt;grandchild&lt;/em&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;B&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;C&lt;/code&gt; are both &lt;em&gt;descendents&lt;/em&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;A&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;This means that in the &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; of the first search result the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag is a direct
+&lt;em&gt;child&lt;/em&gt; of the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; tag which will be important in helping us &lt;em&gt;“scrape”&lt;/em&gt; 
+the needed data from the results.&lt;/p&gt;
+
+&lt;h2 id=&quot;jsoup&quot;&gt;Jsoup&lt;/h2&gt;
+
+&lt;p&gt;We’re going to just start with the code.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.jsoup.Jsoup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.jsoup.nodes.Document&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;org.jsoup.nodes.Element&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;java.io.IOException&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;YouTubeSearch&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+    &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;main&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;String&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;args&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;throws&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOException&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;http://www.youtube.com/results&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;String&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;dj liquid raving&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt;
+
+        &lt;span class=&quot;n&quot;&gt;Document&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Jsoup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;connect&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;search_query&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;query&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;userAgent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Mozilla/5.0&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+
+        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;.yt-lockup-title &amp;gt; a[title]&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;))&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;System&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;out&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;println&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;attr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;href&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot; &quot;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;attr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;));&lt;/span&gt;
+        &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It (hopefully) should be relatively easy to follow.&lt;/p&gt;
+
+&lt;p&gt;We’re using the
+&lt;a href=&quot;https://jsoup.org/cookbook/input/load-document-from-url&quot;&gt;Json.connect(String url)&lt;/a&gt;
+method.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;.data()&lt;/code&gt; call sets up our &lt;em&gt;query string&lt;/em&gt; (it also handles the &lt;em&gt;URL encoding&lt;/em&gt;).&lt;/p&gt;
+
+&lt;p&gt;With &lt;code class=&quot;highlighter-rouge&quot;&gt;.userAgent()&lt;/code&gt; we’re setting the &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt; as 
+the default value is commonly blocked.&lt;/p&gt;
+
+&lt;p&gt;Finally we call &lt;code class=&quot;highlighter-rouge&quot;&gt;.get()&lt;/code&gt; which
+sends a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request and the result is stored in our &lt;code class=&quot;highlighter-rouge&quot;&gt;doc&lt;/code&gt; variable.&lt;/p&gt;
+
+&lt;p&gt;We then use the &lt;a href=&quot;https://jsoup.org/cookbook/extracting-data/selector-syntax&quot;&gt;select()&lt;/a&gt;
+to &lt;em&gt;“select”&lt;/em&gt; the particular tags we are interested in (which are the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tags
+in this case) and extract the &lt;em&gt;watch&lt;/em&gt; URL and the video title.&lt;/p&gt;
+
+&lt;p&gt;Running it from the command-line we get the following.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ java YouTubeSearch
+/watch?v=fLnFHbmyd_I DJ Liquid - I Can't Stop Raving
+/watch?v=AxFL35Gfwo8 Dj liquid- Tetris (Rave Mix)
+/watch?v=AaNlSOZMTvs DJ Liquid | I Can't Stop Raving
+/watch?v=iAVJ9gModh0 Dj Liquid - I Cant Stop Raving
+/watch?v=fLnFHbmyd_I&amp;amp;list=RDfLnFHbmyd_I Mix - DJ Liquid - I Can't Stop Raving
+/watch?v=vSioSwQH_84 Trance-Rave-Jungle--Dj Liquid- Final Fantasy
+/watch?v=X9eR0st-kZQ DUNE - I Can't Stop Raving
+/watch?v=EJjQEDYcWSg RAVE GENERATION 2 - DISC 2
+/watch?v=vcSlX7n6VOA Dj Liquid I cant stop raving
+/watch?v=d_zxv0UWowM Old Skool Hardcore Breakbeat Rave Mix - 1992-1993 Classics
+/watch?v=XLjGsLIAOSY Dj Liquid - Birth Of Liquid Dreams
+/watch?v=r-D5jGMuBtI 1992 Rave in 7 Minutes
+/watch?v=g67WJ1f_W54 Jericho Liquid Rave
+/watch?v=XbC0S1UtbNs DJ Liquid   Trance Rave Jungle   Japanese Techno
+/watch?v=YnZaXfWH1sA Liquid Sky &amp;amp; Free Trance | Vegas | By Up Team Audiovisual
+/watch?v=AU5UYHcrd30 DJ Liquid Transformers Mix
+/watch?v=fLnFHbmyd_I&amp;amp;list=PLA1EB849BF8EE7AFD raving
+/watch?v=gBkNLGLWTUc Dj Ravin @ LIQUID The Club Sibiu
+/watch?v=ONdG3KpKgaU Dj Liquid - Platinum
+/watch?v=9XvjrKNCyRE DJ Liquid Jogja special party - Lagu Terbaik
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;If we only wanted to get the &lt;em&gt;first&lt;/em&gt; result we could
+remove the &lt;code class=&quot;highlighter-rouge&quot;&gt;for&lt;/code&gt; loop and use the &lt;code class=&quot;highlighter-rouge&quot;&gt;Elements.first()&lt;/code&gt; method instead.&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;Element&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;doc&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;.yt-lockup-title &amp;gt; a[title]&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;first&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;css-selectors&quot;&gt;CSS Selectors&lt;/h2&gt;
+
+&lt;p&gt;In our &lt;code class=&quot;highlighter-rouge&quot;&gt;select()&lt;/code&gt; call we used &lt;code class=&quot;highlighter-rouge&quot;&gt;.yt-lockup-title &amp;gt; a[title]&lt;/code&gt; which is called a 
+&lt;a href=&quot;https://jsoup.org/apidocs/org/jsoup/select/Selector.html&quot;&gt;CSS Selector&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;From the docs:&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;.class&lt;/code&gt;    &lt;em&gt;matches&lt;/em&gt; elements with a class name of “class”&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This means  that &lt;code class=&quot;highlighter-rouge&quot;&gt;.yt-lockup-title&lt;/code&gt; matches any tag that have &lt;code class=&quot;highlighter-rouge&quot;&gt;yt-lockup-title&lt;/code&gt;
+as an entry in their &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; attribute.&lt;/p&gt;
+
+&lt;p&gt;This matches our &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;h3&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;yt-lockup-title &quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We could be more explicit and use &lt;code class=&quot;highlighter-rouge&quot;&gt;h3.yt-lockup-title&lt;/code&gt; which would state that
+we should only search &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; tags but no other tags have a &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; attribute
+matching &lt;code class=&quot;highlighter-rouge&quot;&gt;yt-lockup-title&lt;/code&gt; so it can be omitted.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;E &amp;gt; F&lt;/code&gt;     &lt;em&gt;matches&lt;/em&gt; an F direct child of E&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;E&lt;/code&gt; in our selector matches the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; tag and &lt;code class=&quot;highlighter-rouge&quot;&gt;F&lt;/code&gt; in our 
+in our selector is &lt;code class=&quot;highlighter-rouge&quot;&gt;a[title]&lt;/code&gt; meaning that &lt;code class=&quot;highlighter-rouge&quot;&gt;a[title]&lt;/code&gt; must be a direct
+&lt;em&gt;child&lt;/em&gt; of the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h3&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[attr]&lt;/code&gt;    &lt;em&gt;matches&lt;/em&gt; elements with an attribute named “attr” (with any value)&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;This means &lt;code class=&quot;highlighter-rouge&quot;&gt;[title]&lt;/code&gt; matches any tag with a &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt; attribute however we want
+to only match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tags so we also specify the tag name with &lt;code class=&quot;highlighter-rouge&quot;&gt;a[title]&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;The reason we specify &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt; here is because there are other &lt;em&gt;child&lt;/em&gt;
+&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tags that we do not want to match and they do not have a 
+&lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt; attribute.&lt;/p&gt;
+
+&lt;p&gt;The &lt;em&gt;watch&lt;/em&gt; URL is located inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; attribute of the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tag
+and the video title is located inside the &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt; attribute which we
+access by using the 
+&lt;a href=&quot;https://jsoup.org/cookbook/extracting-data/attributes-text-html&quot;&gt;.attr()&lt;/a&gt;
+method.&lt;/p&gt;
+
+&lt;p&gt;You may have noticed that we had &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; &lt;em&gt;“playlist”&lt;/em&gt; results in the output.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;/watch?v=fLnFHbmyd_I&amp;amp;list=RDfLnFHbmyd_I Mix
+/watch?v=fLnFHbmyd_I&amp;amp;list=PLA1EB849BF8EE7AFD
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;How could we exclude these from our matches?&lt;/p&gt;
+
+&lt;p&gt;Well when extracting &lt;code class=&quot;highlighter-rouge&quot;&gt;.attr(&quot;href&quot;)&lt;/code&gt; we could test that it didn’t
+contain &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;list=&lt;/code&gt; however we could also do it in our &lt;em&gt;Selector&lt;/em&gt;
+by utilizing&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;[attr*=valContaining]&lt;/code&gt;    &lt;em&gt;matches&lt;/em&gt; elements with an attribute named “attr”, and value containing “valContaining”&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;… and&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;:not(selector)&lt;/code&gt;    &lt;em&gt;matches&lt;/em&gt; elements that do not match the selector.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;We could use &lt;code class=&quot;highlighter-rouge&quot;&gt;[href*=&amp;amp;list=]&lt;/code&gt; to match any tag that has an &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt;
+attribute whose value contains &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;list=&lt;/code&gt; and we could then use &lt;code class=&quot;highlighter-rouge&quot;&gt;:not()&lt;/code&gt; 
+around that to &lt;em&gt;“invert”&lt;/em&gt; the match.&lt;/p&gt;
+
+&lt;p&gt;To have it apply to our already existing &lt;code class=&quot;highlighter-rouge&quot;&gt;a[title]&lt;/code&gt; selector we 
+simply chain them together i.e. &lt;code class=&quot;highlighter-rouge&quot;&gt;a[title]:not([href*=&amp;amp;list=])&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;This first matches all &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt; tags with a &lt;code class=&quot;highlighter-rouge&quot;&gt;title&lt;/code&gt; attribute and then filters
+out any that contain &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;amp;list=&lt;/code&gt; in their &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; attribute.&lt;/p&gt;
+
+&lt;p&gt;With this modification to our selector we no longer match the &lt;em&gt;playlist&lt;/em&gt;
+URLs.&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ java YouTubeSearch
+http://www.youtube.com/watch?v=fLnFHbmyd_I DJ Liquid - I Can't Stop Raving
+http://www.youtube.com/watch?v=AxFL35Gfwo8 Dj liquid- Tetris (Rave Mix)
+http://www.youtube.com/watch?v=AaNlSOZMTvs DJ Liquid | I Can't Stop Raving
+http://www.youtube.com/watch?v=vSioSwQH_84 Trance-Rave-Jungle--Dj Liquid- Final
+http://www.youtube.com/watch?v=iAVJ9gModh0 Dj Liquid - I Cant Stop Raving
+http://www.youtube.com/watch?v=X9eR0st-kZQ DUNE - I Can't Stop Raving
+http://www.youtube.com/watch?v=EJjQEDYcWSg RAVE GENERATION 2 - DISC 2
+http://www.youtube.com/watch?v=vcSlX7n6VOA Dj Liquid I cant stop raving
+http://www.youtube.com/watch?v=d_zxv0UWowM Old Skool Hardcore Breakbeat Rave Mi
+http://www.youtube.com/watch?v=g67WJ1f_W54 Jericho Liquid Rave
+http://www.youtube.com/watch?v=XLjGsLIAOSY Dj Liquid - Birth Of Liquid Dreams
+http://www.youtube.com/watch?v=XbC0S1UtbNs DJ Liquid   Trance Rave Jungle   Jap
+http://www.youtube.com/watch?v=r-D5jGMuBtI 1992 Rave in 7 Minutes
+http://www.youtube.com/watch?v=YnZaXfWH1sA Liquid Sky &amp;amp; Free Trance | Vegas | B
+http://www.youtube.com/watch?v=AU5UYHcrd30 DJ Liquid Transformers Mix
+http://www.youtube.com/watch?v=AyXtFuWDTSA Dance-Techno-Trance-RAVE-Happy Hardc
+http://www.youtube.com/watch?v=ONdG3KpKgaU Dj Liquid - Platinum
+http://www.youtube.com/watch?v=9XvjrKNCyRE DJ Liquid Jogja special party - Lagu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We’ve also added &lt;code class=&quot;highlighter-rouge&quot;&gt;http://www.youtube.com&lt;/code&gt; to the output to give us the
+&lt;em&gt;“absolute”&lt;/em&gt; URL as the &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; attribute only contained a &lt;em&gt;“relative”&lt;/em&gt; one.&lt;/p&gt;
+
+&lt;h2 id=&quot;python&quot;&gt;Python&lt;/h2&gt;
+
+&lt;p&gt;If you’ve come here as a Python user the equivalent code using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;
+to fetch the &lt;code class=&quot;highlighter-rouge&quot;&gt;HTML&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt; to parse it 
+would look like&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://www.youtube.com/results'&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'search_query'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'dj liquid raving'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+
+    &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.yt-lockup-title &amp;gt; a[title]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'&amp;amp;list='&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;not&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'href'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'http://www.youtube.com'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'href'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;],&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'title'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;])&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; does not have the extensive support of &lt;em&gt;CSS Selectors&lt;/em&gt;
+that &lt;code class=&quot;highlighter-rouge&quot;&gt;Jsoup&lt;/code&gt; has however filtering out the &lt;em&gt;playlist&lt;/em&gt; URLs directly
+in code is probably a more &lt;em&gt;“readable”&lt;/em&gt; approach.&lt;/p&gt;
+
+&lt;p&gt;To install these libraries you can use &lt;code class=&quot;highlighter-rouge&quot;&gt;pip&lt;/code&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 requests html5lib --user&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;thats-it&quot;&gt;That’s it!&lt;/h2&gt;
+
+&lt;p&gt;You should be aware that &lt;em&gt;YouTube&lt;/em&gt; does have &lt;a href=&quot;https://developers.google.com/youtube/&quot;&gt;an API&lt;/a&gt; 
+which you may wish to use.&lt;/p&gt;
+
+&lt;p&gt;The final version of the code examples used here are also available
+&lt;a href=&quot;https://github.com/kaijento/code/blob/master/webscraping/youtube.com/&quot;&gt;on github&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;http://www.youtube.com/watch?v=fLnFHbmyd_I&quot;&gt;♫ ♫ ♪ ♪  I Can’t Stop Ravin’ ♪ ♪ ♫ ♫&lt;/a&gt;&lt;/p&gt;
+</description>
+        <pubDate>Fri, 19 May 2017 09:49:15 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/05/19/web-scraping-youtube.com/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/05/19/web-scraping-youtube.com/</guid>
+        
+        <category>java</category>
+        
+        <category>jsoup</category>
+        
+        <category>python</category>
+        
+        <category>beautifulsoup</category>
+        
+        <category>webscraping</category>
+        
+        
+      </item>
     
       <item>
         <title>Web scraping: instagram.com</title>
@@ -1173,7 +1555,7 @@ display the HTML.&lt;/p&gt;
 
 &lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
 of the page after it has parsed the source HTML and as such it
-may differ from the source HTML.&lt;/p&gt;
+may differ from the actual source HTML.&lt;/p&gt;
 
 &lt;p&gt;Looking at the HTML we can see that the word itself is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt;
 tag but that tag is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;div&amp;gt;&lt;/code&gt; tag with &lt;code class=&quot;highlighter-rouge&quot;&gt;class=&quot;word-and-pronunciation&quot;&lt;/code&gt;
@@ -1358,7 +1740,7 @@ display the HTML.&lt;/p&gt;
 
 &lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
 of the page after it has parsed the source HTML and as such it
-may differ from the source HTML.&lt;/p&gt;
+may differ from the actual source HTML.&lt;/p&gt;
 
 &lt;p&gt;Looking at the HTML we can see each piece of data seems to have
 its own unqiue &lt;code class=&quot;highlighter-rouge&quot;&gt;itemprop&lt;/code&gt; value apart from the size / quantity
@@ -1570,7 +1952,7 @@ display the HTML.&lt;/p&gt;
 
 &lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
 of the page after it has parsed the source HTML and as such it
-may differ from the source HTML.&lt;/p&gt;
+may differ from the actual source HTML.&lt;/p&gt;
 
 &lt;p&gt;So it looks like the name, record and nickname can be easily extracted.&lt;/p&gt;
 
@@ -1887,7 +2269,7 @@ that specific section of the HTML.&lt;/p&gt;
 
 &lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation 
 of the page after it has parsed the source HTML and as such it
-may differ from the source HTML.&lt;/p&gt;
+may differ from the actual source HTML.&lt;/p&gt;
 
 &lt;p&gt;So we can see that the Plot header is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;span&amp;gt;&lt;/code&gt; tag with 
 &lt;code class=&quot;highlighter-rouge&quot;&gt;id=&quot;Plot&quot;&lt;/code&gt; which is itself inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
@@ -2055,7 +2437,7 @@ HTML of the element selected directly in focus in the display window.&lt;/p&gt;
 
 &lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
 of the page after it has parsed the source HTML and as such it
-may differ from the source HTML.&lt;/p&gt;
+may differ from the actual source HTML.&lt;/p&gt;
 
 &lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab open you can also use the &lt;em&gt;Selector&lt;/em&gt; tool
 (the first button on the panel to the left of &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;) to browse
@@ -2430,7 +2812,7 @@ access by &lt;em&gt;right-clicking&lt;/em&gt; on a page and selecting
 
 &lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
 of the page after it has parsed the source HTML and as such it
-may differ from the source HTML.&lt;/p&gt;
+may differ from the actual source HTML.&lt;/p&gt;
 
 &lt;p&gt;With the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab open we can simply select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
 
@@ -2887,298 +3269,6 @@ instead of just printing the URLs.&lt;/p&gt;
         <category>requests</category>
         
         <category>beautifulsoup</category>
-        
-        <category>json</category>
-        
-        <category>curl</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Web scraping: NASA Image of the Day</title>
-        <description>&lt;p&gt;The goal is trying to &lt;em&gt;“scrape”&lt;/em&gt; images from 
-&lt;a href=&quot;https://www.nasa.gov/multimedia/imagegallery/iotd.html&quot;&gt;NASA’s Image of the Day page&lt;/a&gt; 
-using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; module. The images 
-are there when I look in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab but they’re
-not there when I fetch the page using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;. What am
-I doing wrong?&lt;/p&gt;
-
-&lt;h2 id=&quot;developer-tools&quot;&gt;“Developer Tools”&lt;/h2&gt;
-
-&lt;p&gt;I’m using &lt;code class=&quot;highlighter-rouge&quot;&gt;Firefox&lt;/code&gt; as my browser with Javascript disabled
-(using the &lt;code class=&quot;highlighter-rouge&quot;&gt;NoScript&lt;/code&gt; extension) so if I open
-the page I see &lt;em&gt;“nothing”&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494053422-nasa-noscript.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;The page does not work without Javascript enabled. Neither
-&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; nor the &lt;code class=&quot;highlighter-rouge&quot;&gt;urllib&lt;/code&gt; modules can execute Javascript 
-which is why there are no images present when we use them 
-to fetch the HTML.&lt;/p&gt;
-
-&lt;p&gt;One option is to debug the HTTP requests being made
-by the Javascript and try to replicate them with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;To debug HTTP requests we can view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
-
-&lt;p&gt;You may have heard of the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab which you can 
-access by &lt;em&gt;right-clicking&lt;/em&gt; on a page and selecting 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494053653-nasa-inspect-element.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;From there we can select the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494053054-nasa-network-xhr.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;We’ve filtered the requests being shown to only &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; which 
-stands for &lt;code class=&quot;highlighter-rouge&quot;&gt;XMLHttpRequest&lt;/code&gt;. These are the type of requests
-that are made via Javascript to fetch data.&lt;/p&gt;
-
-&lt;p&gt;If you &lt;em&gt;right-click&lt;/em&gt; on an individual request you can (amongst
-other things) &lt;code class=&quot;highlighter-rouge&quot;&gt;Copy as cURL&lt;/code&gt; which will give you the full 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; command to use to replicate the request. You can also
-view more details about the request using the panel on the right.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494053100-nasa-copy-as-curl.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Only requests that are made while the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab is open
-are shown so you may need to refresh the page.&lt;/p&gt;
-
-&lt;p&gt;So if we copy the URL of the selected request we see it’s made to&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&quot;https://www.nasa.gov/api/1/query/ubernodes.json?unType%5B%5D=image&amp;amp;routes%5B%5D=1446&amp;amp;page=0&amp;amp;pageSize=24&quot;&gt;https://www.nasa.gov/api/1/query/ubernodes.json?unType%5B%5D=image&amp;amp;routes%5B%5D=1446&amp;amp;page=0&amp;amp;pageSize=24&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;(We chose this request as it was the first in the list with a &lt;code class=&quot;highlighter-rouge&quot;&gt;200&lt;/code&gt; response.)&lt;/p&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; params should mostly be self documenting&lt;/p&gt;
-
-&lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;page=0&lt;/code&gt; is the first page of results&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;pageSize=24&lt;/code&gt; specifies the number of results per page&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;unType[]=image&lt;/code&gt; selects only &lt;em&gt;“images”&lt;/em&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;I tried changing the &lt;code class=&quot;highlighter-rouge&quot;&gt;pageSize&lt;/code&gt; to a larger number but it seems &lt;code class=&quot;highlighter-rouge&quot;&gt;24&lt;/code&gt;
-is the limit (and the default if omitted). Not sure what &lt;code class=&quot;highlighter-rouge&quot;&gt;routes[]&lt;/code&gt; 
-represents however it too can be omitted and the request still works.&lt;/p&gt;
-
-&lt;p&gt;If you open this link in your browser you will see something like&lt;/p&gt;
-
-&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;ubernodes&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;promoDateTime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2017-05-05T09:31:00-04:00&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401247&quot;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;promoDateTime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2017-05-04T10:04:00-04:00&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401205&quot;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;meta&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;total_rows&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;mi&quot;&gt;3216&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So it’s &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data consisting of a list of &lt;em&gt;ubernodes&lt;/em&gt;. I’m assuming &lt;code class=&quot;highlighter-rouge&quot;&gt;3216&lt;/code&gt; 
-is the total number of &lt;em&gt;pages&lt;/em&gt; but it could also be the total number of 
-&lt;em&gt;images&lt;/em&gt; meaning &lt;code class=&quot;highlighter-rouge&quot;&gt;3216 / 24&lt;/code&gt; &lt;em&gt;pages&lt;/em&gt;.&lt;/p&gt;
-
-&lt;p&gt;Each &lt;em&gt;ubernode&lt;/em&gt; has an &lt;code class=&quot;highlighter-rouge&quot;&gt;id&lt;/code&gt; (although it’s called &lt;code class=&quot;highlighter-rouge&quot;&gt;nid&lt;/code&gt; here) the first being &lt;code class=&quot;highlighter-rouge&quot;&gt;401247&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;You may notice this number as it is present in the next request made in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab.
-&lt;a href=&quot;https://www.nasa.gov/api/1/record/node/401247.json&quot;&gt;https://www.nasa.gov/api/1/record/node/401247.json&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;Opening this link in a browser doesn’t seem to load but if you fetch it using &lt;code class=&quot;highlighter-rouge&quot;&gt;curl&lt;/code&gt; 
-(or &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt;) you should see it looks something like&lt;/p&gt;
-
-&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;images&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;fid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;556374&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;uid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;324&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;filename&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;pia11241_reduced.jpg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;uri&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;public://thumbnails/image/pia11241_reduced.jpg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;filemime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;image/jpeg&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;filesize&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;18009851&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;timestamp&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1493922525&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;uuid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;19f072fa-e4a2-4274-99bd-58a7263fde2f&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;alt&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;360-degree scene from the Mastcam on NASA's Curiosity Mars rover&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;width&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;10000&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;height&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2279&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
-  &lt;span class=&quot;p&quot;&gt;],&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;title&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;Panorama with Active Linear Dune in Gale Crater, Mars&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401247&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-    &lt;span class=&quot;s2&quot;&gt;&quot;changed&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;1493994090&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Here we can see the &lt;code class=&quot;highlighter-rouge&quot;&gt;uri&lt;/code&gt; value appears to hold what looks like the URL 
-to the image but what is this &lt;code class=&quot;highlighter-rouge&quot;&gt;public://&lt;/code&gt;?&lt;/p&gt;
-
-&lt;p&gt;Well the answer is I’m not exactly sure.&lt;/p&gt;
-
-&lt;p&gt;If you click on one of the &lt;em&gt;Images Of The Day&lt;/em&gt; it brings up a sort of 
-slideshow and allows you to download the image. So we can do this with 
-the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab open to see the actual location of the image.&lt;/p&gt;
-
-&lt;p&gt;So, we click on the first image of the day but before clicking the download
-button we click the &lt;em&gt;“basket”&lt;/em&gt; in the &lt;code class=&quot;highlighter-rouge&quot;&gt;Network&lt;/code&gt; tab to clear the current
-list of requests.&lt;/p&gt;
-
-&lt;p&gt;We don’t need them anymore and they are just cluttering up our view. We 
-also deselect the &lt;code class=&quot;highlighter-rouge&quot;&gt;XHR&lt;/code&gt; filter as we’re not sure if that is the method
-that will be used. We click the download button and see just a single
-request is made.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494088453-nasa-dl-img.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;If we copy the URL we see it goes to 
-&lt;a href=&quot;https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg&quot;&gt;https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;This means we can replace &lt;code class=&quot;highlighter-rouge&quot;&gt;public:/&lt;/code&gt; from the &lt;code class=&quot;highlighter-rouge&quot;&gt;uri&lt;/code&gt; value in the &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; data
-with &lt;code class=&quot;highlighter-rouge&quot;&gt;https://www.nasa.gov/sites/default/files&lt;/code&gt; in order to build the full
-URL to the image.&lt;/p&gt;
-
-&lt;p&gt;If we use &lt;code class=&quot;highlighter-rouge&quot;&gt;curl -I&lt;/code&gt; to send a &lt;code class=&quot;highlighter-rouge&quot;&gt;HEAD&lt;/code&gt; request to the URL we can see it’s correct.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;curl -I &lt;span class=&quot;s1&quot;&gt;'https://www.nasa.gov/sites/default/files/thumbnails/image/pia11241_reduced.jpg'&lt;/span&gt;
-HTTP/1.1 200 OK
-Date: Sat, 06 May 2017 16:46:00 GMT
-Content-Type: image/jpeg
-Content-Length: 18009851
-Connection: keep-alive
-x-amz-id-2: bihPWnpoFwaerzUuXH+wWti2wWJFDjrdZp7BtpRZQXBXGa139pCCKgXiz4d1TULAkTB9AMpV2iM&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;
-x-amz-request-id: 28DF2A5EDF3C42A4
-Cache-Control: max-age&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;3600
-Server: AmazonS3
-Age: 3308
-Last-Modified: Fri, 05 May 2017 14:22:33 GMT
-Expires: Sat, 06 May 2017 16:50:52 GMT
-X-UA-Compatible: &lt;span class=&quot;nv&quot;&gt;IE&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;edge
-Content-Security-Policy: frame-ancestors &lt;span class=&quot;s1&quot;&gt;'self'&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt;.nasa.gov
-Strict-Transport-Security: max-age&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;31536000
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;So now we know what requests are to be made now we will move on to
-generating the code to perform them.&lt;/p&gt;
-
-&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
-
-&lt;p&gt;First we will show some of the output.&lt;/p&gt;
-
-&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://www.nasa.gov/sites/default/files/thumbnails/image/pia21603.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/pia21608.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/pia21606.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/pia21605.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/pia21390.jpeg
-[...]
-https://www.nasa.gov/sites/default/files/thumbnails/image/pia20527-1041.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/iss050e014337.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/pia21494_eagle_esp_050177_1780.jpg
-https://www.nasa.gov/sites/default/files/thumbnails/image/final_earth_obs_fleet06hw.2100_1920x1080.jpg
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;And the code that generated it.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.nasa.gov/api/1/'&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'https://www.nasa.gov/sites/default/files'&lt;/span&gt;
-
-&lt;span class=&quot;k&quot;&gt;with&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;session&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;
-
-    &lt;span class=&quot;c&quot;&gt;# first 2 pages&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
-        &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'query/ubernodes.json'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; 
-                &lt;span class=&quot;n&quot;&gt;params&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'page'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;page&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'unType[]'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'image'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-        &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ubernode&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'ubernodes'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;nid&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ubernode&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'nid'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-            &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;s&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;api&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'record/node/{}.json'&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nid&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-            &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;image&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;json&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'images'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]:&lt;/span&gt;
-                &lt;span class=&quot;n&quot;&gt;uri&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'uri'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'public:/'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;public&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-                &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uri&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;h2 id=&quot;code-breakdown&quot;&gt;Code breakdown&lt;/h2&gt;
-
-&lt;p&gt;When making multiple requests with &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; you’ll usually want to use a 
-&lt;a href=&quot;http://docs.python-requests.org/en/latest/user/advanced/#session-objects&quot;&gt;session object&lt;/a&gt;
-to maintain &lt;em&gt;“state”&lt;/em&gt; and keep track of cookies.&lt;/p&gt;
-
-&lt;p&gt;You’ll also pretty much always want to change the default &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header 
-which we set here to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt;&lt;/p&gt;
-
-&lt;p&gt;We use &lt;code class=&quot;highlighter-rouge&quot;&gt;range()&lt;/code&gt; to loop through a range of page numbers. We’ve just used &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt;
-here to get the first &lt;code class=&quot;highlighter-rouge&quot;&gt;2&lt;/code&gt; pages of results.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;list&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
-&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The API call takes a &lt;code class=&quot;highlighter-rouge&quot;&gt;GET&lt;/code&gt; request so we the &lt;code class=&quot;highlighter-rouge&quot;&gt;params&lt;/code&gt; argument to pass the data as 
-opposed to using the &lt;code class=&quot;highlighter-rouge&quot;&gt;data&lt;/code&gt; argument if it was a &lt;code class=&quot;highlighter-rouge&quot;&gt;POST&lt;/code&gt; request.&lt;/p&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; comes with &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#json-response-content&quot;&gt;.json()&lt;/a&gt;
-for decoding a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; response (which I imagine just calls &lt;code class=&quot;highlighter-rouge&quot;&gt;json.loads()&lt;/code&gt; &lt;em&gt;“under the hood”&lt;/em&gt;).&lt;/p&gt;
-
-&lt;p&gt;This takes a &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; string and turns it into a Python structure.&lt;/p&gt;
-
-&lt;div class=&quot;language-javascript highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-  &lt;span class=&quot;s2&quot;&gt;&quot;ubernodes&quot;&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;ubernode&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;promoDateTime&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;2017-05-05T09:31:00-04:00&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
-      &lt;span class=&quot;s2&quot;&gt;&quot;nid&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;401247&quot;&lt;/span&gt;
-    &lt;span class=&quot;p&quot;&gt;},&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;JSON&lt;/code&gt; we’re working with is (in this instance) also valid Python - 
-it’s basically like a &lt;em&gt;dict of lists&lt;/em&gt; which is exactly what we get when we 
-call &lt;code class=&quot;highlighter-rouge&quot;&gt;.json()&lt;/code&gt; on it.&lt;/p&gt;
-
-&lt;p&gt;So &lt;code class=&quot;highlighter-rouge&quot;&gt;r.json()['ubernodes']&lt;/code&gt; is a &lt;em&gt;list of dicts&lt;/em&gt; which we loop over and
-extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;nid&lt;/code&gt; value.&lt;/p&gt;
-
-&lt;p&gt;We then use the &lt;code class=&quot;highlighter-rouge&quot;&gt;nid&lt;/code&gt; to build the URL to request the &lt;em&gt;ubernode&lt;/em&gt; record 
-details from the API.&lt;/p&gt;
-
-&lt;p&gt;Similar to the previous structure &lt;code class=&quot;highlighter-rouge&quot;&gt;r.json()['images']&lt;/code&gt; is a list
-(even though it looks like they all have a single element) which 
-we loop through to extract the &lt;code class=&quot;highlighter-rouge&quot;&gt;uri&lt;/code&gt; value and replace the 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;public:/&lt;/code&gt; part of it to generate the full URL.&lt;/p&gt;
-
-&lt;p&gt;Finally we are just printing out the URL but you could
-fetch them and &lt;a href=&quot;http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content&quot;&gt;save the images&lt;/a&gt;
-to disk if that is your goal.&lt;/p&gt;
-
-</description>
-        <pubDate>Sat, 06 May 2017 07:42:50 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/05/06/web-scraping-nasa-image-of-the-day/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/05/06/web-scraping-nasa-image-of-the-day/</guid>
-        
-        <category>python</category>
-        
-        <category>webscraping</category>
-        
-        <category>requests</category>
         
         <category>json</category>
         
