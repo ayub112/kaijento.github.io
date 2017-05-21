@@ -111,16 +111,20 @@ already.</p>
 <a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors">BeautifulSoup’s select()</a>
 method.</p>
 
-<p><em>CSS Selector’s</em> are a <em>“language”</em> for selecting items. A brief subset includes:</p>
+<p><em>CSS Selector’s</em> are like a <em>“language”</em> for selecting items. A brief subset includes:</p>
 
 <ul>
-  <li><code class="highlighter-rouge">tag</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code></li>
-  <li><code class="highlighter-rouge">tag[attr]</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr=""</code> regardless of the value of <code class="highlighter-rouge">attr</code></li>
-  <li><code class="highlighter-rouge">tag[attr=string]</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr</code> whose value is exactly <code class="highlighter-rouge">string</code></li>
-  <li><code class="highlighter-rouge">tag[attr$=string]</code> - match <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr</code> whose value <em>endswith</em> <code class="highlighter-rouge">string</code></li>
+  <li><code class="highlighter-rouge">tag</code> - <em>matches</em> <code class="highlighter-rouge">&lt;tag&gt;</code></li>
+  <li><code class="highlighter-rouge">tag[attr]</code> - <em>matches</em> <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr=""</code> regardless of the value of <code class="highlighter-rouge">attr</code></li>
+  <li><code class="highlighter-rouge">tag[attr=string]</code> - <em>matches</em> <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr</code> whose value is exactly <code class="highlighter-rouge">string</code></li>
+  <li><code class="highlighter-rouge">tag[attr$=string]</code> - <em>matches</em> <code class="highlighter-rouge">&lt;tag&gt;</code> that has <code class="highlighter-rouge">attr</code> whose value <em>endswith</em> <code class="highlighter-rouge">string</code></li>
 </ul>
 
-<p>This means we can use <code class="highlighter-rouge">a[href$=.mp3]</code> to find what we want.</p>
+<p>This means we can use the <em>CSS Selector</em> <code class="highlighter-rouge">a[href$=.mp3]</code> to match an <code class="highlighter-rouge">&lt;a&gt;</code>
+tag whose <code class="highlighter-rouge">href</code> attribute ends with the string <code class="highlighter-rouge">.mp3</code></p>
+
+<p><code class="highlighter-rouge">select()</code> returns a list of all matching tags whereas <code class="highlighter-rouge">select_one()</code> returns the 
+first tag.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">requests</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>

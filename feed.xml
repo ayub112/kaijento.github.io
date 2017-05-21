@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 19 May 2017 13:09:29 +0100</pubDate>
-    <lastBuildDate>Fri, 19 May 2017 13:09:29 +0100</lastBuildDate>
+    <pubDate>Sun, 21 May 2017 05:19:50 +0100</pubDate>
+    <lastBuildDate>Sun, 21 May 2017 05:19:50 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -2462,16 +2462,20 @@ already.&lt;/p&gt;
 &lt;a href=&quot;https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors&quot;&gt;BeautifulSoup’s select()&lt;/a&gt;
 method.&lt;/p&gt;
 
-&lt;p&gt;&lt;em&gt;CSS Selector’s&lt;/em&gt; are a &lt;em&gt;“language”&lt;/em&gt; for selecting items. A brief subset includes:&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;CSS Selector’s&lt;/em&gt; are like a &lt;em&gt;“language”&lt;/em&gt; for selecting items. A brief subset includes:&lt;/p&gt;
 
 &lt;ul&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr]&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr=&quot;&quot;&lt;/code&gt; regardless of the value of &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr=string]&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt; whose value is exactly &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;&lt;/li&gt;
-  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr$=string]&lt;/code&gt; - match &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt; whose value &lt;em&gt;endswith&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag&lt;/code&gt; - &lt;em&gt;matches&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr]&lt;/code&gt; - &lt;em&gt;matches&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr=&quot;&quot;&lt;/code&gt; regardless of the value of &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr=string]&lt;/code&gt; - &lt;em&gt;matches&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt; whose value is exactly &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;tag[attr$=string]&lt;/code&gt; - &lt;em&gt;matches&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;tag&amp;gt;&lt;/code&gt; that has &lt;code class=&quot;highlighter-rouge&quot;&gt;attr&lt;/code&gt; whose value &lt;em&gt;endswith&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;string&lt;/code&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;p&gt;This means we can use &lt;code class=&quot;highlighter-rouge&quot;&gt;a[href$=.mp3]&lt;/code&gt; to find what we want.&lt;/p&gt;
+&lt;p&gt;This means we can use the &lt;em&gt;CSS Selector&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;a[href$=.mp3]&lt;/code&gt; to match an &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;a&amp;gt;&lt;/code&gt;
+tag whose &lt;code class=&quot;highlighter-rouge&quot;&gt;href&lt;/code&gt; attribute ends with the string &lt;code class=&quot;highlighter-rouge&quot;&gt;.mp3&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;select()&lt;/code&gt; returns a list of all matching tags whereas &lt;code class=&quot;highlighter-rouge&quot;&gt;select_one()&lt;/code&gt; returns the 
+first tag.&lt;/p&gt;
 
 &lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
