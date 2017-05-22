@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/22/python-validating-dates/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Python: Validating Dates | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/22/python-validating-dates/">Python: Validating Dates</a></h1>
+  <p class="text-muted">22 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/regex/">regex</a>
+  
+    
+  <a href="/categories/datetime/">datetime</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given some lines of data that look like</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>IP147.006.000.012.047.1704111352
+IP147.006.000.033.000.1713322001
+</code></pre>
+</div>
+
+<p>We need to extract the last <code class="highlighter-rouge">10</code> digits (i.e. everything after
+the final <code class="highlighter-rouge">.</code> in the string) and make sure it is a <em>“valid date”</em>
+using Python.</p>
+
+<p>A <em>“valid”</em> date should be of the format</p>
+
+<p><code class="highlighter-rouge">yy[year]mm[month]dd[date]hh[hour]mm[mins]</code></p>
+
+<p>This means line <code class="highlighter-rouge">#2</code> is invalid because <code class="highlighter-rouge">13</code> is not a valid month.</p>
+
+<p>Our example lines contain <em>“fields”</em> or <em>“columns”</em> that are 
+<em>“delimited”</em> by the <code class="highlighter-rouge">.</code> character meaning we could
+<code class="highlighter-rouge">split()</code> on <code class="highlighter-rouge">.</code> and take the last item.</p>
+
+<p><code class="highlighter-rouge">split()</code> returns a <em>list</em>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span> <span class="o">=</span> <span class="s">'IP147.006.000.033.000.1705172001'</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+<span class="p">[</span><span class="s">'IP147'</span><span class="p">,</span> <span class="s">'006'</span><span class="p">,</span> <span class="s">'000'</span><span class="p">,</span> <span class="s">'033'</span><span class="p">,</span> <span class="s">'000'</span><span class="p">,</span> <span class="s">'1705172001'</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="s">'1705172001'</span>
+</code></pre>
+</div>
+
+<p>We could also use <em>“string” slicing</em> to get the last 10 characters.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">line</span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
+<span class="s">'1705172001'</span>
+</code></pre>
+</div>
+
+<p>However it was then stated that each line should be validated
+to match an exact pattern of</p>
+
+<ul>
+  <li><code class="highlighter-rouge">IP147</code> <em>followed by</em></li>
+  <li><code class="highlighter-rouge">4</code> groups of <code class="highlighter-rouge">3</code> digits <em>followed by</em></li>
+  <li>a <code class="highlighter-rouge">10</code> digit date</li>
+</ul>
+
+<p>… which are all delimited by <code class="highlighter-rouge">.</code></p>
+
+<p>We could of course do such validation in <em>“plain”</em> Python
+using <code class="highlighter-rouge">split()</code> and <code class="highlighter-rouge">str.isdigit()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="n">line</span><span class="p">):</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">'.'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>    <span class="o">==</span> <span class="mi">6</span>  <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s">'IP147'</span> <span class="ow">and</span> \
+           <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span>  <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>  <span class="ow">and</span> \
+           <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span>  <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>  <span class="ow">and</span> \
+           <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span>  <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>  <span class="ow">and</span> \
+           <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span> <span class="o">==</span> <span class="mi">3</span>  <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>  <span class="ow">and</span> \
+           <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">==</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+
+<span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'IP147.006.000.012.047.1704111352'</span><span class="p">,</span>
+    <span class="s">'IP147.006.000.033.000.1713322001'</span><span class="p">,</span>
+    <span class="s">'IP148.006.000.033.000.1712322001'</span>
+<span class="p">]</span>
+
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">is_valid</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+</code></pre>
+</div>
+
+<p>Which would output</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="bp">True</span>
+<span class="bp">True</span>
+<span class="bp">False</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">#3</code> fails as it starts with <code class="highlighter-rouge">IP148</code> instead of <code class="highlighter-rouge">IP147</code></p>
+
+<a name="regular-expressions"></a>
+<h2 class="section-header">
+  <span id="regular-expressions"></span>
+  <a class="anchor" href="#regular-expressions">Regular Expressions</a>
+</h2>
+
+<p>Another option is to use a <em>Regular Expression!!!!</em> by
+importing the <a href="https://docs.python.org/3/library/re.html">re</a> module.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">re</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">line</span> <span class="o">=</span> <span class="s">'IP147.006.000.012.047.1704111352'</span><span class="p">,</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'^IP147(?:</span><span class="err">\</span><span class="s">.</span><span class="err">\</span><span class="s">d{3}){4}</span><span class="err">\</span><span class="s">.(</span><span class="err">\</span><span class="s">d{10})$'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">_sre</span><span class="o">.</span><span class="n">SRE_Match</span> <span class="nb">object</span> <span class="n">at</span> <span class="mh">0x7f17b8b58b70</span><span class="o">&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'^IP147(?:</span><span class="err">\</span><span class="s">.</span><span class="err">\</span><span class="s">d{3}){4}</span><span class="err">\</span><span class="s">.(</span><span class="err">\</span><span class="s">d{10})$'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="s">'1705172001'</span>
+</code></pre>
+</div>
+
+<p>Okay.. so what on earth is this <code class="highlighter-rouge">r'^IP147(?:\.\d{3}){4}\.(\d{10})$'</code> monstrosity?!</p>
+
+<p>Because a backslash is used in regex</p>
+
+<ul>
+  <li>to disable the special meaning of <em>“special”</em> regex characters</li>
+  <li>to denote special character classes e.g. <code class="highlighter-rouge">\d</code> to match a <em>digit</em>
+or <code class="highlighter-rouge">\b</code> to match a <em>word boundary</em></li>
+</ul>
+
+<p>… and the backslash is also used for escaping inside Python strings 
+we use a <em>raw string</em> (created with <code class="highlighter-rouge">r''</code>) to store our <em>pattern</em>
+which allows the backslash to get passed directly through to the regex.</p>
+
+<p>Let’s breakdown the <em>pattern</em>.</p>
+
+<ul>
+  <li><code class="highlighter-rouge">^</code> <em>matches</em> the start of the string</li>
+  <li><code class="highlighter-rouge">IP147</code> <em>matches</em> the string <code class="highlighter-rouge">IP147</code></li>
+  <li><code class="highlighter-rouge">(?:</code> starts a <em>non-capturing group</em></li>
+  <li><code class="highlighter-rouge">\.</code> <em>matches</em> a literal <code class="highlighter-rouge">.</code> character</li>
+  <li><code class="highlighter-rouge">\d</code> <em>matches</em> a <em>digit</em></li>
+  <li><code class="highlighter-rouge"><span class="p">{</span><span class="err">3</span><span class="p">}</span></code> means the previous <em>atom</em> (in this case <code class="highlighter-rouge">\d</code>) exactly <em>3 times</em></li>
+  <li><code class="highlighter-rouge">)</code> closes our <em>non-capturing group</em></li>
+  <li><code class="highlighter-rouge"><span class="p">{</span><span class="err">4</span><span class="p">}</span></code> means the previous <em>atom</em> (in this case <code class="highlighter-rouge">(?:\.\d{3})</code>) exactly <em>4 times</em></li>
+  <li><code class="highlighter-rouge">\.</code> <em>matches</em> a literal <code class="highlighter-rouge">.</code> character</li>
+  <li><code class="highlighter-rouge">(</code> starts a <em>capturing group</em></li>
+  <li><code class="highlighter-rouge">\d{10}</code> matches exactly <code class="highlighter-rouge">10</code> <em>digits</em></li>
+  <li><code class="highlighter-rouge">)</code> closes the <em>capturing group</em></li>
+  <li><code class="highlighter-rouge">$</code> <em>matches</em> the end of the string</li>
+</ul>
+
+<p><code class="highlighter-rouge">.</code> has <em>“special”</em> meaning in regex as it <em>matches</em> <em>“any”</em> character (except
+a newline) which is why we must escape it using a backslash to match a literal <code class="highlighter-rouge">.</code></p>
+
+<p><code class="highlighter-rouge">\.\d{3}</code> matches a <code class="highlighter-rouge">.</code> character followed by <code class="highlighter-rouge">3</code> <em>digits</em> and we want to match
+this sequence <code class="highlighter-rouge">4</code> times.</p>
+
+<p>This is why we use <code class="highlighter-rouge">(?:)</code> to group <code class="highlighter-rouge">\.\d{3}</code> together as a single <em>atom</em> to have 
+the <code class="highlighter-rouge"><span class="p">{</span><span class="err">4</span><span class="p">}</span></code> apply to it. As we only need to group and not capture we’ve used a 
+<em>non capturing group</em>.</p>
+
+<p>Creating a <em>capture group</em> (as we’ve done with <code class="highlighter-rouge">(\d{10})</code>) allows us to refer to 
+it and access its contents at a later date.</p>
+
+<p>The call to <code class="highlighter-rouge">.group(1)</code> returns the content of the first <em>capture group</em>
+i.e. our <code class="highlighter-rouge">10</code> digit <em>“date”</em>.</p>
+
+<a name="strptime"></a>
+<h2 class="section-header">
+  <span id="strptime"></span>
+  <a class="anchor" href="#strptime">strptime()</a>
+</h2>
+
+<p>Now that we can test if a line matches the exact pattern needed whilst extracting
+the <code class="highlighter-rouge">10</code> <em>digit</em> date string we now need to make sure it is a <em>“valid”</em> date.</p>
+
+<p>We could attempt to do it ourselves however a much simpler approach would be
+to use the <a href="https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior">datetime</a>
+module that comes with Python.</p>
+
+<p>The <code class="highlighter-rouge">datetime.strptime(date_string, format)</code> <em>class method</em> takes a date string 
+and a format and attempts to create a <em>datetime object</em> from it.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="o">&gt;&gt;&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s">'1705172001'</span><span class="p">,</span> <span class="s">'</span><span class="si">%</span><span class="s">y</span><span class="si">%</span><span class="s">m</span><span class="si">%</span><span class="s">d</span><span class="si">%</span><span class="s">H</span><span class="si">%</span><span class="s">M'</span><span class="p">)</span>
+<span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2017</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s">'1713172001'</span><span class="p">,</span> <span class="s">'</span><span class="si">%</span><span class="s">y</span><span class="si">%</span><span class="s">m</span><span class="si">%</span><span class="s">d</span><span class="si">%</span><span class="s">H</span><span class="si">%</span><span class="s">M'</span><span class="p">)</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+<span class="nb">ValueError</span><span class="p">:</span> <span class="n">unconverted</span> <span class="n">data</span> <span class="n">remains</span><span class="p">:</span> <span class="mo">01</span>
+</code></pre>
+</div>
+
+<p>When <code class="highlighter-rouge">date_string</code> doesn’t match our <code class="highlighter-rouge">format</code> it raises a <code class="highlighter-rouge">ValueError</code> <em>exception</em> meaning we can
+use <code class="highlighter-rouge">strptime()</code> inside a <a href="https://docs.python.org/3/tutorial/errors.html#handling-exceptions">try statement</a>
+to catch any potential error.</p>
+
+<p>If an <em>exception</em> is raised then the code inside our <code class="highlighter-rouge">except</code> block will be executed.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">try</span><span class="p">:</span>
+<span class="o">...</span>     <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="s">'1713172001'</span><span class="p">,</span> <span class="s">'</span><span class="si">%</span><span class="s">y</span><span class="si">%</span><span class="s">m</span><span class="si">%</span><span class="s">d</span><span class="si">%</span><span class="s">H</span><span class="si">%</span><span class="s">M'</span><span class="p">)</span>
+<span class="o">...</span> <span class="k">except</span><span class="p">:</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="s">'Invalid date.'</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="n">Invalid</span> <span class="n">date</span><span class="o">.</span>
+</code></pre>
+</div>
+
+<p>Armed with this knowledge let’s add this to our validation code.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span>   <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">'IP147.006.000.012.047.1704111352'</span><span class="p">,</span>
+    <span class="s">'IP147.006.000.033.000.1713322001'</span><span class="p">,</span>
+    <span class="s">'IP148.006.000.033.000.1712322001'</span>
+<span class="p">]</span>
+
+<span class="n">pattern</span> <span class="o">=</span> <span class="s">r'^IP147(?:</span><span class="err">\</span><span class="s">.</span><span class="err">\</span><span class="s">d{3}){4}</span><span class="err">\</span><span class="s">.(</span><span class="err">\</span><span class="s">d{10})$'</span>
+
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s">'</span><span class="si">%</span><span class="s">y</span><span class="si">%</span><span class="s">m</span><span class="si">%</span><span class="s">d</span><span class="si">%</span><span class="s">H</span><span class="si">%</span><span class="s">M'</span><span class="p">)</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">'True '</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="n">date</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>So we first check if we got a <code class="highlighter-rouge">match</code> as <code class="highlighter-rouge">re.search</code> will return <code class="highlighter-rouge">None</code>
+if it doesn’t match. If the line matches we extract the date which is
+contained in the first <em>capture group</em> and we attempt to <code class="highlighter-rouge">strptime</code>
+it.</p>
+
+<p>If the <code class="highlighter-rouge">strptime</code> fails it is an invalid date and if the line did not
+match it’s also invalid.</p>
+
+<p>Let’s run it and check the output.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python is-valid-date.py
+True  1704111352
+False 1713322001
+False IP148.006.000.033.000.1712322001
+</code></pre>
+</div>
+
+<p>The reason for using <code class="highlighter-rouge">'True '</code> instead of just <code class="highlighter-rouge">True</code> was to keep the
+output aligned.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (59)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/19/web-scraping-youtube.com/">Web scraping: youtube.com</a></h2>
+          <p class="preview">The goal is to perform a <a href="http://www.youtube.com">YouTube</a> search 
+and to extract or <em>“scrape”</em> the video URL and title of the first
+page of results using Java’s <a href="https://jsoup.org">jsoup</a> library.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
