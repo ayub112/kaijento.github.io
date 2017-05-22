@@ -6386,6 +6386,9 @@ pre,
 samp {
   font-family: Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Consolas,Courier New,monospace,sans-serif; }
 
+pre {
+  font-size: 85.4%; }
+
 pre code {
   font-weight: normal; }
 
