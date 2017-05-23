@@ -6386,7 +6386,7 @@ pre,
 samp {
   font-family: Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Consolas,Courier New,monospace,sans-serif; }
 
-pre {
+pre.highlight {
   font-size: 85.4%; }
 
 pre code {
@@ -6506,3 +6506,12 @@ h2 .anchor:hover:after {
 
 .language-json .nt {
   font-weight: normal; }
+
+div.lineno {
+  float: left;
+  text-align: right;
+  border-right: 1px solid #eeeeee;
+  margin: 0px 0.5em 0px 0px;
+  padding-right: 0.5em;
+  font-size: 93%;
+  color: rgba(27, 31, 35, 0.46); }
