@@ -340,15 +340,15 @@ positive lookahead. These just exclude what is inside them from the match.</p>
 
 <p>Once we have the address we then remove <code class="highlighter-rouge">Deliver To:</code> from it and split it up into a list of lines.</p>
 
+<p>From there we declare <code class="highlighter-rouge">sold_to</code> and <code class="highlighter-rouge">delivered_to</code> with this <code class="highlighter-rouge">zip(*(re.split(...</code> construct.</p>
+
+<p>Why do we have <code class="highlighter-rouge">*</code> inside the <code class="highlighter-rouge">zip()</code> call?</p>
+
 <a name="the-splat-operator"></a>
 <h2 class="section-header">
   <span id="the-splat-operator"></span>
   <a class="anchor" href="#the-splat-operator">The “splat” operator</a>
 </h2>
-
-<p>We then declare <code class="highlighter-rouge">sold_to</code> and <code class="highlighter-rouge">delivered_to</code> with this <code class="highlighter-rouge">zip(*(re.split(...</code> construct.</p>
-
-<p>What is going on here with <code class="highlighter-rouge">*</code>?</p>
 
 <p>Let’s try to demonstrate by creating a simple function that prints out all 
 arguments passed to it to.</p>
