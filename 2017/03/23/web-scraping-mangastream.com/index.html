@@ -412,7 +412,63 @@ Let’s put it all together:</p>
 
 <p><code class="highlighter-rouge">mangastream.com.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</div><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">errno</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
@@ -469,8 +525,7 @@ Let’s put it all together:</p>
             <span class="n">image</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_url</span><span class="p">)</span><span class="o">.</span><span class="n">content</span>
             <span class="k">print</span><span class="p">(</span><span class="s">'CREATE:'</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
             <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">image</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Let’s run it:</p>
 
@@ -503,7 +558,52 @@ instead if you wanted to.</p>
 loop is essentially the same as the code before it. Having duplicated code like this
 is usually a sign to put it inside a function, so let’s give it a try:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46</div><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">errno</span><span class="o">,</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
@@ -549,8 +649,7 @@ is usually a sign to put it inside a function, so let’s give it a try:</p>
         <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">last</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
             <span class="n">page</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s">'/'</span><span class="p">)</span> <span class="o">+</span> <span class="s">'/{}'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
             <span class="n">save_page</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>The <code class="highlighter-rouge">if __name__</code> line isn’t needed but I like using it as it forces an 
 extra level of indentation which I think gives separation from the functions.</p>

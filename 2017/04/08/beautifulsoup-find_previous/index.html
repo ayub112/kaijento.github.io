@@ -104,7 +104,41 @@ given to either find method it is matched against the class attribute.</p>
 
 <p><code class="highlighter-rouge">list-of-stories.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</div><code><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 
 <span class="n">html</span> <span class="o">=</span> <span class="s">'''
@@ -139,13 +173,19 @@ given to either find method it is matched against the class attribute.</p>
 <span class="p">]</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>The declaration of <code class="highlighter-rouge">stories</code> make look a little odd it’s a <em>dict comprehension</em>
 inside a <em>list comprehension</em>. It may be more common to see it written as:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">stories</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8</div><code><span class="n">stories</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">(</span><span class="s">'p'</span><span class="p">,</span> <span class="s">'content'</span><span class="p">):</span>
     <span class="n">story</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">'title'</span>  <span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">find_previous</span><span class="p">(</span><span class="s">'h1'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span><span class="p">,</span>
@@ -153,8 +193,7 @@ inside a <em>list comprehension</em>. It may be more common to see it written as
         <span class="s">'content'</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="p">}</span>
     <span class="n">stories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">story</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>So we find each <code class="highlighter-rouge">&lt;p class="content"&gt;</code> tag and from there we search backwards
 using <code class="highlighter-rouge">find_previous()</code> for the <code class="highlighter-rouge">&lt;h1&gt;</code> title tag and the <code class="highlighter-rouge">&lt;h3&gt;</code> date tag.</p>

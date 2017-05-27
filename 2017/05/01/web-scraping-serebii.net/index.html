@@ -358,11 +358,12 @@ then in the following <code class="highlighter-rouge">&lt;td&gt;</code> tags.</p
 
 <p>You could also build the dict using a regular <code class="highlighter-rouge">for</code> loop if you wish.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">name</span> <span class="o">=</span> <span class="p">{}</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3</div><code><span class="n">name</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">table</span><span class="p">(</span><span class="s">'b'</span><span class="p">):</span>
     <span class="n">name</span><span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">text</span><span class="p">]</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>We’ve made use of the <code class="highlighter-rouge">json</code> module in the previous example to 
 <em>pretty-print</em> the dict for display purposes.</p>

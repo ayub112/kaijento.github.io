@@ -147,11 +147,12 @@ the totals so the data we want starts in the third row, hence the <code class="h
 
 <p>The <code class="highlighter-rouge">[ td.text for td ... ]</code> syntax is called a <strong>List Comprehension</strong>. It’s as if we did:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3</div><code><span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)[</span><span class="mi">2</span><span class="p">](</span><span class="s">'td'</span><span class="p">):</span>
     <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">td</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Finally we’re using <code class="highlighter-rouge">json.dumps(..., indent=4)</code> to pretty-print the resulting list for
 formatting purposes.</p>

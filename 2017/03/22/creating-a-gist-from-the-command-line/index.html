@@ -169,7 +169,29 @@ pipeline or redirection.</p>
 
 <p><code class="highlighter-rouge">gist.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23</div><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="s">'https://api.github.com/gists'</span>
 <span class="n">ext</span> <span class="o">=</span> <span class="s">'txt'</span>
@@ -192,8 +214,7 @@ pipeline or redirection.</p>
 <span class="p">})</span>
 
 <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'html_url'</span><span class="p">])</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>We’ve set the default extension to <code class="highlighter-rouge">txt</code>. If we look in <code class="highlighter-rouge">sys.argv[1]</code> for a filename
 and it contains <code class="highlighter-rouge">.</code> we assume it has an extension and we <code class="highlighter-rouge">split()</code> it out.</p>
@@ -275,7 +296,34 @@ cmd --arg1 a --arg2 --arg3 b c d
 to surround our code the simplest thing to do is convert all single quotes within our code
 to double quotes.</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>gist <span class="o">()</span> <span class="o">{</span>
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28</div><code>gist <span class="o">()</span> <span class="o">{</span>
 
 python -c <span class="s1">'
 import os, requests, sys
@@ -303,8 +351,7 @@ r = requests.post(url, json={
 print(r.json()["html_url"])
 '</span> <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p><code class="highlighter-rouge">"$@"</code> here are all the arguments passed to the function which we send on to Python so they are
 available in <code class="highlighter-rouge">sys.argv</code></p>

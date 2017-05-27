@@ -173,39 +173,66 @@ are to be children of the <code class="highlighter-rouge">NoLevel1</code> <em>pa
 
 <p>We will start with the output:</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python transform-json.py
-<span class="o">[</span>
-    <span class="o">{</span>
-        <span class="s2">"name"</span>: <span class="s2">"NoLevel_1"</span>, 
-        <span class="s2">"tag_child"</span>: <span class="o">[</span>
-            <span class="o">{</span>
-                <span class="s2">"name"</span>: <span class="s2">"Food"</span>, 
-                <span class="s2">"taglevel"</span>: 2
-            <span class="o">}</span>, 
-            <span class="o">{</span>
-                <span class="s2">"name"</span>: <span class="s2">"Apple"</span>, 
-                <span class="s2">"taglevel"</span>: 2
-            <span class="o">}</span>
-        <span class="o">]</span>, 
-        <span class="s2">"taglevel"</span>: 1
-    <span class="o">}</span>, 
-    <span class="o">{</span>
-        <span class="s2">"name"</span>: <span class="s2">"Fruit"</span>, 
-        <span class="s2">"tag_child"</span>: <span class="o">[</span>
-            <span class="o">{</span>
-                <span class="s2">"name"</span>: <span class="s2">"Apple"</span>, 
-                <span class="s2">"taglevel"</span>: 2
-            <span class="o">}</span>
-        <span class="o">]</span>, 
-        <span class="s2">"taglevel"</span>: 1
-    <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ python transform-json.py
+[
+    {
+        "name": "NoLevel_1", 
+        "tag_child": [
+            {
+                "name": "Food", 
+                "taglevel": 2
+            }, 
+            {
+                "name": "Apple", 
+                "taglevel": 2
+            }
+        ], 
+        "taglevel": 1
+    }, 
+    {
+        "name": "Fruit", 
+        "tag_child": [
+            {
+                "name": "Apple", 
+                "taglevel": 2
+            }
+        ], 
+        "taglevel": 1
+    }
+]
 </code></pre>
-</div>
 
 <p>Here is the code used to generate it:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</div><code><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span>   <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'before.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
@@ -234,8 +261,7 @@ are to be children of the <code class="highlighter-rouge">NoLevel1</code> <em>pa
     <span class="p">]</span>
 
     <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <a name="collectionsdefaultdict"></a>
 <h2 class="section-header">
@@ -268,12 +294,14 @@ student name as the key and a <code class="highlighter-rouge">list</code> of the
 <p>If we were to use a regular <code class="highlighter-rouge">dict</code> we would need to check if the name
 was in the dict already if not create it e.g.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grades</span><span class="p">:</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grades</span><span class="p">:</span>
     <span class="n">grades</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">grade</span><span class="p">]</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="n">grades</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grade</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Another use could be for counting with <code class="highlighter-rouge">defaultdict(int)</code> however <code class="highlighter-rouge">collections.Counter</code>
 takes care of most counting needs.</p>
@@ -328,7 +356,7 @@ that contain the <code class="highlighter-rouge">taglevel</code> and <code class
 for this is that a <code class="highlighter-rouge">dict</code> is not <code class="highlighter-rouge">hashable</code> thus meaning
 it cannot be an element of a <code class="highlighter-rouge">set</code>.</p>
 
-<p>So in the case of</p>
+<p>So in the case of this example entry</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="p">{</span>
     <span class="s">"tag"</span><span class="p">:</span> <span class="p">[</span>
@@ -342,12 +370,12 @@ it cannot be an element of a <code class="highlighter-rouge">set</code>.</p>
 </code></pre>
 </div>
 
-<p>We’re would have</p>
+<p>Our resulting variables would be</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">parent</span>   <span class="o">=</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'NoLevel_1'</span><span class="p">}</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2</div><code><span class="n">parent</span>   <span class="o">=</span> <span class="p">{</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'NoLevel_1'</span><span class="p">}</span>
 <span class="n">children</span> <span class="o">=</span> <span class="p">[</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">'Fruit'</span><span class="p">)</span> <span class="p">]</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>We then use <code class="highlighter-rouge">result[parent['name']].update(children)</code> to <em>“add”</em>
 the list of children to the <code class="highlighter-rouge">set</code> in <code class="highlighter-rouge">result</code> that is pointed to 
@@ -384,10 +412,21 @@ we must then transform into the final output.</p>
 
 <p>We’ve performed the transformation using some <em>comprehensions</em>.</p>
 
-<p>We could have done it without them by creating a new list
+<p>We could have instead done it by creating a new list
 and using <code class="highlighter-rouge">.append()</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">final_result</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12</div><code><span class="n">final_result</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="n">item</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">'name'</span><span class="p">:</span>     <span class="n">parent</span><span class="p">,</span>
@@ -399,12 +438,19 @@ and using <code class="highlighter-rouge">.append()</code></p>
         <span class="n">children</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
     <span class="n">item</span><span class="p">[</span><span class="s">'tag_child'</span><span class="p">]</span> <span class="o">=</span> <span class="n">children</span>
     <span class="n">final_result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>I find the <em>comprehension</em> version prettier.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">result</span> <span class="o">=</span> <span class="p">[</span> 
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9</div><code><span class="n">result</span> <span class="o">=</span> <span class="p">[</span> 
     <span class="p">{</span>
         <span class="s">'name'</span><span class="p">:</span> <span class="n">parent</span><span class="p">,</span> 
         <span class="s">'tag_child'</span><span class="p">:</span> <span class="p">[</span>
@@ -413,8 +459,7 @@ and using <code class="highlighter-rouge">.append()</code></p>
         <span class="s">'taglevel'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
     <span class="p">}</span> <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
 <span class="p">]</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Feel free to use whichever style you prefer.</p>
 

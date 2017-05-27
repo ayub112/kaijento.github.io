@@ -213,7 +213,20 @@ we can loop over all the <em>sibling</em> <code class="highlighter-rouge">&lt;p&
 
 <p>If we combine it all together…</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14</div><code><span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 
 <span class="n">url</span>  <span class="o">=</span> <span class="s">'http://www.merriam-webster.com/word-of-the-day'</span>
@@ -227,8 +240,7 @@ we can loop over all the <em>sibling</em> <code class="highlighter-rouge">&lt;p&
 <span class="k">while</span> <span class="n">tag</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">'p'</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="n">tag</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
     <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">find_next_sibling</span><span class="p">()</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>… and the output it produced.</p>
 

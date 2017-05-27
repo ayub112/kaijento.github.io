@@ -561,12 +561,14 @@ the last modification time.</p>
 
 <p>Written out in “full-form” it could look like:</p>
 
-<div class="language-perl highlighter-rouge"><pre class="highlight"><code><span class="k">my</span> <span class="nv">@files</span> <span class="o">=</span> <span class="nb">sort</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span> <span class="nb">glob</span> <span class="s">"*"</span><span class="p">;</span>
+<div class="language-perl-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="k">my</span> <span class="nv">@files</span> <span class="o">=</span> <span class="nb">sort</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span> <span class="nb">glob</span> <span class="s">"*"</span><span class="p">;</span>
 <span class="k">for</span> <span class="k">my</span> <span class="nv">$file</span> <span class="p">(</span><span class="nv">@files</span><span class="p">)</span> <span class="p">{</span>
     <span class="nb">system</span> <span class="s">"echo"</span><span class="p">,</span> <span class="s">"mv"</span><span class="p">,</span> <span class="s">"-v"</span><span class="p">,</span> <span class="s">"--"</span><span class="p">,</span> <span class="nv">$file</span><span class="p">,</span> <span class="o">...</span>
 <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>The <code class="highlighter-rouge">$_</code> in our one-liner is called the <em>Default Variable</em>.
 If you don’t supply a variable name to the <code class="highlighter-rouge">for</code> loop <code class="highlighter-rouge">$_</code> will
@@ -621,13 +623,16 @@ f
 
 <p>You can of course just write it “normally” which could look something like:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">subprocess</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">subprocess</span>
     
 <span class="n">filenames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s">"."</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getmtime</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">count</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
     <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p><code class="highlighter-rouge">sorted()</code> can take a <em>“callback”</em> (the name of a function to call or
 an <em>“inlined”</em> function created with <code class="highlighter-rouge">lambda</code>) via the <code class="highlighter-rouge">key</code> argument.</p>

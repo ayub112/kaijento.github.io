@@ -145,7 +145,35 @@ expressions to parse out the bits we need.</p>
 <p>Yes, regular expressions. Yes, you’re not supposed to use them like 
 <em>evar!!</em> Yes, you’re not supposed to use them on XML, etc. etc.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">fileinput</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sys</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</div><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">fileinput</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="n">fieldnames</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s">'EA'</span><span class="p">,</span> <span class="s">'I3'</span><span class="p">,</span> <span class="s">'TP'</span><span class="p">,</span> <span class="s">'TI'</span><span class="p">,</span> <span class="s">'ST'</span><span class="p">,</span> <span class="s">'ED'</span><span class="p">,</span> <span class="s">'AU'</span><span class="p">,</span> 
@@ -174,8 +202,7 @@ expressions to parse out the bits we need.</p>
     <span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s">'&lt;/Record&gt;'</span><span class="p">:</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
         <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>The regular <code class="highlighter-rouge">csv.writer</code> deals with lists. If you do not
 have the correct amount of values in your list you would have
@@ -282,7 +309,35 @@ is to only return <code class="highlighter-rouge">end</code> events i.e. the clo
 in the requirements due to the size of the data being processed. <code class="highlighter-rouge">lxml</code> is
 an interface to the <code class="highlighter-rouge">libxml2</code> and <code class="highlighter-rouge">libxslt</code> C libraries.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">lxml.etree</span><span class="o">,</span> <span class="nn">sys</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29</div><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">lxml.etree</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="n">xmlfile</span> <span class="o">=</span> <span class="s">'input.xml'</span>
 
@@ -311,8 +366,7 @@ an interface to the <code class="highlighter-rouge">libxml2</code> and <code cla
             <span class="n">row</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">+=</span> <span class="s">" "</span> <span class="o">+</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">row</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Just a couple of changes from our previous version.</p>
 
@@ -346,7 +400,40 @@ an opening tag e.g. <code class="highlighter-rouge">&lt;AUS&gt;</code> so we did
 add a check to skip any tag that is not a <code class="highlighter-rouge">Record</code> or 
 is not contained in <code class="highlighter-rouge">fieldnames</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">lxml.etree</span><span class="o">,</span> <span class="nn">sys</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34</div><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">lxml.etree</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="n">xmlfile</span> <span class="o">=</span> <span class="s">'input.xml'</span>
 
@@ -380,8 +467,7 @@ is not contained in <code class="highlighter-rouge">fieldnames</code></p>
             <span class="n">row</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">+=</span> <span class="s">" "</span> <span class="o">+</span> <span class="n">content</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">row</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>We’ve created <code class="highlighter-rouge">tags = set(fieldnames)</code> the reason being that testing
 if something is in a <code class="highlighter-rouge">set</code> is cheaper / <em>“faster”</em> than testing 

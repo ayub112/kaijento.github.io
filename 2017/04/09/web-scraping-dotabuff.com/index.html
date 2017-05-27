@@ -369,10 +369,10 @@ blocks the default <code class="highlighter-rouge">urllib</code> and <code class
 which returns the removed tag if needed. Written out fully using <code class="highlighter-rouge">find_all()</code>
 and <code class="highlighter-rouge">find()</code> calls it would look like:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'tbody'</span><span class="p">)</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'tr'</span><span class="p">):</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2</div><code><span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'tbody'</span><span class="p">)</span><span class="o">.</span><span class="n">find_all</span><span class="p">(</span><span class="s">'tr'</span><span class="p">):</span>
     <span class="n">tr</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span><span class="o">.</span><span class="n">decompse</span><span class="p">()</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>I prefer to use the shorthand variations though.</p>
 

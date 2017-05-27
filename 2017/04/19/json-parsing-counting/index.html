@@ -127,27 +127,31 @@ the leading <code class="highlighter-rouge">has_</code> string should be removed
 <p>We’re working on a Linux command line so we will start with a solution
 using Python.</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python count-has.py
-<span class="o">{</span>
-    <span class="s2">"email"</span>: 2, 
-    <span class="s2">"slack"</span>: 1
-<span class="o">}</span>
+<pre><code class="language-jq">$ python count-has.py
+{
+    "email": 2, 
+    "slack": 1
+}
 </code></pre>
-</div>
 
 <p>Here is the code we ran.</p>
 
 <p><code class="highlighter-rouge">count-has.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">json</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7</div><code><span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span>   <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'input.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
     <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">)</span>
     <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>When you need to count things in Python you could use a <code class="highlighter-rouge">dict</code> or a <code class="highlighter-rouge">collections.defaultdict</code>
 however there is a <code class="highlighter-rouge">collections.Counter</code> object which simplifies things further.</p>
@@ -174,13 +178,16 @@ look odd if you’ve never seen that or a <em>list comprehension</em> before.</p
 
 <p>Let’s rewrite it using regular <code class="highlighter-rouge">for</code> loops.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="n">c</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">j</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">v</span><span class="p">:</span>
             <span class="n">c</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">k</span><span class="p">[</span><span class="mi">4</span><span class="p">:]])</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Let’s explain the variable names:</p>
 
@@ -195,13 +202,16 @@ look odd if you’ve never seen that or a <em>list comprehension</em> before.</p
 <p>As we’ve split it out into regular <code class="highlighter-rouge">for</code> loops we may as well choose some descriptive
 variable names.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="n">count</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">'has_'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="p">:</span>
             <span class="n">count</span><span class="o">.</span><span class="n">update</span><span class="p">([</span><span class="n">key</span><span class="p">[</span><span class="mi">4</span><span class="p">:]])</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>So <code class="highlighter-rouge">update()</code> adds a new item to a <code class="highlighter-rouge">Counter</code> object. The reason we need to wrap <code class="highlighter-rouge">key[4:]</code>
 in a list is because if you pass a string to a <code class="highlighter-rouge">Counter</code> it will split it up into
@@ -239,23 +249,22 @@ implied.</p>
 <p>A good way to help understand <code class="highlighter-rouge">jq</code> commands is to break each component down
 and run them separately to visualize what’s happening.</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[])'</span> input.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"key"</span>: <span class="s2">"detector"</span>,
-    <span class="s2">"value"</span>: <span class="s2">"&lt;censored&gt;"</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
-    <span class="s2">"value"</span>: <span class="nb">true</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key"</span>: <span class="s2">"has_hipchat"</span>,
-    <span class="s2">"value"</span>: <span class="nb">false</span>
-  <span class="o">}</span>,
-<span class="o">[</span>...]
+<pre><code class="language-jq">$ jq 'map(to_entries[])' input.json
+[
+  {
+    "key": "detector",
+    "value": "&lt;censored&gt;"
+  },
+  {
+    "key": "has_email",
+    "value": true
+  },
+  {
+    "key": "has_hipchat",
+    "value": false
+  },
+[...]
 </code></pre>
-</div>
 
 <p><code class="highlighter-rouge">map(to_entries[])</code> is equivalent to <code class="highlighter-rouge">[ .[] | to_entries[] ]</code> so it’s a way to loop
 over each <em>key, value</em> pair of each object and return a <em>“list”</em>.</p>
@@ -264,48 +273,46 @@ over each <em>key, value</em> pair of each object and return a <em>“list”</e
 start with <code class="highlighter-rouge">has_</code> and have a <em>“truthy”</em> value. There is a <code class="highlighter-rouge">startswith</code> function
 but we can also use <em>“slicing”</em>.</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value))'</span> input.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
-    <span class="s2">"value"</span>: <span class="nb">true</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
-    <span class="s2">"value"</span>: <span class="nb">true</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key"</span>: <span class="s2">"has_slack"</span>,
-    <span class="s2">"value"</span>: <span class="nb">true</span>
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq 'map(to_entries[] | select(.key[:4] == "has_" and .value))' input.json
+[
+  {
+    "key": "has_email",
+    "value": true
+  },
+  {
+    "key": "has_email",
+    "value": true
+  },
+  {
+    "key": "has_slack",
+    "value": true
+  }
+]
 </code></pre>
-</div>
 
 <p>So we have a <em>list</em> of 3 objects. What we need to do is to <em>group</em> the objects
 together based on their <em>key</em>. For that we can use <code class="highlighter-rouge">group_by(.key)</code></p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key)'</span> input.json
-<span class="o">[</span>
-  <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
-      <span class="s2">"value"</span>: <span class="nb">true</span>
-    <span class="o">}</span>,
-    <span class="o">{</span>
-      <span class="s2">"key"</span>: <span class="s2">"has_email"</span>,
-      <span class="s2">"value"</span>: <span class="nb">true</span>
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">"key"</span>: <span class="s2">"has_slack"</span>,
-      <span class="s2">"value"</span>: <span class="nb">true</span>
-    <span class="o">}</span>
-  <span class="o">]</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq 'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key)' input.json
+[
+  [
+    {
+      "key": "has_email",
+      "value": true
+    },
+    {
+      "key": "has_email",
+      "value": true
+    }
+  ],
+  [
+    {
+      "key": "has_slack",
+      "value": true
+    }
+  ]
+]
 </code></pre>
-</div>
 
 <p>Now we have a <em>list of lists</em> so what we need to do is:</p>
 
@@ -314,17 +321,16 @@ together based on their <em>key</em>. For that we can use <code class="highlight
   <li>get their length</li>
 </ul>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key) | map({(.[0].key[4:]): length})'</span> input.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"email"</span>: 2
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"slack"</span>: 1
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq 'map(to_entries[] | select(.key[:4] == "has_" and .value)) | group_by(.key) | map({(.[0].key[4:]): length})' input.json
+[
+  {
+    "email": 2
+  },
+  {
+    "slack": 1
+  }
+]
 </code></pre>
-</div>
 
 <p>Because we have a <em>list of lists</em> we use <code class="highlighter-rouge">map()</code> to iterate over each <em>sublist</em>. 
 <code class="highlighter-rouge">.[0].key</code> extracts <code class="highlighter-rouge">key</code> from the first item in each <em>sublist</em>. We know they 
@@ -346,22 +352,21 @@ result of the <code class="highlighter-rouge">length</code> function which will 
 <p>We still have a list of multiple objects so we need the final call to <code class="highlighter-rouge">add</code> to flatten
 them down into a single object.</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[{"name": "me"},{"age": "539"}]'</span> | jq 
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"name"</span>: <span class="s2">"me"</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"age"</span>: <span class="s2">"539"</span>
-  <span class="o">}</span>
-<span class="o">]</span>
-<span class="gp">$ </span><span class="nb">echo</span> <span class="s1">'[{"name": "me"},{"age": "539"}]'</span> | jq add
-<span class="o">{</span>
-  <span class="s2">"name"</span>: <span class="s2">"me"</span>,
-  <span class="s2">"age"</span>: <span class="s2">"539"</span>
-<span class="o">}</span>
+<pre><code class="language-jq">$ echo '[{"name": "me"},{"age": "539"}]' | jq 
+[
+  {
+    "name": "me"
+  },
+  {
+    "age": "539"
+  }
+]
+$ echo '[{"name": "me"},{"age": "539"}]' | jq add
+{
+  "name": "me",
+  "age": "539"
+}
 </code></pre>
-</div>
 
 <a name="thats-it"></a>
 <h2 class="section-header">

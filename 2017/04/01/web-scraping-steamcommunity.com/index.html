@@ -307,7 +307,30 @@ all of this for you and more.</p>
 
 <p><code class="highlighter-rouge">steamcommunity.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">scrapy</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</div><code><span class="kn">import</span> <span class="nn">scrapy</span>
 
 <span class="n">group</span> <span class="o">=</span> <span class="s">'KeyVendorNet'</span>
 
@@ -331,8 +354,7 @@ all of this for you and more.</p>
     <span class="k">def</span> <span class="nf">extract_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">href</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">css</span><span class="p">(</span><span class="s">'.linkFriend::attr(href)'</span><span class="p">):</span>
             <span class="k">yield</span> <span class="p">{</span> <span class="s">'href'</span><span class="p">:</span> <span class="n">href</span><span class="o">.</span><span class="n">extract</span><span class="p">()</span> <span class="p">}</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>In the simplest form we can use the <code class="highlighter-rouge">scrapy runspider</code> command to run our “spider”, “crawler” or
 whatever you wish to call it. You define a <code class="highlighter-rouge">class</code> that inherits from <code class="highlighter-rouge">scrapy.Spider</code>. It must

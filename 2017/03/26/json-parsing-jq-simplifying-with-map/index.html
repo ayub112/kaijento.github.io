@@ -140,28 +140,27 @@ in the object?”<em></em></em></p>
 <p>This however gets rid of our original array. We can just wrap the whole expression
 inside <code class="highlighter-rouge">[]</code> to get back an array:</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'[.[] | . + {"key3": [.key1, .key2]}]'</span> input.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"key1"</span>: <span class="s2">"a"</span>,
-    <span class="s2">"key2"</span>: <span class="s2">"b"</span>,
-    <span class="s2">"omg"</span>: <span class="s2">"lol"</span>,
-    <span class="s2">"key3"</span>: <span class="o">[</span>
-      <span class="s2">"a"</span>,
-      <span class="s2">"b"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key1"</span>: <span class="s2">"c"</span>,
-    <span class="s2">"key2"</span>: <span class="s2">"d"</span>,
-    <span class="s2">"key3"</span>: <span class="o">[</span>
-      <span class="s2">"c"</span>,
-      <span class="s2">"d"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq '[.[] | . + {"key3": [.key1, .key2]}]' input.json
+[
+  {
+    "key1": "a",
+    "key2": "b",
+    "omg": "lol",
+    "key3": [
+      "a",
+      "b"
+    ]
+  },
+  {
+    "key1": "c",
+    "key2": "d",
+    "key3": [
+      "c",
+      "d"
+    ]
+  }
+]
 </code></pre>
-</div>
 
 <a name="update"></a>
 <h2 class="section-header">
@@ -172,28 +171,27 @@ inside <code class="highlighter-rouge">[]</code> to get back an array:</p>
 <p>Another way to write it would be to use <code class="highlighter-rouge">|=</code> which “updates” the left hand side
 so we don’t lose the original structure:</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'.[] |= . + {"key3": [.key1, .key2]}'</span> input.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"key1"</span>: <span class="s2">"a"</span>,
-    <span class="s2">"key2"</span>: <span class="s2">"b"</span>,
-    <span class="s2">"omg"</span>: <span class="s2">"lol"</span>,
-    <span class="s2">"key3"</span>: <span class="o">[</span>
-      <span class="s2">"a"</span>,
-      <span class="s2">"b"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key1"</span>: <span class="s2">"c"</span>,
-    <span class="s2">"key2"</span>: <span class="s2">"d"</span>,
-    <span class="s2">"key3"</span>: <span class="o">[</span>
-      <span class="s2">"c"</span>,
-      <span class="s2">"d"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq '.[] |= . + {"key3": [.key1, .key2]}' input.json
+[
+  {
+    "key1": "a",
+    "key2": "b",
+    "omg": "lol",
+    "key3": [
+      "a",
+      "b"
+    ]
+  },
+  {
+    "key1": "c",
+    "key2": "d",
+    "key3": [
+      "c",
+      "d"
+    ]
+  }
+]
 </code></pre>
-</div>
 
 <a name="map"></a>
 <h2 class="section-header">
@@ -204,28 +202,27 @@ so we don’t lose the original structure:</p>
 <p>Finally there is <code class="highlighter-rouge">map()</code> which processes an array and produces an array. This allows us
 to simplify the expression down to:</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(. + {"key3": [.key1, .key2]})'</span> input.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"key1"</span>: <span class="s2">"a"</span>,
-    <span class="s2">"key2"</span>: <span class="s2">"b"</span>,
-    <span class="s2">"omg"</span>: <span class="s2">"lol"</span>,
-    <span class="s2">"key3"</span>: <span class="o">[</span>
-      <span class="s2">"a"</span>,
-      <span class="s2">"b"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"key1"</span>: <span class="s2">"c"</span>,
-    <span class="s2">"key2"</span>: <span class="s2">"d"</span>,
-    <span class="s2">"key3"</span>: <span class="o">[</span>
-      <span class="s2">"c"</span>,
-      <span class="s2">"d"</span>
-    <span class="o">]</span>
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq 'map(. + {"key3": [.key1, .key2]})' input.json
+[
+  {
+    "key1": "a",
+    "key2": "b",
+    "omg": "lol",
+    "key3": [
+      "a",
+      "b"
+    ]
+  },
+  {
+    "key1": "c",
+    "key2": "d",
+    "key3": [
+      "c",
+      "d"
+    ]
+  }
+]
 </code></pre>
-</div>
 
 <p>So <code class="highlighter-rouge">map(expression)</code> is just another way of writing <code class="highlighter-rouge">[ .[] | expression ]</code></p>
 

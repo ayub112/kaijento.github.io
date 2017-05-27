@@ -277,7 +277,24 @@ https://www.nasa.gov/sites/default/files/thumbnails/image/final_earth_obs_fleet0
 
 <p>And the code that generated it.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18</div><code><span class="kn">import</span> <span class="nn">requests</span>
 
 <span class="n">api</span>    <span class="o">=</span> <span class="s">'https://www.nasa.gov/api/1/'</span>
 <span class="n">public</span> <span class="o">=</span> <span class="s">'https://www.nasa.gov/sites/default/files'</span>
@@ -295,8 +312,7 @@ https://www.nasa.gov/sites/default/files/thumbnails/image/final_earth_obs_fleet0
             <span class="k">for</span> <span class="n">image</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s">'images'</span><span class="p">]:</span>
                 <span class="n">uri</span> <span class="o">=</span> <span class="n">image</span><span class="p">[</span><span class="s">'uri'</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">'public:/'</span><span class="p">,</span> <span class="n">public</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">print</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <a name="code-breakdown"></a>
 <h2 class="section-header">

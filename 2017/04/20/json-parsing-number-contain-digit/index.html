@@ -148,32 +148,33 @@ loaded by the <code class="highlighter-rouge">json</code> module.</p>
 <p>The <code class="highlighter-rouge">found = [ ... for ... in ... ]</code> syntax here is called a <em>list comprehension</em>. 
 It’s the equivalent to</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="n">found</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
     <span class="k">if</span> <span class="s">'1'</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">person</span><span class="p">[</span><span class="s">'id'</span><span class="p">]):</span>
         <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>It’s just <em>“shorthand syntax”</em> for creating a list.</p>
 
 <p>You could write the whole command as a <em>“one-liner”</em></p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python -c <span class="s1">'import json, sys; print(json.dumps(
+<pre><code class="language-jq">$ python -c 'import json, sys; print(json.dumps(
     [person for person in json.load(sys.stdin) if "1" in str(person["id"])], 
-    indent=4))'</span> &lt; id.json
-<span class="o">[</span>
-    <span class="o">{</span>
-        <span class="s2">"name"</span>: <span class="s2">"alice"</span>, 
-        <span class="s2">"id"</span>: 1
-    <span class="o">}</span>, 
-    <span class="o">{</span>
-        <span class="s2">"name"</span>: <span class="s2">"bob"</span>, 
-        <span class="s2">"id"</span>: 201
-    <span class="o">}</span>
-<span class="o">]</span>
+    indent=4))' &lt; id.json
+[
+    {
+        "name": "alice", 
+        "id": 1
+    }, 
+    {
+        "name": "bob", 
+        "id": 201
+    }
+]
 </code></pre>
-</div>
 
 <p>But if you’re looking for a <em>“one-liner”</em> you may wish to check out <code class="highlighter-rouge">jq</code></p>
 
@@ -198,51 +199,48 @@ equivalent of our <code class="highlighter-rouge">for person in people</code> lo
 <p>We have the same issue as we did with the Python version though.
 We need to convert <code class="highlighter-rouge">.id</code> to a string which we can do with <code class="highlighter-rouge">tostring</code></p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'.[] | select(.id | tostring | contains("1"))'</span> id.json
-<span class="o">{</span>
-  <span class="s2">"name"</span>: <span class="s2">"alice"</span>,
-  <span class="s2">"id"</span>: 1
-<span class="o">}</span>
-<span class="o">{</span>
-  <span class="s2">"name"</span>: <span class="s2">"bob"</span>,
-  <span class="s2">"id"</span>: 201
-<span class="o">}</span>
+<pre><code class="language-jq">$ jq '.[] | select(.id | tostring | contains("1"))' id.json
+{
+  "name": "alice",
+  "id": 1
+}
+{
+  "name": "bob",
+  "id": 201
+}
 </code></pre>
-</div>
 
 <p>You may noticed though that we have lost the original structure
 but we can just add it back in by surrounding our filter with <code class="highlighter-rouge">[]</code></p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'[ .[] | select(.id | tostring | contains("1")) ]'</span> id.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"name"</span>: <span class="s2">"alice"</span>,
-    <span class="s2">"id"</span>: 1
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"name"</span>: <span class="s2">"bob"</span>,
-    <span class="s2">"id"</span>: 201
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq '[ .[] | select(.id | tostring | contains("1")) ]' id.json
+[
+  {
+    "name": "alice",
+    "id": 1
+  },
+  {
+    "name": "bob",
+    "id": 201
+  }
+]
 </code></pre>
-</div>
 
 <p><code class="highlighter-rouge">map(x)</code> is another way of writing <code class="highlighter-rouge">[ .[] | x ]</code> so you may also
 see the command written as</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'map(select(.id | tostring | contains("1")))'</span> id.json
-<span class="o">[</span>
-  <span class="o">{</span>
-    <span class="s2">"name"</span>: <span class="s2">"alice"</span>,
-    <span class="s2">"id"</span>: 1
-  <span class="o">}</span>,
-  <span class="o">{</span>
-    <span class="s2">"name"</span>: <span class="s2">"bob"</span>,
-    <span class="s2">"id"</span>: 201
-  <span class="o">}</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq 'map(select(.id | tostring | contains("1")))' id.json
+[
+  {
+    "name": "alice",
+    "id": 1
+  },
+  {
+    "name": "bob",
+    "id": 201
+  }
+]
 </code></pre>
-</div>
 
 </div>
 

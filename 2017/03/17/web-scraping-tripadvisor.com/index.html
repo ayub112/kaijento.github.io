@@ -94,7 +94,7 @@ The first clue here is the <code class="highlighter-rouge">isAsdf</code> paramet
     ta.trackEventOnPage('Eatery_Listing', 'Website', 9750183, 1); 
     ta.util.cookie.setPIDCookie(15190); 
     ta.call('ta.util.link.targetBlank', event, this, {'aHref':
-      'LqMWJQzZYUWJQpEcYGII26XombQQoqnQQQQoqnqgoqnQQQQoqnQQQQoqnQQQQoqnqgoqnQQQQoqn...', 
+      'LqMWJQzZYUWJQpEcYGII26XombQQoqnQQQQoqnqgoqnQQQQoqnQQQQoqnQQQQoqnqgoqnQQQQoqn...',
       'isAsdf':true})"</span><span class="nt">&gt;</span>Site Web
   <span class="nt">&lt;/span&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
@@ -144,7 +144,60 @@ and perform a <em>Search all scripts</em>.</p>
 <p>So if we search for <code class="highlighter-rouge">asdf</code> inside <code class="highlighter-rouge">tripadvisor-c-v21056403377b.js</code> we will find the 
 following:</p>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">a</span><span class="p">.</span><span class="nx">asdf</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
+<div class="language-javascript-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54</div><code><span class="nx">a</span><span class="p">.</span><span class="nx">asdf</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">f</span><span class="p">)</span> <span class="p">{</span>
     <span class="kd">var</span> <span class="nx">j</span> <span class="o">=</span> <span class="p">{</span>
       <span class="s1">''</span><span class="p">:</span> <span class="p">[</span>
         <span class="s1">'&amp;'</span><span class="p">,</span> <span class="s1">'='</span><span class="p">,</span> <span class="s1">'p'</span><span class="p">,</span> <span class="s1">'6'</span><span class="p">,</span> <span class="s1">'?'</span><span class="p">,</span> <span class="s1">'H'</span><span class="p">,</span> <span class="s1">'%'</span><span class="p">,</span> <span class="s1">'B'</span><span class="p">,</span> <span class="s1">'.com'</span><span class="p">,</span> <span class="s1">'k'</span><span class="p">,</span> <span class="s1">'9'</span><span class="p">,</span> <span class="s1">'.html'</span><span class="p">,</span>
@@ -198,12 +251,22 @@ following:</p>
     <span class="p">}</span>
     <span class="k">return</span> <span class="nx">e</span>
 <span class="p">};</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>It refers to another function <code class="highlighter-rouge">getOffset</code> which we can also find in the file</p>
 
-<div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="nx">a</span><span class="p">.</span><span class="nx">getOffset</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
+<div class="language-javascript-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12</div><code><span class="nx">a</span><span class="p">.</span><span class="nx">getOffset</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">d</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">if</span> <span class="p">(</span><span class="nx">d</span> <span class="o">&gt;=</span> <span class="mi">97</span> <span class="o">&amp;&amp;</span> <span class="nx">d</span> <span class="o">&lt;=</span> <span class="mi">122</span><span class="p">)</span> <span class="p">{</span>
       <span class="k">return</span> <span class="nx">d</span> <span class="o">-</span> <span class="mi">61</span>
     <span class="p">}</span>
@@ -215,8 +278,7 @@ following:</p>
     <span class="p">}</span>
     <span class="k">return</span> <span class="o">-</span> <span class="mi">1</span>
 <span class="p">};</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <a name="writing-asdf-in-python"></a>
 <h2 class="section-header">
@@ -228,7 +290,70 @@ following:</p>
 <em>“obfuscation”</em> tecnhique they are using so we will just port them straight
 to Python.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="nf">asdf</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64</div><code><span class="k">def</span> <span class="nf">asdf</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">get_offset</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
         <span class="k">if</span> <span class="mi">97</span> <span class="o">&lt;=</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">122</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">61</span> 
@@ -292,8 +417,7 @@ to Python.</p>
         <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="k">return</span> <span class="n">b</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <a name="partner_key"></a>
 <h2 class="section-header">

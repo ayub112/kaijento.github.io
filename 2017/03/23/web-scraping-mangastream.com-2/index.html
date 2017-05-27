@@ -109,7 +109,30 @@ CREATE: demons_plan/010/19.png
 
 <p>Here is how we did it:</p>
 
-<div class="language-bash highlighter-rouge"><pre class="highlight"><code>mangastream <span class="o">()</span> <span class="o">{</span>
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24</div><code>mangastream <span class="o">()</span> <span class="o">{</span>
     <span class="nv">url</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%/</span><span class="k">}</span>
 
     <span class="nv">IFS</span><span class="o">=</span>/ <span class="nb">read</span> -a parts <span class="o">&lt;&lt;&lt;</span> <span class="nv">$url</span>
@@ -133,8 +156,7 @@ CREATE: demons_plan/010/19.png
         curl -# <span class="s2">"</span><span class="nv">$img</span><span class="s2">"</span> -o <span class="s2">"</span><span class="nv">$dirpath</span><span class="s2">/</span><span class="nv">$filename</span><span class="s2">"</span>
     <span class="k">done</span>
 <span class="o">}</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Again we’re fetching the first page twice as it allows us to avoid duplicating code and
 an extra request isn’t going to hurt.</p>

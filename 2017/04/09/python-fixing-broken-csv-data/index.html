@@ -108,14 +108,18 @@ after the dollar sign from which we want to remove the comma.</p>
 
 <p><code class="highlighter-rouge">not-quite-csv.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">fileinput</span><span class="o">,</span> <span class="nn">re</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6</div><code><span class="kn">import</span> <span class="nn">fileinput</span><span class="o">,</span> <span class="nn">re</span>
 
 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">():</span>
     <span class="n">rank</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">revenue</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'(</span><span class="err">\</span><span class="s">d+)(.+)</span><span class="err">\</span><span class="s">$(.+)'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
         <span class="n">revenue</span> <span class="o">=</span> <span class="n">revenue</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">','</span><span class="p">,</span> <span class="s">''</span><span class="p">)</span>
             <span class="k">print</span><span class="p">(</span><span class="s">','</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">rank</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">revenue</span><span class="p">]))</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>The <code class="highlighter-rouge">fileinput</code> module is a simple way to write a filter-like program that
 processes input line by line. It handles reading data from filenames passed

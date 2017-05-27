@@ -68,10 +68,10 @@
 <div class="post-content">
   <p>Given some lines of data that look like</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>IP147.006.000.012.047.1704111352
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2</div><code>IP147.006.000.012.047.1704111352
 IP147.006.000.033.000.1713322001
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>We need to extract the last <code class="highlighter-rouge">10</code> digits (i.e. everything after
 the final <code class="highlighter-rouge">.</code> in the string) and make sure it is a <em>“valid date”</em>
@@ -322,7 +322,7 @@ to catch any potential error.</p>
 <p>So we first check if we got a <code class="highlighter-rouge">match</code> as <code class="highlighter-rouge">re.search</code> will return <code class="highlighter-rouge">None</code>
 if it doesn’t match.</p>
 
-<p><code class="highlighter-rouge">None</code> is a <em>Falsey</em> value meaning it evaluates to <code class="highlighter-rouge">False</code>.</p>
+<p><code class="highlighter-rouge">None</code> is a <em>“Falsey”</em> value meaning it evaluates to <code class="highlighter-rouge">False</code></p>
 
 <p>If the line matches we extract the date which is contained in the first 
 <em>capture group</em> and we attempt to <code class="highlighter-rouge">strptime</code> it.</p>

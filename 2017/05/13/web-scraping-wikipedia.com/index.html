@@ -196,7 +196,28 @@ each individual <code class="highlighter-rouge">&lt;p&gt;</code> tag and store t
 <p>The actual goal was to extract or <em>“scrape”</em> the Plot summary for multiple
 films so here is an example of how one could create a loop to do so.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">requests</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</div><code><span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
 
 <span class="n">films</span> <span class="o">=</span> <span class="s">'Udta Punjab'</span><span class="p">,</span> <span class="s">'Dangal (film)'</span>
@@ -218,8 +239,7 @@ films so here is an example of how one could create a loop to do so.</p>
             <span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span><span class="o">.</span><span class="n">find_next_sibling</span><span class="p">()</span>
 
         <span class="c"># do something with plot</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>We’re setting the <code class="highlighter-rouge">User-Agent</code> header here to <code class="highlighter-rouge">Mozilla/5.0</code>
 as the default <code class="highlighter-rouge">requests</code> value is commonly blocked. In 

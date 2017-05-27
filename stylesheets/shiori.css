@@ -6387,7 +6387,8 @@ samp {
   font-family: Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Consolas,Courier New,monospace,sans-serif; }
 
 pre.highlight {
-  font-size: 85.4%; }
+  font-size: 85.4%;
+  font-size: 84%; }
 
 pre code {
   font-weight: normal; }
@@ -6439,7 +6440,7 @@ h1 {
   font-size: 29px; }
 
 h1, h2, h3 {
-  font-family: Open Sans; }
+  font-family: Open Sans, Helvetica, "Helvetica Neue", Arial, sans-serif; }
 
 .navbar-static-top {
   border-bottom: 2px solid;
@@ -6461,6 +6462,8 @@ h1, h2, h3 {
   margin-top: 10%;
   padding-left: 4%;
   padding-right: 4%;
+  padding-left: 2.5%;
+  padding-right: 2.5%;
   border-left: 1px solid #eee;
   border-right: 1px solid #eee; }
 
@@ -6502,7 +6505,9 @@ h2 .anchor:hover:after {
 
 .col-sm-12 {
   padding-left: 8px;
-  padding-right: 8px; }
+  padding-right: 8px;
+  padding-left: 7px;
+  padding-right: 7px; }
 
 .language-json .nt {
   font-weight: normal; }
@@ -6513,5 +6518,12 @@ div.lineno {
   border-right: 1px solid #eeeeee;
   margin: 0px 0.5em 0px 0px;
   padding-right: 0.5em;
-  font-size: 93%;
+  font-size: 90%;
   color: rgba(27, 31, 35, 0.46); }
+
+.post-header .preview {
+  font-size: 90%; }
+
+.navbar .container {
+  padding-left: 0;
+  padding-right: 0; }

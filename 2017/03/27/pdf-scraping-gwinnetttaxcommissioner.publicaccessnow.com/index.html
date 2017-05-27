@@ -75,10 +75,12 @@
 
 </div>
 <div class="post-content">
-  <p>Given a PDF file from 
-<a href="http://gwinnetttaxcommissioner.publicaccessnow.com">http://gwinnetttaxcommissioner.publicaccessnow.com</a>
-we need to extract certain text from it and convert it to CSV using Python. You could say we want to 
-<em>“Convert a PDF to TXT”</em> or even <em>“Convert a PDF to CSV”</em> with Python.</p>
+  <p>Given a PDF file taken from
+<a href="http://gwinnetttaxcommissioner.publicaccessnow.com">publicaccessnow.com</a>
+we need to extract certain text from it and convert it to CSV using Python.</p>
+
+<p>This could be considered an example of how to <em>“Convert a PDF to TXT”</em> or even 
+<em>“Convert a PDF to CSV”</em> using Python.</p>
 
 <a name="pdftotext"></a>
 <h2 class="section-header">
@@ -440,12 +442,32 @@ code</p>
 <p>Perl’s <code class="highlighter-rouge">-n</code> option makes it read input line-by-line.
 There is also <code class="highlighter-rouge">-p</code> which does the same but has an implicit <code class="highlighter-rouge">print</code> at the end.</p>
 
-<p>Let’s start from the end:</p>
+<p>Let’s start from the end.</p>
 
-<p><code class="highlighter-rouge">if s/\$ +/\$/, s/ (R\d{4}) *(\d{3}[A-Z]?) / $1$2 /, /^\d.+ [A-Z]{3} \d{4}$/</code></p>
+<p>The <code class="highlighter-rouge">if</code> statement consists of 3 conditions <em>“chained”</em> together with the <em>Comma Operator</em>.</p>
 
-<p>This should look somewhat familiar to you <code class="highlighter-rouge">s///</code> is just like the <code class="highlighter-rouge">re.sub()</code> we did in 
-Python. For backreferences we use <code class="highlighter-rouge">$</code> instead of <code class="highlighter-rouge">\</code> (although it does support <code class="highlighter-rouge">\</code>).</p>
+<ul>
+  <li><code class="highlighter-rouge">s/\$ +/\$/</code></li>
+  <li><code class="highlighter-rouge">s/ (R\d{4}) *(\d{3}[A-Z]?) / $1$2 /</code></li>
+  <li><code class="highlighter-rouge">/^\d.+ [A-Z]{3} \d{4}$/</code></li>
+</ul>
+
+<p>Using the <em>comma</em> is essentially the same as if we had written <code class="highlighter-rouge">if cond1 and cond2 and cond3</code></p>
+
+<p>This means that the <code class="highlighter-rouge">print map {} split</code> will happen only if all 3 conditions are <em>“true”</em>.</p>
+
+<p><code class="highlighter-rouge">s///</code> will return <em>“true”</em> if any substitution is made.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">echo </span>moo | perl -nle <span class="s1">'print s/o/a/ ? "yes" : "no"'</span>
+yes
+<span class="gp">$ </span><span class="nb">echo </span>moo | perl -nle <span class="s1">'print s/z/a/ ? "yes" : "no"'</span>
+no
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">s///</code> syntax is doing the same as our <code class="highlighter-rouge">re.sub()</code> calls in the Python example
+however to address backreferences <code class="highlighter-rouge">$</code> is preferred over <code class="highlighter-rouge">\</code> 
+(although Perl does support <code class="highlighter-rouge">\</code>).</p>
 
 <p>The <code class="highlighter-rouge">$</code> in the first replacement needs to be escaped because Perl has a variable named
 <code class="highlighter-rouge">$/</code> so the <code class="highlighter-rouge">\</code> stops Perl from interpreting it as that variable.</p>
@@ -453,13 +475,16 @@ Python. For backreferences we use <code class="highlighter-rouge">$</code> inste
 <p><code class="highlighter-rouge">/pattern/</code> does a match so with the above we’ve essentially done the equivalent of the 
 following Python:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code>    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code>    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
         <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
         <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
             <span class="o">...</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p><code class="highlighter-rouge">split / {2,}/</code> splits on 2 or more spaces and <code class="highlighter-rouge">",", join</code> joins them all together using
 the comma as the delimiter. So what is this <code class="highlighter-rouge">map { ... }</code> business? Well remember how 

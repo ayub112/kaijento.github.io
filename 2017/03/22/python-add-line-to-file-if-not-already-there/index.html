@@ -75,21 +75,24 @@ of the file i.e. <em>“append a line to a file”<em>.</em></em></p>
 
 <p>To open a file for reading and writing in Python you can use <code class="highlighter-rouge">r+</code> e.g.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3</div><code><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
         <span class="o">...</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>If you have not seen the <code class="highlighter-rouge">with</code> statement before it will automatically call <code class="highlighter-rouge">close()</code> 
 on the file when the block is exited so we don’t have to do:</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="n">fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'myfile'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
    <span class="o">...</span>
 <span class="n">fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p><code class="highlighter-rouge">fh</code> here is short for “filehandle”. Feel free to choose whatever name you prefer.</p>
 
@@ -119,7 +122,16 @@ can be done simply by using the <code class="highlighter-rouge">startswith()</co
 
 <p><code class="highlighter-rouge">add-line.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10</div><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">:</span>
@@ -129,8 +141,7 @@ can be done simply by using the <code class="highlighter-rouge">startswith()</co
             <span class="k">break</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="s">'Message-ID: omg lol'</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">fh</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <a name="fur-elise-wtf"></a>
 <h2 class="section-header">
@@ -200,7 +211,14 @@ Found.
 
 <p><code class="highlighter-rouge">add-line-re.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8</div><code><span class="kn">import</span> <span class="nn">re</span>
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'lines.txt'</span><span class="p">,</span> <span class="s">'r+'</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -208,8 +226,7 @@ Found.
         <span class="k">print</span><span class="p">(</span><span class="s">'Found.'</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'Message-ID: omg lol</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p><code class="highlighter-rouge">fh.read()</code> reads all of the contents into a single string (you may see this 
 referred to as <em>“slurping”</em>a file). If the file is too large to fit 
@@ -273,7 +290,22 @@ Message-ID: omg lol
 
 <p><code class="highlighter-rouge">add-line-n.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16</div><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -289,8 +321,7 @@ Message-ID: omg lol
         <span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">lines</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">line_number</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'Message-ID: omg lol</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
         <span class="n">fh</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>So we’ve had to use <code class="highlighter-rouge">readlines()</code> to store all the lines into a list. We loop through
 looking for a match like the first solution. If there is no match found we use
@@ -310,13 +341,16 @@ we must <code class="highlighter-rouge">- 1</code> from the line number where we
 
 <p>We have also resorted back to using <code class="highlighter-rouge">writelines()</code> as all our lines have line endings. We could have instead used</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">...</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="o">...</span>
 <span class="n">lines</span> <span class="o">=</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
 <span class="o">...</span>
 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="nb">file</span><span class="o">=</span><span class="n">fh</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p><code class="highlighter-rouge">splitlines()</code> will take a string and split it up into a list of lines whilst removing the line endings.</p>
 
@@ -329,12 +363,14 @@ we must <code class="highlighter-rouge">- 1</code> from the line number where we
 <p>You may ask seeing as we can <code class="highlighter-rouge">seek(0)</code> back to the start could be not then skip to where we want to
 insert our new line instead of having to store all the lines with <code class="highlighter-rouge">readlines()</code>?</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="n">fh</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">fh</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
 <span class="n">fh</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
 <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">'looooooooooooooooooooool</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat lines.txt
 line 1
@@ -351,7 +387,21 @@ looooooooooooooooooooool
   <a class="anchor" href="#stand-back-again-i-still-know-regex">stand back again… I still know regex…</a>
 </h2>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15</div><code><span class="kn">import</span> <span class="nn">re</span>
 
 <span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -366,8 +416,7 @@ looooooooooooooooooooool
         <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
             <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s">r'</span><span class="err">\</span><span class="s">1Message-ID: omg lol</span><span class="err">\</span><span class="s">n'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
         <span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>So we’ve essentially just reimplemented the following:</p>
 
@@ -380,7 +429,22 @@ without the need for the <code class="highlighter-rouge">search()</code> check:<
 
 <p><code class="highlighter-rouge">add-line-n-single-re.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16</div><code><span class="kn">import</span> <span class="nn">re</span>
 
 <span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
 
@@ -396,8 +460,7 @@ without the need for the <code class="highlighter-rouge">search()</code> check:<
     <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
         <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="s">r'</span><span class="err">\</span><span class="s">1Message-ID: omg lol</span><span class="err">\</span><span class="s">n</span><span class="err">\</span><span class="s">2'</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
     <span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>All of these approaches slurp the file. Is there a way to insert by reading the file line-by-line?</p>
 
@@ -430,7 +493,24 @@ line 5
 
 <p><code class="highlighter-rouge">add-line-n-fileinput.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18</div><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="n">filename</span>    <span class="o">=</span> <span class="s">'lines.txt'</span>
 <span class="n">line_number</span> <span class="o">=</span> <span class="mi">3</span>
@@ -448,8 +528,7 @@ line 5
         <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">line_number</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s">'Message-ID: lol'</span><span class="p">)</span>
         <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 <p>So without <code class="highlighter-rouge">inplace=True</code> it would just print the output. When using <code class="highlighter-rouge">inplace=True</code> 
 the content of the original file will be replaced by any output generated from <code class="highlighter-rouge">print()</code>.</p>
 

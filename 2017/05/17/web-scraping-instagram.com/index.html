@@ -87,7 +87,7 @@ displayed. Why is this?</p>
 <a href="https://www.instagram.com/thefatfoxcamden/">https://www.instagram.com/thefatfoxcamden/</a>
 for testing purposes (as they post awesome pictures).</p>
 
-<p>You should know that <a href="https://www.instagram.com/developer/">instagram has an api</a>.</p>
+<p>You should know that <a href="https://www.instagram.com/developer/">Instagram has an api</a>.</p>
 <ul>
   <li>You use it, taking the blue pill—the article ends.</li>
   <li>You take the red pill—you stay in Wonderland, 
@@ -95,10 +95,6 @@ and I show you how deep a <code class="highlighter-rouge">JSON</code> response g
 </ul>
 
 <p>Remember: all I’m offering is the truth. Nothing more.</p>
-
-<p>If you don’t need the truth and just want to see how to <em>“Scrape instagram in 30 lines
-of Python!!!!!”</em> the final code from this article is 
-<a href="https://github.com/kaijento/code/blob/master/webscraping/instagram.com/instagram.py">on github</a>.</p>
 
 <a name="developer-tools"></a>
 <h2 class="section-header">
@@ -372,7 +368,63 @@ do so.</p>
 headers were needed but you could of course just copy ALL the headers
 from the <code class="highlighter-rouge">Network</code> tab instead of trying to figure that out.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57</div><code><span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
 
 <span class="n">profile</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/thefatfoxcamden/'</span>
 <span class="n">api</span>     <span class="o">=</span> <span class="s">'https://www.instagram.com/query/'</span>
@@ -429,8 +481,7 @@ from the <code class="highlighter-rouge">Network</code> tab instead of trying to
     <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">cookies</span><span class="o">=</span><span class="p">{</span><span class="s">'csrftoken'</span><span class="p">:</span> <span class="n">csrftoken</span><span class="p">},</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
 
     <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Yes, to extract <code class="highlighter-rouge">id</code>, <code class="highlighter-rouge">csrf_token</code> and <code class="highlighter-rouge">end_cursor</code> we’re
 using <em>Regular Expressions!!!!!</em> which according to 
@@ -492,22 +543,26 @@ that passing a string to the <code class="highlighter-rouge">data</code> argumen
 <a href="/2017/05/05/poloniex-api-invalid-command/#the-data-argument">bypasses the setting of the Content-Type
 header</a> so we must set it manually.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3</div><code><span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">'Content-Type'</span><span class="p">:</span> <span class="s">'application/x-www-form-urlencoded'</span><span class="p">,</span>
     <span class="o">...</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Also note that because we’re using a string we must manually add the param name
 in our string data (i.e. the <code class="highlighter-rouge">q=</code>)</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">q</span> <span class="o">=</span> <span class="s">'''</span><span class="se">\
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="n">q</span> <span class="o">=</span> <span class="s">'''</span><span class="se">\
 </span><span class="s">q=ig_user(</span><span class="si">%</span><span class="s">s)+{...
 ...
 ...</span><span class="se">\
 </span><span class="s">'''</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>When we pass <code class="highlighter-rouge">data={'foo': 'bar'}</code> it gets turned into <code class="highlighter-rouge">foo=bar</code> i.e. <code class="highlighter-rouge">foo</code> is
 the param <em>name</em> and <code class="highlighter-rouge">bar</code> is the param <em>value</em>.</p>
@@ -797,7 +852,19 @@ seemed to work however we get back <code class="highlighter-rouge">HTML</code> i
 and we just saw how to extract it and load it up into <code class="highlighter-rouge">json.loads()</code> 
 so let’s give that approach a try here.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13</div><code><span class="kn">import</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
 
 <span class="n">profile</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/thefatfoxcamden/'</span>
 
@@ -810,8 +877,7 @@ so let’s give that approach a try here.</p>
     <span class="n">end_cursor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"end_cursor": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">print</span><span class="p">(</span><span class="n">caption</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Do note we’re using a regex to just extract the first <code class="highlighter-rouge">caption</code> from
 the <code class="highlighter-rouge">JSON</code> data as we’re only testing if the <em>“pagination”</em> is working.</p>
@@ -852,8 +918,36 @@ from earlier that processed each <em>“node”</em>.</p>
 
 <p><code class="highlighter-rouge">instagram.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30</div><code><span class="kn">import</span> <span class="nn">json</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span>
 
 <span class="n">user</span> <span class="o">=</span> <span class="s">'thefatfoxcamden'</span>
 
@@ -865,12 +959,15 @@ from earlier that processed each <em>“node”</em>.</p>
     <span class="n">end_cursor</span> <span class="o">=</span> <span class="s">''</span>
     <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
         <span class="k">print</span><span class="p">(</span><span class="s">'PAGE: '</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-        <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">'max_id'</span><span class="p">:</span> <span class="n">end_cursor</span><span class="p">})</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'window._sharedData = (</span><span class="err">\</span><span class="s">{.+?});&lt;/script&gt;'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">j</span>    <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">r</span>    <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">profile</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s">'max_id'</span><span class="p">:</span> <span class="n">end_cursor</span><span class="p">})</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+            <span class="s">r'window._sharedData = (</span><span class="err">\</span><span class="s">{.+?});&lt;/script&gt;'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">j</span><span class="p">[</span><span class="s">'entry_data'</span><span class="p">][</span><span class="s">'ProfilePage'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'user'</span><span class="p">][</span><span class="s">'media'</span><span class="p">][</span><span class="s">'nodes'</span><span class="p">]:</span> 
+        <span class="n">j</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">media</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="s">'entry_data'</span><span class="p">][</span><span class="s">'ProfilePage'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s">'user'</span><span class="p">][</span><span class="s">'media'</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">media</span><span class="p">[</span><span class="s">'nodes'</span><span class="p">]:</span> 
             <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s">'is_video'</span><span class="p">]:</span>
                 <span class="n">page</span> <span class="o">=</span> <span class="s">'https://www.instagram.com/p/'</span> <span class="o">+</span> <span class="n">node</span><span class="p">[</span><span class="s">'code'</span><span class="p">]</span>
                 <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
@@ -880,8 +977,7 @@ from earlier that processed each <em>“node”</em>.</p>
                 <span class="k">print</span><span class="p">(</span><span class="s">'IMAGE:'</span><span class="p">,</span> <span class="n">node</span><span class="p">[</span><span class="s">'display_src'</span><span class="p">])</span>
         
         <span class="n">end_cursor</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'"end_cursor": "([^"]+)"'</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>So the code should be easy enough to follow as we’ve discussed all
 the parts already.</p>
@@ -905,15 +1001,15 @@ probably to fetch them and
 <a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">save the result to disk</a>
 instead.</p>
 
-<a name="conclusion"></a>
+<a name="summary"></a>
 <h2 class="section-header">
-  <span id="conclusion"></span>
-  <a class="anchor" href="#conclusion">Conclusion</a>
+  <span id="summary"></span>
+  <a class="anchor" href="#summary">Summary</a>
 </h2>
 
 <ul>
   <li>
-    <p><a href="https://www.instagram.com/developer/">instagram has an api</a> and if you’re attempting
+    <p><a href="https://www.instagram.com/developer/">Instagram has an api</a> and if you’re attempting
 to do anything remotely resembling <em>“large-scale”</em> scraping you should probably use it
 and abide by their API guidelines.</p>
   </li>

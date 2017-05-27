@@ -135,27 +135,26 @@ score is so let’s try <code class="highlighter-rouge">max_by()</code>:</p>
 will put same value matches into individual arrays (<em>“groups”</em>). The groups
 will be sorted by the value of the given field in ascending order.</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>jq <span class="s1">'.rounds[0] | group_by(.score)'</span> scores.json
-<span class="o">[</span>
-  <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">"name"</span>: <span class="s2">"bob"</span>,
-      <span class="s2">"score"</span>: 2
-    <span class="o">}</span>
-  <span class="o">]</span>,
-  <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">"name"</span>: <span class="s2">"alice"</span>,
-      <span class="s2">"score"</span>: 3
-    <span class="o">}</span>,
-    <span class="o">{</span>
-      <span class="s2">"name"</span>: <span class="s2">"ted"</span>,
-      <span class="s2">"score"</span>: 3
-    <span class="o">}</span>
-  <span class="o">]</span>
-<span class="o">]</span>
+<pre><code class="language-jq">$ jq '.rounds[0] | group_by(.score)' scores.json
+[
+  [
+    {
+      "name": "bob",
+      "score": 2
+    }
+  ],
+  [
+    {
+      "name": "alice",
+      "score": 3
+    },
+    {
+      "name": "ted",
+      "score": 3
+    }
+  ]
+]
 </code></pre>
-</div>
 
 <p>There are <strong>2</strong> arrays inside the result: one for the group of scores with <code class="highlighter-rouge">2</code> and 
 another for the scores with value <code class="highlighter-rouge">3</code>. They are sorted in ascending order meaning that

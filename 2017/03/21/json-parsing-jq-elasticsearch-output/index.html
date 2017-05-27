@@ -154,24 +154,23 @@
 <p>The <code class="highlighter-rouge">--arg</code> option can be used to define jq variables with given values so we define the jq
 variable <code class="highlighter-rouge">date</code> whose value is the output of the date command.</p>
 
-<div class="language-jq highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>date +%Y%m%d
+<pre><code class="language-jq">$ date +%Y%m%d
 20170321
-<span class="gp">$ </span>jq --arg date <span class="sb">`</span>date +%Y%m%d<span class="sb">`</span> <span class="s1">'{ "date": $date, "countries": [ .aggregations.top_fields.buckets[] | { key, doc_count } ] }'</span> input.json
-<span class="o">{</span>
-  <span class="s2">"date"</span>: <span class="s2">"20170321"</span>,
-  <span class="s2">"countries"</span>: <span class="o">[</span>
-    <span class="o">{</span>
-      <span class="s2">"key"</span>: <span class="s2">"Ecuador"</span>,
-      <span class="s2">"doc_count"</span>: 1747
-    <span class="o">}</span>,
-    <span class="o">{</span>
-      <span class="s2">"key"</span>: <span class="s2">"Finland"</span>,
-      <span class="s2">"doc_count"</span>: 6
-    <span class="o">}</span>
-  <span class="o">]</span>
-<span class="o">}</span>
+$ jq --arg date `date +%Y%m%d` '{ "date": $date, "countries": [ .aggregations.top_fields.buckets[] | { key, doc_count } ] }' input.json
+{
+  "date": "20170321",
+  "countries": [
+    {
+      "key": "Ecuador",
+      "doc_count": 1747
+    },
+    {
+      "key": "Finland",
+      "doc_count": 6
+    }
+  ]
+}
 </code></pre>
-</div>
 
 <p>Variables in jq are accessed like in bash so <code class="highlighter-rouge">$date</code> gets replaced with the value we gave it using <code class="highlighter-rouge">--arg</code>.</p>
 
