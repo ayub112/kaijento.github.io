@@ -338,36 +338,41 @@ To extract that block we’ve used <code class="highlighter-rouge">r'(?s)(?&lt;=
 multiple lines with <code class="highlighter-rouge">.+?</code>. The <code class="highlighter-rouge">(?&lt;=)</code> is a positive lookbehind and the <code class="highlighter-rouge">(?=)</code> is a 
 positive lookahead. These just exclude what is inside them from the match.</p>
 
-<p>Once we have the address we then remove <code class="highlighter-rouge">Deliver To:</code> from it and split it up into a list of lines.
-What about this <code class="highlighter-rouge">zip(*())</code> madness?!</p>
+<p>Once we have the address we then remove <code class="highlighter-rouge">Deliver To:</code> from it and split it up into a list of lines.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">address</span> <span class="o">=</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE1   ADDRESS2 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS1 LINE2   ADDRESS2 LINE2'</span><span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">))</span>
-<span class="p">[([</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],),</span> <span class="p">([</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">],)]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">)))</span>
-<span class="p">[(</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS1 LINE2'</span><span class="p">),</span> <span class="p">(</span><span class="s">'ADDRESS2 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">)]</span>
-</code></pre>
-</div>
+<a name="the-splat-operator"></a>
+<h2 class="section-header">
+  <span id="the-splat-operator"></span>
+  <a class="anchor" href="#the-splat-operator">The “splat” operator</a>
+</h2>
 
-<p>Let’s define a simple function that prints out all arguments passed to it to try
-and see what’s going on:</p>
+<p>We then declare <code class="highlighter-rouge">sold_to</code> and <code class="highlighter-rouge">delivered_to</code> with this <code class="highlighter-rouge">zip(*(re.split(...</code> construct.</p>
+
+<p>What is going on here with <code class="highlighter-rouge">*</code>?</p>
+
+<p>Let’s try to demonstrate by creating a simple function that prints out all 
+arguments passed to it to.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
-<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+<span class="o">...</span>     <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="n">args</span><span class="p">([</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">])</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">args</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="mi">1</span>
-<span class="p">([[</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">]],)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">args</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r'</span><span class="err">\</span><span class="s">s{2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">address</span><span class="p">])</span>
+<span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">args</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="mi">3</span>
+<span class="mi">1</span>
 <span class="mi">2</span>
-<span class="p">([</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">])</span>
+<span class="mi">3</span>
 </code></pre>
 </div>
+<p>So the <code class="highlighter-rouge">*</code> (which is often referred to as the <em>“splat”</em> operator) <em>“unpacks”</em>
+the list and each item contained in the list is passed as a separate argument.</p>
 
-<p>So the <code class="highlighter-rouge">*</code> causes the list to be “unpacked” and each element inside it is passed
-as an individual argument. This means instead of passing a single list to <code class="highlighter-rouge">zip()</code>
-which doesn’t make sense we are passing multiple lists.</p>
+<p>This means instead of passing a single list to <code class="highlighter-rouge">zip()</code> in our code (which doesn’t 
+make much sense) we are passing multiple lists to get the desired output.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">address</span> <span class="o">=</span> <span class="p">[[</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">]]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
@@ -377,13 +382,22 @@ which doesn’t make sense we are passing multiple lists.</p>
 </code></pre>
 </div>
 
-<p>The rest of the patterns are all pretty similar:</p>
+<a name="regex"></a>
+<h2 class="section-header">
+  <span id="regex"></span>
+  <a class="anchor" href="#regex">regex</a>
+</h2>
+
+<p>With the <code class="highlighter-rouge">address</code> processed we then extract <code class="highlighter-rouge">bill_of_lading</code> with the
+following regex.</p>
 
 <p><code class="highlighter-rouge">r'Bill Of Lading:\s*(\S+)'</code></p>
 
 <p><code class="highlighter-rouge">\s*</code> matches any whitespace characters if present and <code class="highlighter-rouge">\S+</code> matches non-whitespace characters 
 i.e. the first “word”. So we match all of the labels and capture the first word that appears
 after them.</p>
+
+<p>We then use similar patterns to extract most of the other pieces of data we need.</p>
 
 <p>The <code class="highlighter-rouge">Payment Term</code> pattern differs because we need to capture multiple words. We replace <code class="highlighter-rouge">\S+</code>
 with <code class="highlighter-rouge">(.+?)\s{2,}</code> which captures “anything” up until we see 2 consecutive whitespace characters.
