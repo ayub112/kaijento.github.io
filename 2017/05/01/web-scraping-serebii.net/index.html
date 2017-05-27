@@ -343,15 +343,15 @@ then in the following <code class="highlighter-rouge">&lt;td&gt;</code> tags.</p
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
 <span class="o">&gt;&gt;&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">name</span> <span class="o">=</span> <span class="p">{</span> <span class="n">b</span><span class="o">.</span><span class="n">text</span><span class="p">:</span> <span class="n">b</span><span class="o">.</span><span class="n">find_next</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">table</span><span class="p">(</span><span class="s">'b'</span><span class="p">)</span> <span class="p">}</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="p">{</span>
-    <span class="s">"English"</span><span class="p">:</span> <span class="s">"Heavy Slam"</span><span class="p">,</span> 
-    <span class="s">"French"</span><span class="p">:</span> <span class="s">"Tacle Lourd"</span><span class="p">,</span> 
-    <span class="s">"German"</span><span class="p">:</span> <span class="s">"Rammboss"</span><span class="p">,</span> 
-    <span class="s">"Italian"</span><span class="p">:</span> <span class="s">"Pesobomba"</span><span class="p">,</span> 
-    <span class="s">"Japanese"</span><span class="p">:</span> <span class="s">"</span><span class="se">\u30d8\u30d3\u30fc\u30dc\u30f3\u30d0\u30fc</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"Korean"</span><span class="p">:</span> <span class="s">"</span><span class="se">\ud5e4\ube44\ubd04\ubc84</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"Spanish"</span><span class="p">:</span> <span class="s">"Cuerpo Pesado"</span>
+  <span class="s">"English"</span><span class="p">:</span> <span class="s">"Heavy Slam"</span><span class="p">,</span> 
+  <span class="s">"French"</span><span class="p">:</span> <span class="s">"Tacle Lourd"</span><span class="p">,</span> 
+  <span class="s">"German"</span><span class="p">:</span> <span class="s">"Rammboss"</span><span class="p">,</span> 
+  <span class="s">"Italian"</span><span class="p">:</span> <span class="s">"Pesobomba"</span><span class="p">,</span> 
+  <span class="s">"Japanese"</span><span class="p">:</span> <span class="s">"</span><span class="se">\u30d8\u30d3\u30fc\u30dc\u30f3\u30d0\u30fc</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"Korean"</span><span class="p">:</span> <span class="s">"</span><span class="se">\ud5e4\ube44\ubd04\ubc84</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"Spanish"</span><span class="p">:</span> <span class="s">"Cuerpo Pesado"</span>
 <span class="p">}</span>
 </code></pre>
 </div>

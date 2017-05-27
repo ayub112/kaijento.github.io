@@ -113,23 +113,23 @@ GitHub API v3 example in the
 <code class="highlighter-rouge">json.dumps()</code> behind the scenes, response objects have the <code class="highlighter-rouge">.json()</code> method 
 which performs a <code class="highlighter-rouge">json.loads()</code> to turn the JSON string into a Python structure.</p>
 
-<a name="jsondumps-indent4"></a>
+<a name="jsondumps-indent2"></a>
 <h2 class="section-header">
-  <span id="jsondumps-indent4"></span>
-  <a class="anchor" href="#jsondumps-indent4">json.dumps(…, indent=4)</a>
+  <span id="jsondumps-indent2"></span>
+  <a class="anchor" href="#jsondumps-indent2">json.dumps(…, indent=2)</a>
 </h2>
 
 <p>If you’d like to view the full response you use <code class="highlighter-rouge">json.dumps()</code> to
 pretty-print it:</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 <span class="o">...</span>
-    <span class="s">"description"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
-    <span class="s">"truncated"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
-    <span class="s">"url"</span><span class="p">:</span> <span class="s">"https://api.github.com/gists/bb3b66a670955d401273a2f4ff8007c2"</span><span class="p">,</span> 
-    <span class="s">"created_at"</span><span class="p">:</span> <span class="s">"2017-03-21T21:20:20Z"</span><span class="p">,</span> 
-    <span class="s">"html_url"</span><span class="p">:</span> <span class="s">"https://gist.github.com/bb3b66a670955d401273a2f4ff8007c2"</span><span class="p">,</span> 
+  <span class="s">"description"</span><span class="p">:</span> <span class="n">null</span><span class="p">,</span> 
+  <span class="s">"truncated"</span><span class="p">:</span> <span class="n">false</span><span class="p">,</span> 
+  <span class="s">"url"</span><span class="p">:</span> <span class="s">"https://api.github.com/gists/bb3b66a670955d401273a2f4ff8007c2"</span><span class="p">,</span> 
+  <span class="s">"created_at"</span><span class="p">:</span> <span class="s">"2017-03-21T21:20:20Z"</span><span class="p">,</span> 
+  <span class="s">"html_url"</span><span class="p">:</span> <span class="s">"https://gist.github.com/bb3b66a670955d401273a2f4ff8007c2"</span><span class="p">,</span> 
 <span class="o">...</span>
 </code></pre>
 </div>

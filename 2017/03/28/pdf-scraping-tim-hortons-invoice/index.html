@@ -375,11 +375,12 @@ to turn them into a dict:</p>
 <p>We want to ignore the first element in <code class="highlighter-rouge">expenses</code> and also the last 4 so we use the slice
 <code class="highlighter-rouge">[1:-4]</code> to do that.</p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="n">summary</span><span class="p">[</span><span class="s">'Expenses'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3</div><code><span class="n">summary</span><span class="p">[</span><span class="s">'Expenses'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">expenses</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">expense</span><span class="p">))</span> <span class="k">for</span> <span class="n">expense</span> <span class="ow">in</span> <span class="n">expenses</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
 <span class="p">]</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Finally we use <code class="highlighter-rouge">json.dumps()</code> to turn our dict into a JSON string.
 The <code class="highlighter-rouge">indent=2</code> pretty-prints the output instead of producing a 

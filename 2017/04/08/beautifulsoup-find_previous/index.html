@@ -172,7 +172,7 @@ given to either find method it is matched against the class attribute.</p>
     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">soup</span><span class="p">(</span><span class="s">'p'</span><span class="p">,</span> <span class="s">'content'</span><span class="p">)</span>
 <span class="p">]</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">stories</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </code></pre></div>
 
 <p>The declaration of <code class="highlighter-rouge">stories</code> make look a little odd it’s a <em>dict comprehension</em>
@@ -202,16 +202,16 @@ using <code class="highlighter-rouge">find_previous()</code> for the <code class
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python list-of-stories.py 
 <span class="o">[</span>
-    <span class="o">{</span>
-        <span class="s2">"content"</span>: <span class="s2">"This is a news story"</span>, 
-        <span class="s2">"date"</span>: <span class="s2">"28.01 2017"</span>, 
-        <span class="s2">"title"</span>: <span class="s2">"This is news story 1"</span>
-    <span class="o">}</span>, 
-    <span class="o">{</span>
-        <span class="s2">"content"</span>: <span class="s2">"This is another news story"</span>, 
-        <span class="s2">"date"</span>: <span class="s2">"29.01 2017"</span>, 
-        <span class="s2">"title"</span>: <span class="s2">"This is news story 2"</span>
-    <span class="o">}</span>
+  <span class="o">{</span>
+    <span class="s2">"content"</span>: <span class="s2">"This is a news story"</span>, 
+    <span class="s2">"date"</span>: <span class="s2">"28.01 2017"</span>, 
+    <span class="s2">"title"</span>: <span class="s2">"This is news story 1"</span>
+  <span class="o">}</span>, 
+  <span class="o">{</span>
+    <span class="s2">"content"</span>: <span class="s2">"This is another news story"</span>, 
+    <span class="s2">"date"</span>: <span class="s2">"29.01 2017"</span>, 
+    <span class="s2">"title"</span>: <span class="s2">"This is news story 2"</span>
+  <span class="o">}</span>
 <span class="o">]</span>
 </code></pre>
 </div>

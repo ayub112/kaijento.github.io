@@ -293,21 +293,21 @@ We will also use a dictionary to store the stat names and values.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">json</span>
 <span class="o">&gt;&gt;&gt;</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fighter</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fighter</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="p">{</span>
-    <span class="s">"DOB:"</span><span class="p">:</span> <span class="s">"Sep 02, 1981"</span><span class="p">,</span> 
-    <span class="s">"Height:"</span><span class="p">:</span> <span class="s">"6' 3</span><span class="se">\"</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"Reach:"</span><span class="p">:</span> <span class="s">"76</span><span class="se">\"</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"SApM:"</span><span class="p">:</span> <span class="s">"2.50"</span><span class="p">,</span> 
-    <span class="s">"SLpM:"</span><span class="p">:</span> <span class="s">"2.48"</span><span class="p">,</span> 
-    <span class="s">"STANCE:"</span><span class="p">:</span> <span class="s">"Orthodox"</span><span class="p">,</span> 
-    <span class="s">"Str. Acc.:"</span><span class="p">:</span> <span class="s">"45</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"Str. Def:"</span><span class="p">:</span> <span class="s">"58</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"Sub. Avg.:"</span><span class="p">:</span> <span class="s">"0.3"</span><span class="p">,</span> 
-    <span class="s">"TD Acc.:"</span><span class="p">:</span> <span class="s">"22</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"TD Avg.:"</span><span class="p">:</span> <span class="s">"1.40"</span><span class="p">,</span> 
-    <span class="s">"TD Def.:"</span><span class="p">:</span> <span class="s">"77</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
-    <span class="s">"Weight:"</span><span class="p">:</span> <span class="s">"235 lbs."</span>
+  <span class="s">"DOB:"</span><span class="p">:</span> <span class="s">"Sep 02, 1981"</span><span class="p">,</span> 
+  <span class="s">"Height:"</span><span class="p">:</span> <span class="s">"6' 3</span><span class="se">\"</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"Reach:"</span><span class="p">:</span> <span class="s">"76</span><span class="se">\"</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"SApM:"</span><span class="p">:</span> <span class="s">"2.50"</span><span class="p">,</span> 
+  <span class="s">"SLpM:"</span><span class="p">:</span> <span class="s">"2.48"</span><span class="p">,</span> 
+  <span class="s">"STANCE:"</span><span class="p">:</span> <span class="s">"Orthodox"</span><span class="p">,</span> 
+  <span class="s">"Str. Acc.:"</span><span class="p">:</span> <span class="s">"45</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"Str. Def:"</span><span class="p">:</span> <span class="s">"58</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"Sub. Avg.:"</span><span class="p">:</span> <span class="s">"0.3"</span><span class="p">,</span> 
+  <span class="s">"TD Acc.:"</span><span class="p">:</span> <span class="s">"22</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"TD Avg.:"</span><span class="p">:</span> <span class="s">"1.40"</span><span class="p">,</span> 
+  <span class="s">"TD Def.:"</span><span class="p">:</span> <span class="s">"77</span><span class="si">%</span><span class="s">"</span><span class="p">,</span> 
+  <span class="s">"Weight:"</span><span class="p">:</span> <span class="s">"235 lbs."</span>
 <span class="p">}</span>
 </code></pre>
 </div>
@@ -361,29 +361,29 @@ earlier to the dict.</p>
         <span class="k">if</span> <span class="n">stat</span><span class="p">:</span>
             <span class="n">fighter</span><span class="p">[</span><span class="n">stat</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fighter</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">fighter</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </code></pre></div>
 
 <p>The output it produced.</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python fightmetric.com.py 
 <span class="o">{</span>
-    <span class="s2">"DOB:"</span>: <span class="s2">"Sep 02, 1981"</span>, 
-    <span class="s2">"Height:"</span>: <span class="s2">"6' 3</span><span class="se">\"</span><span class="s2">"</span>, 
-    <span class="s2">"Name"</span>: <span class="s2">"Shamil Abdurakhimov"</span>, 
-    <span class="s2">"Nickname"</span>: <span class="s2">"Abrek"</span>, 
-    <span class="s2">"Reach:"</span>: <span class="s2">"76</span><span class="se">\"</span><span class="s2">"</span>, 
-    <span class="s2">"Record"</span>: <span class="s2">"16-4-0"</span>, 
-    <span class="s2">"SApM:"</span>: <span class="s2">"2.50"</span>, 
-    <span class="s2">"SLpM:"</span>: <span class="s2">"2.48"</span>, 
-    <span class="s2">"STANCE:"</span>: <span class="s2">"Orthodox"</span>, 
-    <span class="s2">"Str. Acc.:"</span>: <span class="s2">"45%"</span>, 
-    <span class="s2">"Str. Def:"</span>: <span class="s2">"58%"</span>, 
-    <span class="s2">"Sub. Avg.:"</span>: <span class="s2">"0.3"</span>, 
-    <span class="s2">"TD Acc.:"</span>: <span class="s2">"22%"</span>, 
-    <span class="s2">"TD Avg.:"</span>: <span class="s2">"1.40"</span>, 
-    <span class="s2">"TD Def.:"</span>: <span class="s2">"77%"</span>, 
-    <span class="s2">"Weight:"</span>: <span class="s2">"235 lbs."</span>
+  <span class="s2">"DOB:"</span>: <span class="s2">"Sep 02, 1981"</span>, 
+  <span class="s2">"Height:"</span>: <span class="s2">"6' 3</span><span class="se">\"</span><span class="s2">"</span>, 
+  <span class="s2">"Name"</span>: <span class="s2">"Shamil Abdurakhimov"</span>, 
+  <span class="s2">"Nickname"</span>: <span class="s2">"Abrek"</span>, 
+  <span class="s2">"Reach:"</span>: <span class="s2">"76</span><span class="se">\"</span><span class="s2">"</span>, 
+  <span class="s2">"Record"</span>: <span class="s2">"16-4-0"</span>, 
+  <span class="s2">"SApM:"</span>: <span class="s2">"2.50"</span>, 
+  <span class="s2">"SLpM:"</span>: <span class="s2">"2.48"</span>, 
+  <span class="s2">"STANCE:"</span>: <span class="s2">"Orthodox"</span>, 
+  <span class="s2">"Str. Acc.:"</span>: <span class="s2">"45%"</span>, 
+  <span class="s2">"Str. Def:"</span>: <span class="s2">"58%"</span>, 
+  <span class="s2">"Sub. Avg.:"</span>: <span class="s2">"0.3"</span>, 
+  <span class="s2">"TD Acc.:"</span>: <span class="s2">"22%"</span>, 
+  <span class="s2">"TD Avg.:"</span>: <span class="s2">"1.40"</span>, 
+  <span class="s2">"TD Def.:"</span>: <span class="s2">"77%"</span>, 
+  <span class="s2">"Weight:"</span>: <span class="s2">"235 lbs."</span>
 <span class="o">}</span>
 </code></pre>
 </div>

@@ -84,13 +84,13 @@ ARCHIVE_RESTORE                 Restores files archived on tape to disk
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python build-commands.py 
 <span class="o">{</span>
-    <span class="s2">"ABBREV"</span>: <span class="s2">"Abbreviation processsor"</span>, 
-    <span class="s2">"ADDISK"</span>: <span class="s2">"(Operator command)"</span>, 
-    <span class="s2">"ADD_REMOTE_ID"</span>: <span class="s2">"Sets up user id for remote systems"</span>, 
-    <span class="s2">"AMLC"</span>: <span class="s2">"(Operator command)"</span>, 
-    <span class="s2">"ARCHIVE"</span>: <span class="s2">"Archives disk files to tape"</span>, 
-    <span class="s2">"ARCHIVE_RELEASE"</span>: <span class="s2">"Releases an ARCHIVE tape for future use"</span>, 
-    <span class="s2">"ARCHIVE_RESTORE"</span>: <span class="s2">"Restores files archived on tape to disk"</span>
+  <span class="s2">"ABBREV"</span>: <span class="s2">"Abbreviation processsor"</span>, 
+  <span class="s2">"ADDISK"</span>: <span class="s2">"(Operator command)"</span>, 
+  <span class="s2">"ADD_REMOTE_ID"</span>: <span class="s2">"Sets up user id for remote systems"</span>, 
+  <span class="s2">"AMLC"</span>: <span class="s2">"(Operator command)"</span>, 
+  <span class="s2">"ARCHIVE"</span>: <span class="s2">"Archives disk files to tape"</span>, 
+  <span class="s2">"ARCHIVE_RELEASE"</span>: <span class="s2">"Releases an ARCHIVE tape for future use"</span>, 
+  <span class="s2">"ARCHIVE_RESTORE"</span>: <span class="s2">"Restores files archived on tape to disk"</span>
 <span class="o">}</span>
 </code></pre>
 </div>
@@ -117,7 +117,7 @@ ARCHIVE_RESTORE                 Restores files archived on tape to disk
         <span class="n">command</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">commands</span><span class="p">[</span><span class="n">command</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </code></pre></div>
 
 <p>The <code class="highlighter-rouge">json</code> module is only being used here as a way to pretty-print our dict.
@@ -195,15 +195,15 @@ dict:</p>
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
 <span class="o">...</span>     <span class="n">commands</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fh</span><span class="p">)</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="p">{</span>
-    <span class="s">"ABBREV"</span><span class="p">:</span> <span class="s">"Abbreviation processsor"</span><span class="p">,</span> 
-    <span class="s">"ADDISK"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
-    <span class="s">"ADD_REMOTE_ID"</span><span class="p">:</span> <span class="s">"Sets up user id for remote systems"</span><span class="p">,</span> 
-    <span class="s">"AMLC"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
-    <span class="s">"ARCHIVE"</span><span class="p">:</span> <span class="s">"Archives disk files to tape"</span><span class="p">,</span> 
-    <span class="s">"ARCHIVE_RELEASE"</span><span class="p">:</span> <span class="s">"Releases an ARCHIVE tape for future use"</span><span class="p">,</span> 
-    <span class="s">"ARCHIVE_RESTORE"</span><span class="p">:</span> <span class="s">"Restores files archived on tape to disk"</span>
+  <span class="s">"ABBREV"</span><span class="p">:</span> <span class="s">"Abbreviation processsor"</span><span class="p">,</span> 
+  <span class="s">"ADDISK"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+  <span class="s">"ADD_REMOTE_ID"</span><span class="p">:</span> <span class="s">"Sets up user id for remote systems"</span><span class="p">,</span> 
+  <span class="s">"AMLC"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+  <span class="s">"ARCHIVE"</span><span class="p">:</span> <span class="s">"Archives disk files to tape"</span><span class="p">,</span> 
+  <span class="s">"ARCHIVE_RELEASE"</span><span class="p">:</span> <span class="s">"Releases an ARCHIVE tape for future use"</span><span class="p">,</span> 
+  <span class="s">"ARCHIVE_RESTORE"</span><span class="p">:</span> <span class="s">"Restores files archived on tape to disk"</span>
 <span class="p">}</span>
 </code></pre>
 </div>
@@ -223,15 +223,15 @@ to create the desired result:</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
 <span class="o">...</span>     <span class="n">commands</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">r'(</span><span class="err">\</span><span class="s">S+)</span><span class="err">\</span><span class="s">s+(.+)'</span><span class="p">,</span> <span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span>
 <span class="o">...</span> 
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">commands</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="p">{</span>
-    <span class="s">"ABBREV"</span><span class="p">:</span> <span class="s">"Abbreviation processsor"</span><span class="p">,</span> 
-    <span class="s">"ADDISK"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
-    <span class="s">"ADD_REMOTE_ID"</span><span class="p">:</span> <span class="s">"Sets up user id for remote systems"</span><span class="p">,</span> 
-    <span class="s">"AMLC"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
-    <span class="s">"ARCHIVE"</span><span class="p">:</span> <span class="s">"Archives disk files to tape"</span><span class="p">,</span> 
-    <span class="s">"ARCHIVE_RELEASE"</span><span class="p">:</span> <span class="s">"Releases an ARCHIVE tape for future use"</span><span class="p">,</span> 
-    <span class="s">"ARCHIVE_RESTORE"</span><span class="p">:</span> <span class="s">"Restores files archived on tape to disk"</span>
+  <span class="s">"ABBREV"</span><span class="p">:</span> <span class="s">"Abbreviation processsor"</span><span class="p">,</span> 
+  <span class="s">"ADDISK"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+  <span class="s">"ADD_REMOTE_ID"</span><span class="p">:</span> <span class="s">"Sets up user id for remote systems"</span><span class="p">,</span> 
+  <span class="s">"AMLC"</span><span class="p">:</span> <span class="s">"(Operator command)"</span><span class="p">,</span> 
+  <span class="s">"ARCHIVE"</span><span class="p">:</span> <span class="s">"Archives disk files to tape"</span><span class="p">,</span> 
+  <span class="s">"ARCHIVE_RELEASE"</span><span class="p">:</span> <span class="s">"Releases an ARCHIVE tape for future use"</span><span class="p">,</span> 
+  <span class="s">"ARCHIVE_RESTORE"</span><span class="p">:</span> <span class="s">"Restores files archived on tape to disk"</span>
 <span class="p">}</span>
 </code></pre>
 </div>

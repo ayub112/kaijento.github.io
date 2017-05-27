@@ -175,30 +175,30 @@ are to be children of the <code class="highlighter-rouge">NoLevel1</code> <em>pa
 
 <pre><code class="language-jq">$ python transform-json.py
 [
-    {
-        "name": "NoLevel_1", 
-        "tag_child": [
-            {
-                "name": "Food", 
-                "taglevel": 2
-            }, 
-            {
-                "name": "Apple", 
-                "taglevel": 2
-            }
-        ], 
-        "taglevel": 1
-    }, 
-    {
-        "name": "Fruit", 
-        "tag_child": [
-            {
-                "name": "Apple", 
-                "taglevel": 2
-            }
-        ], 
-        "taglevel": 1
-    }
+  {
+    "name": "NoLevel_1", 
+    "tag_child": [
+      {
+        "name": "Food", 
+        "taglevel": 2
+      }, 
+      {
+        "name": "Apple", 
+        "taglevel": 2
+      }
+    ], 
+    "taglevel": 1
+  }, 
+  {
+    "name": "Fruit", 
+    "tag_child": [
+      {
+        "name": "Apple", 
+        "taglevel": 2
+      }
+    ], 
+    "taglevel": 1
+  }
 ]
 </code></pre>
 
@@ -260,7 +260,7 @@ are to be children of the <code class="highlighter-rouge">NoLevel1</code> <em>pa
         <span class="p">}</span> <span class="k">for</span> <span class="n">parent</span><span class="p">,</span> <span class="n">tags</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">]</span>
 
-    <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </code></pre></div>
 
 <a name="collectionsdefaultdict"></a>

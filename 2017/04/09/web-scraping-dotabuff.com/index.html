@@ -435,20 +435,20 @@ even use <code class="highlighter-rouge">dict(zip(headers, row))</code> to build
 <span class="o">&gt;&gt;&gt;</span> <span class="n">rows</span>    <span class="o">=</span> <span class="p">[</span> <span class="p">[</span> <span class="n">td</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">td</span> <span class="ow">in</span> <span class="n">tr</span><span class="p">(</span><span class="s">'td'</span><span class="p">)</span> <span class="p">]</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">tbody</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)</span> <span class="p">]</span>
 <span class="o">&gt;&gt;&gt;</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">stats</span>   <span class="o">=</span> <span class="p">[</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="n">row</span><span class="p">))</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span> <span class="p">]</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">stats</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 <span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s">"Advantage"</span><span class="p">:</span> <span class="s">"-4.59</span><span class="si">%</span><span class="s">"</span><span class="p">,</span>
-        <span class="s">"Item"</span><span class="p">:</span> <span class="s">"Anti-Mage"</span><span class="p">,</span>
-        <span class="s">"Matches"</span><span class="p">:</span> <span class="s">"49,012"</span><span class="p">,</span>
-        <span class="s">"Win Rate"</span><span class="p">:</span> <span class="s">"54.14</span><span class="si">%</span><span class="s">"</span>
-    <span class="p">},</span>
-    <span class="p">{</span>
-        <span class="s">"Advantage"</span><span class="p">:</span> <span class="s">"-3.56</span><span class="si">%</span><span class="s">"</span><span class="p">,</span>
-        <span class="s">"Item"</span><span class="p">:</span> <span class="s">"Undying"</span><span class="p">,</span>
-        <span class="s">"Matches"</span><span class="p">:</span> <span class="s">"11,056"</span><span class="p">,</span>
-        <span class="s">"Win Rate"</span><span class="p">:</span> <span class="s">"52.31</span><span class="si">%</span><span class="s">"</span>
-    <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s">"Advantage"</span><span class="p">:</span> <span class="s">"-4.59</span><span class="si">%</span><span class="s">"</span><span class="p">,</span>
+    <span class="s">"Item"</span><span class="p">:</span> <span class="s">"Anti-Mage"</span><span class="p">,</span>
+    <span class="s">"Matches"</span><span class="p">:</span> <span class="s">"49,012"</span><span class="p">,</span>
+    <span class="s">"Win Rate"</span><span class="p">:</span> <span class="s">"54.14</span><span class="si">%</span><span class="s">"</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="s">"Advantage"</span><span class="p">:</span> <span class="s">"-3.56</span><span class="si">%</span><span class="s">"</span><span class="p">,</span>
+    <span class="s">"Item"</span><span class="p">:</span> <span class="s">"Undying"</span><span class="p">,</span>
+    <span class="s">"Matches"</span><span class="p">:</span> <span class="s">"11,056"</span><span class="p">,</span>
+    <span class="s">"Win Rate"</span><span class="p">:</span> <span class="s">"52.31</span><span class="si">%</span><span class="s">"</span>
+  <span class="p">},</span>
     <span class="o">...</span>
 </code></pre>
 </div>

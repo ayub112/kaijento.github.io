@@ -130,17 +130,17 @@ loaded by the <code class="highlighter-rouge">json</code> module.</p>
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'id.json'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
 <span class="o">...</span>     <span class="n">people</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 <span class="o">...</span>     <span class="n">found</span>  <span class="o">=</span> <span class="p">[</span> <span class="n">person</span> <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span> <span class="k">if</span> <span class="s">'1'</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">person</span><span class="p">[</span><span class="s">'id'</span><span class="p">])</span> <span class="p">]</span>
-<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">found</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">))</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">found</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 <span class="o">...</span> 
 <span class="p">[</span>
-    <span class="p">{</span>
-        <span class="s">"name"</span><span class="p">:</span> <span class="s">"alice"</span><span class="p">,</span> 
-        <span class="s">"id"</span><span class="p">:</span> <span class="mi">1</span>
-    <span class="p">},</span> 
-    <span class="p">{</span>
-        <span class="s">"name"</span><span class="p">:</span> <span class="s">"bob"</span><span class="p">,</span> 
-        <span class="s">"id"</span><span class="p">:</span> <span class="mi">201</span>
-    <span class="p">}</span>
+  <span class="p">{</span>
+    <span class="s">"name"</span><span class="p">:</span> <span class="s">"alice"</span><span class="p">,</span> 
+    <span class="s">"id"</span><span class="p">:</span> <span class="mi">1</span>
+  <span class="p">},</span> 
+  <span class="p">{</span>
+    <span class="s">"name"</span><span class="p">:</span> <span class="s">"bob"</span><span class="p">,</span> 
+    <span class="s">"id"</span><span class="p">:</span> <span class="mi">201</span>
+  <span class="p">}</span>
 <span class="p">]</span>
 </code></pre>
 </div>
@@ -163,16 +163,16 @@ It’s the equivalent to</p>
 
 <pre><code class="language-jq">$ python -c 'import json, sys; print(json.dumps(
     [person for person in json.load(sys.stdin) if "1" in str(person["id"])], 
-    indent=4))' &lt; id.json
+    indent=2))' &lt; id.json
 [
-    {
-        "name": "alice", 
-        "id": 1
-    }, 
-    {
-        "name": "bob", 
-        "id": 201
-    }
+  {
+    "name": "alice", 
+    "id": 1
+  }, 
+  {
+    "name": "bob", 
+    "id": 201
+  }
 ]
 </code></pre>
 
