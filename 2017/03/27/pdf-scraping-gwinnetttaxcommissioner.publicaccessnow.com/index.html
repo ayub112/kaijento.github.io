@@ -314,7 +314,18 @@ turn it into CSV.</p>
 
 <p><code class="highlighter-rouge">pdftotext.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">sys</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12</div><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">subprocess</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="n">pdf_file</span> <span class="o">=</span> <span class="s">'Excess funds all years - rev02232017.pdf'</span>
 <span class="n">command</span>  <span class="o">=</span> <span class="p">[</span><span class="s">'pdftotext'</span><span class="p">,</span> <span class="s">'-layout'</span><span class="p">,</span> <span class="n">pdf_file</span><span class="p">,</span> <span class="s">'-'</span><span class="p">]</span>
@@ -326,8 +337,7 @@ turn it into CSV.</p>
     <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r' (R</span><span class="err">\</span><span class="s">d{4}) *(</span><span class="err">\</span><span class="s">d{3}[A-Z]?) '</span><span class="p">,</span> <span class="s">r' </span><span class="err">\</span><span class="s">1</span><span class="err">\</span><span class="s">2 '</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
     <span class="n">row</span>  <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
     <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>Let’s run it and see what the output looks like:</p>
 
@@ -351,7 +361,28 @@ We will use <code class="highlighter-rouge">requests</code> to do so:</p>
 
 <p><code class="highlighter-rouge">pdftotext-url.py</code></p>
 
-<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22</div><code><span class="kn">import</span> <span class="nn">csv</span><span class="o">,</span> <span class="nn">re</span><span class="o">,</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">from</span>   <span class="nn">subprocess</span> <span class="kn">import</span> <span class="n">Popen</span><span class="p">,</span> <span class="n">PIPE</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
@@ -373,8 +404,7 @@ We will use <code class="highlighter-rouge">requests</code> to do so:</p>
     <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s">r' (R</span><span class="err">\</span><span class="s">d{4}) *(</span><span class="err">\</span><span class="s">d{3}[A-Z]?) '</span><span class="p">,</span> <span class="s">r' </span><span class="err">\</span><span class="s">1</span><span class="err">\</span><span class="s">2 '</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
     <span class="n">row</span>  <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">r' {2,}'</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
     <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-</code></pre>
-</div>
+</code></pre></div>
 
 <p>The declaration of <code class="highlighter-rouge">url</code> may look like a tuple to you but it’s not. Python will
 implicity join strings together:</p>
