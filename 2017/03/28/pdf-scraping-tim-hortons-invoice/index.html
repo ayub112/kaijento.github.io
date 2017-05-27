@@ -82,6 +82,12 @@
 <p>It has 8 pages but the number of pages differs we are only interested
 in the last page.</p>
 
+<a name="pdftotext"></a>
+<h2 class="section-header">
+  <span id="pdftotext"></span>
+  <a class="anchor" href="#pdftotext">pdftotext</a>
+</h2>
+
 <p>We’re going to be using <code class="highlighter-rouge">pdftotext</code> as discussed 
 <a href="/2017/03/27/pdf-scraping-gwinnetttaxcommissioner.publicaccessnow.com/#pdftotext">in the previous PDF scraping article</a>.</p>
 
@@ -91,6 +97,12 @@ in the last page.</p>
 
 <p>It has done a pretty decent job. Most bits of information should be easy to extract apart from 
 the <code class="highlighter-rouge">Sold To</code> and <code class="highlighter-rouge">Deliver To</code> addresses.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
 
 <p>We will start with the output:</p>
 
@@ -249,9 +261,8 @@ summary['Expenses'] = [
 <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </code></pre></div>
 
-<p>You’ll notice at the end we have the <code class="highlighter-rouge">Expenses</code> commented out. This was just
-to keep the output at a reasonable size, when uncommented the <code class="highlighter-rouge">Expenses</code> section
-looks like this:</p>
+<p>We have <code class="highlighter-rouge">summary['Expenses']</code> commented out as it produces a very 
+large amount of output which has a structure like:</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>
   <span class="o">{</span>
@@ -293,6 +304,12 @@ looks like this:</p>
 <span class="o">]</span>
 </code></pre>
 </div>
+
+<a name="stripsplit"></a>
+<h2 class="section-header">
+  <span id="stripsplit"></span>
+  <a class="anchor" href="#stripsplit">.strip.split()</a>
+</h2>
 
 <p><code class="highlighter-rouge">pdftotext</code> separates pages in its output with the <code class="highlighter-rouge">ASCII 12 form feed</code> character. 
 It may be represented as the control char <code class="highlighter-rouge">^L</code>. We can use <code class="highlighter-rouge">\f</code> to represent it inside a 

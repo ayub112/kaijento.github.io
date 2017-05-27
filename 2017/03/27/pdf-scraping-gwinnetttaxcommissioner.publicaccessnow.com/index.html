@@ -509,11 +509,11 @@ following Python:</p>
 2
 3
 4
-5</div><code>    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
-        <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-            <span class="o">...</span>
+5</div><code><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="p">:</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="o">...</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="o">...</span>
 </code></pre></div>
 
 <p><code class="highlighter-rouge">split / {2,}/</code> splits on 2 or more spaces and <code class="highlighter-rouge">",", join</code> joins them all together using
