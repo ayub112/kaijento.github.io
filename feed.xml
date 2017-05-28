@@ -5,14 +5,16 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 28 May 2017 10:32:52 +0100</pubDate>
-    <lastBuildDate>Sun, 28 May 2017 10:32:52 +0100</lastBuildDate>
+    <pubDate>Sun, 28 May 2017 10:46:53 +0100</pubDate>
+    <lastBuildDate>Sun, 28 May 2017 10:46:53 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
         <title>BeautifulSoup: get_text() gets too much</title>
         <description>&lt;p&gt;The task is to extract the message text from a forum
-post using Python’s &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; library.&lt;/p&gt;
+post using Python’s 
+&lt;a href=&quot;https://www.crummy.com/software/BeautifulSoup/bs4/doc/&quot;&gt;BeautifulSoup&lt;/a&gt;
+library.&lt;/p&gt;
 
 &lt;p&gt;The problem is that within the message text there
 can be quoted messages which we want to ignore.&lt;/p&gt;
