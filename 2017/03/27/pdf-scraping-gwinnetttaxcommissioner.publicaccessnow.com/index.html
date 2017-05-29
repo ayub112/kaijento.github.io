@@ -75,11 +75,11 @@
 
 </div>
 <div class="post-content">
-  <p>Given a PDF file taken from
+  <p>Given a PDF file from 
 <a href="http://gwinnetttaxcommissioner.publicaccessnow.com">publicaccessnow.com</a>
 we need to extract certain text from it and convert it to CSV using Python.</p>
 
-<p>This could be considered an example of how to <em>“Convert a PDF to TXT”</em> or even 
+<p>This could be considered an example of how to <em>“Convert a PDF to TXT”</em> or 
 <em>“Convert a PDF to CSV”</em> using Python.</p>
 
 <a name="pdftotext"></a>
@@ -469,12 +469,22 @@ code</p>
 </code></pre>
 </div>
 
-<p>Perl’s <code class="highlighter-rouge">-n</code> option makes it read input line-by-line.
-There is also <code class="highlighter-rouge">-p</code> which does the same but has an implicit <code class="highlighter-rouge">print</code> at the end.</p>
+<p>Perl’s <code class="highlighter-rouge">-n</code> option makes it read input line-by-line i.e.</p>
 
-<p>Let’s start from the end.</p>
+<div class="language-perl-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3</div><code><span class="k">while</span> <span class="p">(</span><span class="nb">readline</span><span class="p">)</span> <span class="p">{</span>
+    <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div>
 
-<p>The <code class="highlighter-rouge">if</code> statement consists of 3 conditions <em>“chained”</em> together with the <em>Comma Operator</em>.</p>
+<p>There is also <code class="highlighter-rouge">-p</code> which does the same but has an implicit <code class="highlighter-rouge">print</code> at the end.</p>
+
+<p>To explain the command we will start at the end:</p>
+
+<p><code class="highlighter-rouge">if s/\$ +/\$/, s/ (R\d{4}) *(\d{3}[A-Z]?) / $1$2 /, /^\d.+ [A-Z]{3} \d{4}$/</code></p>
+
+<p>The <em>if</em> statement consists of 3 conditions <em>“chained”</em> together with the <em>Comma Operator</em>.</p>
 
 <ul>
   <li><code class="highlighter-rouge">s/\$ +/\$/</code></li>
@@ -482,9 +492,16 @@ There is also <code class="highlighter-rouge">-p</code> which does the same but 
   <li><code class="highlighter-rouge">/^\d.+ [A-Z]{3} \d{4}$/</code></li>
 </ul>
 
-<p>Using the <em>comma</em> is essentially the same as if we had written <code class="highlighter-rouge">if cond1 and cond2 and cond3</code></p>
+<p>It is similar to chaining commands with <code class="highlighter-rouge">&amp;&amp;</code> or <code class="highlighter-rouge">and</code> however only the return
+value of the last item matters.</p>
 
-<p>This means that the <code class="highlighter-rouge">print map {} split</code> will happen only if all 3 conditions are <em>“true”</em>.</p>
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>seq 10 | perl -ne <span class="s1">'print if s/1/1/, s/0/0/, /1/'</span>
+1
+10
+<span class="gp">$ </span>seq 10 | perl -ne <span class="s1">'print if s/1/1/ and s/0/0/ and /1/'</span>
+10
+</code></pre>
+</div>
 
 <p><code class="highlighter-rouge">s///</code> will return <em>“true”</em> if any substitution is made.</p>
 
@@ -495,15 +512,14 @@ no
 </code></pre>
 </div>
 
-<p>The <code class="highlighter-rouge">s///</code> syntax is doing the same as our <code class="highlighter-rouge">re.sub()</code> calls in the Python example
-however to address backreferences <code class="highlighter-rouge">$</code> is preferred over <code class="highlighter-rouge">\</code> 
-(although Perl does support <code class="highlighter-rouge">\</code>).</p>
+<p>The <code class="highlighter-rouge">s///</code> <em>operator</em> is doing the same as our <code class="highlighter-rouge">re.sub()</code> calls in the Python example 
+however to address backreferences <code class="highlighter-rouge">$</code> is preferred over <code class="highlighter-rouge">\</code> (although Perl does support <code class="highlighter-rouge">\</code>).</p>
 
-<p>The <code class="highlighter-rouge">$</code> in the first replacement needs to be escaped because Perl has a variable named
-<code class="highlighter-rouge">$/</code> so the <code class="highlighter-rouge">\</code> stops Perl from interpreting it as that variable.</p>
+<p>The <code class="highlighter-rouge">$</code> in the first replacement command needs to be escaped because Perl has a variable named 
+<code class="highlighter-rouge">$/</code> so the <code class="highlighter-rouge">\</code>stops Perl from interpreting it as that variable and getting confused.</p>
 
-<p><code class="highlighter-rouge">/pattern/</code> does a match so with the above we’ve essentially done the equivalent of the 
-following Python:</p>
+<p><code class="highlighter-rouge">/pattern/</code> returns <em>“true”</em> if <em>pattern</em> is found on the <em>“line”</em> meaning we’ve 
+written something similar to the following Python example:</p>
 
 <div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
 2
@@ -517,16 +533,18 @@ following Python:</p>
 </code></pre></div>
 
 <p><code class="highlighter-rouge">split / {2,}/</code> splits on 2 or more spaces and <code class="highlighter-rouge">",", join</code> joins them all together using
-the comma as the delimiter. So what is this <code class="highlighter-rouge">map { ... }</code> business? Well remember how 
+the comma as the delimiter.</p>
+
+<p>So what is this <code class="highlighter-rouge">map { ... }</code> business? Well remember how 
 we noted that the <code class="highlighter-rouge">csv</code> module quoted any fields that contained the delimiter?</p>
 
 <p><code class="highlighter-rouge">map { /,/ ? "\"$_\"" : $_ } split / {2,}/</code></p>
 
-<p>So the <code class="highlighter-rouge">map</code> takes all items from the <code class="highlighter-rouge">split</code> as input. Inside the <code class="highlighter-rouge">map</code> block the current item
+<p>The <code class="highlighter-rouge">map</code> takes all items from the <code class="highlighter-rouge">split</code> as input. Inside the <code class="highlighter-rouge">map</code> block the current item
 is available in the <code class="highlighter-rouge">$_</code> (default) variable. <code class="highlighter-rouge">/,/</code> checks if it contains a comma, if so
 we return the item quoted else we return the item untouched.</p>
 
-<p>It would be similar to the following Python:</p>
+<p>It would be similar to the following Python code:</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="s">','</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">'"{}"'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">if</span> <span class="s">','</span> <span class="ow">in</span> <span class="n">item</span> <span class="k">else</span> <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="o">...</span><span class="p">))</span>
 </code></pre>
@@ -538,9 +556,9 @@ we return the item quoted else we return the item untouched.</p>
   <a class="anchor" href="#thats-it">That’s it!</a>
 </h2>
 
-<p>Each PDF file will be different so the exact details of “scraping” the data you
-will change each time. Using <code class="highlighter-rouge">pdftotext</code> with its <code class="highlighter-rouge">-layout</code> option will usually
-be a good first step to take though.</p>
+<p>Each PDF file will be different and as such so will the exact approach 
+used to <em>“scrape”</em> the data however <code class="highlighter-rouge">pdftotext</code> with its <code class="highlighter-rouge">-layout</code> option 
+makes life easier.</p>
 
 </div>
 

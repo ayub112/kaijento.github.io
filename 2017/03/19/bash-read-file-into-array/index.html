@@ -148,10 +148,10 @@ Netherlands
 <p>Variables don’t need to be predeclared. You can append to a non-existing variable and
 it <em>“Just Works”</em>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>$ s+=foo
-$ s+=bar
-$ declare -p s
-declare -- s="foobar"
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>s+<span class="o">=</span>foo
+<span class="gp">$ </span>s+<span class="o">=</span>bar
+<span class="gp">$ </span><span class="nb">declare</span> -p s
+<span class="nb">declare</span> -- <span class="nv">s</span><span class="o">=</span><span class="s2">"foobar"</span>
 </code></pre>
 </div>
 
@@ -163,9 +163,9 @@ it appended <code class="highlighter-rouge">foo</code> to nothing. By default, v
 as an array and not a string. When you append to an array it adds a new item to the end 
 of the array.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code>$ s+=(baz)
-$ declare -p s
-declare -a s='([0]="foobar" [1]="baz")'
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>s+<span class="o">=(</span>baz<span class="o">)</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p s
+<span class="nb">declare</span> -a <span class="nv">s</span><span class="o">=</span><span class="s1">'([0]="foobar" [1]="baz")'</span>
 </code></pre>
 </div>
 

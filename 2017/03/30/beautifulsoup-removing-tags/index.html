@@ -246,14 +246,14 @@ it. We would like to remove all of the <code class="highlighter-rouge">&lt;span&
 </code></pre>
 </div>
 
-<p>What is this <code class="highlighter-rouge">[1]</code>?</p>
+<p>What is this <code class="highlighter-rouge">[1]</code> in <code class="highlighter-rouge">226,634[1]</code>?</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s">'tr'</span><span class="p">)[</span><span class="mi">27</span><span class="p">](</span><span class="s">'td'</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 <span class="o">&lt;</span><span class="n">td</span><span class="o">&gt;</span><span class="mi">226</span><span class="p">,</span><span class="mi">634</span><span class="o">&lt;</span><span class="n">sup</span> <span class="n">class</span><span class="o">=</span><span class="s">"reference"</span> <span class="nb">id</span><span class="o">=</span><span class="s">"cite_ref-Product_Report_NBS_1-0"</span><span class="o">&gt;&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s">"#cite_note-Product_Report_NBS-1"</span><span class="o">&gt;</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;&lt;/</span><span class="n">sup</span><span class="o">&gt;&lt;/</span><span class="n">td</span><span class="o">&gt;</span>
 </code></pre>
 </div>
 
-<p>It’s a citation link inside an <code class="highlighter-rouge">&lt;a&gt;</code> tag contained in a <code class="highlighter-rouge">&lt;sup&gt;</code> tag. This means that
+<p>It denotes a citation link inside an <code class="highlighter-rouge">&lt;a&gt;</code> tag contained in a <code class="highlighter-rouge">&lt;sup&gt;</code> tag. This means that
 instead of removing just <code class="highlighter-rouge">&lt;span&gt;</code> tags we want to also remove all <code class="highlighter-rouge">&lt;sup&gt;</code> tags.</p>
 
 <a name="find_alllist"></a>

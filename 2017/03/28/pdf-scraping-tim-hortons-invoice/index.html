@@ -82,12 +82,6 @@
 <p>It has 8 pages but the number of pages differs we are only interested
 in the last page.</p>
 
-<a name="pdftotext"></a>
-<h2 class="section-header">
-  <span id="pdftotext"></span>
-  <a class="anchor" href="#pdftotext">pdftotext</a>
-</h2>
-
 <p>We’re going to be using <code class="highlighter-rouge">pdftotext</code> as discussed 
 <a href="/2017/03/27/pdf-scraping-gwinnetttaxcommissioner.publicaccessnow.com/#pdftotext">in the previous PDF scraping article</a>.</p>
 
@@ -261,8 +255,8 @@ summary['Expenses'] = [
 <span class="k">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="bp">True</span><span class="p">))</span>
 </code></pre></div>
 
-<p>We have <code class="highlighter-rouge">summary['Expenses']</code> commented out as it produces a very 
-large amount of output which has a structure like:</p>
+<p>We have summary[‘Expenses’] commented out as it produces a very large amount 
+of output which has a structure like:</p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[</span>
   <span class="o">{</span>
@@ -308,7 +302,7 @@ large amount of output which has a structure like:</p>
 <a name="stripsplit"></a>
 <h2 class="section-header">
   <span id="stripsplit"></span>
-  <a class="anchor" href="#stripsplit">.strip.split()</a>
+  <a class="anchor" href="#stripsplit">.strip().split()</a>
 </h2>
 
 <p><code class="highlighter-rouge">pdftotext</code> separates pages in its output with the <code class="highlighter-rouge">ASCII 12 form feed</code> character. 
@@ -336,13 +330,12 @@ To extract that block we’ve used <code class="highlighter-rouge">r'(?s)(?&lt;=
 
 <p><code class="highlighter-rouge">(?s)</code> is the same as passing <code class="highlighter-rouge">flags=re.DOTALL</code> it allows <code class="highlighter-rouge">.</code> to match <code class="highlighter-rouge">\n</code> meaning we can grab
 multiple lines with <code class="highlighter-rouge">.+?</code>. The <code class="highlighter-rouge">(?&lt;=)</code> is a positive lookbehind and the <code class="highlighter-rouge">(?=)</code> is a 
-positive lookahead. These just exclude what is inside them from the match.</p>
-
-<p>Once we have the address we then remove <code class="highlighter-rouge">Deliver To:</code> from it and split it up into a list of lines.</p>
+positive lookahead. These just exclude what is inside them from the match.
+Once we have the address we then remove Deliver To: from it and split it up into a list of lines.</p>
 
 <p>From there we declare <code class="highlighter-rouge">sold_to</code> and <code class="highlighter-rouge">delivered_to</code> with this <code class="highlighter-rouge">zip(*(re.split(...</code> construct.</p>
 
-<p>Why do we have <code class="highlighter-rouge">*</code> inside the <code class="highlighter-rouge">zip()</code> call?</p>
+<p>What is this <code class="highlighter-rouge">*</code> doing inside the <code class="highlighter-rouge">zip()</code> call?</p>
 
 <a name="the-splat-operator"></a>
 <h2 class="section-header">
@@ -350,8 +343,8 @@ positive lookahead. These just exclude what is inside them from the match.</p>
   <a class="anchor" href="#the-splat-operator">The “splat” operator</a>
 </h2>
 
-<p>Let’s try to demonstrate by creating a simple function that prints out all 
-arguments passed to it to.</p>
+<p>Let’s try to demonstrate by creating a simple function 
+that prints out all arguments passed to it to.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">def</span> <span class="nf">args</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
 <span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">))</span>
@@ -368,11 +361,13 @@ arguments passed to it to.</p>
 <span class="mi">3</span>
 </code></pre>
 </div>
-<p>So the <code class="highlighter-rouge">*</code> (which is often referred to as the <em>“splat”</em> operator) <em>“unpacks”</em>
-the list and each item contained in the list is passed as a separate argument.</p>
 
-<p>This means instead of passing a single list to <code class="highlighter-rouge">zip()</code> in our code (which doesn’t 
-make much sense) we are passing multiple lists to get the desired output.</p>
+<p>So the <code class="highlighter-rouge">*</code> (which is often referred to as the <em>“splat”</em> operator) <em>“unpacks”</em> the list 
+and each item contained in the list is passed as a separate argument.</p>
+
+<p>This means that in our code instead of passing a single list to <code class="highlighter-rouge">zip()</code> 
+(which doesn’t make much sense) we are passing multiple lists which
+generates the desired output.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">address</span> <span class="o">=</span> <span class="p">[[</span><span class="s">'ADDRESS1 LINE1'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE1'</span><span class="p">],</span> <span class="p">[</span><span class="s">'ADDRESS1 LINE2'</span><span class="p">,</span> <span class="s">'ADDRESS2 LINE2'</span><span class="p">]]</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">address</span><span class="p">))</span>
@@ -388,21 +383,26 @@ make much sense) we are passing multiple lists to get the desired output.</p>
   <a class="anchor" href="#regex">regex</a>
 </h2>
 
-<p>With the <code class="highlighter-rouge">address</code> processed we then extract <code class="highlighter-rouge">bill_of_lading</code> with the
-following regex.</p>
+<p>With the address processed we then extract <code class="highlighter-rouge">bill_of_lading</code> with the following <em>pattern</em>.</p>
 
-<p><code class="highlighter-rouge">r'Bill Of Lading:\s*(\S+)'</code></p>
+<p><code class="highlighter-rouge">Bill Of Lading:\s*(\S+)</code></p>
 
-<p><code class="highlighter-rouge">\s*</code> matches any whitespace characters if present and <code class="highlighter-rouge">\S+</code> matches non-whitespace characters 
-i.e. the first “word”. So we match all of the labels and capture the first word that appears
-after them.</p>
+<ul>
+  <li><code class="highlighter-rouge">\s*</code> matches <em>0 or more</em> <em>“whitespace”</em> characters</li>
+  <li><code class="highlighter-rouge">(\S+)</code> captures and matches <em>1 or more</em> <em>“non-whitespace”</em> characters</li>
+</ul>
 
-<p>We then use similar patterns to extract most of the other pieces of data we need.</p>
+<p>A sequence of <em>“non-whitespace”</em> characters is another way of saying <em>“word”</em>
+meaning that with <code class="highlighter-rouge">\S+</code> we match the first <em>word</em> that appears after
+<code class="highlighter-rouge">Bill Of Lading:</code></p>
 
-<p>The <code class="highlighter-rouge">Payment Term</code> pattern differs because we need to capture multiple words. We replace <code class="highlighter-rouge">\S+</code>
-with <code class="highlighter-rouge">(.+?)\s{2,}</code> which captures “anything” up until we see 2 consecutive whitespace characters.
-The <code class="highlighter-rouge">?</code> after <code class="highlighter-rouge">.+</code> here makes it “non-greedy” i.e. it will match up to the first instance.
-Without <code class="highlighter-rouge">?</code> it would match up to the last instance.</p>
+<p>We then use similar patterns to extract the rest of our data.</p>
+
+<p>The <code class="highlighter-rouge">Payment Term</code> pattern differs however because we need to capture multiple words. 
+We replace <code class="highlighter-rouge">\S+</code> with <code class="highlighter-rouge">(.+?)\s{2,}</code> which captures “anything” up until we see 
+2 consecutive whitespace characters. The <code class="highlighter-rouge">?</code> after <code class="highlighter-rouge">.+</code> here makes it 
+“non-greedy” i.e. it will match as little as possible as opposed to the
+default of matching as much as possible.</p>
 
 <div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r'f.*o'</span><span class="p">,</span> <span class="s">'foofoobar'</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()</span>
 <span class="s">'foofoo'</span>
@@ -411,9 +411,10 @@ Without <code class="highlighter-rouge">?</code> it would match up to the last i
 </code></pre>
 </div>
 
-<p>The <code class="highlighter-rouge">?</code> makes it match up to the first instance of <code class="highlighter-rouge">o</code> instead of the last.</p>
+<p>The <code class="highlighter-rouge">?</code> makes it match up to the first instance of <code class="highlighter-rouge">o</code> in the
+string instead of the last.</p>
 
-<p>The following pattern is used to extract the Expenses “block”:</p>
+<p>The following pattern is then used to extract the Expenses “block”:</p>
 
 <p><code class="highlighter-rouge">r'(?s)(Description\s*Extended Price\s*.+?Grand Total\s*\S+)'</code></p>
 
@@ -487,7 +488,7 @@ consistent ordering of the output.</p>
             <a href="/archive">View Archive (61)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/03/27/pdf-scraping-gwinnetttaxcommissioner.publicaccessnow.com/">PDF scraping: Gwinnett County Tax</a></h2>
-          <p class="preview">Given a PDF file taken from
+          <p class="preview">Given a PDF file from 
 <a href="http://gwinnetttaxcommissioner.publicaccessnow.com">publicaccessnow.com</a>
 we need to extract certain text from it and convert it to CSV using Python.</p>
 

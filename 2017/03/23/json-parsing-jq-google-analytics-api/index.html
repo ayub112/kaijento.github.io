@@ -70,63 +70,63 @@ the string <code class="highlighter-rouge">eyeblaster</code>.</p>
 <p><code class="highlighter-rouge">google.json</code></p>
 
 <div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"columnHeaders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"columnType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DIMENSION"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"dataType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRING"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"columnType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"METRIC"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"dataType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INTEGER"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pageviews"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.googleapis.com/analytics/v3/data/realtime?ids=ga:XXXXX"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"analytics#realtimeData"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"profileInfo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"accountId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XXXX"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"internalWebPropertyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"61947021XXXX"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"profileId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XXXX"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"profileName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"home: Sites only"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"tableId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"realtime:XXXX"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"webPropertyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UA-XXXXX-X"</span><span class="w">
+  </span><span class="nt">"columnHeaders"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"columnType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DIMENSION"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"dataType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"STRING"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath"</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath=@404.html"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ga:XXXXX"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"max-results"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"metrics"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"rt:pageviews"</span><span class="w">
-        </span><span class="p">],</span><span class="w">
-        </span><span class="nt">"sort"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"-rt:pageviews"</span><span class="w">
-        </span><span class="p">]</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"/404.html?page=/eyeblaster/addineyeV2-secure.html&amp;from=http://www.google.com/"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"2"</span><span class="w">
-        </span><span class="p">],</span><span class="w">
-        </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"1"</span><span class="w">
-        </span><span class="p">],</span><span class="w">
-        </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"1"</span><span class="w">
-        </span><span class="p">],</span><span class="w">
-        </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?a3dWebglBanner=https"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"1"</span><span class="w">
-        </span><span class="p">]</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nt">"selfLink"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.googleapis.com/analytics/v3/data/realtime?ids="</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"totalResults"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"totalsForAllResults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"rt:pageviews"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"columnType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"METRIC"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"dataType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INTEGER"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pageviews"</span><span class="w">
     </span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.googleapis.com/analytics/v3/data/realtime?ids=ga:XXXXX"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"analytics#realtimeData"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"profileInfo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"accountId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XXXX"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"internalWebPropertyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"61947021XXXX"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"profileId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"XXXX"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"profileName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"home: Sites only"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"tableId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"realtime:XXXX"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"webPropertyId"</span><span class="p">:</span><span class="w"> </span><span class="s2">"UA-XXXXX-X"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rt:pagePath=@404.html"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ga:XXXXX"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"max-results"</span><span class="p">:</span><span class="w"> </span><span class="mi">1000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"metrics"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"rt:pageviews"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"sort"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"-rt:pageviews"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"/404.html?page=/eyeblaster/addineyeV2-secure.html&amp;from=http://www.google.com/"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"2"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"1"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"1"</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"/404.html?page=/amobee/a3d-ad-loader.html?a3dWebglBanner=https"</span><span class="p">,</span><span class="w">
+      </span><span class="s2">"1"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"selfLink"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://www.googleapis.com/analytics/v3/data/realtime?ids="</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalResults"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"totalsForAllResults"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"rt:pageviews"</span><span class="p">:</span><span class="w"> </span><span class="s2">"5"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 </div>

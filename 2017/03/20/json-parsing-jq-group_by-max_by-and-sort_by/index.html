@@ -82,18 +82,18 @@ to be using <a href="https://stedolan.github.io/jq/">jq</a>.</p>
 <p><code class="highlighter-rouge">scores.json</code></p>
 
 <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span> 
-    <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
-        <span class="p">]</span>
+  <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
+    <span class="p">[</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
     <span class="p">]</span>
+  <span class="p">]</span>
 <span class="p">}</span>
 </code></pre>
 </div>
@@ -182,18 +182,18 @@ to numbers and because of this the current approach is <em>“broken”</em>.</p
 <p><code class="highlighter-rouge">scores-strings.json</code></p>
 
 <div class="language-javascript highlighter-rouge"><pre class="highlight"><code><span class="p">{</span> 
-    <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
-        <span class="p">[</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"2"</span><span class="p">}</span>
-        <span class="p">],</span>
-        <span class="p">[</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"3"</span><span class="p">},</span>
-            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">}</span>
-        <span class="p">]</span>
+  <span class="s2">"rounds"</span><span class="err">:</span> <span class="p">[</span>
+    <span class="p">[</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"2"</span><span class="p">}</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"alice"</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"1"</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"bob"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"3"</span><span class="p">},</span>
+      <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"ted"</span><span class="p">,</span>   <span class="s2">"score"</span><span class="p">:</span> <span class="s2">"10"</span><span class="p">}</span>
     <span class="p">]</span>
+  <span class="p">]</span>
 <span class="p">}</span>
 </code></pre>
 </div>
