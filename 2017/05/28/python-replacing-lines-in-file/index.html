@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/05/28/python-replacing-lines-in-file/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Python: Replacing lines in a file | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/05/28/python-replacing-lines-in-file/">Python: Replacing lines in a file</a></h1>
+  <p class="text-muted">28 May 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/fileinput/">fileinput</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given a text file that contains a single mac address per 
+line the goal is to process the file and replace known
+mac addresses with their equivalent device name using Python.</p>
+
+<p>With the example input of</p>
+
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code>AA:AA:AA
+BB:BB:BB
+CC:CC:CC
+DD:DD:DD
+</code></pre></div>
+
+<p>… and with the known mac addresses defined as</p>
+
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="n">macs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'AA:AA:AA'</span><span class="p">:</span> <span class="s">'Laptop'</span><span class="p">,</span>
+    <span class="s">'DD:DD:DD'</span><span class="p">:</span> <span class="s">'Phone'</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The expected output would be</p>
+
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code>Laptop
+BB:BB:BB
+CC:CC:CC
+Phone
+</code></pre></div>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>We’re going to be using the <a href="https://docs.python.org/3/library/fileinput.html">fileinput</a>
+module for our <em>“file manipulation”</em> as opposed to doing it <em>“manually”</em>.</p>
+
+<p>We’ll start by showing the code.</p>
+
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12</div><code><span class="kn">import</span> <span class="nn">fileinput</span>
+
+<span class="n">filename</span> <span class="o">=</span> <span class="s">'macs.txt'</span>
+
+<span class="n">macs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">'AA:AA:AA'</span><span class="p">:</span> <span class="s">'Laptop'</span><span class="p">,</span>
+    <span class="s">'DD:DD:DD'</span><span class="p">:</span> <span class="s">'Phone'</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">'</span><span class="se">\r\n</span><span class="s">'</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">line</span><span class="p">))</span>
+</code></pre></div>
+
+<p>… and here is what happens when we run it.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python replace-macs.py
+Laptop
+BB:BB:BB
+CC:CC:CC
+Phone
+<span class="gp">$ </span>cat macs.txt
+AA:AA:AA
+BB:BB:BB
+CC:CC:CC
+DD:DD:DD
+</code></pre>
+</div>
+
+<p>As you can see this code just prints the result and does
+not <em>“modify”</em> the file.</p>
+
+<a name="inplacetrue"></a>
+<h2 class="section-header">
+  <span id="inplacetrue"></span>
+  <a class="anchor" href="#inplacetrue">inplace=True</a>
+</h2>
+
+<p>We can pass <code class="highlighter-rouge">inplace=True</code> to <code class="highlighter-rouge">fileinput.input()</code> which will
+instead overwrite the original file with the generated output.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+</code></pre>
+</div>
+
+<p>Let’s re-run the code after our change.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python replace-macs.py
+<span class="gp">$ </span>cat macs.txt
+Laptop
+BB:BB:BB
+CC:CC:CC
+Phone
+</code></pre>
+</div>
+
+<p>When using <code class="highlighter-rouge">fileinput.input()</code> like this any output generated
+by <code class="highlighter-rouge">print()</code> calls will be written to file.</p>
+
+<p>Let’s say for example we wanted to filter a file and
+keep only <em>“even-numbered”</em> lines.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">sys</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">'4.txt'</span><span class="p">))</span>
+<span class="n">line</span> <span class="mi">1</span>
+<span class="n">line</span> <span class="mi">2</span>
+<span class="n">line</span> <span class="mi">3</span>
+<span class="n">line</span> <span class="mi">4</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">fileinput</span>
+<span class="o">&gt;&gt;&gt;</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">(</span><span class="s">'4.txt'</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="n">line</span> <span class="mi">2</span>
+<span class="n">line</span> <span class="mi">4</span>
+</code></pre>
+</div>
+
+<p>We can then use <code class="highlighter-rouge">inplace=True</code> to overwrite the original file with our
+<em>“changes”</em>.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">(</span><span class="s">'4.txt'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span> <span class="n">start</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<span class="o">...</span>         <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s">''</span><span class="p">)</span>
+<span class="o">...</span> 
+<span class="o">&gt;&gt;&gt;</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="s">'4.txt'</span><span class="p">))</span>
+<span class="n">line</span> <span class="mi">2</span>
+<span class="n">line</span> <span class="mi">4</span>
+</code></pre>
+</div>
+
+<p><small>(note: Python <em>2</em> users will need to import <code class="highlighter-rouge">print_function</code> from <code class="highlighter-rouge">__future__</code>)</small></p>
+
+<p>Back to our original code on line <em>11</em> we’re calling <code class="highlighter-rouge">rstrip('\r\n')</code></p>
+
+<p>The reason for this is that our <code class="highlighter-rouge">line</code> will contain a <em>“line
+ending”</em> which we can see here by using <code class="highlighter-rouge">repr()</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">fileinput</span><span class="o">.</span><span class="nb">input</span><span class="p">(</span><span class="s">'macs.txt'</span><span class="p">):</span>
+<span class="o">...</span>     <span class="k">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">line</span><span class="p">))</span>
+<span class="o">...</span> 
+<span class="s">'AA:AA:AA</span><span class="se">\n</span><span class="s">'</span>
+<span class="s">'BB:BB:BB</span><span class="se">\n</span><span class="s">'</span>
+<span class="s">'CC:CC:CC</span><span class="se">\n</span><span class="s">'</span>
+<span class="s">'DD:DD:DD</span><span class="se">\n</span><span class="s">'</span>
+</code></pre>
+</div>
+
+<p>So we need to strip off any potential line ending in order
+to get a successful lookup from our <em>dict</em>.</p>
+
+<a name="dictget"></a>
+<h2 class="section-header">
+  <span id="dictget"></span>
+  <a class="anchor" href="#dictget">dict.get()</a>
+</h2>
+
+<p>Next we have <code class="highlighter-rouge">macs.get(line, line)</code> which may look odd if
+you have not used <code class="highlighter-rouge">dict.get()</code> before.</p>
+
+<p>What we want to do to solve the problem at hand is to test
+<em>if</em> we have a <em>“known”</em> mac address then get it’s value
+<em>else</em> use the address itself.</p>
+
+<p>Perhaps you may write the following to do so.</p>
+
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="k">if</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">macs</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">macs</span><span class="p">[</span><span class="n">line</span><span class="p">])</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Which is a perfectly fine way to do such a thing.</p>
+
+<p><code class="highlighter-rouge">dict.get()</code> has <em>2</em> features of note, the first 
+being that it avoids any possible <code class="highlighter-rouge">KeyError</code></p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">d</span> <span class="o">=</span> <span class="p">{</span> <span class="s">'foo'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">:</span> <span class="mi">2</span> <span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s">'baz'</span><span class="p">])</span>
+<span class="n">Traceback</span> <span class="p">(</span><span class="n">most</span> <span class="n">recent</span> <span class="n">call</span> <span class="n">last</span><span class="p">):</span>
+  <span class="n">File</span> <span class="s">"&lt;stdin&gt;"</span><span class="p">,</span> <span class="n">line</span> <span class="mi">1</span><span class="p">,</span> <span class="ow">in</span> <span class="o">&lt;</span><span class="n">module</span><span class="o">&gt;</span>
+<span class="nb">KeyError</span><span class="p">:</span> <span class="s">'baz'</span>
+</code></pre>
+</div>
+
+<p>It does this by instead returning <code class="highlighter-rouge">None</code> for non-existent keys.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'baz'</span><span class="p">))</span>
+<span class="bp">None</span>
+</code></pre>
+</div>
+
+<p>We can also change what it returns by supplying a <em>default</em> 
+return value.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="k">print</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">'baz'</span><span class="p">,</span> <span class="s">'me instead!!'</span><span class="p">))</span>
+<span class="s">'me instead !!'</span>
+</code></pre>
+</div>
+
+<p>This means that by using <code class="highlighter-rouge">.get(line, line)</code> <em>if</em> a lookup fails
+(i.e. it is not a <em>known</em> address) we get back the address itself.</p>
+
+<p>The <code class="highlighter-rouge">fileinput</code> module also simplifies the creation of <em>“shell-like”</em> 
+tools in that if you do not supply any <em>filenames</em> to 
+<code class="highlighter-rouge">fileinput.input()</code> it will read from <em>stdin</em> or it will read
+from <em>filenames</em> passed as command-line arguments (i.e. <code class="highlighter-rouge">sys.argv[1:]</code>)
+similar to how commands such as <code class="highlighter-rouge">cat</code> or <code class="highlighter-rouge">sed</code> work.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (61)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/28/beautifulsoup-get_text-gets-too-much/">BeautifulSoup: get_text() gets too much</a></h2>
+          <p class="preview">The task is to extract the message text from a forum
+post using Python’s 
+<a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">BeautifulSoup</a>
+library.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
