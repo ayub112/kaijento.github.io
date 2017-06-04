@@ -483,7 +483,23 @@ from the <code class="highlighter-rouge">Network</code> tab instead of trying to
     <span class="k">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
 </code></pre></div>
 
-<p>Yes, to extract <code class="highlighter-rouge">id</code>, <code class="highlighter-rouge">csrf_token</code> and <code class="highlighter-rouge">end_cursor</code> we’re
+<p>We have created the <code class="highlighter-rouge">s</code> variable here which is a
+<a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">requests.session()</a>
+object.</p>
+
+<p>A session object <em>“allows you to persist certain parameters across requests.
+It also persists cookies across all requests made from the Session instance.”</em></p>
+
+<p>Generally speaking, if you are making more than a single request (as we are doing)
+you will want to use a session object.</p>
+
+<p>This is why we are using <code class="highlighter-rouge">s.get()</code> and <code class="highlighter-rouge">s.post()</code> as opposed to <code class="highlighter-rouge">requests.get()</code>
+and <code class="highlighter-rouge">requests.post()</code> as we are calling them from our <em>“Session instance”</em>.</p>
+
+<p>We’re setting the <code class="highlighter-rouge">User-Agent</code> header to <code class="highlighter-rouge">Mozilla/5.0</code> as the default requests 
+value is commonly blocked.</p>
+
+<p>Yes!!! To extract <code class="highlighter-rouge">id</code>, <code class="highlighter-rouge">csrf_token</code> and <code class="highlighter-rouge">end_cursor</code> we’re
 using <em>Regular Expressions!!!!!</em> which according to 
 <em>the Internet</em> we’re never supposed to use. <em>Zomg!!!</em></p>
 
@@ -1042,7 +1058,7 @@ and abide by their API guidelines.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (61)</a>
+            <a href="/archive">View Archive (62)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/05/14/web-scraping-factfinder.census.gov/">Web scraping: factfinder.census.gov</a></h2>
           <p class="preview">The goal is to enter a zipcode into the <code class="highlighter-rouge">Community Facts</code> search

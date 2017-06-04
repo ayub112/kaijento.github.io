@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/06/04/web-scraping-mazegenerator.net/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>Web scraping: mazegenerator.net | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/06/04/web-scraping-mazegenerator.net/">Web scraping: mazegenerator.net</a></h1>
+  <p class="text-muted">04 Jun 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/python/">python</a>
+  
+    
+  <a href="/categories/webscraping/">webscraping</a>
+  
+    
+  <a href="/categories/beautifulsoup/">beautifulsoup</a>
+  
+    
+  <a href="/categories/requests/">requests</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>The goal is to automate the filling out of the form
+and clicking of the <code class="highlighter-rouge">Generate new</code> button on 
+<a href="http://mazegenerator.net/">http://mazegenerator.net/</a>
+and then downloading the resulting maze image using 
+Python’s <code class="highlighter-rouge">requests</code> library.</p>
+
+<a name="developer-tools"></a>
+<h2 class="section-header">
+  <span id="developer-tools"></span>
+  <a class="anchor" href="#developer-tools">“Developer Tools”</a>
+</h2>
+
+<p>Normally what happens when you click on a button like 
+this is that a <code class="highlighter-rouge">POST</code> request is sent by the browser.</p>
+
+<p>To view the requests being made by the browser we can use
+the <code class="highlighter-rouge">Network</code> tab from what is commonly referred to as
+<em>“Developer Tools”</em>.</p>
+
+<p>To do so I <em>“right-click”</em> on the page and select <code class="highlighter-rouge">Inspect Element</code>
+which opens up the <code class="highlighter-rouge">Inspector</code> tab.</p>
+
+<p><img src="/img/1496313398-mazegenerator-inspect.png" alt="" /></p>
+
+<p>The <code class="highlighter-rouge">Inspector</code> tab shows the <code class="highlighter-rouge">DOM</code> representation of the page
+which may be of use to us later on.</p>
+
+<p>From there I select the <code class="highlighter-rouge">Network</code> tab.</p>
+
+<p><img src="/img/1496314018-mazegenerator-network-1.png" alt="" /></p>
+
+<p>We then click on the <code class="highlighter-rouge">Generate new</code> button on the page to submit 
+the form and the <code class="highlighter-rouge">Network</code> tab populates with <em>3</em> requests.</p>
+
+<p>We can select individual requests which will bring up an 
+<em>Information Panel</em> over on the right and we’ve selected the
+<code class="highlighter-rouge">Params</code> tab to view the <code class="highlighter-rouge">POST</code> data that was sent along 
+with the request.</p>
+
+<p><img src="/img/1496314410-mazegenerator-network-2.png" alt="" /></p>
+
+<p>We can also <em>“right-click”</em> on a request to get access to that information
+via the clipboard.</p>
+
+<p><img src="/img/1496315093-mazegenerator-copy-as.png" alt="" /></p>
+
+<a name="copy-as-curl"></a>
+<h2 class="section-header">
+  <span id="copy-as-curl"></span>
+  <a class="anchor" href="#copy-as-curl">Copy as cURL</a>
+</h2>
+
+<p>You may notice <code class="highlighter-rouge">Copy as cURL</code> in that list which gives you the full <code class="highlighter-rouge">curl</code>
+command used to replicate the request.</p>
+
+<p><code class="highlighter-rouge">curl</code> is a command-line tool which can be used as a <em>“HTTP client”</em> and 
+is a very useful for testing (or indeed for <em>“scraping”</em> itself).</p>
+
+<p>Infact, we will go ahead and use the <code class="highlighter-rouge">Copy as cURL</code> functionality and run 
+the generated command in the shell. We’ve added <code class="highlighter-rouge">-o maze.html</code> to the end 
+of the command-line to store the output in the file named <code class="highlighter-rouge">maze.html</code> as 
+<code class="highlighter-rouge">curl</code> will print the output to <em>“the screen”</em> by default.</p>
+
+<p><img src="/img/1496384851-mazegenerator-curl.png" alt="" /></p>
+
+<p>I’ve also used the <code class="highlighter-rouge">grep</code> command to search for <code class="highlighter-rouge">ImageGenerator</code> in the resulting
+<code class="highlighter-rouge">maze.html</code> file. If you look at the <em>3rd</em> request made in the <code class="highlighter-rouge">Network</code> tab above
+it is a <code class="highlighter-rouge">GET</code> request made to <code class="highlighter-rouge">ImageGenerator.ashx</code> and its return type is of
+<code class="highlighter-rouge">svg</code>.</p>
+
+<p>If we actually select that specific request and view the <code class="highlighter-rouge">Response</code> tab from the
+<em>Information Panel</em> on the right we can see that it is the maze image we want
+to save.</p>
+
+<p><img src="/img/1496385223-mazegenerator-response.png" alt="" /></p>
+
+<p>So we knew a request was being made to <code class="highlighter-rouge">ImageGenerator.ashx</code> which is 
+where I got the search term <code class="highlighter-rouge">ImageGenerator</code> from.</p>
+
+<p>Searching in the source <code class="highlighter-rouge">HTML</code> for values sent in requests can be
+a useful step in the <em>“debugging process</em>” and as we can see the search 
+returned us an <code class="highlighter-rouge">&lt;img&gt;</code> tag whose <code class="highlighter-rouge">id</code> attribute is <code class="highlighter-rouge">MazeDisplay</code></p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;img</span> <span class="na">id=</span><span class="s">"MazeDisplay"</span> <span class="na">src=</span><span class="s">"ImageGenerator.ashx?Tag=20170602062723&amp;amp;MazeType=1&amp;amp;Solution=0"</span> <span class="na">alt=</span><span class="s">"20 by 20 orthogonal maze"</span> <span class="nt">/&gt;</span>
+</code></pre>
+</div>
+
+<p>This means we can extract the URL from the <code class="highlighter-rouge">src</code> attribute of this tag (which is 
+contained in the <code class="highlighter-rouge">HTML</code> generated from the <code class="highlighter-rouge">POST</code> request) and use it to make a 
+<code class="highlighter-rouge">GET</code> request to the actual image file.</p>
+
+<a name="__viewstate"></a>
+<h2 class="section-header">
+  <span id="__viewstate"></span>
+  <a class="anchor" href="#__viewstate">__VIEWSTATE</a>
+</h2>
+
+<p>Let’s take a closer look at the <code class="highlighter-rouge">Params</code> that were sent in the <code class="highlighter-rouge">POST</code> request.</p>
+
+<p><img src="/img/1496314442-mazegenerator-params.png" alt="" /></p>
+
+<p>These <em>“double-underscore”</em> params are used in <code class="highlighter-rouge">ASP.net</code> web-applications and
+they appear to be used for <em>“validating”</em> requests as well as tracking <em>“state”</em>
+(similar to <em>cookies</em>?).</p>
+
+<p>As they are used for <em>validation</em> that means we <strong>must</strong> send them in our
+request but where do their values come from?</p>
+
+<p>Well you may recall what we did with <code class="highlighter-rouge">ImageGenerator</code> in that we searched
+the source <code class="highlighter-rouge">HTML</code> so let’s try it again this time with <code class="highlighter-rouge">__VIEWSTATE</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>grep __VIEWSTATE maze.html
+&lt;input <span class="nb">type</span><span class="o">=</span><span class="s2">"hidden"</span> <span class="nv">name</span><span class="o">=</span><span class="s2">"__VIEWSTATE"</span> <span class="nv">id</span><span class="o">=</span><span class="s2">"__VIEWSTATE"</span> <span class="nv">value</span><span class="o">=</span><span class="s2">"stO5jq/0Fm1h...
+</span></code></pre>
+</div>
+
+<p>The actual <code class="highlighter-rouge">value</code> is a rather large string of data so we have just shown 
+the first few characters.</p>
+
+<p>This means that we must first make a <code class="highlighter-rouge">GET</code> request to 
+<a href="http://mazegenerator.net/">http://mazegenerator.net/</a>
+and extract the values of all the <em>“double-underscore”</em> params to 
+then use in our <code class="highlighter-rouge">POST</code> request.</p>
+
+<p>If we use the <code class="highlighter-rouge">Copy POST data</code> from earlier we can see the full list 
+of <code class="highlighter-rouge">Params</code> sent.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>__EVENTTARGET
+__EVENTARGUMENT
+__LASTFOCUS
+<span class="nv">__VIEWSTATE</span><span class="o">=</span>stO5jq/0Fm1h...
+<span class="nv">__VIEWSTATEGENERATOR</span><span class="o">=</span>CA0B0334
+<span class="nv">__EVENTVALIDATION</span><span class="o">=</span>B/F/jIHl...
+<span class="nv">ShapeDropDownList</span><span class="o">=</span>1
+<span class="nv">S1TesselationDropDownList</span><span class="o">=</span>1
+<span class="nv">S1WidthTextBox</span><span class="o">=</span>20
+<span class="nv">S1HeightTextBox</span><span class="o">=</span>20
+<span class="nv">S1InnerWidthTextBox</span><span class="o">=</span>0
+<span class="nv">S1InnerHeightTextBox</span><span class="o">=</span>0
+<span class="nv">S1StartsAtDropDownList</span><span class="o">=</span>1
+<span class="nv">AlgorithmParameter1TextBox</span><span class="o">=</span>50
+<span class="nv">AlgorithmParameter2TextBox</span><span class="o">=</span>100
+<span class="nv">GenerateButton</span><span class="o">=</span>Generate
+</code></pre>
+</div>
+
+<p>Once again the <code class="highlighter-rouge">__VIEWSTATE</code> and <code class="highlighter-rouge">__EVENTVALIDATION</code> values are usually very
+large strings of data so we have just displayed the first few characters 
+here.</p>
+
+<p>The rest of the params sent have to do with the options used
+in the form for customizing the maze image to be generated.</p>
+
+<p>We can use the <em>“Selector”</em> tool (the button to the left of <code class="highlighter-rouge">Inspector</code>)
+to show display us the <code class="highlighter-rouge">DOM</code> representation of a particular element from 
+the page in the <code class="highlighter-rouge">Inspector</code> tab.</p>
+
+<p>It is worth noting that what we see in the <code class="highlighter-rouge">Inspector</code> tab is
+the result after our browser (I’m using <code class="highlighter-rouge">Firefox</code> here) has parsed
+the source <code class="highlighter-rouge">HTML</code> and as such it may differ from the actual source 
+<code class="highlighter-rouge">HTML</code></p>
+
+<p><img src="/img/1496552421-mazegenerator-inspector.png" alt="" /></p>
+
+<p>Here is what the <code class="highlighter-rouge">Shape</code> section looks like.</p>
+
+<div class="language-html highlighter-rouge"><pre class="highlight"><code><span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"ShapeSection"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;label</span> <span class="na">for=</span><span class="s">"ShapeDropDownList"</span> <span class="na">id=</span><span class="s">"ShapeLabel"</span><span class="nt">&gt;</span>Shape:<span class="nt">&lt;/label&gt;</span>
+    <span class="nt">&lt;select</span> <span class="na">name=</span><span class="s">"ShapeDropDownList"</span> <span class="na">onchange=</span><span class="s">"..."</span> <span class="na">id=</span><span class="s">"ShapeDropDownList"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;option</span> <span class="na">selected=</span><span class="s">"selected"</span> <span class="na">value=</span><span class="s">"1"</span><span class="nt">&gt;</span>Rectangular<span class="nt">&lt;/option&gt;</span>
+      <span class="nt">&lt;option</span> <span class="na">value=</span><span class="s">"2"</span><span class="nt">&gt;</span>Circular<span class="nt">&lt;/option&gt;</span>
+      <span class="nt">&lt;option</span> <span class="na">value=</span><span class="s">"3"</span><span class="nt">&gt;</span>Triangular<span class="nt">&lt;/option&gt;</span>
+      <span class="nt">&lt;option</span> <span class="na">value=</span><span class="s">"4"</span><span class="nt">&gt;</span>Hexagonal<span class="nt">&lt;/option&gt;</span>
+</code></pre>
+</div>
+
+<p>So if we wanted to generate a <code class="highlighter-rouge">Circular</code> maze we would pass a value of <code class="highlighter-rouge">2</code>
+instead of the default value <code class="highlighter-rouge">1</code> for a <code class="highlighter-rouge">Rectangular</code> maze.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>As mentioned at the beginning the goal was to use the <code class="highlighter-rouge">requests</code> library as 
+our <em>“HTTP Client”</em> and we will also be using <code class="highlighter-rouge">BeautifulSoup</code> with <code class="highlighter-rouge">html5lib</code>
+to <em>“scrape”</em> the <code class="highlighter-rouge">HTML</code> to extract our needed data.</p>
+
+<p>You can install these using
+<code class="highlighter-rouge">pip install beautifulsoup4 requests html5lib --user</code> if you have not
+already.</p>
+
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40</div><code><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span>   <span class="nn">bs4</span> <span class="kn">import</span> <span class="n">BeautifulSoup</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s">'http://mazegenerator.net/'</span>
+
+<span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">session</span><span class="p">()</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s">'user-agent'</span><span class="p">]</span> <span class="o">=</span> <span class="s">'Mozilla/5.0'</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="p">{</span> 
+        <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]:</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">ShapeDropDownList</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">S1TesselationDropDownList</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">S1WidthTextBox</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">S1HeightTextBox</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+        <span class="n">S1InnerWidthTextBox</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">S1InnerHeightTextBox</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">S1StartsAtDropDownList</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">AlgorithmParameter1TextBox</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+        <span class="n">AlgorithmParameter2TextBox</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">GenerateButton</span><span class="o">=</span><span class="s">'Generate'</span>
+    <span class="p">)</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+
+    <span class="n">r</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">soup</span> <span class="o">=</span> <span class="n">BeautifulSoup</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">content</span><span class="p">,</span> <span class="s">'html5lib'</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'img'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">'MazeDisplay'</span><span class="p">)</span>
+
+    <span class="k">print</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">'maze.svg'</span><span class="p">,</span> <span class="s">'wb'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">maze</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span> <span class="o">+</span> <span class="n">img</span><span class="p">[</span><span class="s">'src'</span><span class="p">])</span><span class="o">.</span><span class="n">content</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">maze</span><span class="p">)</span>
+</code></pre></div>
+
+<p>We have created the <code class="highlighter-rouge">s</code> variable here on <em>line 6</em> which is a
+<a href="http://docs.python-requests.org/en/latest/user/advanced/#session-objects">requests.session()</a>
+object.</p>
+
+<p>A session object <em>“allows you to persist certain parameters across requests.
+It also persists cookies across all requests made from the Session instance.”</em></p>
+
+<p>We want our headers and cookies to persist between our multiple requests so
+we must use one.</p>
+
+<p>Generally speaking, if you’re making more than a single request you will want to use
+a session object.</p>
+
+<p>This is why we are using <code class="highlighter-rouge">s.get()</code> and <code class="highlighter-rouge">s.post()</code> as opposed to <code class="highlighter-rouge">requests.get()</code>
+and <code class="highlighter-rouge">requests.post()</code> as we are calling them from our <em>“Session instance”</em>.</p>
+
+<p>We’re setting the <code class="highlighter-rouge">User-Agent</code> header for our requests to <code class="highlighter-rouge">Mozilla/5.0</code> as 
+the default requests value is commonly blocked.</p>
+
+<p>On <em>line 12</em> we’re creating the <code class="highlighter-rouge">state</code> variable using a <em>dict comprehension</em>.</p>
+
+<p>This is just shorthand syntax for creating a dict which we could have
+created using a <em>regular</em> <code class="highlighter-rouge">for</code> loop.</p>
+
+<div class="language-python-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">soup</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)</span>
+    <span class="n">key</span>   <span class="o">=</span> <span class="n">tag</span><span class="p">[</span><span class="s">'name'</span><span class="p">]</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">tag</span><span class="p">[</span><span class="s">'value'</span><span class="p">]</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</code></pre></div>
+
+<a name="beautifulsoup"></a>
+<h2 class="section-header">
+  <span id="beautifulsoup"></span>
+  <a class="anchor" href="#beautifulsoup">BeautifulSoup</a>
+</h2>
+
+<p><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/#css-selectors">BeautifulSoup’s select()</a>
+method takes a <em>CSS Selector</em> and will return all matches found.</p>
+
+<p>There is also <code class="highlighter-rouge">select_one()</code> which will return the first match.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="nb">input</span> <span class="nb">id</span><span class="o">=</span><span class="s">"__EVENTTARGET"</span> <span class="n">name</span><span class="o">=</span><span class="s">"__EVENTTARGET"</span> <span class="nb">type</span><span class="o">=</span><span class="s">"hidden"</span> <span class="n">value</span><span class="o">=</span><span class="s">""</span><span class="o">/&gt;</span>
+</code></pre>
+</div>
+
+<p>The <em>CSS Selector</em> <code class="highlighter-rouge">input[name^=__]</code> matches <code class="highlighter-rouge">&lt;input&gt;</code> tags whose <code class="highlighter-rouge">name</code> 
+attribute <em>startswith</em> <code class="highlighter-rouge">__</code></p>
+
+<p>The <code class="highlighter-rouge">^=</code> here being the <em>startswith</em> condition.</p>
+
+<p>When used with <code class="highlighter-rouge">select()</code> this will extract all of the 
+<em>“double-underscore”</em> params we need.</p>
+
+<p>We can then use regular <em>dict-indexing</em> on the found <code class="highlighter-rouge">Tag</code> objects to 
+extract the values of the tag attributes as we do here to extract the
+<code class="highlighter-rouge">id</code> attribute.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">select_one</span><span class="p">(</span><span class="s">'input[name^=__]'</span><span class="p">)[</span><span class="s">'id'</span><span class="p">]</span> 
+<span class="s">'__EVENTTARGET'</span>
+</code></pre>
+</div>
+
+<p>So we end up with <code class="highlighter-rouge">state</code> being a <em>dict</em> of the param names and param 
+values to be used with our <code class="highlighter-rouge">POST</code> request.</p>
+
+<p>We then create another <em>dict</em> on <em>line 16</em> containing the default
+values for the maze generation.</p>
+
+<p>We are using <code class="highlighter-rouge">dict()</code> to create it as opposed to the “regular”
+syntax.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="nb">dict</span><span class="p">(</span><span class="n">foo</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bar</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="p">{</span><span class="s">'foo'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'bar'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>The reason for this using <code class="highlighter-rouge">dict()</code> is that is allows us to omit 
+quotes around the <em>key</em> names and it was less work to modify the 
+output of the <code class="highlighter-rouge">Copy POST data</code> result.</p>
+
+<p>On <em>line 29</em> we call <code class="highlighter-rouge">data.update(state)</code> which <em>merges</em> 
+the 2 dicts together.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">state</span> <span class="o">=</span> <span class="p">{</span> <span class="s">'__VIEWSTATE'</span><span class="p">:</span> <span class="s">'abc'</span> <span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">data</span>  <span class="o">=</span> <span class="p">{</span> <span class="s">'shape'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'width'</span><span class="p">:</span> <span class="mi">20</span> <span class="p">}</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">state</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">state</span>
+<span class="p">{</span><span class="s">'width'</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s">'shape'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">'__VIEWSTATE'</span><span class="p">:</span> <span class="s">'abc'</span><span class="p">}</span>
+</code></pre>
+</div>
+
+<p>We then perform our <code class="highlighter-rouge">POST</code> request and extract the <code class="highlighter-rouge">src</code> URL from the <code class="highlighter-rouge">&lt;img&gt;</code> 
+tag.</p>
+
+<p><code class="highlighter-rouge">find('img')</code> will find the first <code class="highlighter-rouge">&lt;img&gt;</code> tag which in this case returns the tag
+we’re after as there are no other <code class="highlighter-rouge">&lt;img&gt;</code> tags in the result.</p>
+
+<p>It can be useful however to be more explicit and we can 
+pass <code class="highlighter-rouge">id='MazeDisplay'</code> (which is shorthand
+for <code class="highlighter-rouge"><span class="p">{</span><span class="err">'id':</span><span class="w"> </span><span class="err">'MazeDisplay'</span><span class="p">}</span></code>) to also match on the value of the <code class="highlighter-rouge">id</code> 
+attribute of a particular tag.</p>
+
+<div class="language-python highlighter-rouge"><pre class="highlight"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'img'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">img</span> <span class="n">alt</span><span class="o">=</span><span class="s">"20 by 20 orthogonal maze"</span> <span class="nb">id</span><span class="o">=</span><span class="s">"MazeDisplay"</span> <span class="n">src</span><span class="o">=</span><span class="s">"ImageGenerator.ashx?Tag=20170602062723&amp;amp;MazeType=1&amp;amp;Solution=0"</span><span class="o">/&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'img'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">'MazeDisplay'</span><span class="p">)</span>
+<span class="o">&lt;</span><span class="n">img</span> <span class="n">alt</span><span class="o">=</span><span class="s">"20 by 20 orthogonal maze"</span> <span class="nb">id</span><span class="o">=</span><span class="s">"MazeDisplay"</span> <span class="n">src</span><span class="o">=</span><span class="s">"ImageGenerator.ashx?Tag=20170602062723&amp;amp;MazeType=1&amp;amp;Solution=0"</span><span class="o">/&gt;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">soup</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">'img'</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s">'MazeDisplay'</span><span class="p">)[</span><span class="s">'src'</span><span class="p">]</span>
+<span class="s">'ImageGenerator.ashx?Tag=20170602062723&amp;MazeType=1&amp;Solution=0'</span>
+</code></pre>
+</div>
+
+<p>Finally we can use the <em>dict-indexing</em> as we did earlier to extract the
+value of the <code class="highlighter-rouge">src</code> attribute.</p>
+
+<p>It is a <em>relative URL</em> so we prefix it with <code class="highlighter-rouge">http://mazegenerator.net/</code> 
+to get the full URL to the image which we then fetch and <code class="highlighter-rouge">write()</code> it to
+a file on <em>lines 38-40</em>.</p>
+
+<p>Note that as it is in image we’re saving we use the <code class="highlighter-rouge">b</code> mode to <code class="highlighter-rouge">open()</code>
+for <em>“binary mode”</em>.</p>
+
+<p>The resulting maze image is small in size however when dealing with large
+downloads you will want to 
+<a href="http://docs.python-requests.org/en/latest/user/quickstart/#raw-response-content">stream the download</a>
+and write to file in chunks.</p>
+
+<p>Finally, we can run the code and check the output file using the <code class="highlighter-rouge">file</code> command.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>python mazegenerator.net.py 
+http://mazegenerator.net/ImageGenerator.ashx?Tag<span class="o">=</span>20170604063729&amp;MazeType<span class="o">=</span>1&amp;Solution<span class="o">=</span>0
+<span class="gp">$ </span>file maze.svg
+maze.svg: SVG Scalable Vector Graphics image
+</code></pre>
+</div>
+
+<a name="summary"></a>
+<h2 class="section-header">
+  <span id="summary"></span>
+  <a class="anchor" href="#summary">Summary</a>
+</h2>
+
+<p>To use mazes from mazegenerator.net for commercial purposes you need a 
+<a href="http://mazegenerator.net/CommercialUse.aspx">commercial license</a>.</p>
+
+<p>The final code can also be found
+<a href="https://github.com/kaijento/code/blob/master/webscraping/mazegenerator.net/mazegenerator.net.py">on github</a>.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (62)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/05/28/python-replacing-lines-in-file/">Python: Replacing lines in a file</a></h2>
+          <p class="preview">Given a text file that contains a single mac address per 
+line the goal is to process the file and replace known
+mac addresses with their equivalent device name using Python.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
