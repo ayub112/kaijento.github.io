@@ -5,8 +5,8 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sun, 04 Jun 2017 11:06:25 +0100</pubDate>
-    <lastBuildDate>Sun, 04 Jun 2017 11:06:25 +0100</lastBuildDate>
+    <pubDate>Sun, 04 Jun 2017 11:09:03 +0100</pubDate>
+    <lastBuildDate>Sun, 04 Jun 2017 11:09:03 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
     
       <item>
@@ -180,8 +180,8 @@ new: ./dir/3:4.png
 &lt;p&gt;&lt;strong&gt;GREAT SUCCESS!!!&lt;/strong&gt;&lt;/p&gt;
 </description>
         <pubDate>Sun, 04 Jun 2017 10:07:07 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/06/04/bash-rename-image-files/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/06/04/bash-rename-image-files/</guid>
+        <link>http://kaijento.github.io/2017/06/04/bash-rename-image-files-based-on-type/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/06/04/bash-rename-image-files-based-on-type/</guid>
         
         <category>bash</category>
         
