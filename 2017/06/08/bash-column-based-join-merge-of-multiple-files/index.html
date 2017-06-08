@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/stylesheets/shiori.css">
+    <link rel="canonical" href="http://kaijento.github.io/2017/06/08/bash-column-based-join-merge-of-multiple-files/">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <title>bash: column based join/merge of multiple files | Shiori</title>
+    
+  </head>
+  <body>
+
+    <div class="navbar navbar-default navbar-static-top">
+
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/" class="navbar-brand">Shiori</a>
+        </div>
+        <div>
+            <ul class="navbar-nav nav">
+            <li><a href="/archive/">articles</a></li>
+<li><a href="/categories/">categories</a></li>
+<li><a href="/me/">me</a></li>
+<li><a href="/feed.xml">rss</a></li>
+
+          </ul>
+          <ul class="navbar-nav nav navbar-right">
+            <li><a href="https://twitter.com/kaijento">@kaijento</a></li>
+<li><a href="https://github.com/kaijento">
+    <svg height="18" viewBox="0 0 16 16" class="octicon-mark-github" version="1.1" width="24"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+  </a>
+</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container post-body">
+    
+      <div class="row">
+        
+          <div class="col-sm-12">
+            <div class="post-header">
+  <!-- Emoji is not available outside markdown files, so using "include ribbon.html" instead -->
+<img class="emoji" title=":ribbon:" alt=":ribbon:" src="/img/1f380.png" height="20" width="20" align="absmiddle">
+
+  <h1 class="post-title-main"><a href="/2017/06/08/bash-column-based-join-merge-of-multiple-files/">bash: column based join/merge of multiple files</a></h1>
+  <p class="text-muted">08 Jun 2017</p>
+
+<p class="text-right preview">
+  
+    
+  <a href="/categories/bash/">bash</a>
+  
+    
+  <a href="/categories/perl/">perl</a>
+  
+</p>
+
+
+</div>
+<div class="post-content">
+  <p>Given the following input file.</p>
+
+<p><code class="highlighter-rouge">file2.txt</code></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code>-123456.12 -1234567.12 912300001     1000 123.1 123.1 ab 1 3
+-123466.12 -1234667.12 912300001     1001 133.1 124.1 ab 2 2
+-123476.12 -1234767.12 912300001     1002 143.1 125.1 ab 3 1
+-123486.12 -1234867.12 922300001     1000 153.1 126.1 ab 3 1
+-123496.12 -1234967.12 922300001     1001 163.1 127.1 ab 2 2
+-123446.12 -1234367.12 922300001     1002 173.1 128.1 ab 1 3
+</code></pre>
+</div>
+
+<p>The <em>3rd column</em> (e.g. <code class="highlighter-rouge">912300001</code>) is the base of a filename 
+which exists in the same directory which we need to lookup
+using the <em>4th column</em> (e.g. <code class="highlighter-rouge">1000</code>)</p>
+
+<p>Here is an example of the structure of the file we need to 
+lookup.</p>
+
+<p><code class="highlighter-rouge">912300001.file1.txt</code></p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>VALUE   1000    -21 -21
+VALUE   1001    -23 -22
+VALUE   1002    -23 -21
+</code></pre>
+</div>
+
+<p>We need to match on the <em>2nd column</em> of this file and if there
+is a match we want to take the <em>3rd</em> and <em>4th</em> columns and 
+<em>merge/join</em> with the original <em>“row”</em> from <code class="highlighter-rouge">file2.txt</code>
+resulting in the following output.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>-123456.12 -1234567.12 912300001     1000 123.1 123.1 ab 1 3 -21 -21
+-123466.12 -1234667.12 912300001     1001 133.1 124.1 ab 2 2 -23 -22
+-123476.12 -1234767.12 912300001     1002 143.1 125.1 ab 3 1 -23 -21
+</code></pre>
+</div>
+
+<p>We would like to complete this task using <code class="highlighter-rouge">bash</code> if possible.</p>
+
+<a name="code"></a>
+<h2 class="section-header">
+  <span id="code"></span>
+  <a class="anchor" href="#code">Code</a>
+</h2>
+
+<p>We will start with the output.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>cat 912300001.file1.txt 
+VALUE   1000    -21 -21
+VALUE   1001    -23 -22
+VALUE   1002    -23 -21
+<span class="gp">$ </span>cat 922300001.file1.txt 
+VALUE   1000    Y Y
+VALUE   1001    X X
+VALUE   1002    Z Z
+<span class="gp">$ </span>bash filemerge
+-123456.12 -1234567.12 912300001     1000 123.1 123.1 ab 1 3 -21 -21
+-123466.12 -1234667.12 912300001     1001 133.1 124.1 ab 2 2 -23 -22
+-123476.12 -1234767.12 912300001     1002 143.1 125.1 ab 3 1 -23 -21
+-123486.12 -1234867.12 922300001     1000 153.1 126.1 ab 3 1 Y Y
+-123496.12 -1234967.12 922300001     1001 163.1 127.1 ab 2 2 X X
+-123446.12 -1234367.12 922300001     1002 173.1 128.1 ab 1 3 Z Z
+</code></pre>
+</div>
+
+<p>Here is the code we used.</p>
+
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15</div><code><span class="c">#!/bin/bash</span>
+
+<span class="k">while </span><span class="nb">read</span> -r line
+<span class="k">do
+    </span><span class="nb">read</span> -r _ _ name value _ <span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+    <span class="o">[[</span> <span class="nv">$name</span> !<span class="o">=</span> <span class="nv">$prev_name</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">{</span>
+        <span class="nb">declare</span> -A <span class="nv">lookup</span><span class="o">=()</span>
+        <span class="k">while </span><span class="nb">read</span> -r _ key value
+        <span class="k">do
+            </span>lookup[<span class="nv">$key</span><span class="o">]=</span><span class="nv">$value</span>
+        <span class="k">done</span> &lt; <span class="s2">"</span><span class="nv">$name</span><span class="s2">.file1.txt"</span>
+    <span class="o">}</span>
+    <span class="nv">prev_name</span><span class="o">=</span><span class="nv">$name</span>
+    <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2"> </span><span class="k">${</span><span class="nv">lookup</span><span class="p">[</span><span class="nv">$value</span><span class="p">]</span><span class="k">}</span><span class="s2">"</span>
+<span class="k">done</span> &lt; file2.txt
+</code></pre></div>
+
+<p>We start by reading <code class="highlighter-rouge">file2.txt</code> line-by-line.</p>
+
+<p>The usual way to read a file line-by-line in the shell is
+by using a <code class="highlighter-rouge">while read</code> loop e.g.</p>
+
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="k">while </span><span class="nb">read</span> -r line
+<span class="k">do</span>
+    <span class="c"># do something with line</span>
+<span class="k">done</span> &lt; filename
+</code></pre></div>
+
+<p><code class="highlighter-rouge">line</code> here is the name of a variable we have chosen which will be set 
+by <em>bash</em> and populated by each line of <code class="highlighter-rouge">filename</code></p>
+
+<p>You can omit a variable name and <code class="highlighter-rouge">read</code> will populate the default variable 
+<code class="highlighter-rouge">REPLY</code> instead.</p>
+
+<a name="read--r"></a>
+<h2 class="section-header">
+  <span id="read--r"></span>
+  <a class="anchor" href="#read--r">read -r</a>
+</h2>
+
+<p>The <code class="highlighter-rouge">-r</code> option of <code class="highlighter-rouge">read</code> has to do with backslash handling.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">read</span> -r foo bar baz <span class="o">&lt;&lt;&lt;</span> <span class="s1">'one two three'</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p foo bar baz
+<span class="nb">declare</span> -- <span class="nv">foo</span><span class="o">=</span><span class="s2">"one"</span>
+<span class="nb">declare</span> -- <span class="nv">bar</span><span class="o">=</span><span class="s2">"two"</span>
+<span class="nb">declare</span> -- <span class="nv">baz</span><span class="o">=</span><span class="s2">"three"</span>
+</code></pre>
+</div>
+
+<p><small>(note: <code class="highlighter-rouge">declare -p</code> is just being used to show us the contents of the
+variables.)</small></p>
+
+<p>When <code class="highlighter-rouge">read</code> is used without <code class="highlighter-rouge">-r</code> backslashes are treated <em>“specially”</em> e.g.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">read </span>foo bar baz <span class="o">&lt;&lt;&lt;</span> <span class="s1">'one\ two three'</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p foo bar baz
+<span class="nb">declare</span> -- <span class="nv">foo</span><span class="o">=</span><span class="s2">"one two"</span>
+<span class="nb">declare</span> -- <span class="nv">bar</span><span class="o">=</span><span class="s2">"three"</span>
+<span class="nb">declare</span> -- <span class="nv">baz</span><span class="o">=</span><span class="s2">""</span>
+</code></pre>
+</div>
+
+<p>Because we have <em>quoted</em> the space using a backslash the <code class="highlighter-rouge">foo bar</code> is 
+treated as a single <em>“word”</em> meaning we have a total of <em>2 words</em> 
+as opposed to <em>3</em> which results in the <code class="highlighter-rouge">baz</code> variable being empty.</p>
+
+<a name="&lt;&lt;&lt;"></a>
+<h2 class="section-header">
+  <span id="&lt;&lt;&lt;"></span>
+  <a class="anchor" href="#&lt;&lt;&lt;">&lt;&lt;&lt;</a>
+</h2>
+
+<p>The <code class="highlighter-rouge">&lt;&lt;&lt;</code> construct used here is called a <em>Here String</em> which sends a <em>string</em>
+to the <em>stdin</em> of a <em>command</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>sed <span class="s1">'s/foo/bar/'</span> <span class="o">&lt;&lt;&lt;</span> foobar
+barbar
+<span class="gp">$ </span><span class="nb">echo </span>foobar | sed <span class="s1">'s/foo/bar/'</span>
+barbar
+</code></pre>
+</div>
+
+<p>If you look closely at the input file <code class="highlighter-rouge">file2.txt</code> you may notice that
+the <em>“filename”</em> and <em>“value”</em> columns are sorted. This means that we only 
+ever need to have <em>1</em> lookup file stored in an array at any given time.</p>
+
+<p>Each time we encounter a <em>“new” filename</em> we can load that file into an array 
+to use for our lookups.</p>
+
+<p>In order to do so we need to extract the <em>“filename”</em> and <em>“value”</em> columns 
+from each line in <code class="highlighter-rouge">file2.txt</code> which we do on <em>line 5</em> of the code.</p>
+
+<p>Let’s take a closer look at how that works with an example.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">line</span><span class="o">=</span><span class="s1">'-123456.12 -1234567.12 912300001     1000 123.1 123.1 ab 1 3'</span>
+<span class="gp">$ </span><span class="nb">read</span> -r _ _ name value _ <span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p name value
+<span class="nb">declare</span> -- <span class="nv">name</span><span class="o">=</span><span class="s2">"912300001"</span>
+<span class="nb">declare</span> -- <span class="nv">value</span><span class="o">=</span><span class="s2">"1000"</span>
+</code></pre>
+</div>
+
+<p>It’s common to use <code class="highlighter-rouge">_</code> as a <em>“placeholder”</em> (or <em>“throwaway”</em>) variable name 
+if you do not intend to use its value.</p>
+
+<p>Another option for <em>“splitting a row into columns”</em> could be to use the <code class="highlighter-rouge">-a</code> 
+option of <code class="highlighter-rouge">read</code> which creates an array variable.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">read</span> -r -a columns <span class="o">&lt;&lt;&lt;</span> <span class="s2">"</span><span class="nv">$line</span><span class="s2">"</span>
+<span class="gp">$ </span><span class="nb">declare</span> -p columns
+<span class="nb">declare</span> -a <span class="nv">columns</span><span class="o">=</span><span class="s1">'([0]="-123456.12" [1]="-1234567.12" [2]="912300001" [3]="1000" 
+[4]="123.1" [5]="123.1" [6]="ab" [7]="1" [8]="3")'</span>
+</code></pre>
+</div>
+
+<p>After we extract the <em>“filename”</em> we need to test if it
+is a <em>“new” filename</em> which brings us to <em>line 6</em></p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="o">[[</span> <span class="nv">$name</span> ne <span class="nv">$prev_name</span> <span class="o">]]</span> <span class="o">&amp;&amp;</span> <span class="o">{</span>
+</code></pre>
+</div>
+
+<p><code class="highlighter-rouge">prev_name</code> has not yet been defined in the code which means
+that the first time this <em>test</em> executes <code class="highlighter-rouge">$prev_name</code> will default
+to an <em>“empty string”</em> i.e. <code class="highlighter-rouge">[[ $name ne '' ]]</code> which will return
+<em>True</em>.</p>
+
+<a name="declare--a"></a>
+<h2 class="section-header">
+  <span id="declare--a"></span>
+  <a class="anchor" href="#declare--a">declare -A</a>
+</h2>
+
+<p>When this <em>test</em> returns <em>True</em> it means we have encountered a 
+<em>“new” filename</em> in which case we create our array (named <code class="highlighter-rouge">lookup</code>)
+and process <code class="highlighter-rouge">$name.file1.txt</code> line-by-line
+extracting the <em>“value”</em> column as our array <em>“key”</em> and
+<em>columns 3 and 4</em> as our array <em>“value”</em>.</p>
+
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5</div><code><span class="nb">declare</span> -A <span class="nv">lookup</span><span class="o">=()</span>
+<span class="k">while </span><span class="nb">read</span> -r _ key value
+<span class="k">do
+    </span>lookup[<span class="nv">$key</span><span class="o">]=</span><span class="nv">$value</span>
+<span class="k">done</span> &lt; <span class="s2">"</span><span class="nv">$name</span><span class="s2">.file1.txt"</span>
+</code></pre></div>
+
+<p>With <code class="highlighter-rouge">declare -A lookup=()</code> we are declaring <code class="highlighter-rouge">lookup</code> as an empty 
+<em>associative array</em> each time as we don’t want to <em>remember</em> values 
+from any previous files.</p>
+
+<p>The <code class="highlighter-rouge">declare -A</code> part is what specifies that <code class="highlighter-rouge">lookup</code> is an 
+<em>associative array</em> but what exactly is an <em>“associative array”</em> 
+and why are we using one?</p>
+
+<p>In the example files shown the <em>“value”</em> column (e.g. <code class="highlighter-rouge">1000</code>) is an
+integer which is a valid array index. If however, we had a value of
+<code class="highlighter-rouge">0030</code> we would get some unexpected behaviour.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">lookup</span><span class="o">=()</span>
+<span class="gp">$ </span>lookup[<span class="s2">"0030"</span><span class="o">]=</span>moo
+<span class="gp">$ </span><span class="nb">declare</span> -p lookup
+<span class="nb">declare</span> -a <span class="nv">lookup</span><span class="o">=</span><span class="s1">'([24]="moo")'</span>
+</code></pre>
+</div>
+
+<p><em>bash</em> treats <em>numbers</em> (even though it is quoted here) with leading zeros
+as <em>octal</em> values and it converts <code class="highlighter-rouge">30</code> into octal <code class="highlighter-rouge">24</code> which may cause some
+surprise.</p>
+
+<p><em>bash</em> added <em>associative arrays</em> in version <em>4</em> and they can be created
+using the <code class="highlighter-rouge">declare -A name</code> syntax.</p>
+
+<p>An <em>associative array</em> allows us to use <em>strings</em> as the keys as opposed
+to just <em>“integers”</em> and as such there will be no attempted conversion
+on the <em>key</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">declare</span> -A <span class="nv">lookup</span><span class="o">=()</span>
+<span class="gp">$ </span>lookup[<span class="s2">"0030"</span><span class="o">]=</span>moo
+<span class="gp">$ </span><span class="nb">declare</span> -p lookup
+<span class="nb">declare</span> -A <span class="nv">lookup</span><span class="o">=</span><span class="s1">'([0030]="moo" )'</span>
+</code></pre>
+</div>
+
+<p>It also means that we can use <em>strings</em> as mentioned.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>lookup[hello]<span class="o">=</span>hi
+<span class="gp">$ </span><span class="nb">declare</span> -p lookup
+<span class="nb">declare</span> -A <span class="nv">lookup</span><span class="o">=</span><span class="s1">'([0030]="moo" [hello]="hi" )'</span>
+</code></pre>
+</div>
+
+<p>After the array has been populated we use <code class="highlighter-rouge">prev_name=$name</code> to 
+save the filename which we will test against when the next
+line of input is processed.</p>
+
+<a name="var"></a>
+<h2 class="section-header">
+  <span id="var"></span>
+  <a class="anchor" href="#var">${var}</a>
+</h2>
+
+<p>The <code class="highlighter-rouge">$name</code> variable inside <code class="highlighter-rouge">$name.file1.txt</code> expands correctly 
+because <code class="highlighter-rouge">.</code> characters are not allowed in variable names meaning 
+<em>bash</em> knows where the variable name ends.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>my.var<span class="o">=</span>1
+-bash: my.var<span class="o">=</span>1: <span class="nb">command </span>not found
+</code></pre>
+</div>
+
+<p>If this were not the case we could use surrounding braces i.e. 
+<code class="highlighter-rouge">${name}</code> to give <em>bash</em> a hint.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nv">name</span><span class="o">=</span>filename
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$name</span><span class="s2">.ext"</span>
+filename.ext
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$nameext</span><span class="s2">"</span>
+
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">"</span><span class="k">${</span><span class="nv">name</span><span class="k">}</span><span class="s2">ext"</span>
+filenameext
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">$nameext</code> example produces an empty value because <em>bash</em> thinks
+we’re using the variable <code class="highlighter-rouge">nameext</code> which does not exist.</p>
+
+<p>Finally, we <code class="highlighter-rouge">echo "$line ${lookup[$value]}"</code> to print out the 
+<em>merged/joined</em> result.</p>
+
+<p>This code assumes there is a matching value in the <code class="highlighter-rouge">lookup</code> and there
+is no <em>error checking</em> implemented.</p>
+
+<a name="perl"></a>
+<h2 class="section-header">
+  <span id="perl"></span>
+  <a class="anchor" href="#perl">Perl</a>
+</h2>
+
+<p>If you do not have <em>Bash 4</em> another option could be to use <code class="highlighter-rouge">perl</code> and
+here is a possible solution written as a <em>one-liner</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -lape <span class="s1">'%lookup = do { open fh, "&lt;", "$F[2].file1.txt"; map { /\S+\s+(\S+)\s+(.+)/ } readline fh }, $name = $F[2] if $F[2] ne $name; $_ = "$_ $lookup{$F[3]}"'</span> file2.txt 
+-123456.12 -1234567.12 912300001     1000 123.1 123.1 ab 1 3 -21 -21
+-123466.12 -1234667.12 912300001     1001 133.1 124.1 ab 2 2 -23 -22
+-123476.12 -1234767.12 912300001     1002 143.1 125.1 ab 3 1 -23 -21
+-123486.12 -1234867.12 922300001     1000 153.1 126.1 ab 3 1 Y Y
+-123496.12 -1234967.12 922300001     1001 163.1 127.1 ab 2 2 X X
+-123446.12 -1234367.12 922300001     1002 173.1 128.1 ab 1 3 Z Z
+</code></pre>
+</div>
+
+<p>Let’s rewrite it on multiple lines to try to explain what’s going on.</p>
+
+<div class="language-bash-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4
+5
+6
+7</div><code><span class="gp">$ </span>perl -lape <span class="s1">'
+    %lookup = do { 
+        open fh, "&lt;", "$F[2].file1.txt"; 
+        map { /\S+\s+(\S+)\s+(.+)/ } readline fh 
+    }, $name = $F[2] if $F[2] ne $name; 
+    $_ = "$_ $lookup{$F[3]}"
+'</span> file2.txt 
+</code></pre></div>
+
+<p>First the options (or <em>switches</em>):</p>
+
+<ul>
+  <li><code class="highlighter-rouge">-l</code> removes (or <em>chomps</em>) the line endings from each line of input</li>
+  <li><code class="highlighter-rouge">-a</code> auto-splits the line into <em>“columns”</em> and stores them in the array named <code class="highlighter-rouge">@F</code></li>
+  <li><code class="highlighter-rouge">-p</code> adds a <code class="highlighter-rouge">while (readline) { ...; print }</code> loop around our code</li>
+</ul>
+
+<p>These are all documented inside <code class="highlighter-rouge">perlrun.pod</code> which you can read using the
+<code class="highlighter-rouge">perldoc perlrun</code> command or in a browser 
+<a href="https://metacpan.org/pod/perlrun">on metacpan.org</a>.</p>
+
+<p>We can use <code class="highlighter-rouge">-MO=Deparse</code> to tell <code class="highlighter-rouge">perl</code> to show us what the <em>“compiled”</em>
+code looks like.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -MO<span class="o">=</span>Deparse -lape <span class="s1">''</span>
+BEGIN <span class="o">{</span> <span class="nv">$/</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>; <span class="nv">$\</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span>; <span class="o">}</span>
+LINE: <span class="k">while</span> <span class="o">(</span>defined<span class="o">(</span><span class="nv">$_</span> <span class="o">=</span> &lt;ARGV&gt;<span class="o">))</span> <span class="o">{</span>
+    chomp <span class="nv">$_</span>;
+    our<span class="o">(</span>@F<span class="o">)</span> <span class="o">=</span> split<span class="o">(</span><span class="s1">' '</span>, <span class="nv">$_</span>, 0<span class="o">)</span>;
+<span class="o">}</span>
+<span class="k">continue</span> <span class="o">{</span>
+    die <span class="s2">"-p destination: </span><span class="nv">$!</span><span class="se">\n</span><span class="s2">"</span> unless print <span class="nv">$_</span>;
+<span class="o">}</span>
+-e syntax OK
+</code></pre>
+</div>
+
+<p>So onto the rest of our code:</p>
+
+<ul>
+  <li><code class="highlighter-rouge">%lookup = do { ... }, $name = $F[2] if $F[2] ne $name</code></li>
+</ul>
+
+<p>This declares a <em>hash</em> (which is what <em>Perl</em> calls an <em>associative array</em>) 
+as the result of a <code class="highlighter-rouge">do</code> <em>block</em> which inside the we open <code class="highlighter-rouge">$F[2].file1.txt</code>
+and use <code class="highlighter-rouge">map { } readline fh</code> to process each line of the file.</p>
+
+<p><code class="highlighter-rouge">$F[2]</code> is the <em>3rd column</em> of the line i.e. the <em>“filename”</em> (arrays are indexed 
+starting from <em>0</em>).</p>
+
+<p><code class="highlighter-rouge">/\S+\s+(\S+)\s+(.+)/</code> is a regex match which extracts <em>column 2</em> along with 
+<em>columns 3 and 4</em> which are then returned by the <code class="highlighter-rouge">map</code> as <em>key-value</em> pairs
+and are stored into the <code class="highlighter-rouge">%lookup</code> <em>hash</em>.</p>
+
+<div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span>perl -MData::Dumper -e <span class="s1">'print Dumper { map { /\S+\s+(\S+)\s+(.+)/ } readline }'</span> 912300001.file1.txt 
+<span class="nv">$VAR1</span> <span class="o">=</span> <span class="o">{</span>
+          <span class="s1">'1001'</span> <span class="o">=</span>&gt; <span class="s1">'-23 -22'</span>,
+          <span class="s1">'1002'</span> <span class="o">=</span>&gt; <span class="s1">'-23 -21'</span>,
+          <span class="s1">'1000'</span> <span class="o">=</span>&gt; <span class="s1">'-21 -21'</span>
+        <span class="o">}</span>;
+</code></pre>
+</div>
+
+<p>In <code class="highlighter-rouge">%lookup = do { ... }, $name = $F[2]</code> we are using the <em>Comma Operator</em>
+to chain them together meaning they are both executed only <em>if</em> <code class="highlighter-rouge">$F[2] ne $name</code>
+returns <em>True</em> as if we had written:</p>
+
+<div class="language-perl-nu highlighter-rouge"><pre class="highlight"><div class="lineno">1
+2
+3
+4</div><code><span class="k">if</span> <span class="p">(</span><span class="nv">$F</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">ne</span> <span class="nv">$name</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nv">%lookup</span> <span class="o">=</span> <span class="k">do</span> <span class="p">{</span> <span class="o">...</span> <span class="p">};</span>
+    <span class="nv">$name</span> <span class="o">=</span> <span class="nv">$F</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This means that we only populate <code class="highlighter-rouge">%lookup</code> if we have <em>“found a new filename”</em> similar to 
+how the <code class="highlighter-rouge">[[ $name ne $prev_name ]]</code> test works from the <em>bash</em> version.</p>
+
+<p>Finally we have <code class="highlighter-rouge">$_ = "$_ $lookup{$F[3]}"</code> which makes use of <code class="highlighter-rouge">$_</code> which is called
+the <em>Default Variable</em>.</p>
+
+<p>If you recall from earlier we said <code class="highlighter-rouge">-p</code> added a <code class="highlighter-rouge">while (readline) { ...; print }</code> loop around
+our code. <code class="highlighter-rouge">print</code> is the same as <code class="highlighter-rouge">print $_</code> i.e. it operates on the <em>default variable</em> (as 
+do many other things in <em>Perl</em>).</p>
+
+<p><code class="highlighter-rouge">while (readline)</code> also populates the <code class="highlighter-rouge">$_</code> variable which means in our code <code class="highlighter-rouge">$_</code> contains the
+<em>current line</em> so we are simply adding <em>columns 3 and 4</em> onto the end of the line
+and the implicit <code class="highlighter-rouge">print</code> call will <em>print</em> them out.</p>
+
+<p>We could have also used <code class="highlighter-rouge">.=</code> to concatenate e.g. <code class="highlighter-rouge">$_ .= " $lookup{$F[3]}"</code> which would have
+saved <em>1</em> character if playing <em>golf</em> is your thing.</p>
+
+</div>
+
+  
+    <div class="post-navs row">
+      
+        <div class="col-md-6 post-nav">
+          <h3 class="section-header">
+            Older
+            <!--<span class="text-muted"> &middot; </span>-->
+            <a href="/archive">View Archive (64)</a>
+          </h3>
+          <h2 class="post-title-link"><a href="/2017/06/04/bash-rename-image-files-based-on-type/">bash: rename image files based on type</a></h2>
+          <p class="preview">Given a directory of image files that all have the <code class="highlighter-rouge">.jpg</code>
+extension regardless of their image type we need to rename
+their extension based on the <em>“actual”</em> image type using
+<code class="highlighter-rouge">bash</code>.</p>
+
+
+        </div>
+      
+      
+    </div>
+  
+
+<div class="post-footer">
+  <center><strong>Hello? Is it me you're looking for?</strong> 
+<p>
+  <a href="mailto:karl.genockey.thornton@gmail.com">e-mail</a>
+  <a href="https://github.com/kaijento">github</a>
+  <strong>♥</strong> 
+  <a href="https://paypal.me/kaijento">paypal</a>
+  <a href="https://twitter.com/kaijento">twitter</a> 
+</p>
+<p>
+<small>1GVHM3rfQ46k15RZsfnE4xzmKk7NCFwRaT</small>
+</p>
+</center>
+
+</div>
+
+          </div>
+        
+      </div>
+      <div class="row footer">
+        <div class="col-sm-12 text-center">
+          &copy;2017.
+Built with <a href="http://jekyllrb.com/">Jekyll</a> and
+<a href="https://github.com/ellekasai/shiori">Shiori Theme</a>.
+
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>

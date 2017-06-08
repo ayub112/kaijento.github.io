@@ -29,3 +29,27 @@ a 1
 b 2
 c 3
 {'b': '2', 'a': '1', 'c': '3'}
+
+## How do I print a list of dicts line-by-line space-separated
+
+>>> stats = [{'next_chest': 'silver'}, {'counter': '+1', 'chest': 'silver'}, {'counter': '+2', 'chest': 'silver'}]
+>>> print('\n'.join(' '.join('{}:{}'.format(k, v) for k, v in stat.items()) for stat in stats))
+next_chest:silver
+chest:silver counter:+1
+chest:silver counter:+2
+--
+>>> def add(n):
+...     return (n+n)
+...
+>>> def multiply(n):
+...     return (n*n)
+...
+>>> funcs = [add, multiply]
+>>>
+>>> [ [func(i) for func in funcs] for i in range(5) ]
+[[0, 0], [2, 1], [4, 4], [6, 9], [8, 16]]
+--
+>>> values = ['key=1', 'omg=2']
+>>> { k: int(v) for k, v in [ v.split('=', 1) for v in values ] }
+{'omg': 2, 'key': 1}
+--
