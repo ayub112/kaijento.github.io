@@ -360,8 +360,8 @@ be <em>“trimmed”</em> or <em>“stripped”</em>”.</p>
 lines are split up into words when using <code class="highlighter-rouge">read</code>. Its default value is <code class="highlighter-rouge">&lt;space&gt;&lt;tab&gt;&lt;newline&gt;</code></p>
 
 <div class="language-bash highlighter-rouge"><pre class="highlight"><code><span class="gp">$ </span><span class="nb">printf</span> %q<span class="se">\\</span>n <span class="s2">"</span><span class="nv">$IFS</span><span class="s2">"</span>
-<span class="nv">$'</span> <span class="se">\t\n</span><span class="s1">'
-</span></code></pre>
+<span class="s1">$' \t\n'</span>
+</code></pre>
 </div>
 
 <p>So <code class="highlighter-rouge">IFS=</code> temporarily sets it to nothing preventing the trimming which is why you will 
@@ -440,7 +440,7 @@ actual solution.</p>
           <h3 class="section-header">
             Older
             <!--<span class="text-muted"> &middot; </span>-->
-            <a href="/archive">View Archive (64)</a>
+            <a href="/archive">View Archive (65)</a>
           </h3>
           <h2 class="post-title-link"><a href="/2017/03/18/python-a-function-to-call-functions/">Python: a function to call functions</a></h2>
           <p class="preview"><em>How do I make a function that can repeat an arbitrary function 

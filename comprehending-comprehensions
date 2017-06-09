@@ -53,3 +53,7 @@ chest:silver counter:+2
 >>> { k: int(v) for k, v in [ v.split('=', 1) for v in values ] }
 {'omg': 2, 'key': 1}
 --
+--
+>>> [ n if n % 2 == 0 else 'odd' for n in range(1, 5) ]
+['odd', 2, 'odd', 4]
+--

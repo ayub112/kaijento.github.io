@@ -5,9 +5,222 @@
     <description></description>
     <link>http://kaijento.github.io/</link>
     <atom:link href="http://kaijento.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 08 Jun 2017 18:02:00 +0100</pubDate>
-    <lastBuildDate>Thu, 08 Jun 2017 18:02:00 +0100</lastBuildDate>
+    <pubDate>Sat, 10 Jun 2017 00:07:54 +0100</pubDate>
+    <lastBuildDate>Sat, 10 Jun 2017 00:07:54 +0100</lastBuildDate>
     <generator>Jekyll v3.3.1</generator>
+    
+      <item>
+        <title>bash: insert file into another file</title>
+        <description>&lt;p&gt;&lt;em&gt;I’m trying to insert (or prepend) a file into another file 
+using &lt;code class=&quot;highlighter-rouge&quot;&gt;sed -i&lt;/code&gt; however this approach breaks hardlinks. 
+How do I solve this?&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;Some versions of &lt;code class=&quot;highlighter-rouge&quot;&gt;sed&lt;/code&gt; have an &lt;code class=&quot;highlighter-rouge&quot;&gt;-i&lt;/code&gt; option and my manual
+gives the following description for it.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;-i[SUFFIX], –in-place[=SUFFIX]&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;edit files in place (makes backup if SUFFIX supplied)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;I’m not sure why they say &lt;em&gt;“edit”&lt;/em&gt; and &lt;em&gt;“in place”&lt;/em&gt; because
+it actually creates a new file with the updated changes.
+Unfortunately this causes a lot of confusion and as mentioned
+it breaks &lt;em&gt;hardlinks&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat myfile
+moo
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;stat myfile
+  File: ‘myfile’
+  Size: 4               Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d      Inode: 4358555     Links: 1
+Access: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0600/-rw-------&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  Uid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;101642/user&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;   Gid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  107/group&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Access: 2017-06-09 13:11:40.594059471 +0100
+Modify: 2017-06-09 13:11:31.425928132 +0100
+Change: 2017-06-09 13:11:31.425928132 +0100
+ Birth: -
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Make note of the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inode&lt;/code&gt; number here which is &lt;code class=&quot;highlighter-rouge&quot;&gt;4358555&lt;/code&gt; as we will
+now run &lt;code class=&quot;highlighter-rouge&quot;&gt;sed -i&lt;/code&gt; on the file.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;sed -i &lt;span class=&quot;s1&quot;&gt;'s/omg/lol/'&lt;/span&gt; myfile
+&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat myfile
+moo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We tried to replace &lt;code class=&quot;highlighter-rouge&quot;&gt;omg&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;lol&lt;/code&gt; which wasn’t present in the file
+resulting in the same content we started with.&lt;/p&gt;
+
+&lt;p&gt;Let’s check the file again with the &lt;code class=&quot;highlighter-rouge&quot;&gt;stat&lt;/code&gt; command.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;stat myfile
+  File: ‘myfile’
+  Size: 4               Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d      Inode: 6306549     Links: 1
+Access: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0600/-rw-------&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  Uid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;101642/user&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;   Gid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  107/group&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Access: 2017-06-09 13:11:57.422300547 +0100
+Modify: 2017-06-09 13:11:54.602260148 +0100
+Change: 2017-06-09 13:11:54.602260148 +0100
+ Birth: -
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As we can see the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inode&lt;/code&gt; number has changed meaning we now have a different
+file albeit with the same &lt;em&gt;filename&lt;/em&gt; as before. It’s as if we first performed 
+a &lt;code class=&quot;highlighter-rouge&quot;&gt;rm myfile&lt;/code&gt; and then recreated it.&lt;/p&gt;
+
+&lt;p&gt;What we need to use is an &lt;em&gt;“actual file editor”&lt;/em&gt; one of which is 
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;ed&lt;/code&gt; command.&lt;/p&gt;
+
+&lt;p&gt;First we will create some test files.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;file1&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat file1
+file1 line1
+file1 line2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;file2&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat file2
+file2 line1
+file2 line2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;As mentioned at the start the goal is to &lt;em&gt;“insert”&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;file1&lt;/code&gt; into &lt;code class=&quot;highlighter-rouge&quot;&gt;file2&lt;/code&gt; 
+or you could also say we want to &lt;em&gt;“prepend”&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;file2&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;file1&lt;/code&gt; 
+resulting in the following output.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;file1 line1
+file1 line2
+file2 line1
+file2 line2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;We will also check the &lt;em&gt;inode number&lt;/em&gt; of &lt;code class=&quot;highlighter-rouge&quot;&gt;file2&lt;/code&gt; using 
+the &lt;code class=&quot;highlighter-rouge&quot;&gt;stat&lt;/code&gt; command before we proceed.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;stat file2
+  File: ‘file2’
+  Size: 24              Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d      Inode: 6290327     Links: 1
+Access: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0600/-rw-------&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  Uid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;101642/user&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;   Gid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  107/group&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Access: 2017-06-09 13:34:45.149894132 +0100
+Modify: 2017-06-09 13:34:39.397811729 +0100
+Change: 2017-06-09 13:34:39.397811729 +0100
+ Birth: -
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;h2 id=&quot;ed&quot;&gt;ed&lt;/h2&gt;
+
+&lt;p&gt;It’s now time to say hello to mr. &lt;code class=&quot;highlighter-rouge&quot;&gt;ed&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ed -s file2 &lt;span class=&quot;o&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;$'0r file1\nw'&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Check if &lt;code class=&quot;highlighter-rouge&quot;&gt;file2&lt;/code&gt; was modified.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;cat file2
+file1 line1
+file1 line2
+file2 line1
+file2 line2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;… and check the &lt;em&gt;inode number&lt;/em&gt;.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;stat file2
+  File: ‘file2’
+  Size: 48              Blocks: 8          IO Block: 4096   regular file
+Device: 801h/2049d      Inode: 6290327     Links: 1
+Access: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0600/-rw-------&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;  Uid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;101642/user&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;   Gid: &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;  107/group&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+Access: 2017-06-09 13:35:13.902306029 +0100
+Modify: 2017-06-09 13:35:11.794275829 +0100
+Change: 2017-06-09 13:35:11.794275829 +0100
+ Birth: -
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;It has remained as &lt;code class=&quot;highlighter-rouge&quot;&gt;6290327&lt;/code&gt; meaning this time we actually edited the file 
+&lt;em&gt;“in place”&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;ed&lt;/code&gt; can be used interactively however we’re using &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/code&gt; here to send 
+our command string into &lt;code class=&quot;highlighter-rouge&quot;&gt;ed&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/code&gt; is called a &lt;em&gt;Here String&lt;/em&gt; and as mentioned it sends a given &lt;em&gt;string&lt;/em&gt; to 
+the &lt;em&gt;stdin&lt;/em&gt; of a given &lt;em&gt;command&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;We could have also used a &lt;em&gt;pipeline&lt;/em&gt; approach e.g.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;$'0r file1\nw'&lt;/span&gt; | ed -s file2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;-s&lt;/code&gt; option tells &lt;code class=&quot;highlighter-rouge&quot;&gt;ed&lt;/code&gt; to be &lt;em&gt;silent&lt;/em&gt; and not produce any output
+which is useful for &lt;em&gt;“scripting”&lt;/em&gt; or &lt;em&gt;“automating”&lt;/em&gt; file edits.&lt;/p&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;$''&lt;/code&gt; used here is a special form of shell quoting:&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;“Words of the form &lt;code class=&quot;highlighter-rouge&quot;&gt;$'string'&lt;/code&gt; are treated specially.
+The word expands to string, with backslash-escaped characters replaced as specified
+by the ANSI C standard.”&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;This means that the &lt;code class=&quot;highlighter-rouge&quot;&gt;\n&lt;/code&gt; here produces an &lt;em&gt;“actual”&lt;/em&gt; newline character.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;$'0r file1\nw'&lt;/span&gt;
+0r file1
+w
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;Another common approach for generating such a string is to use &lt;code class=&quot;highlighter-rouge&quot;&gt;printf&lt;/code&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;printf&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'0r file1\nw\n'&lt;/span&gt;
+0r file1
+w
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;There is also of course the option of a &lt;em&gt;Here Document&lt;/em&gt;:&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;ed -s file2 &amp;lt;&amp;lt;&lt;span class=&quot;se&quot;&gt;\.&lt;/span&gt;
+0r file1
+w
+.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;/div&gt;
+
+&lt;p&gt;So we are dealing with &lt;em&gt;2&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;ed&lt;/code&gt; &lt;em&gt;commands&lt;/em&gt; here:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;0r file1&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;w&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;r&lt;/code&gt; command when given a &lt;em&gt;filename&lt;/em&gt; will &lt;em&gt;“Read file to 
+after the addressed line.”&lt;/em&gt; We’ve used &lt;code class=&quot;highlighter-rouge&quot;&gt;0&lt;/code&gt; as the line number 
+to address as we want to insert the contents before line &lt;code class=&quot;highlighter-rouge&quot;&gt;1&lt;/code&gt; 
+as opposed to after.&lt;/p&gt;
+
+&lt;p&gt;Finally, the &lt;code class=&quot;highlighter-rouge&quot;&gt;w&lt;/code&gt; command writes the file.&lt;/p&gt;
+</description>
+        <pubDate>Sat, 10 Jun 2017 00:00:10 +0100</pubDate>
+        <link>http://kaijento.github.io/2017/06/10/bash-insert-file-into-another-file/</link>
+        <guid isPermaLink="true">http://kaijento.github.io/2017/06/10/bash-insert-file-into-another-file/</guid>
+        
+        <category>bash</category>
+        
+        
+      </item>
     
       <item>
         <title>bash: column based join/merge of multiple files</title>
@@ -3719,201 +3932,6 @@ if you do not already have them.&lt;/p&gt;
         <pubDate>Sun, 14 May 2017 09:30:46 +0100</pubDate>
         <link>http://kaijento.github.io/2017/05/14/web-scraping-factfinder.census.gov/</link>
         <guid isPermaLink="true">http://kaijento.github.io/2017/05/14/web-scraping-factfinder.census.gov/</guid>
-        
-        <category>python</category>
-        
-        <category>webscraping</category>
-        
-        <category>beautifulsoup</category>
-        
-        <category>requests</category>
-        
-        
-      </item>
-    
-      <item>
-        <title>Web scraping: merriam-webster.com</title>
-        <description>&lt;p&gt;The goal is to extract or &lt;em&gt;“scrape”&lt;/em&gt; the word of the day and 
-its definitions from 
-&lt;a href=&quot;http://www.merriam-webster.com/word-of-the-day&quot;&gt;http://www.merriam-webster.com/word-of-the-day&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;The first thing we will do is to open the page in our browser
-and view the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab. I’ve done it here by &lt;em&gt;right-clicking&lt;/em&gt;
-on the page and selecting &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspect Element&lt;/code&gt;.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494697879-merriam-webster-inspect.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;We can then use the &lt;em&gt;Selector&lt;/em&gt; tool (the first button on the panel to the
-left of &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt;) to click on a specific element on the page to
-display the HTML.&lt;/p&gt;
-
-&lt;p&gt;&lt;img src=&quot;/img/1494697918-merriam-webster-inspector.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
-
-&lt;p&gt;Do note that the &lt;code class=&quot;highlighter-rouge&quot;&gt;Inspector&lt;/code&gt; tab shows your browser’s representation
-of the page after it has parsed the source HTML and as such it
-may differ from the actual source HTML.&lt;/p&gt;
-
-&lt;p&gt;Looking at the HTML we can see that the word itself is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt;
-tag but that tag is inside a &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;div&amp;gt;&lt;/code&gt; tag with &lt;code class=&quot;highlighter-rouge&quot;&gt;class=&quot;word-and-pronunciation&quot;&lt;/code&gt;
-which makes it easy to locate.&lt;/p&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;word-header&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;word-and-pronunciation&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;h1&amp;gt;&lt;/span&gt;microcosm&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h1&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The definitions are slightly more tricky as they are a sequence
-of 1 or more &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags that follow the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;Definition&amp;lt;/h2&amp;gt;&lt;/code&gt; tag.&lt;/p&gt;
-
-&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;div&lt;/span&gt; &lt;span class=&quot;na&quot;&gt;class=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;wod-definition-container&quot;&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;h2&amp;gt;&lt;/span&gt;Definition&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h2&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&amp;lt;strong&amp;gt;&lt;/span&gt;1 :&lt;span class=&quot;nt&quot;&gt;&amp;lt;/strong&amp;gt;&lt;/span&gt; a little world; ...
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&amp;lt;strong&amp;gt;&lt;/span&gt;2 :&lt;span class=&quot;nt&quot;&gt;&amp;lt;/strong&amp;gt;&lt;/span&gt; a community or ...
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;h2&amp;gt;&lt;/span&gt;Examples&lt;span class=&quot;nt&quot;&gt;&amp;lt;/h2&amp;gt;&lt;/span&gt;
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;...
-  &lt;span class=&quot;nt&quot;&gt;&amp;lt;p&amp;gt;&lt;/span&gt;...
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;This is very similar to what we faced in the 
-&lt;a href=&quot;/2017/05/13/web-scraping-wikipedia.com/&quot;&gt;wikipedia.com article&lt;/a&gt;.&lt;/p&gt;
-
-&lt;h2 id=&quot;code&quot;&gt;Code&lt;/h2&gt;
-
-&lt;p&gt;We’ll be using &lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; to fetch the HTML and &lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; with &lt;code class=&quot;highlighter-rouge&quot;&gt;html5lib&lt;/code&gt;
-to parse it. You can install these using
-&lt;code class=&quot;highlighter-rouge&quot;&gt;pip install beautifulsoup4 requests html5lib --user&lt;/code&gt; if you have not
-already.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;url&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://www.merriam-webster.com/word-of-the-day'&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We’re setting the &lt;code class=&quot;highlighter-rouge&quot;&gt;User-Agent&lt;/code&gt; header to &lt;code class=&quot;highlighter-rouge&quot;&gt;Mozilla/5.0&lt;/code&gt; as the default 
-&lt;code class=&quot;highlighter-rouge&quot;&gt;requests&lt;/code&gt; header is commonly blocked.&lt;/p&gt;
-
-&lt;p&gt;There are several ways to approach isolating particular items. In this
-instance the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; tag that contains the word is in the first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; 
-tag on the page.&lt;/p&gt;
-
-&lt;p&gt;We can BeautifulSoup’s &lt;code class=&quot;highlighter-rouge&quot;&gt;find()&lt;/code&gt; method to return the first matching tag.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h1'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;microcosm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;BeautifulSoup&lt;/code&gt; also makes tags available as attributes meaning &lt;code class=&quot;highlighter-rouge&quot;&gt;soup.find('h1')&lt;/code&gt; 
-is equivalent to &lt;code class=&quot;highlighter-rouge&quot;&gt;soup.h1&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;microcosm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;'microcosm'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;We could be more specific and match the &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; attribute of the parent &lt;code class=&quot;highlighter-rouge&quot;&gt;div&lt;/code&gt; tag
-using a &lt;em&gt;CSS Selector&lt;/em&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.word-and-pronunciation'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;div&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;class&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;word-and-pronunciation&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;\&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;microcosm&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;\&lt;span class=&quot;n&quot;&gt;n&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;select_one&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'.word-and-pronunciation'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;'microcosm'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;The &lt;code class=&quot;highlighter-rouge&quot;&gt;.&lt;/code&gt; here means to match against the &lt;code class=&quot;highlighter-rouge&quot;&gt;class&lt;/code&gt; attribute.&lt;/p&gt;
-
-&lt;p&gt;To locate the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags we could first find the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;&lt;/code&gt; tag
-and work from there. Like the &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h1&amp;gt;&lt;/code&gt; example it’s the 
-first &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;h2&amp;gt;&lt;/code&gt; tag on the page.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Definition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;However if we needed to be more explicit with our match it would probably
-make sense to use the &lt;a href=&quot;https://www.crummy.com/software/BeautifulSoup/bs4/doc/#the-string-argument&quot;&gt;string argument&lt;/a&gt;.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'h2'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'Definition'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Definition&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;From there we can jump to the next &lt;em&gt;sibling&lt;/em&gt; tag using &lt;code class=&quot;highlighter-rouge&quot;&gt;find_next_sibling()&lt;/code&gt;&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;p&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;/&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;little&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;world&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt;
-&lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;Just as we did in the &lt;a href=&quot;/2017/05/13/web-scraping-wikipedia.com/&quot;&gt;wikipedia.com article&lt;/a&gt;
-we can loop over all the &lt;em&gt;sibling&lt;/em&gt; &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;p&amp;gt;&lt;/code&gt; tags.&lt;/p&gt;
-
-&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;     &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;o&quot;&gt;...&lt;/span&gt; 
-&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;little&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;world&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;especially&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;human&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;race&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;human&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;nature&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;seen&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;an&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;epitome&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;world&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;universe&lt;/span&gt;
-&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;community&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;other&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unity&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;that&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;is&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;an&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;epitome&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;of&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;a&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;larger&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;unity&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-
-&lt;p&gt;If we combine it all together…&lt;/p&gt;
-
-&lt;div class=&quot;language-python-nu highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;div class=&quot;lineno&quot;&gt;1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14&lt;/div&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;requests&lt;/span&gt;
-&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt;   &lt;span class=&quot;nn&quot;&gt;bs4&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'http://www.merriam-webster.com/word-of-the-day'&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;requests&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;headers&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;'user-agent'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'Mozilla/5.0'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;})&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BeautifulSoup&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;r&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'html5lib'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;n&quot;&gt;word&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;word&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-
-&lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;soup&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;h2&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;span class=&quot;k&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;name&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;'p'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
-    &lt;span class=&quot;k&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
-    &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;tag&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;find_next_sibling&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
-
-&lt;p&gt;… and the output it produced.&lt;/p&gt;
-
-&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gp&quot;&gt;$ &lt;/span&gt;python word-of-the-day.py
-microcosm
-1 : a little world; especially : the human race or human nature seen as an epitome of the world or the universe
-2 : a community or other unity that is an epitome of a larger unity
-&lt;/code&gt;&lt;/pre&gt;
-&lt;/div&gt;
-</description>
-        <pubDate>Sat, 13 May 2017 18:56:57 +0100</pubDate>
-        <link>http://kaijento.github.io/2017/05/13/web-scraping-merriam-webster.com/</link>
-        <guid isPermaLink="true">http://kaijento.github.io/2017/05/13/web-scraping-merriam-webster.com/</guid>
         
         <category>python</category>
         
